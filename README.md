@@ -29,6 +29,7 @@ This theme includes a **Shopify Metaobjects-based CMS** that allows content edit
 4. Click "Create All Metaobject Definitions"
 5. Done! Edit content from: `Shopify Admin → Settings → Custom data → Metaobjects`
 
+
 ## What's included
 
 - Remix
