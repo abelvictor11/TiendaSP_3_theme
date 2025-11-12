@@ -4,6 +4,24 @@ node_modules
 /dist
 /public/build
 /.mf
+
+# Env vars - Keep commented out if you want to use Oxygen's env var manager
 .env
-.shopify
+.env.*
+
+# Utility scripts with sensitive data
+*-route*.js
+*-metaobject*.js
+create-*.js
+check-*.js
+find-*.js
+delete-*.js
+update-*.js
+verify-*.js
+test-*.js
+add-*.js
+
+# Logs
+*.log
 .vercel
+.shopify
