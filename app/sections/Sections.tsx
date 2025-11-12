@@ -39,6 +39,10 @@ import {
   SECTION_CLIENTS_SAY_FRAGMENT,
   SectionClientsSay,
 } from './SectionClientsSay';
+import {
+  SECTION_CATEGORY_CARDS_CAROUSEL_FRAGMENT,
+  SectionCategoryCardsCarousel,
+} from './SectionCategoryCardsCarousel';
 import clsx from 'clsx';
 import {SECTION_HERO_FRAGMENT, SectionHero} from './SectionHero';
 import {OKENDO_PRODUCT_STAR_RATING_FRAGMENT} from '@okendo/shopify-hydrogen';
@@ -62,7 +66,8 @@ export type CisecoSectionType =
   | 'ciseco--section_tabs_collections_by_group'
   | 'ciseco--section_grid_products_and_filter'
   | 'ciseco--section_latest_blog'
-  | 'ciseco--section_clients_say';
+  | 'ciseco--section_clients_say'
+  | 'ciseco--section_category_cards_carousel';
 
 export function Sections({
   sections,
@@ -142,6 +147,12 @@ export function Sections({
                 <SectionClientsSay {...section} key={section.id} />
               </WrapSection>
             );
+          case 'ciseco--section_category_cards_carousel':
+            return (
+              <WrapSection key={section.id} index={index} {...args}>
+                <SectionCategoryCardsCarousel {...section} key={section.id} />
+              </WrapSection>
+            );
 
           // case 'section_another':
           //   return <AnotherSection />;
@@ -198,6 +209,7 @@ export const SECTIONS_FRAGMENT = `#graphql
             ...SectionGridProductsAndFilter
             ...SectionLatestBlog
             ...SectionClientsSay
+            ...SectionCategoryCardsCarousel
           }
         }
       }
@@ -214,6 +226,7 @@ export const SECTIONS_FRAGMENT = `#graphql
   ${SECTION_GRID_PRODUCTS_AND_FILTER_FRAGMENT}
   ${SECTION_LATEST_BLOG_FRAGMENT}
   ${SECTION_CLIENTS_SAY_FRAGMENT}
+  ${SECTION_CATEGORY_CARDS_CAROUSEL_FRAGMENT}
 
   # All common fragments
   ${COMMON_PRODUCT_CARD_FRAGMENT}

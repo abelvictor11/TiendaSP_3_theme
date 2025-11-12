@@ -7,6 +7,7 @@ import type {
 } from 'storefrontapi.generated';
 import {type EnhancedMenu, parseMenu, useIsHomePath} from '~/lib/utils';
 import MainNav from './Header/MainNav';
+import NavigationBar from './Header/NavigationBar';
 import NavMobile from './Header/NavMobile';
 import Logo from './Logo';
 import Footer from './Footer';
@@ -49,8 +50,16 @@ function MyHeader() {
     <>
       <CartAside />
       <MobileMenuAside />
-      <div className="nc-Header z-20">
+      <div className="nc-Header z-20 sticky top-0">
         <MainNav isHome={isHome} />
+        <HeaderMenuDataWrap>
+          {({headerData, headerMenu}) => (
+            <NavigationBar 
+              headerMenu={headerMenu?.items} 
+              headerData={headerData}
+            />
+          )}
+        </HeaderMenuDataWrap>
       </div>
     </>
   );
