@@ -17,13 +17,8 @@ interface NavigationBarProps {
 }
 
 export default function NavigationBar({headerMenu, headerData}: NavigationBarProps) {
-  // Debug logs
-  console.log('NavigationBar - headerMenu:', headerMenu);
-  console.log('NavigationBar - headerMenu length:', headerMenu?.length);
-  
   // Early return if no menu
   if (!headerMenu || !Array.isArray(headerMenu) || headerMenu.length === 0) {
-    console.log('NavigationBar - Early return, no menu items');
     return null;
   }
 

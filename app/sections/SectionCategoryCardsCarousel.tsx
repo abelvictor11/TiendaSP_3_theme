@@ -2,14 +2,8 @@ import {type ParsedMetafields} from '@shopify/hydrogen';
 import {parseSection} from '~/utils/parseSection';
 import type {SectionCategoryCardsCarouselFragment} from 'storefrontapi.generated';
 import {useState, useRef} from 'react';
-import Heading from '@/components/Heading/Heading';
-import NavItem from '@/components/NavItem';
-import Nav from '~/components/Nav';
-import BackgroundSection from '~/components/BackgroundSection';
-import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import {Link} from '@remix-run/react';
 import useSnapSlider from '~/hooks/useSnapSlider';
-import {ArrowRightIcon} from '@heroicons/react/24/outline';
 
 export function SectionCategoryCardsCarousel(
   props: SectionCategoryCardsCarouselFragment,
@@ -44,59 +38,68 @@ export function SectionCategoryCardsCarousel(
     const subtitle = item.subtitle?.value;
     const ctaText = item.cta_text?.value || 'Shop Now';
     const ctaLink = item.cta_link?.value || '#';
+    const bgColor = item.background_color?.value || '#f8f9fa';
 
     return (
       <div
         key={item.id}
-        className="mySnapItem snap-start shrink-0 last:pr-4 lg:last:pr-10"
+        className="feed-carousel-item box-carousel-item snap-start shrink-0"
       >
-        <div className="w-80 sm:w-96 lg:w-[32rem] xl:w-[36rem]">
-          <div className="relative h-full overflow-hidden rounded-3xl group">
-            {/* Background Image */}
-            {imageUrl && (
-              <div className="absolute inset-0">
-                <img
-                  src={imageUrl}
-                  alt={title || ''}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-              </div>
+        <div className="carousel-banner box-item-full-background rounded-2xl overflow-hidden relative w-[350px] sm:w-[450px] lg:w-[500px] h-[400px] sm:h-[450px] transition-transform hover:scale-[1.02] duration-300">
+          {/* Background Image */}
+          {imageUrl ? (
+            <div 
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${imageUrl})`,
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/70" />
+            </div>
+          ) : (
+            <div 
+              className="absolute inset-0"
+              style={{backgroundColor: bgColor}}
+            />
+          )}
+
+          {/* Product Image Overlay (centered) */}
+          {imageUrl && (
+            <div className="box-item-media absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] max-w-[300px] z-10 pointer-events-none">
+              <img
+                src={imageUrl}
+                alt={title || ''}
+                className="w-full h-auto object-contain drop-shadow-2xl"
+                loading="lazy"
+              />
+            </div>
+          )}
+
+          {/* Content */}
+          <div className="box-item-copy absolute inset-0 flex flex-col justify-end p-6 sm:p-8 z-20">
+            {/* Title */}
+            {title && (
+              <h4 className="heading text-2xl sm:text-3xl lg:text-4xl font-bold mb-3">
+                <span className="highlighted-text text-white drop-shadow-lg">
+                  {title}
+                </span>
+              </h4>
             )}
 
-            {/* Content */}
-            <div className="relative h-full flex flex-col justify-end p-6 sm:p-8 lg:p-10 min-h-[400px] lg:min-h-[500px]">
-              <div className="space-y-4">
-                {/* Title */}
-                {title && (
-                  <h3 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-bold text-white drop-shadow-lg">
-                    {title}
-                  </h3>
-                )}
+            {/* Subtitle */}
+            {subtitle && (
+              <p className="description text-sm sm:text-base text-white/90 mb-4 max-w-md drop-shadow-md">
+                {subtitle}
+              </p>
+            )}
 
-                {/* Subtitle */}
-                {subtitle && (
-                  <p className="text-base sm:text-lg text-white/90 max-w-md drop-shadow-md">
-                    {subtitle}
-                  </p>
-                )}
-
-                {/* CTA Button */}
-                <div className="pt-4">
-                  <Link to={ctaLink}>
-                    <ButtonPrimary
-                      className="bg-white text-neutral-900 hover:bg-neutral-100 shadow-xl"
-                      sizeClass="px-6 py-3 sm:px-8 sm:py-4"
-                    >
-                      <span className="flex items-center gap-2">
-                        {ctaText}
-                        <ArrowRightIcon className="w-5 h-5" />
-                      </span>
-                    </ButtonPrimary>
-                  </Link>
-                </div>
-              </div>
-            </div>
+            {/* CTA Button */}
+            <Link 
+              to={ctaLink}
+              className="feed-button button-secondary button-md inline-flex items-center justify-center px-5 py-2.5 bg-white text-neutral-900 font-semibold rounded-lg hover:bg-neutral-100 transition-all shadow-lg hover:shadow-xl w-fit"
+            >
+              {ctaText}
+            </Link>
           </div>
         </div>
       </div>
@@ -110,44 +113,37 @@ export function SectionCategoryCardsCarousel(
     const moreThanOneGroup = (category_groups?.nodes?.length || 1) > 1;
 
     return (
-      <div>
-        <Heading
-          className="mb-12 lg:mb-14 text-neutral-900 dark:text-neutral-50"
-          fontClass="text-3xl md:text-4xl 2xl:text-5xl font-semibold"
-          isCenter
-          desc={sub_heading?.value || ''}
-          hasNextPrev
-          onClickNext={scrollToNextSlide}
-          onClickPrev={scrollToPrevSlide}
-        >
-          {heading?.value || 'Shop By Category'}
-        </Heading>
-        {moreThanOneGroup && (
-          <Nav
-            className="p-1 bg-white dark:bg-neutral-800 rounded-full shadow-lg overflow-x-auto hiddenScrollbar"
-            containerClassName="mb-12 lg:mb-14 relative flex justify-center w-full text-sm md:text-base"
-          >
-            {category_groups?.nodes.map((item, index) => (
-              <NavItem
-                key={item.id}
-                isActive={tabActive === index}
-                onClick={() => setTabActive(index)}
-              >
-                <div className="flex items-center justify-center space-x-1.5 sm:space-x-2.5 text-xs sm:text-sm">
-                  {item.icon_svg?.value && (
-                    <span
-                      className="inline-block *:w-full *:h-full w-4 h-4 sm:w-5 sm:h-5"
-                      dangerouslySetInnerHTML={{
-                        __html: item.icon_svg?.value || '',
-                      }}
-                    ></span>
-                  )}
-                  <span>{item.name?.value}</span>
-                </div>
-              </NavItem>
-            ))}
-          </Nav>
-        )}
+      <div className="page-wellness">
+        <div className="pick-your-homepage-wrapper">
+          <div className="section-pick-your-homepage">
+            <div className="pyhp-controls-wrapper">
+              <div className="pyhp-controls flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6">
+                {heading?.value && (
+                  <h4 className="pyhp-heading text-xl sm:text-2xl font-bold text-neutral-900 dark:text-neutral-50">
+                    {heading.value}
+                  </h4>
+                )}
+                {moreThanOneGroup && (
+                  <div className="pyhp-toggle-buttons flex flex-wrap items-center justify-center gap-2">
+                    {category_groups?.nodes.map((item, index) => (
+                      <button
+                        key={item.id}
+                        onClick={() => setTabActive(index)}
+                        className={
+                          tabActive === index
+                            ? 'feed-button button-secondary button-md px-5 py-2.5 rounded-full font-semibold bg-primary-600 text-white hover:bg-primary-700 transition-all shadow-md'
+                            : 'feed-button button-tertiary button-md px-5 py-2.5 rounded-full font-semibold bg-neutral-100 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-100 hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-all'
+                        }
+                      >
+                        {item.name?.value}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     );
   };
@@ -155,36 +151,56 @@ export function SectionCategoryCardsCarousel(
   const cards = currentGroup?.category_cards?.nodes || [];
 
   return (
-    <section className="section-CategoryCardsCarousel">
-      <div className={!noneBgColor ? 'relative py-24 lg:py-32' : ''}>
-        {background_color?.value && (
-          <BackgroundSection
-            style={{backgroundColor: background_color?.value}}
-          />
-        )}
-        <div className="container">{renderHeading()}</div>
+    <div className="kevel-box-carousel-wrapper py-8 sm:py-12 lg:py-16">
+      <section className="section-box-carousel box-carousel-ads box-carousel-has-ads">
+        <div className="feed-container container-lg box-carousel-container">
+          {/* Heading with Tabs */}
+          <div className="mb-8 sm:mb-12">{renderHeading()}</div>
 
-        {cards.length > 0 && (
-          <div className="nc-CategoryCardsCarousel">
-            <div
-              ref={sliderRef}
-              className="relative w-full flex gap-4 lg:gap-8 snap-x snap-mandatory overflow-x-auto scroll-p-l-container hiddenScrollbar"
-            >
-              <div className="w-0 nc-p-l-container"></div>
-              {cards.map((item, index) => renderCard(item, index))}
+          {/* Carousel */}
+          {cards.length > 0 && (
+            <div className="feed-carousel feed-carousel-enabled box-carousel relative" style={{'--carousel-gap': '16px'} as React.CSSProperties}>
+              <div className="carousel-track-window overflow-hidden">
+                <div
+                  ref={sliderRef}
+                  className="carousel-track flex gap-4 snap-x snap-mandatory overflow-x-auto hiddenScrollbar pb-4"
+                >
+                  {cards.map((item, index) => renderCard(item, index))}
+                </div>
+              </div>
+              
+              {/* Navigation Arrows */}
+              <button
+                onClick={scrollToPrevSlide}
+                className="carousel-arrow-button carousel-arrow-left absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white dark:bg-neutral-800 rounded-full shadow-lg flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all z-30 disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Previous slide"
+              >
+                <svg stroke="currentColor" height="1.5rem" width="1.5rem" viewBox="0 0 24 24" fill="none" className="text-neutral-900 dark:text-neutral-100">
+                  <path d="M15 18l-6-6 6-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+              <button
+                onClick={scrollToNextSlide}
+                className="carousel-arrow-button carousel-arrow-right absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-white dark:bg-neutral-800 rounded-full shadow-lg flex items-center justify-center hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all z-30"
+                aria-label="Next slide"
+              >
+                <svg stroke="currentColor" height="1.5rem" width="1.5rem" viewBox="0 0 24 24" fill="none" className="text-neutral-900 dark:text-neutral-100">
+                  <path d="M9 18l6-6-6-6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
             </div>
-          </div>
-        )}
+          )}
 
-        {cards.length === 0 && (
-          <div className="container text-center py-20">
-            <p className="text-neutral-500 dark:text-neutral-400">
-              No category cards available
-            </p>
-          </div>
-        )}
-      </div>
-    </section>
+          {cards.length === 0 && (
+            <div className="text-center py-20">
+              <p className="text-neutral-500 dark:text-neutral-400">
+                No category cards available
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+    </div>
   );
 }
 
@@ -216,6 +232,11 @@ const CATEGORY_CARD_FRAGMENT = `#graphql
           }
         }
       }
+    }
+    background_color: field(key: "background_color") {
+      type
+      key
+      value
     }
     cta_text: field(key: "cta_text") {
       type
