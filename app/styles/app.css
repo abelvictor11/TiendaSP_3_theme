@@ -410,6 +410,12 @@ shop-pay-button {
     @screen 2xl {
       padding-left: calc((100vw + 256px - 1536px) / 2);
     }
+    @screen 3xl {
+      padding-left: calc((100vw + 256px - 1440px) / 2);
+    }
+    @screen 4xl {
+      padding-left: calc((100vw + 256px - 1770px) / 2);
+    }
   }
 
   .scroll-p-l-container {
@@ -429,6 +435,12 @@ shop-pay-button {
     @screen 2xl {
       scroll-padding-left: calc((100vw + 256px - 1536px) / 2);
     }
+    @screen 3xl {
+      scroll-padding-left: calc((100vw + 256px - 1440px) / 2);
+    }
+    @screen 4xl {
+      scroll-padding-left: calc((100vw + 256px - 1770px) / 2);
+    }
   }
 
   .nc-p-r-container {
@@ -447,6 +459,12 @@ shop-pay-button {
     }
     @screen 2xl {
       padding-right: calc((100vw + 256px - 1536px) / 2);
+    }
+    @screen 3xl {
+      padding-right: calc((100vw + 256px - 1440px) / 2);
+    }
+    @screen 4xl {
+      padding-right: calc((100vw + 256px - 1770px) / 2);
     }
   }
 

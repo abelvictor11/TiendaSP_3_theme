@@ -230,13 +230,13 @@ const ProductCard: FC<ProductCardProps> = ({
           <span className="sr-only">{title}</span>
         </Link>
 
-        <div className="relative flex-shrink-0 bg-slate-50 border border-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group ">
+        <div className="relative flex-shrink-0 bg-slate-50 border border-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group p-5">
           <Link to={variantUrl} className="block">
-            <div className="flex aspect-w-15 aspect-h-16 w-full group-hover:opacity-80 transition-opacity">
+            <div className="flex aspect-w-1 aspect-h-1 w-full group-hover:opacity-80 transition-opacity">
               {image && (
                 <Image
                   data={{...image, width: undefined, height: undefined}}
-                  className="object-cover"
+                  className="object-contain"
                   sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 40vw"
                   loading={loading}
                 />
@@ -407,8 +407,8 @@ export const ProductCardSkeleton = ({
         `ProductCard relative flex flex-col bg-transparent ` + className
       }
     >
-      <div className="relative flex-shrink-0 bg-slate-50 border border-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group ">
-        <div className="flex aspect-w-15 aspect-h-16 w-full group-hover:opacity-80 transition-opacity">
+      <div className="relative flex-shrink-0 bg-slate-50 border border-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group p-5">
+        <div className="flex aspect-w-1 aspect-h-1 w-full group-hover:opacity-80 transition-opacity">
           <ThumbnailSkeleton />
         </div>
       </div>
