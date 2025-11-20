@@ -44,6 +44,13 @@ export function SectionCategoryCardsCarousel(
     const ctaText = item.cta_text?.value || 'Shop Now';
     const ctaLink = item.cta_link?.value || '#';
     const bgColor = item.background_color?.value || '#e0f2fe';
+    
+    // Customizable colors
+    const contentBgColor = item.content_background_color?.value || 'rgba(0, 0, 0, 0.6)';
+    const titleColor = item.title_color?.value || '#ffffff';
+    const subtitleColor = item.subtitle_color?.value || 'rgba(255, 255, 255, 0.9)';
+    const buttonBgColor = item.button_background_color?.value || '#ffffff';
+    const buttonTextColor = item.button_text_color?.value || '#171717';
 
     return (
       <div
@@ -82,32 +89,46 @@ export function SectionCategoryCardsCarousel(
             </div>
           )}
 
-          {/* Content */}
-          <div className="absolute inset-0 flex flex-col justify-end p-6 sm:p-8 z-20">
-            {/* Title */}
-            {title && (
-              <h4 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 text-white drop-shadow-lg">
-                {title}
-              </h4>
-            )}
-
-            {/* Subtitle */}
-            {subtitle && (
-              <p className="text-sm sm:text-base text-white/90 mb-5 max-w-md drop-shadow-md">
-                {subtitle}
-              </p>
-            )}
-
-            {/* CTA Button */}
-            <div>
-              <Link to={ctaLink}>
-                <ButtonPrimary
-                  className="bg-white text-neutral-900 hover:bg-neutral-100 shadow-xl"
-                  sizeClass="px-5 py-2.5 sm:px-6 sm:py-3"
+          {/* Content Container with Custom Background */}
+          <div className="absolute bottom-0 left-0 right-0 z-20">
+            <div 
+              className="rounded-b-2xl p-6 sm:p-8 backdrop-blur-sm"
+              style={{backgroundColor: contentBgColor}}
+            >
+              {/* Title */}
+              {title && (
+                <h4 
+                  className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3"
+                  style={{color: titleColor}}
                 >
-                  {ctaText}
-                </ButtonPrimary>
-              </Link>
+                  {title}
+                </h4>
+              )}
+
+              {/* Subtitle */}
+              {subtitle && (
+                <p 
+                  className="text-sm sm:text-base mb-5 max-w-md"
+                  style={{color: subtitleColor}}
+                >
+                  {subtitle}
+                </p>
+              )}
+
+              {/* CTA Button */}
+              <div>
+                <Link to={ctaLink}>
+                  <button
+                    className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full font-medium shadow-xl transition-all hover:shadow-2xl hover:scale-105"
+                    style={{
+                      backgroundColor: buttonBgColor,
+                      color: buttonTextColor,
+                    }}
+                  >
+                    {ctaText}
+                  </button>
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -223,6 +244,31 @@ const CATEGORY_CARD_FRAGMENT = `#graphql
       value
     }
     cta_link: field(key: "cta_link") {
+      type
+      key
+      value
+    }
+    content_background_color: field(key: "content_background_color") {
+      type
+      key
+      value
+    }
+    title_color: field(key: "title_color") {
+      type
+      key
+      value
+    }
+    subtitle_color: field(key: "subtitle_color") {
+      type
+      key
+      value
+    }
+    button_background_color: field(key: "button_background_color") {
+      type
+      key
+      value
+    }
+    button_text_color: field(key: "button_text_color") {
       type
       key
       value
