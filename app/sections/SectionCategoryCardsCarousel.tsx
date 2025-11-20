@@ -90,9 +90,9 @@ export function SectionCategoryCardsCarousel(
           )}
 
           {/* Content Container with Custom Background */}
-          <div className="absolute bottom-0 left-0 right-0 z-20">
+          <div className="absolute bottom-5 left-5 right-5 z-20">
             <div 
-              className="rounded-b-2xl p-6 sm:p-8 backdrop-blur-sm"
+              className="rounded-2xl p-6 sm:p-8 backdrop-blur-sm"
               style={{backgroundColor: contentBgColor}}
             >
               {/* Title */}
