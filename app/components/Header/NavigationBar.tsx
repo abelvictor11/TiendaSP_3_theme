@@ -25,7 +25,7 @@ export default function NavigationBar({headerMenu, headerData}: NavigationBarPro
   return (
     <div className="nc-NavigationBar bg-white dark:bg-slate-900 border-t border-slate-200/70 dark:border-slate-700">
       <div className="container">
-        <nav className="nc-Navigation flex justify-center lg:justify-start items-center py-0">
+        <nav className="nc-Navigation flex justify-center items-center py-0">
           <ul className="nc-Navigation hidden lg:flex items-center space-x-1">
             {headerMenu.map((item, index) => (
               <NavItem
@@ -102,7 +102,7 @@ function NavItem({
             leaveFrom="opacity-100 translate-y-0"
             leaveTo="opacity-0 translate-y-1"
           >
-            <PopoverPanel className="absolute z-20 w-screen max-w-7xl left-1/2 -translate-x-1/2 mt-3">
+            <PopoverPanel className="absolute z-20 w-screen max-w-7xl left-1/2 -translate-x-1/2 mt-3 px-4">
               <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl overflow-hidden">
                 <div className="relative px-6 py-8 lg:px-8 lg:py-10">
                   <div className="flex gap-8">

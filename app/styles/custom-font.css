@@ -26,11 +26,12 @@
 
 :root {
   --font-display: Poppins;
-  --font-body: Poppins;
+  --font-body: -apple-system, BlinkMacSystemFont, 'San Francisco', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
 }
 
 html body {
   @apply font-body;
+  font-size: 14px;
 }
 
 h1,
