@@ -38,7 +38,7 @@ export function SectionCategoryCardsCarousel(
   const renderCard = (item: any, index: number) => {
     if (!item.id) return null;
 
-    const imageUrl = item.image?.reference?.image?.url;
+    const imageUrl = item.image?.image?.url;
     const title = item.title?.value;
     const subtitle = item.subtitle?.value;
     const ctaText = item.cta_text?.value || 'Shop Now';
