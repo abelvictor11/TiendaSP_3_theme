@@ -107,6 +107,7 @@ export const COMMON_PRODUCT_CARD_FRAGMENT = `#graphql
     publishedAt
     availableForSale
     vendor
+    tags
     options {
       name
       values

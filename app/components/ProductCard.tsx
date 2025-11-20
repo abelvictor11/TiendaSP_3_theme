@@ -224,7 +224,7 @@ const ProductCard: FC<ProductCardProps> = ({
   return (
     <>
       <div
-        className={`ProductCard relative flex flex-col bg-transparent ${className}`}
+        className={`ProductCard relative flex flex-col bg-transparent border border-[#e5e7eb] rounded-2xl overflow-hidden ${className}`}
       >
         <Link to={variantUrl} className="absolute inset-0" prefetch="viewport">
           <span className="sr-only">{title}</span>
@@ -257,41 +257,51 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="space-y-4 px-2.5 pt-5 pb-2.5">
+        <div className="space-y-3 px-2.5 pt-5 pb-2.5">
           {renderColorOptions()}
-          <div>
-            <h2
-              className="nc-ProductCard__title text-base font-semibold transition-colors"
+          <div className="space-y-2">
+            <h6
+              className="nc-ProductCard__title transition-colors"
+              style={{
+                fontSize: '1rem',
+                fontStyle: 'normal',
+                fontWeight: 600,
+              }}
               title={title}
             >
               {title}
-            </h2>
-            <p
-              className={`text-sm text-slate-500 dark:text-slate-400 mt-1 capitalize`}
-            >
-              {getProductFeatureText({
-                outstanding_features,
-                variants,
-              })}
-            </p>
-          </div>
-
-          <div className="flex justify-between items-end gap-2">
-            <Prices
-              price={product.priceRange.minVariantPrice}
-              // compareAtPrice={
-              //   isSale ? product.compareAtPriceRange.minVariantPrice : undefined
-              // }
-              withoutTrailingZeros={
-                Number(product.priceRange.minVariantPrice.amount || 1) > 99
-              }
-            />
-            {!isCardSmall && (
-              <OkendoStarRating
-                productId={id}
-                okendoStarRatingSnippet={okendoStarRatingSnippet}
-              />
+            </h6>
+            {product.tags && product.tags.length > 0 && (
+              <p
+                className="text-slate-500 dark:text-slate-400 capitalize"
+                style={{
+                  fontStyle: 'normal',
+                  fontWeight: 400,
+                  fontSize: '.875rem',
+                }}
+              >
+                {product.tags.slice(0, 3).join(', ')}
+              </p>
             )}
+            {!isCardSmall && (
+              <div className="flex items-center">
+                <OkendoStarRating
+                  productId={id}
+                  okendoStarRatingSnippet={okendoStarRatingSnippet}
+                />
+              </div>
+            )}
+            <div className="pt-1">
+              <Prices
+                price={product.priceRange.minVariantPrice}
+                // compareAtPrice={
+                //   isSale ? product.compareAtPriceRange.minVariantPrice : undefined
+                // }
+                withoutTrailingZeros={
+                  Number(product.priceRange.minVariantPrice.amount || 1) > 99
+                }
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -404,7 +414,7 @@ export const ProductCardSkeleton = ({
   return (
     <div
       className={
-        `ProductCard relative flex flex-col bg-transparent ` + className
+        `ProductCard relative flex flex-col bg-transparent border border-[#e5e7eb] rounded-2xl overflow-hidden ` + className
       }
     >
       <div className="relative flex-shrink-0 bg-slate-50 border border-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group p-5">
