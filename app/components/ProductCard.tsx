@@ -224,7 +224,7 @@ const ProductCard: FC<ProductCardProps> = ({
   return (
     <>
       <div
-        className={`ProductCard relative flex flex-col bg-transparent border border-[#e5e7eb] rounded-2xl overflow-hidden ${className}`}
+        className={`ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] rounded-2xl overflow-hidden ${className}`}
       >
         <Link to={variantUrl} className="absolute inset-0" prefetch="viewport">
           <span className="sr-only">{title}</span>
@@ -257,9 +257,9 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="space-y-3 px-2.5 pt-5 pb-2.5">
+        <div className="space-y-3 px-2.5 pt-5 pb-2.5 flex-grow flex flex-col">
           {renderColorOptions()}
-          <div className="space-y-2">
+          <div className="space-y-2 flex-grow">
             <h6
               className="nc-ProductCard__title transition-colors"
               style={{
@@ -414,7 +414,7 @@ export const ProductCardSkeleton = ({
   return (
     <div
       className={
-        `ProductCard relative flex flex-col bg-transparent border border-[#e5e7eb] rounded-2xl overflow-hidden ` + className
+        `ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] rounded-2xl overflow-hidden ` + className
       }
     >
       <div className="relative flex-shrink-0 bg-slate-50 border border-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group p-5">
@@ -423,7 +423,7 @@ export const ProductCardSkeleton = ({
         </div>
       </div>
 
-      <div className="space-y-4 px-2.5 pt-5 pb-2.5">
+      <div className="space-y-4 px-2.5 pt-5 pb-2.5 flex-grow flex flex-col">
         <div className="flex items-center flex-wrap gap-3">
           {[1, 1, 1, 1].map((_, index) => {
             if (index >= 5) {

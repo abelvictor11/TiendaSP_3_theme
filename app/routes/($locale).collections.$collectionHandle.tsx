@@ -10,6 +10,10 @@ import invariant from 'tiny-invariant';
 import {routeHeaders} from '~/data/cache';
 import {seoPayload} from '~/lib/seo.server';
 import {SortFilter} from '~/components/SortFilter';
+import FiltersSidebar from '~/components/FiltersSidebar';
+import {useSearchParams} from '@remix-run/react';
+import type {ProductFilter} from '@shopify/hydrogen/storefront-api-types';
+import {FILTER_URL_PREFIX} from '~/components/SortFilter';
 import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import {RouteContent} from '~/sections/RouteContent';
@@ -119,57 +123,11 @@ export default function Collection() {
           </div>
 
           <main>
-            {/* TABS FILTER */}
-            <SortFilter
-              filters={collection.products.filters as Filter[]}
+            <CollectionContent 
+              collection={collection}
               defaultPriceFilter={defaultPriceFilter}
+              noResults={noResults}
             />
-
-            <hr className="mt-8 mb-8 lg:mb-12" />
-            {/* LOOP ITEMS */}
-            <>
-              {!noResults ? (
-                <Pagination connection={collection.products}>
-                  {({
-                    nodes,
-                    isLoading,
-                    PreviousLink,
-                    previousPageUrl,
-                    NextLink,
-                    nextPageUrl,
-                    hasNextPage,
-                    state,
-                    hasPreviousPage,
-                  }) => (
-                    <>
-                      {hasPreviousPage && (
-                        <div className="flex items-center justify-center my-14">
-                          <ButtonPrimary
-                            loading={isLoading}
-                            href={previousPageUrl.replace(/%3D$/, '=')}
-                          >
-                            {'Load previous products'}
-                          </ButtonPrimary>
-                        </div>
-                      )}
-                      <ProductsGrid nodes={nodes} />
-                      {hasNextPage && (
-                        <div className="flex items-center justify-center mt-14">
-                          <ButtonPrimary
-                            loading={isLoading}
-                            href={nextPageUrl.replace(/%3D$/, '=')}
-                          >
-                            {'Load more products'}
-                          </ButtonPrimary>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </Pagination>
-              ) : (
-                <Empty />
-              )}
-            </>
           </main>
         </div>
       </div>
@@ -199,6 +157,126 @@ export default function Collection() {
           },
         }}
       />
+    </div>
+  );
+}
+
+function CollectionContent({
+  collection,
+  defaultPriceFilter,
+  noResults,
+}: {
+  collection: any;
+  defaultPriceFilter: any;
+  noResults: boolean;
+}) {
+  const [params] = useSearchParams();
+
+  const filtersFromSearchParams = [...params.entries()].reduce(
+    (filters, [key, value]) => {
+      if (key.startsWith(FILTER_URL_PREFIX)) {
+        const filterKey = key.substring(FILTER_URL_PREFIX.length);
+        filters.push({
+          [filterKey]: JSON.parse(value),
+        });
+      }
+      return filters;
+    },
+    [] as ProductFilter[],
+  );
+
+  const allFilterValues = collection.products.filters.flatMap((filter: Filter) => filter.values);
+  const appliedFilters = filtersFromSearchParams
+    .map((filter) => {
+      const foundValue = allFilterValues?.find((value: any) => {
+        const valueInput = JSON.parse(value.input as string) as ProductFilter;
+        if (valueInput.price && filter.price) {
+          return true;
+        }
+        return JSON.stringify(valueInput) === JSON.stringify(filter);
+      });
+      if (!foundValue) {
+        return null;
+      }
+      return {
+        filter,
+        label: foundValue.label,
+        data: foundValue,
+      };
+    })
+    .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
+
+  return (
+    <div className="flex gap-8">
+      {/* Sidebar with Filters */}
+      <div className="hidden lg:block">
+        <FiltersSidebar
+          filters={collection.products.filters as Filter[]}
+          appliedFilters={appliedFilters}
+          defaultPriceFilter={defaultPriceFilter}
+        />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1">
+        {/* Mobile Filters + Sort */}
+        <div className="lg:hidden mb-8">
+          <SortFilter
+            filters={collection.products.filters as Filter[]}
+            defaultPriceFilter={defaultPriceFilter}
+          />
+        </div>
+
+        {/* Desktop Sort Only */}
+        <div className="hidden lg:flex justify-end mb-8">
+          <SortFilter
+            filters={[]}
+            defaultPriceFilter={defaultPriceFilter}
+          />
+        </div>
+
+        {/* Products Grid */}
+        {!noResults ? (
+          <Pagination connection={collection.products}>
+            {({
+              nodes,
+              isLoading,
+              PreviousLink,
+              previousPageUrl,
+              NextLink,
+              nextPageUrl,
+              hasNextPage,
+              hasPreviousPage,
+            }) => (
+              <>
+                {hasPreviousPage && (
+                  <div className="flex items-center justify-center my-14">
+                    <ButtonPrimary
+                      loading={isLoading}
+                      href={previousPageUrl.replace(/%3D$/, '=')}
+                    >
+                      {'Load previous products'}
+                    </ButtonPrimary>
+                  </div>
+                )}
+                <ProductsGrid nodes={nodes} className="mt-0" />
+                {hasNextPage && (
+                  <div className="flex items-center justify-center mt-14">
+                    <ButtonPrimary
+                      loading={isLoading}
+                      href={nextPageUrl.replace(/%3D$/, '=')}
+                    >
+                      {'Load more products'}
+                    </ButtonPrimary>
+                  </div>
+                )}
+              </>
+            )}
+          </Pagination>
+        ) : (
+          <Empty />
+        )}
+      </div>
     </div>
   );
 }

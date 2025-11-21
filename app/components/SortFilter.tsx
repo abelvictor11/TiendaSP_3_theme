@@ -1023,7 +1023,7 @@ function TabMoreFilterOnMobile({
   );
 }
 
-function filterInputToParams(
+export function filterInputToParams(
   rawInput: string | ProductFilter,
   params: URLSearchParams,
 ) {
