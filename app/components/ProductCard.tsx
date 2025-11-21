@@ -230,7 +230,7 @@ const ProductCard: FC<ProductCardProps> = ({
           <span className="sr-only">{title}</span>
         </Link>
 
-        <div className="relative flex-shrink-0 bg-slate-50 border border-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group p-5">
+        <div className="relative flex-shrink-0 overflow-hidden z-1 group p-5">
           <Link to={variantUrl} className="block">
             <div className="flex aspect-w-1 aspect-h-1 w-full group-hover:opacity-80 transition-opacity">
               {image && (
@@ -257,7 +257,7 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="space-y-3 px-2.5 pt-5 pb-2.5 flex-grow flex flex-col">
+        <div className="space-y-3 px-2.5 pt-5 pb-2.5 flex-grow flex flex-col bg-slate-100 dark:bg-slate-800">
           {renderColorOptions()}
           <div className="space-y-2 flex-grow">
             <h6
