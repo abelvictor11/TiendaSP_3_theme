@@ -11,9 +11,10 @@ import {routeHeaders} from '~/data/cache';
 import {seoPayload} from '~/lib/seo.server';
 import {SortFilter} from '~/components/SortFilter';
 import FiltersSidebar from '~/components/FiltersSidebar';
-import {useSearchParams} from '@remix-run/react';
+import {useSearchParams, useLocation} from '@remix-run/react';
 import type {ProductFilter} from '@shopify/hydrogen/storefront-api-types';
 import {FILTER_URL_PREFIX} from '~/components/SortFilter';
+import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/24/outline';
 import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import {RouteContent} from '~/sections/RouteContent';
@@ -44,7 +45,7 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   });
 
   const {paginationVariables, filters, sortKey, reverse} =
-    getPaginationAndFiltersFromRequest(request);
+    getPaginationAndFiltersFromRequest(request, 24);
 
   // 2. Query the colelction details
   const [{collection}] = await Promise.all([
@@ -249,26 +250,50 @@ function CollectionContent({
               hasPreviousPage,
             }) => (
               <>
-                {hasPreviousPage && (
-                  <div className="flex items-center justify-center my-14">
-                    <ButtonPrimary
-                      loading={isLoading}
-                      href={previousPageUrl.replace(/%3D$/, '=')}
-                    >
-                      {'Load previous products'}
-                    </ButtonPrimary>
-                  </div>
-                )}
                 <ProductsGrid nodes={nodes} className="mt-0" />
-                {hasNextPage && (
-                  <div className="flex items-center justify-center mt-14">
-                    <ButtonPrimary
-                      loading={isLoading}
-                      href={nextPageUrl.replace(/%3D$/, '=')}
-                    >
-                      {'Load more products'}
-                    </ButtonPrimary>
-                  </div>
+                
+                {/* Pagination Controls */}
+                {(hasNextPage || hasPreviousPage) && (
+                  <nav className="flex items-center justify-center gap-2 mt-12" aria-label="Pagination">
+                    {/* Previous Button */}
+                    {hasPreviousPage ? (
+                      <a
+                        href={previousPageUrl.replace(/%3D$/, '=')}
+                        className="flex items-center gap-2 px-4 py-2 rounded-full border border-neutral-300 hover:border-neutral-500 hover:bg-neutral-50 transition-colors font-medium"
+                      >
+                        <ChevronLeftIcon className="w-5 h-5" />
+                        <span>Previous</span>
+                      </a>
+                    ) : (
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-neutral-200 text-neutral-300 cursor-not-allowed font-medium">
+                        <ChevronLeftIcon className="w-5 h-5" />
+                        <span>Previous</span>
+                      </div>
+                    )}
+
+                    {/* Page indicator */}
+                    <div className="flex items-center gap-2 px-4 py-2">
+                      <span className="text-sm text-neutral-600">
+                        {nodes.length} products
+                      </span>
+                    </div>
+
+                    {/* Next Button */}
+                    {hasNextPage ? (
+                      <a
+                        href={nextPageUrl.replace(/%3D$/, '=')}
+                        className="flex items-center gap-2 px-4 py-2 rounded-full border border-neutral-300 hover:border-neutral-500 hover:bg-neutral-50 transition-colors font-medium"
+                      >
+                        <span>Next</span>
+                        <ChevronRightIcon className="w-5 h-5" />
+                      </a>
+                    ) : (
+                      <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-neutral-200 text-neutral-300 cursor-not-allowed font-medium">
+                        <span>Next</span>
+                        <ChevronRightIcon className="w-5 h-5" />
+                      </div>
+                    )}
+                  </nav>
                 )}
               </>
             )}

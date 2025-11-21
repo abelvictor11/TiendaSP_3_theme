@@ -5,8 +5,8 @@ import {
   Transition,
 } from '@headlessui/react';
 import {ChevronDownIcon} from '@heroicons/react/24/solid';
-import {Fragment} from 'react';
-import {Link} from '@remix-run/react';
+import {Fragment, useState, useRef} from 'react';
+import {Link, useNavigate} from '@remix-run/react';
 import type {ParentEnhancedMenuItem, ChildEnhancedMenuItem} from '~/lib/utils';
 import CollectionItem from '../CollectionItem';
 import type {HeaderMenuQuery} from 'storefrontapi.generated';
@@ -77,11 +77,42 @@ function NavItem({
   }
 
   // Dropdown with megamenu
+  const navigate = useNavigate();
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const clickCountRef = useRef(0);
+
+  const handleClick = (e: React.MouseEvent) => {
+    clickCountRef.current += 1;
+
+    if (clickCountRef.current === 1) {
+      // First click - wait to see if there's a second click
+      clickTimeoutRef.current = setTimeout(() => {
+        clickCountRef.current = 0;
+        // Single click - do nothing (PopoverButton handles opening)
+      }, 300);
+    } else if (clickCountRef.current === 2) {
+      // Second click - navigate to collection
+      if (clickTimeoutRef.current) {
+        clearTimeout(clickTimeoutRef.current);
+      }
+      clickCountRef.current = 0;
+      
+      if (!menuItem.to.startsWith('http')) {
+        e.preventDefault();
+        e.stopPropagation();
+        navigate(menuItem.to);
+      } else {
+        window.location.href = menuItem.to;
+      }
+    }
+  };
+
   return (
     <Popover as="li" className="static">
       {({open, close}) => (
         <>
           <PopoverButton
+            onClick={handleClick}
             className={`
               ${open ? 'text-slate-900 dark:text-slate-100' : 'text-slate-700 dark:text-slate-300'}
               group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
