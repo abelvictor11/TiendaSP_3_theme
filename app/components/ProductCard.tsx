@@ -257,7 +257,7 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="space-y-3 px-2.5 pt-5 pb-2.5 flex-grow flex flex-col bg-slate-100 dark:bg-slate-800">
+        <div className="space-y-3 px-2.5 pt-5 pb-2.5 flex-grow flex flex-col bg-[#f6f7f8] dark:bg-slate-800">
           {renderColorOptions()}
           <div className="space-y-2 flex-grow">
             <h6
@@ -273,7 +273,7 @@ const ProductCard: FC<ProductCardProps> = ({
             </h6>
             {product.tags && product.tags.length > 0 && (
               <p
-                className="text-slate-500 dark:text-slate-400 capitalize"
+                className="text-slate-500 dark:text-slate-400 capitalize whitespace-nowrap overflow-hidden text-ellipsis"
                 style={{
                   fontStyle: 'normal',
                   fontWeight: 400,
