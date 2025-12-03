@@ -37,10 +37,10 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
           {/* Image Side */}
           <div className={`relative ${imageOnLeft ? 'lg:order-1' : 'lg:order-2'}`}>
             {productImage && (
-              <div className="relative aspect-[4/3] rounded-3xl overflow-hidden">
+              <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-gradient-to-br from-neutral-50 to-neutral-100">
                 <Image
                   data={productImage}
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-contain p-8"
                   sizes="(max-width: 768px) 100vw, 50vw"
                 />
               </div>
