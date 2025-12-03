@@ -23,7 +23,7 @@ const CollectionCard4: FC<CollectionCard4Props> = ({
   bgSVG: bgSVGProp,
   bgColor = 'bg-white',
 }) => {
-  const {image: featuredImage, title, description, handle} = collection;
+  const {image: featuredImage, title, description, handle, horizontal_image} = collection;
 
   const [bgSVG, setBgSVG] = useState<string | undefined>(bgSVGProp);
 
@@ -32,25 +32,44 @@ const CollectionCard4: FC<CollectionCard4Props> = ({
     setBgSVG(aCollectionSvgs[Math.floor(Math.random() * 9)]);
   }, [bgSVGProp]);
 
+  // Obtener la imagen de fondo desde horizontal_image si existe
+  const backgroundImage = horizontal_image?.reference?.image;
+
   return (
     <div
       className={`nc-CollectionCard4 relative w-full aspect-w-12 aspect-h-11 h-0 rounded-3xl overflow-hidden group ${className} ${bgColor}`}
     >
       <div>
-        <div className="absolute bottom-0 right-0 max-w-[280px] opacity-80 w-full">
-          {!!bgSVG && (
-            <img
-              src={bgSVG}
-              alt="bgSVG"
-              sizes="(max-width: 640px) 100vw, 280px"
+        {/* Imagen de fondo opcional desde horizontal_image */}
+        {backgroundImage && (
+          <div className="absolute inset-0 w-full h-full">
+            <Image
+              data={backgroundImage}
+              className="absolute inset-0 w-full h-full object-cover rounded-3xl"
+              sizes="(max-width: 640px) 100vw, 600px"
+              loading={loading}
             />
-          )}
-        </div>
+          </div>
+        )}
+        
+        {/* SVG de fondo decorativo (solo si no hay imagen de fondo) */}
+        {!backgroundImage && (
+          <div className="absolute bottom-0 right-0 max-w-[280px] opacity-80 w-full">
+            {!!bgSVG && (
+              <img
+                src={bgSVG}
+                alt="bgSVG"
+                sizes="(max-width: 640px) 100vw, 280px"
+              />
+            )}
+          </div>
+        )}
 
-        <div className="absolute inset-5 sm:inset-8 flex flex-col justify-between gap-5 sm:pe-5">
-          <div className="flex justify-between items-center">
-            <div className="w-20 h-20 relative rounded-full overflow-hidden bg-slate-100 z-0">
-              {featuredImage && (
+        <div className="absolute inset-5 sm:inset-8 flex flex-col justify-between gap-5 sm:pe-5 z-10">
+          {/* Imagen circular superpuesta opcional (PNG con fondo transparente) */}
+          {featuredImage && (
+            <div className="flex justify-between items-center">
+              <div className="w-20 h-20 relative rounded-full overflow-hidden bg-slate-100 z-0">
                 <Image
                   data={featuredImage}
                   className="absolute inset-0 w-full h-full object-cover z-0 rounded-full"
@@ -59,9 +78,9 @@ const CollectionCard4: FC<CollectionCard4Props> = ({
                   loading={loading}
                   sizes="80px"
                 />
-              )}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="">
             <span className="flex items-center mb-2 text-sm text-slate-700">

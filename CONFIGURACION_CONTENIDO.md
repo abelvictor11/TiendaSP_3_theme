@@ -158,6 +158,34 @@ Settings → Custom data → Metaobjects
 
 **Ejemplo de uso:** "Explora por categoría"
 
+##### 📸 **Imágenes Opcionales en Tarjetas de Colección**
+
+Las tarjetas de colección (CollectionCard4) ahora soportan **dos imágenes diferentes opcionales**:
+
+1. **Imagen de fondo completa** (`horizontal_image`):
+   - Se muestra como fondo de toda la tarjeta
+   - Ideal para imágenes grandes o colores sólidos
+   - Se obtiene del metafield `horizontal_image` de la colección
+
+2. **Imagen circular superpuesta** (`image`):
+   - Se muestra como icono pequeño en la esquina superior
+   - Ideal para logos o PNG con fondo transparente
+   - Se obtiene del campo `image` estándar de la colección
+
+**Configuración en Shopify Admin:**
+
+Para configurar imágenes diferentes:
+1. Ve a **Products** → **Collections** → Selecciona una colección
+2. En **Metafields** → busca `horizontal_image` y sube la imagen de fondo
+3. En **Image** (campo estándar) sube la imagen circular/logo
+4. Guarda la colección
+
+**Opciones de uso:**
+- ✅ **Dos imágenes**: Fondo completo + logo circular encima
+- ✅ **Solo fondo**: Solo `horizontal_image`, sin `image` 
+- ✅ **Solo logo**: Solo `image`, sin `horizontal_image` (muestra SVG decorativo de fondo)
+- ✅ **Color de fondo**: Usa el prop `bgColor` sin ninguna imagen
+
 ---
 
 ## 🔧 PASO 3: Crear Páginas (Routes)
