@@ -23,9 +23,11 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   } = section;
 
   // Get products from either direct products or collection
+  // Fallback para compatibilidad con secciones antiguas
+  const productsFromCollection = collection?.reference?.productsShowcaseSection || (collection?.reference as any)?.products;
   const productsToShow =
     products?.references?.nodes?.slice(0, 2) ||
-    collection?.reference?.productsShowcaseSection?.nodes?.slice(0, 2) ||
+    productsFromCollection?.nodes?.slice(0, 2) ||
     [];
 
   const bgImage = background_image?.reference?.image?.url;

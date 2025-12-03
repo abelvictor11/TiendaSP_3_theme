@@ -4,7 +4,8 @@ import {SnapSliderProducts} from '~/components/SnapSliderProducts';
 export function SectionProductsSlider(props: SectionProductsSliderFragment) {
   const {heading_bold, heading_light, sub_heading, body, collection, style} =
     props;
-  const products = collection?.reference?.productsSliderSection;
+  // Fallback para compatibilidad con secciones antiguas
+  const products = collection?.reference?.productsSliderSection || (collection?.reference as any)?.products;
 
   return (
     <section>

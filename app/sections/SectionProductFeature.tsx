@@ -21,7 +21,9 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
   } = section;
 
   // Get product from either direct product or collection's first product
-  const featuredProduct = product?.reference || collection?.reference?.productsFeatureSection?.nodes?.[0];
+  // Fallback para compatibilidad con secciones antiguas
+  const productsFromCollection = collection?.reference?.productsFeatureSection || (collection?.reference as any)?.products;
+  const featuredProduct = product?.reference || productsFromCollection?.nodes?.[0];
   const productImage = featuredProduct?.featuredImage;
 
   const bgColor = background_color?.value || '#00bcd4';
