@@ -21,7 +21,7 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
   } = section;
 
   // Get product from either direct product or collection's first product
-  const featuredProduct = product?.reference || collection?.reference?.products?.nodes?.[0];
+  const featuredProduct = product?.reference || collection?.reference?.productsFeatureSection?.nodes?.[0];
   const productImage = featuredProduct?.featuredImage;
 
   const bgColor = background_color?.value || '#00bcd4';
@@ -146,7 +146,7 @@ export const SECTION_PRODUCT_FEATURE_FRAGMENT = `#graphql
           id
           handle
           title
-          products(first: 1) {
+          productsFeatureSection: products(first: 1) {
             nodes {
               id
               handle

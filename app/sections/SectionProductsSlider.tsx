@@ -4,7 +4,7 @@ import {SnapSliderProducts} from '~/components/SnapSliderProducts';
 export function SectionProductsSlider(props: SectionProductsSliderFragment) {
   const {heading_bold, heading_light, sub_heading, body, collection, style} =
     props;
-  const products = collection?.reference?.products;
+  const products = collection?.reference?.productsSliderSection;
 
   return (
     <section>
@@ -53,7 +53,7 @@ export const SECTION_PRODUCTS_SLIDER_FRAGMENT = `#graphql
           handle
           title
           description
-          products(
+          productsSliderSection: products(
             first: 10, 
           ) {
             nodes {

@@ -23,9 +23,9 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   } = section;
 
   // Get products from either direct products or collection
-  const productsList =
-    products?.references?.nodes ||
-    collection?.reference?.products?.nodes?.slice(0, 2) ||
+  const productsToShow =
+    products?.references?.nodes?.slice(0, 2) ||
+    collection?.reference?.productsShowcaseSection?.nodes?.slice(0, 2) ||
     [];
 
   const bgImage = background_image?.reference?.image?.url;
@@ -251,7 +251,7 @@ export const SECTION_PRODUCT_SHOWCASE_FRAGMENT = `#graphql
           id
           handle
           title
-          products(first: 2) {
+          productsShowcaseSection: products(first: 2) {
             nodes {
               id
               handle
