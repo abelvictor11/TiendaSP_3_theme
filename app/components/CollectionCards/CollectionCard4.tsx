@@ -34,6 +34,7 @@ const CollectionCard4: FC<CollectionCard4Props> = ({
 
   // Obtener la imagen de fondo desde horizontal_image si existe
   const backgroundImage = horizontal_image?.reference?.image;
+
   return (
     <div
       className={`nc-CollectionCard4 relative w-full aspect-w-12 aspect-h-11 h-0 rounded-3xl overflow-hidden group ${className} ${bgColor}`}
