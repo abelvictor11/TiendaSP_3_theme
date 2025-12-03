@@ -71,7 +71,7 @@ export function SectionCategoryCardsCarousel(
               <img
                 src={backgroundImageUrl || imageUrl}
                 alt={title || ''}
-                className="absolute inset-0 w-full h-full object-cover opacity-40"
+                className="absolute inset-0 w-full h-full object-cover"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-black/70" />
