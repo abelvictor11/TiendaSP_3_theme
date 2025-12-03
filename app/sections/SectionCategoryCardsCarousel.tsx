@@ -39,6 +39,7 @@ export function SectionCategoryCardsCarousel(
     if (!item.id) return null;
 
     const imageUrl = item.image?.image?.url;
+    const backgroundImageUrl = item.background_image?.image?.url; // Nueva imagen de fondo
     const title = item.title?.value;
     const subtitle = item.subtitle?.value;
     const ctaText = item.cta_text?.value || 'Shop Now';
@@ -64,11 +65,11 @@ export function SectionCategoryCardsCarousel(
             style={{backgroundColor: bgColor}}
           />
           
-          {/* Background Image */}
-          {imageUrl && (
+          {/* Background Image (usa background_image si existe, sino usa image) */}
+          {(backgroundImageUrl || imageUrl) && (
             <>
               <img
-                src={imageUrl}
+                src={backgroundImageUrl || imageUrl}
                 alt={title || ''}
                 className="absolute inset-0 w-full h-full object-cover opacity-40"
                 loading="lazy"
@@ -77,7 +78,7 @@ export function SectionCategoryCardsCarousel(
             </>
           )}
 
-          {/* Product Image Centered */}
+          {/* Product Image Centered (solo si existe image) */}
           {imageUrl && (
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60%] max-w-[280px] z-10">
               <img
@@ -220,6 +221,20 @@ const CATEGORY_CARD_FRAGMENT = `#graphql
       value
     }
     image: field(key: "image") {
+      type
+      key
+      reference {
+        ... on MediaImage {
+          image {
+            url
+            altText
+            width
+            height
+          }
+        }
+      }
+    }
+    background_image: field(key: "background_image") {
       type
       key
       reference {
