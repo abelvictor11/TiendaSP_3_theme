@@ -99,7 +99,7 @@ export function SectionCategoryCardsCarousel(
               {/* Title */}
               {title && (
                 <h4 
-                  className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3"
+                  className="text-2xl sm:text-3xl lg:text-3xl font-bold mb-3"
                   style={{color: titleColor}}
                 >
                   {title}
@@ -109,7 +109,7 @@ export function SectionCategoryCardsCarousel(
               {/* Subtitle */}
               {subtitle && (
                 <p 
-                  className="text-sm sm:text-base mb-5 max-w-md"
+                  className="text-sm sm:text-xs mb-5 max-w-md"
                   style={{color: subtitleColor}}
                 >
                   {subtitle}

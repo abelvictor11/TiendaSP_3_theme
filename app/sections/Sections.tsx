@@ -43,6 +43,14 @@ import {
   SECTION_CATEGORY_CARDS_CAROUSEL_FRAGMENT,
   SectionCategoryCardsCarousel,
 } from './SectionCategoryCardsCarousel';
+import {
+  SECTION_PRODUCT_FEATURE_FRAGMENT,
+  SectionProductFeature,
+} from './SectionProductFeature';
+import {
+  SECTION_PRODUCT_SHOWCASE_FRAGMENT,
+  SectionProductShowcase,
+} from './SectionProductShowcase';
 import clsx from 'clsx';
 import {SECTION_HERO_FRAGMENT, SectionHero} from './SectionHero';
 import {OKENDO_PRODUCT_STAR_RATING_FRAGMENT} from '@okendo/shopify-hydrogen';
@@ -67,7 +75,9 @@ export type CisecoSectionType =
   | 'ciseco--section_grid_products_and_filter'
   | 'ciseco--section_latest_blog'
   | 'ciseco--section_clients_say'
-  | 'ciseco--section_category_cards_carousel';
+  | 'ciseco--section_category_cards_carousel'
+  | 'ciseco--section_product_feature'
+  | 'ciseco--section_product_showcase';
 
 export function Sections({
   sections,
@@ -153,6 +163,18 @@ export function Sections({
                 <SectionCategoryCardsCarousel {...section} key={section.id} />
               </WrapSection>
             );
+          case 'ciseco--section_product_feature':
+            return (
+              <WrapSection key={section.id} index={index} {...args}>
+                <SectionProductFeature {...section} key={section.id} />
+              </WrapSection>
+            );
+          case 'ciseco--section_product_showcase':
+            return (
+              <WrapSection key={section.id} index={index} {...args}>
+                <SectionProductShowcase {...section} key={section.id} />
+              </WrapSection>
+            );
 
           // case 'section_another':
           //   return <AnotherSection />;
@@ -210,6 +232,8 @@ export const SECTIONS_FRAGMENT = `#graphql
             ...SectionLatestBlog
             ...SectionClientsSay
             ...SectionCategoryCardsCarousel
+            ...SectionProductFeature
+            ...SectionProductShowcase
           }
         }
       }
@@ -227,6 +251,8 @@ export const SECTIONS_FRAGMENT = `#graphql
   ${SECTION_LATEST_BLOG_FRAGMENT}
   ${SECTION_CLIENTS_SAY_FRAGMENT}
   ${SECTION_CATEGORY_CARDS_CAROUSEL_FRAGMENT}
+  ${SECTION_PRODUCT_FEATURE_FRAGMENT}
+  ${SECTION_PRODUCT_SHOWCASE_FRAGMENT}
 
   # All common fragments
   ${COMMON_PRODUCT_CARD_FRAGMENT}
