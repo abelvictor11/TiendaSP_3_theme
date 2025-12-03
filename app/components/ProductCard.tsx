@@ -291,7 +291,7 @@ const ProductCard: FC<ProductCardProps> = ({
                 />
               </div>
             )}
-            <div className="pt-1">
+            <div>
               <Prices
                 price={product.priceRange.minVariantPrice}
                 // compareAtPrice={

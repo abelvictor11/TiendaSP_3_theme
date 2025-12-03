@@ -15,7 +15,7 @@ const Prices: FC<PricesProps> = ({
   className = '',
   price,
   compareAtPrice,
-  contentClass = 'py-1 px-2 md:py-1.5 md:px-2.5 text-sm font-medium',
+  contentClass = 'py-1 px-2 md:py-1.5 md:px-2.5 text-sm font-bold',
   compareAtPriceClass = 'text-xs text-slate-500',
   withoutTrailingZeros,
 }) => {
