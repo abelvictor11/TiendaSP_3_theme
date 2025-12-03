@@ -93,9 +93,13 @@ export default function Collection() {
 
   const noResults = !collection.products.nodes.length;
 
+  // Get total products from the availability filter (filter.v.availability)
+  const availabilityFilter = collection.productsWithDefaultFilter.filters.find(
+    (filter) => filter.id === 'filter.v.availability',
+  );
   const totalProducts = noResults
     ? 0
-    : getProductTotalByFilter(collection.products.filters?.[0]?.values as any);
+    : getProductTotalByFilter(availabilityFilter?.values as any);
 
   return (
     <div
