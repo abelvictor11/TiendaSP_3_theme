@@ -24,13 +24,19 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
 
   // Get products from either direct products or collection
   // Fallback para compatibilidad con secciones antiguas
-  const productsFromCollection = collection?.reference?.productsShowcaseSection || (collection?.reference as any)?.products;
+  const productsFromCollection = (collection?.reference as any)?.productsShowcaseSection || (collection?.reference as any)?.products;
+  const productsFromProducts = (products as any)?.references?.nodes || [];
   const productsToShow =
-    products?.references?.nodes?.slice(0, 2) ||
+    productsFromProducts?.slice(0, 2) ||
     productsFromCollection?.nodes?.slice(0, 2) ||
     [];
 
-  const bgImage = background_image?.reference?.image?.url;
+  // Early return si no hay productos
+  if (!productsToShow || productsToShow.length === 0) {
+    return null;
+  }
+
+  const bgImage = (background_image?.reference as any)?.image?.url;
   const contentBg = content_background_color?.value || '#ffffff';
   const txtColor = text_color?.value || '#000000';
   const cardBg = card_background_color?.value || '#ffffff';

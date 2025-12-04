@@ -22,8 +22,14 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
 
   // Get product from either direct product or collection's first product
   // Fallback para compatibilidad con secciones antiguas
-  const productsFromCollection = collection?.reference?.productsFeatureSection || (collection?.reference as any)?.products;
-  const featuredProduct = product?.reference || productsFromCollection?.nodes?.[0];
+  const productsFromCollection = (collection?.reference as any)?.productsFeatureSection || (collection?.reference as any)?.products;
+  const featuredProduct = (product?.reference as any) || productsFromCollection?.nodes?.[0];
+  
+  // Early return si no hay producto
+  if (!featuredProduct) {
+    return null;
+  }
+  
   const productImage = featuredProduct?.featuredImage;
 
   const bgColor = background_color?.value || '#00bcd4';
