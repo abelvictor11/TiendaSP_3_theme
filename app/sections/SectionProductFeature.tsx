@@ -11,6 +11,7 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
     description,
     cta_text,
     cta_link,
+    banner_image,
     product,
     collection,
     background_color,
@@ -20,17 +21,19 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
     image_position,
   } = section;
 
-  // Get product from either direct product or collection's first product
-  // parseSection ya hizo lift de 'reference', así que accedemos directamente
+  // Prioridad: banner_image > product > collection
+  const customImage = (banner_image as any)?.image?.url;
   const productsFromCollection = (collection as any)?.productsFeatureSection || (collection as any)?.products;
   const featuredProduct = product || productsFromCollection?.nodes?.[0];
+  const productImage = featuredProduct?.featuredImage;
   
-  // Early return si no hay producto
-  if (!featuredProduct) {
+  // Usar imagen personalizada o imagen de producto como fallback
+  const displayImage = customImage || productImage?.url;
+  
+  // Early return si no hay ni imagen ni contenido
+  if (!displayImage && !heading?.value) {
     return null;
   }
-  
-  const productImage = featuredProduct?.featuredImage;
 
   const bgColor = background_color?.value || '#00bcd4';
   const txtColor = text_color?.value || '#ffffff';
@@ -41,30 +44,39 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
   return (
     <section className="nc-SectionProductFeature py-16 lg:py-24">
       <div className="container">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
-          {/* Image Side */}
-          <div className={`relative ${imageOnLeft ? 'lg:order-1' : 'lg:order-2'}`}>
-            {productImage && (
-              <div className="relative aspect-[4/3] rounded-3xl overflow-hidden bg-gradient-to-br from-neutral-50 to-neutral-100">
-                <Image
-                  data={productImage}
-                  className="absolute inset-0 w-full h-full object-contain p-8"
-                  sizes="(max-width: 768px) 100vw, 50vw"
-                />
+        <div className="grid grid-cols-1 lg:grid-cols-10 gap-0 rounded-3xl overflow-hidden shadow-2xl">
+          {/* Image Side - 60% */}
+          <div className={`relative lg:col-span-6 ${imageOnLeft ? 'lg:order-1' : 'lg:order-2'}`}>
+            {displayImage && (
+              <div className="relative h-full min-h-[400px] lg:min-h-[500px] bg-neutral-100">
+                {customImage ? (
+                  <img
+                    src={displayImage}
+                    alt={heading?.value || 'Banner'}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                ) : productImage ? (
+                  <Image
+                    data={productImage}
+                    className="absolute inset-0 w-full h-full object-cover"
+                    sizes="(max-width: 1024px) 100vw, 60vw"
+                  />
+                ) : null}
               </div>
             )}
           </div>
 
-          {/* Content Side */}
+          {/* Content Side - 40% */}
           <div
-            className={`relative rounded-3xl p-8 lg:p-12 ${imageOnLeft ? 'lg:order-2' : 'lg:order-1'}`}
+            className={`relative lg:col-span-4 p-8 lg:p-12 flex flex-col justify-center ${imageOnLeft ? 'lg:order-2' : 'lg:order-1'}`}
             style={{backgroundColor: bgColor}}
           >
             <div className="space-y-6">
               {/* Heading */}
               {heading?.value && (
                 <h2
-                  className="text-3xl lg:text-4xl xl:text-5xl font-bold"
+                  className="text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight"
                   style={{color: txtColor}}
                 >
                   {heading.value}
@@ -74,7 +86,7 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
               {/* Description */}
               {description?.value && (
                 <p
-                  className="text-base lg:text-lg leading-relaxed max-w-lg"
+                  className="text-base lg:text-lg leading-relaxed"
                   style={{color: txtColor}}
                 >
                   {description.value}
@@ -83,10 +95,10 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
 
               {/* CTA Button */}
               {cta_text?.value && cta_link?.value && (
-                <div>
+                <div className="pt-2">
                   <Link to={cta_link.value}>
                     <button
-                      className="px-8 py-3 rounded-full font-semibold uppercase text-sm tracking-wide transition-all hover:shadow-xl hover:scale-105"
+                      className="px-8 py-3 rounded-full font-bold uppercase text-xs tracking-wider transition-all hover:shadow-xl hover:scale-105"
                       style={{
                         backgroundColor: btnBgColor,
                         color: btnTxtColor,
@@ -128,6 +140,20 @@ export const SECTION_PRODUCT_FEATURE_FRAGMENT = `#graphql
       type
       key
       value
+    }
+    banner_image: field(key: "banner_image") {
+      type
+      key
+      reference {
+        ... on MediaImage {
+          image {
+            url
+            altText
+            width
+            height
+          }
+        }
+      }
     }
     product: field(key: "product") {
       type
