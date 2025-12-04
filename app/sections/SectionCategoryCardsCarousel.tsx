@@ -179,7 +179,7 @@ export function SectionCategoryCardsCarousel(
 
   return (
     <section className="nc-SectionCategoryCardsCarousel py-16 lg:py-28">
-      <div className="container">
+      <div className="px-8">
         {/* Heading with Tabs */}
         {renderHeading()}
 
