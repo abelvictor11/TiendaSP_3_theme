@@ -21,9 +21,9 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
   } = section;
 
   // Get product from either direct product or collection's first product
-  // Fallback para compatibilidad con secciones antiguas
-  const productsFromCollection = (collection?.reference as any)?.productsFeatureSection || (collection?.reference as any)?.products;
-  const featuredProduct = (product?.reference as any) || productsFromCollection?.nodes?.[0];
+  // parseSection ya hizo lift de 'reference', así que accedemos directamente
+  const productsFromCollection = (collection as any)?.productsFeatureSection || (collection as any)?.products;
+  const featuredProduct = product || productsFromCollection?.nodes?.[0];
   
   // Early return si no hay producto
   if (!featuredProduct) {
