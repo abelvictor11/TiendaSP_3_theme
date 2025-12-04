@@ -26,13 +26,17 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   // Fallback para compatibilidad con secciones antiguas
   const productsFromCollection = (collection?.reference as any)?.productsShowcaseSection || (collection?.reference as any)?.products;
   const productsFromProducts = (products as any)?.references?.nodes || [];
-  const productsToShow =
-    productsFromProducts?.slice(0, 2) ||
-    productsFromCollection?.nodes?.slice(0, 2) ||
-    [];
+  
+  // Determinar qué fuente de productos usar
+  let productsToShow: any[] = [];
+  if (productsFromProducts && productsFromProducts.length > 0) {
+    productsToShow = productsFromProducts.slice(0, 2);
+  } else if (productsFromCollection?.nodes && productsFromCollection.nodes.length > 0) {
+    productsToShow = productsFromCollection.nodes.slice(0, 2);
+  }
 
   // Early return si no hay productos
-  if (!productsToShow || productsToShow.length === 0) {
+  if (productsToShow.length === 0) {
     return null;
   }
 
