@@ -113,7 +113,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           {/* Right Product Cards */}
           <div className="lg:col-span-7">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {productsList.map((product: any) => {
+              {productsToShow.map((product: any) => {
                 const productImage = product?.featuredImage;
                 return (
                   <div
