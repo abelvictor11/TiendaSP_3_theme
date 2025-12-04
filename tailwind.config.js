@@ -34,6 +34,7 @@ export default {
       },
       screens: {
         ...defaultTheme.screens,
+        '2xl': '1312px',
         '3xl': '1440px',
         '4xl': '1770px',
       },
