@@ -1,4 +1,3 @@
-import {Image} from '@shopify/hydrogen';
 import {Link} from '@remix-run/react';
 import type {SectionProductFeatureFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
@@ -12,8 +11,6 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
     cta_text,
     cta_link,
     banner_image,
-    product,
-    collection,
     background_color,
     text_color,
     button_background_color,
@@ -21,16 +18,10 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
     image_position,
   } = section;
 
-  // Prioridad: banner_image > product > collection
-  const customImage = (banner_image as any)?.image?.url;
-  const productsFromCollection = (collection as any)?.productsFeatureSection || (collection as any)?.products;
-  const featuredProduct = product || productsFromCollection?.nodes?.[0];
-  const productImage = featuredProduct?.featuredImage;
+  // Solo usar banner_image personalizada
+  const displayImage = (banner_image as any)?.image?.url;
   
-  // Usar imagen personalizada o imagen de producto como fallback
-  const displayImage = customImage || productImage?.url;
-  
-  // Early return si no hay ni imagen ni contenido
+  // Early return si no hay imagen o contenido
   if (!displayImage && !heading?.value) {
     return null;
   }
@@ -49,20 +40,12 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
           <div className={`relative lg:col-span-6 ${imageOnLeft ? 'lg:order-1' : 'lg:order-2'}`}>
             {displayImage && (
               <div className="relative h-full min-h-[400px] lg:min-h-[500px] bg-neutral-100">
-                {customImage ? (
-                  <img
-                    src={displayImage}
-                    alt={heading?.value || 'Banner'}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                ) : productImage ? (
-                  <Image
-                    data={productImage}
-                    className="absolute inset-0 w-full h-full object-cover"
-                    sizes="(max-width: 1024px) 100vw, 60vw"
-                  />
-                ) : null}
+                <img
+                  src={displayImage}
+                  alt={heading?.value || 'Banner'}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
+                />
               </div>
             )}
           </div>
@@ -151,47 +134,6 @@ export const SECTION_PRODUCT_FEATURE_FRAGMENT = `#graphql
             altText
             width
             height
-          }
-        }
-      }
-    }
-    product: field(key: "product") {
-      type
-      key
-      reference {
-        ... on Product {
-          id
-          handle
-          title
-          featuredImage {
-            url
-            altText
-            width
-            height
-          }
-        }
-      }
-    }
-    collection: field(key: "collection") {
-      type
-      key
-      reference {
-        ... on Collection {
-          id
-          handle
-          title
-          productsFeatureSection: products(first: 1) {
-            nodes {
-              id
-              handle
-              title
-              featuredImage {
-                url
-                altText
-                width
-                height
-              }
-            }
           }
         }
       }
