@@ -61,7 +61,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   const btnText = button_text?.value || 'VIEW PRODUCT';
 
   return (
-    <section className="nc-SectionProductShowcase relative py-16 lg:py-24 overflow-hidden">
+    <section className="nc-SectionProductShowcase relative min-h-[80vh] flex items-center overflow-hidden">
       {/* Background Image */}
       {bgImage && (
         <div className="absolute inset-0 w-full h-full">
@@ -75,22 +75,23 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
         </div>
       )}
 
-      <div className="container relative z-10">
+      {/* Badge - Posición absoluta arriba a la izquierda */}
+      {badge_text?.value && (
+        <div className="absolute top-8 left-8 z-20">
+          <span className="px-4 py-2 bg-neutral-900 text-white text-xs font-semibold rounded-full uppercase tracking-wide shadow-lg">
+            {badge_text.value}
+          </span>
+        </div>
+      )}
+
+      <div className="container relative z-10 py-8 lg:py-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
           {/* Left Content Card */}
           <div className="lg:col-span-5">
             <div
-              className="rounded-2xl p-8 lg:p-10 h-full"
+              className="rounded-3xl p-8 lg:p-12 h-full shadow-2xl"
               style={{backgroundColor: contentBg}}
             >
-              {/* Badge */}
-              {badge_text?.value && (
-                <div className="inline-block mb-6">
-                  <span className="px-4 py-2 bg-neutral-800 text-white text-xs font-semibold rounded-full uppercase tracking-wide">
-                    {badge_text.value}
-                  </span>
-                </div>
-              )}
 
               {/* Heading */}
               {heading?.value && (
@@ -141,43 +142,42 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
                 return (
                   <div
                     key={product.id}
-                    className="rounded-2xl p-6 lg:p-8 flex flex-col"
+                    className="rounded-2xl p-6 flex flex-col shadow-xl border border-neutral-100"
                     style={{backgroundColor: cardBg}}
                   >
                     {/* Product Image */}
                     {productImage && (
-                      <div className="relative aspect-square mb-6 rounded-xl overflow-hidden bg-neutral-100">
+                      <div className="relative aspect-[4/3] mb-4 rounded-xl overflow-hidden bg-neutral-50">
                         <Image
                           data={productImage}
-                          className="absolute inset-0 w-full h-full object-contain p-4"
+                          className="absolute inset-0 w-full h-full object-cover"
                           sizes="(max-width: 640px) 100vw, 50vw"
                         />
                       </div>
                     )}
 
                     {/* Product Info */}
-                    <div className="flex-grow">
+                    <div className="flex-grow mb-4">
                       <h3
-                        className="text-xl font-bold mb-2"
+                        className="text-lg font-bold mb-2 line-clamp-2"
                         style={{color: cardTxt}}
                       >
                         {product.title}
                       </h3>
                       {product.description && (
                         <p
-                          className="text-sm mb-4"
+                          className="text-sm line-clamp-2"
                           style={{color: cardTxt, opacity: 0.7}}
                         >
-                          {product.description.substring(0, 60)}
-                          {product.description.length > 60 ? '...' : ''}
+                          {product.description}
                         </p>
                       )}
                     </div>
 
                     {/* CTA Button */}
-                    <Link to={`/products/${product.handle}`}>
+                    <Link to={`/products/${product.handle}`} className="w-full">
                       <button
-                        className="w-full px-6 py-3 border-2 rounded-lg font-semibold uppercase text-sm tracking-wide transition-all hover:bg-neutral-900 hover:text-white hover:border-neutral-900"
+                        className="w-full px-6 py-3 border-2 rounded-lg font-semibold uppercase text-xs tracking-wider transition-all hover:bg-neutral-900 hover:text-white hover:border-neutral-900"
                         style={{
                           borderColor: cardTxt,
                           color: cardTxt,
