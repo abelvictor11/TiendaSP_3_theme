@@ -27,29 +27,16 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   const productsFromCollection = (collection as any)?.productsShowcaseSection || (collection as any)?.products;
   const productsFromProducts = (products as any)?.nodes || [];
   
-  // DEBUG: Log para ver qué datos llegan
-  console.log('🔍 SectionProductShowcase DEBUG:', {
-    hasProducts: !!products,
-    hasCollection: !!collection,
-    productsValue: (products as any)?.value,
-    productsFromProducts,
-    productsFromCollection,
-    collection,
-  });
-  
   // Determinar qué fuente de productos usar
   let productsToShow: any[] = [];
   if (productsFromProducts && productsFromProducts.length > 0) {
     productsToShow = productsFromProducts.slice(0, 2);
-    console.log('✅ Usando productos directos:', productsToShow);
   } else if (productsFromCollection?.nodes && productsFromCollection.nodes.length > 0) {
     productsToShow = productsFromCollection.nodes.slice(0, 2);
-    console.log('✅ Usando productos de colección:', productsToShow);
   }
 
   // Early return si no hay productos
   if (productsToShow.length === 0) {
-    console.log('⚠️ No hay productos para mostrar, retornando null');
     return null;
   }
 
