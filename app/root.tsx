@@ -403,6 +403,30 @@ const HEADER_QUERY = `#graphql
         }
       }
     }
+    topBarMarquee: metaobjects(type: "ciseco--top_bar_marquee", first: 1) {
+      nodes {
+        id
+        handle
+        text_content: field(key: "text_content") {
+          value
+        }
+        background_color: field(key: "background_color") {
+          value
+        }
+        text_color: field(key: "text_color") {
+          value
+        }
+        speed: field(key: "speed") {
+          value
+        }
+        enabled: field(key: "enabled") {
+          value
+        }
+        separator_icon: field(key: "separator_icon") {
+          value
+        }
+      }
+    }
   }
   ${MENU_FRAGMENT}
   ${COMMON_COLLECTION_ITEM_FRAGMENT}

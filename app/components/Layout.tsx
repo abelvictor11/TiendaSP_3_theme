@@ -15,6 +15,7 @@ import {CartLoading} from './CartLoading';
 import {Cart} from './Cart';
 import type {RootLoader} from '~/root';
 import {Aside, useAside} from './Aside';
+import TopBarMarquee from './TopBarMarquee';
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -50,6 +51,7 @@ function MyHeader() {
     <>
       <CartAside />
       <MobileMenuAside />
+      <TopBarMarqueeWrap />
       <div className="nc-Header z-20 sticky top-0">
         <MainNav isHome={isHome} />
         <HeaderMenuDataWrap>
@@ -62,6 +64,33 @@ function MyHeader() {
         </HeaderMenuDataWrap>
       </div>
     </>
+  );
+}
+
+function TopBarMarqueeWrap() {
+  const rootData = useRouteLoaderData<RootLoader>('root');
+  const headerPromise = rootData?.headerPromise;
+
+  return (
+    <Suspense fallback={null}>
+      <Await resolve={headerPromise}>
+        {(headerData) => {
+          const marquee = headerData?.topBarMarquee?.nodes?.[0];
+          if (!marquee) return null;
+
+          return (
+            <TopBarMarquee
+              textContent={marquee.text_content?.value || ''}
+              backgroundColor={marquee.background_color?.value || '#1e1b4b'}
+              textColor={marquee.text_color?.value || '#ffffff'}
+              speed={Number(marquee.speed?.value) || 25}
+              separatorIcon={marquee.separator_icon?.value || '🎁'}
+              enabled={marquee.enabled?.value !== 'false'}
+            />
+          );
+        }}
+      </Await>
+    </Suspense>
   );
 }
 
