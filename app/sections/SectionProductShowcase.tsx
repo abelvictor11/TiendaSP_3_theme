@@ -2,6 +2,8 @@ import {Image} from '@shopify/hydrogen';
 import {Link} from '@remix-run/react';
 import type {SectionProductShowcaseFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
+import ProductCard from '~/components/ProductCard';
+import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
 
 export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   const section = parseSection<SectionProductShowcaseFragment, {}>(props);
@@ -124,58 +126,14 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           {/* Right Product Cards */}
           <div className="lg:col-span-7">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              {productsToShow.map((product: any) => {
-                const productImage = product?.featuredImage;
-                return (
-                  <div
-                    key={product.id}
-                    className="rounded-2xl p-6 flex flex-col shadow-xl border border-neutral-100"
-                    style={{backgroundColor: cardBg}}
-                  >
-                    {/* Product Image */}
-                    {productImage && (
-                      <div className="relative aspect-[4/3] mb-4 rounded-xl overflow-hidden bg-neutral-50">
-                        <Image
-                          data={productImage}
-                          className="absolute inset-0 w-full h-full object-cover"
-                          sizes="(max-width: 640px) 100vw, 50vw"
-                        />
-                      </div>
-                    )}
-
-                    {/* Product Info */}
-                    <div className="flex-grow mb-4">
-                      <h3
-                        className="text-lg font-bold mb-2 line-clamp-2"
-                        style={{color: cardTxt}}
-                      >
-                        {product.title}
-                      </h3>
-                      {product.description && (
-                        <p
-                          className="text-sm line-clamp-2"
-                          style={{color: cardTxt, opacity: 0.7}}
-                        >
-                          {product.description}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* CTA Button */}
-                    <Link to={`/products/${product.handle}`} className="w-full">
-                      <button
-                        className="w-full px-6 py-3 border-2 rounded-lg font-semibold uppercase text-xs tracking-wider transition-all hover:bg-neutral-900 hover:text-white hover:border-neutral-900"
-                        style={{
-                          borderColor: cardTxt,
-                          color: cardTxt,
-                        }}
-                      >
-                        {btnText}
-                      </button>
-                    </Link>
-                  </div>
-                );
-              })}
+              {productsToShow.map((product: any) => (
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  showViewProductButton={true}
+                  quickAddToCart={true}
+                />
+              ))}
             </div>
           </div>
         </div>
@@ -241,16 +199,7 @@ export const SECTION_PRODUCT_SHOWCASE_FRAGMENT = `#graphql
       references(first: 2) {
         nodes {
           ... on Product {
-            id
-            handle
-            title
-            description
-            featuredImage {
-              url
-              altText
-              width
-              height
-            }
+            ...CommonProductCard
           }
         }
       }
@@ -265,16 +214,7 @@ export const SECTION_PRODUCT_SHOWCASE_FRAGMENT = `#graphql
           title
           productsShowcaseSection: products(first: 2) {
             nodes {
-              id
-              handle
-              title
-              description
-              featuredImage {
-                url
-                altText
-                width
-                height
-              }
+              ...CommonProductCard
             }
           }
         }
@@ -296,4 +236,5 @@ export const SECTION_PRODUCT_SHOWCASE_FRAGMENT = `#graphql
       value
     }
   }
+  ${COMMON_PRODUCT_CARD_FRAGMENT}
 ` as const;
