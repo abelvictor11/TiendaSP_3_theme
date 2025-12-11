@@ -8,6 +8,7 @@ import clsx from 'clsx';
 import {Bars3Icon} from '@heroicons/react/24/outline';
 import {Link} from '../Link';
 import {useAside} from '../Aside';
+import {Form, useParams} from '@remix-run/react';
 
 export interface Props {
   className?: string;
@@ -16,6 +17,7 @@ export interface Props {
 
 const MainNav: FC<Props> = ({className = '', isHome}) => {
   const {type: activeType, close, open} = useAside();
+  const params = useParams();
 
   return (
     <div
@@ -43,12 +45,34 @@ const MainNav: FC<Props> = ({className = '', isHome}) => {
             <Logo />
           </div>
 
+          {/* Desktop Search Input - Hidden on mobile */}
+          <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
+            <Form
+              method="get"
+              action={params.locale ? `/${params.locale}/search` : '/search'}
+              className="relative w-full"
+            >
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                  <MagnifyingGlassIcon />
+                </span>
+                <input
+                  type="search"
+                  name="q"
+                  placeholder="Search for products..."
+                  className="w-full h-11 pl-12 pr-4 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
+                />
+              </div>
+            </Form>
+          </div>
+
           {/* Right side actions */}
           <div className="flex items-center gap-2 sm:gap-3">
             <LangDropdown className="hidden md:block" />
+            {/* Mobile search icon - Hidden on desktop */}
             <Link
               to={'/search'}
-              className="flex w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none items-center justify-center"
+              className="flex lg:hidden w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none items-center justify-center"
               aria-label="Search"
             >
               <MagnifyingGlassIcon />
