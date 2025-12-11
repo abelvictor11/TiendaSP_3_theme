@@ -3,7 +3,6 @@ import {Link} from '@remix-run/react';
 import type {SectionProductShowcaseFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
 import ProductCard from '~/components/ProductCard';
-import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
 
 export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   const section = parseSection<SectionProductShowcaseFragment, {}>(props);
@@ -236,5 +235,4 @@ export const SECTION_PRODUCT_SHOWCASE_FRAGMENT = `#graphql
       value
     }
   }
-  ${COMMON_PRODUCT_CARD_FRAGMENT}
 ` as const;
