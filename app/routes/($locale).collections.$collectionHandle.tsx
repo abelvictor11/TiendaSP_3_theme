@@ -199,6 +199,7 @@ function CollectionContent({
   noResults: boolean;
 }) {
   const [params] = useSearchParams();
+  const isOnSaleFilter = params.get('sort') === 'on-sale';
 
   const filtersFromSearchParams = [...params.entries()].reduce(
     (filters, [key, value]) => {
@@ -293,9 +294,19 @@ function CollectionContent({
               nextPageUrl,
               hasNextPage,
               hasPreviousPage,
-            }) => (
+            }) => {
+              // Filter products on sale (with compareAtPrice > price) if on-sale sort is active
+              const filteredNodes = isOnSaleFilter
+                ? nodes.filter((product: any) => {
+                    const compareAt = product.compareAtPriceRange?.minVariantPrice?.amount;
+                    const price = product.priceRange?.minVariantPrice?.amount;
+                    return compareAt && price && Number(compareAt) > Number(price);
+                  })
+                : nodes;
+
+              return (
               <>
-                <ProductsGrid nodes={nodes} className="mt-0" />
+                <ProductsGrid nodes={filteredNodes as any} className="mt-0" />
                 
                 {/* Pagination Controls */}
                 {(hasNextPage || hasPreviousPage) && (
@@ -341,7 +352,8 @@ function CollectionContent({
                   </nav>
                 )}
               </>
-            )}
+              );
+            }}
           </Pagination>
         ) : (
           <Empty />

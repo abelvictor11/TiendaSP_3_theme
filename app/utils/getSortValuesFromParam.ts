@@ -7,6 +7,7 @@ import type {SortParam} from '~/components/SortMenu';
 export function getSortValuesFromParam(sortParam: SortParam | null): {
   sortKey: ProductCollectionSortKeys | SearchSortKeys;
   reverse: boolean;
+  onSale?: boolean;
 } {
   switch (sortParam) {
     case 'price-high-low':
@@ -33,6 +34,12 @@ export function getSortValuesFromParam(sortParam: SortParam | null): {
       return {
         sortKey: 'MANUAL',
         reverse: false,
+      };
+    case 'on-sale':
+      return {
+        sortKey: 'BEST_SELLING',
+        reverse: false,
+        onSale: true,
       };
     default:
       return {

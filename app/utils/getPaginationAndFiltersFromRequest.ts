@@ -13,7 +13,7 @@ export const getPaginationAndFiltersFromRequest = (
   });
   const searchParams = new URL(request.url).searchParams;
 
-  const {sortKey, reverse} = getSortValuesFromParam(
+  const {sortKey, reverse, onSale} = getSortValuesFromParam(
     searchParams.get('sort') as SortParam,
   );
   const filters = [...searchParams.entries()].reduce(
@@ -28,5 +28,6 @@ export const getPaginationAndFiltersFromRequest = (
     },
     [] as ProductFilter[],
   );
-  return {paginationVariables, filters, sortKey, reverse};
+
+  return {paginationVariables, filters, sortKey, reverse, onSale};
 };
