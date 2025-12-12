@@ -56,6 +56,7 @@ import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject
 import type {RootLoader} from '~/root';
 import {useAside} from '~/components/Aside';
 import {SlashIcon} from '@heroicons/react/24/solid';
+import ProductHelpBanner from '~/components/ProductHelpBanner';
 
 export const headers = routeHeaders;
 
@@ -142,8 +143,14 @@ function loadDeferredData(args: LoaderFunctionArgs) {
     handle: 'route-product',
   });
 
+  // Query PDP Help Banner
+  const helpBannerPromise = context.storefront.query(PDP_HELP_BANNER_QUERY, {
+    cache: context.storefront.CacheLong(),
+  });
+
   return {
     routePromise,
+    helpBannerPromise,
   };
 }
 
@@ -152,7 +159,7 @@ export const meta = ({matches}: MetaArgs<typeof loader>) => {
 };
 
 export default function Product() {
-  const {product, shop, recommended, variants, routePromise, storeDomain} =
+  const {product, shop, recommended, variants, routePromise, storeDomain, helpBannerPromise} =
     useLoaderData<typeof loader>();
   const {media, outstanding_features, descriptionHtml, id} = product;
   const {shippingPolicy, refundPolicy, subscriptionPolicy} = shop;
@@ -203,6 +210,29 @@ export default function Product() {
               {/*  */}
               <hr className=" border-slate-200 dark:border-slate-700"></hr>
               {/*  */}
+
+              {/* Help Banner */}
+              <Suspense fallback={null}>
+                <Await resolve={helpBannerPromise}>
+                  {(bannerData) => {
+                    const banner = bannerData?.pdpHelpBanner?.nodes?.[0];
+                    if (!banner) return null;
+                    return (
+                      <ProductHelpBanner
+                        heading={banner.heading?.value || ''}
+                        description={banner.description?.value || ''}
+                        ctaText={banner.cta_text?.value || ''}
+                        ctaLink={banner.cta_link?.value || ''}
+                        backgroundColor={banner.background_color?.value || '#e0f2fe'}
+                        textColor={banner.text_color?.value || '#0c4a6e'}
+                        buttonBackgroundColor={banner.button_background_color?.value || '#1e3a5f'}
+                        buttonTextColor={banner.button_text_color?.value || '#ffffff'}
+                        enabled={banner.enabled?.value !== 'false'}
+                      />
+                    );
+                  }}
+                </Await>
+              </Suspense>
 
               {!!outstanding_features?.value && (
                 <div>
@@ -867,3 +897,41 @@ async function getRecommendedProducts(
 
   return {nodes: mergedProducts};
 }
+
+const PDP_HELP_BANNER_QUERY = `#graphql
+  query pdpHelpBanner {
+    pdpHelpBanner: metaobjects(type: "ciseco--pdp_help_banner", first: 1) {
+      nodes {
+        id
+        handle
+        heading: field(key: "heading") {
+          value
+        }
+        description: field(key: "description") {
+          value
+        }
+        cta_text: field(key: "cta_text") {
+          value
+        }
+        cta_link: field(key: "cta_link") {
+          value
+        }
+        background_color: field(key: "background_color") {
+          value
+        }
+        text_color: field(key: "text_color") {
+          value
+        }
+        button_background_color: field(key: "button_background_color") {
+          value
+        }
+        button_text_color: field(key: "button_text_color") {
+          value
+        }
+        enabled: field(key: "enabled") {
+          value
+        }
+      }
+    }
+  }
+` as const;
