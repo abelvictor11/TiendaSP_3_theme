@@ -1,4 +1,3 @@
-import {Money} from '@shopify/hydrogen';
 import {type Maybe, type MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 import {type FC} from 'react';
 
@@ -11,33 +10,53 @@ export interface PricesProps {
   withoutTrailingZeros?: boolean;
 }
 
+// Format price with $ symbol only
+function formatPrice(amount: string, withoutTrailingZeros?: boolean): string {
+  const num = parseFloat(amount);
+  if (withoutTrailingZeros) {
+    return `$${num.toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  }
+  return `$${num.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+// Calculate discount percentage
+function calculateDiscountPercentage(price: string, compareAtPrice: string): number {
+  const priceNum = parseFloat(price);
+  const compareNum = parseFloat(compareAtPrice);
+  if (compareNum <= 0) return 0;
+  return Math.round(((compareNum - priceNum) / compareNum) * 100);
+}
+
 const Prices: FC<PricesProps> = ({
   className = '',
   price,
   compareAtPrice,
   contentClass = 'py-1 px-2 md:py-1.5 md:px-2.5 text-sm font-bold',
-  compareAtPriceClass = 'text-xs text-slate-500',
+  compareAtPriceClass = 'text-xs',
   withoutTrailingZeros,
 }) => {
+  const hasDiscount = compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price?.amount || '0');
+  const discountPercentage = hasDiscount 
+    ? calculateDiscountPercentage(price?.amount || '0', compareAtPrice.amount)
+    : 0;
+
   return (
     <div className={`${className}`}>
-      <div
-        className={`flex items-center ${contentClass}`}
-      >
+      <div className={`flex items-center flex-wrap gap-x-2 gap-y-1 ${contentClass}`}>
         {price ? (
-          <Money
-            withoutTrailingZeros={withoutTrailingZeros}
-            className="text-green-500 !leading-none"
-            data={price}
-          />
+          <span className={hasDiscount ? 'text-red-500 !leading-none font-bold' : 'text-slate-900 dark:text-slate-100 !leading-none font-bold'}>
+            {formatPrice(price.amount, withoutTrailingZeros)}
+          </span>
         ) : null}
-        {compareAtPrice ? (
-          <s className={`ms-1 ${compareAtPriceClass}`}>
-            <Money
-              withoutTrailingZeros={withoutTrailingZeros}
-              data={compareAtPrice}
-            />
-          </s>
+        {hasDiscount && compareAtPrice ? (
+          <>
+            <s className={`${compareAtPriceClass} text-slate-400 line-through`}>
+              {formatPrice(compareAtPrice.amount, withoutTrailingZeros)}
+            </s>
+            <span className="text-xs font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded">
+              SAVE {discountPercentage}%
+            </span>
+          </>
         ) : null}
       </div>
     </div>
