@@ -73,7 +73,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
       )}
 
       <div className="container relative z-10 py-8 lg:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8">
           {/* Left Content Card */}
           <div className="lg:col-span-5">
             <div
@@ -124,7 +124,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
 
           {/* Right Product Cards */}
           <div className="lg:col-span-7">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {productsToShow.map((product: any) => (
                 <ProductCard
                   key={product.id}
