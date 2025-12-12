@@ -4,7 +4,7 @@ import {useEffect, useState} from 'react';
 import {Dialog, Transition} from '@headlessui/react';
 import ButtonClose from './ButtonClose';
 import clsx from 'clsx';
-import {ViewfinderCircleIcon} from '@heroicons/react/24/outline';
+import {MagnifyingGlassPlusIcon} from '@heroicons/react/24/outline';
 
 /**
  * A client component that defines a media gallery for hosting images, 3D models, and videos of products
@@ -21,112 +21,146 @@ export function ProductGallery({
 
   const closeModal = () => {
     setOpenModal(false);
-    setActiveIndex(0);
+  };
+
+  const openModal = (index: number) => {
+    setActiveIndex(index);
+    setOpenModal(true);
   };
 
   if (!media.length) {
     return null;
   }
 
+  // Get the active image
+  const activeMedia = media[activeIndex];
+  const activeImage =
+    activeMedia?.__typename === 'MediaImage'
+      ? {...activeMedia.image, altText: activeMedia.alt || 'Product image'}
+      : null;
+
   return (
     <>
-      <div
-        className={`swimlane p-0 lg:grid-flow-row hiddenScroll lg:p-0 lg:overflow-x-auto lg:grid-cols-2 ${className}`}
-      >
-        {media.map((med, i) => {
-          const isFirst = i === 0;
-          const isFourth = i === 3;
-          const isFullWidth = i % 3 === 0;
-
-          const image =
-            med.__typename === 'MediaImage'
-              ? {...med.image, altText: med.alt || 'Product image'}
-              : null;
-
-          if (!image) return null;
-
-          const style = clsx(
-            isFullWidth ? 'lg:col-span-2' : 'lg:col-span-1',
-            isFirst || isFourth ? '' : 'lg:aspect-[4/5]',
-          );
-
-          return (
-            <div
-              className={`${style} aspect-square snap-center card-image w-[calc(100vw_-_4rem)] sm:w-[calc(80vw_-_4rem)] lg:w-full cursor-pointer relative group bg-gray-100 rounded-2xl`}
-              key={med.id || image?.id}
-              onClick={() => {
-                setOpenModal(true);
-                setActiveIndex(i);
-              }}
-              aria-hidden
-            >
-              <button
-                className="absolute z-10 top-3 left-3 w-8 h-8 text-neutral-900 dark:text-neutral-100 rounded-full border bg-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                type="button"
-              >
-                <span className="sr-only">View image</span>
-                <ViewfinderCircleIcon className=" w-4 h-4" />
-              </button>
-
-              <Image
-                loading={i === 0 ? 'eager' : 'lazy'}
-                data={image}
-                aspectRatio={!isFirst && !isFourth ? '4/5' : undefined}
-                sizes={
-                  isFirst || isFourth
-                    ? '(min-width: 48em) 60vw, 90vw'
-                    : '(min-width: 48em) 30vw, 90vw'
-                }
-                className="object-cover rounded-2xl w-full h-full aspect-square fadeIn"
-              />
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="">
-        <Transition show={isOpenModal} as={'div'}>
-          <Dialog
-            as="div"
-            className="fixed inset-0 z-50 overflow-y-auto"
-            onClose={closeModal}
+      <div className={clsx('flex flex-col', className)}>
+        {/* Main Image */}
+        <div
+          className="relative w-full aspect-square bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden cursor-zoom-in group"
+          onClick={() => openModal(activeIndex)}
+          aria-hidden
+        >
+          {/* Zoom button */}
+          <button
+            className="absolute z-10 bottom-4 right-4 w-10 h-10 text-slate-700 dark:text-slate-200 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all"
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              openModal(activeIndex);
+            }}
           >
-            <>
-              <Transition.Child
-                as={'div'}
-                enter="ease-out duration-150"
-                enterFrom="opacity-0 translate-y-40"
-                enterTo="opacity-100 translate-y-0"
-                leave="ease-in duration-100"
-                leaveFrom="opacity-100 translate-y-0"
-                leaveTo="opacity-0 translate-y-20"
-                className="min-h-screen text-center "
-              >
-                <span
-                  className="inline-block h-screen align-middle dr"
-                  aria-hidden="true"
-                >
-                  &#8203;
-                </span>
+            <span className="sr-only">Zoom image</span>
+            <MagnifyingGlassPlusIcon className="w-5 h-5" />
+          </button>
 
-                <ButtonClose
-                  onClick={closeModal}
-                  className="fixed left-2 top-2 sm:left-5 sm:top-5 z-50 sm:!w-11 sm:!h-11 border"
-                  IconclassName="w-6 h-6"
-                />
-                <div className="inline-block w-full overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl text-neutral-900">
-                  <div className="container">
-                    <ModalImageGallery
-                      media={media}
-                      indexActive={activeIndex}
-                    />
-                  </div>
-                </div>
-              </Transition.Child>
-            </>
-          </Dialog>
-        </Transition>
+          {activeImage && (
+            <Image
+              loading="eager"
+              data={activeImage}
+              sizes="(min-width: 1024px) 50vw, 100vw"
+              className="object-contain w-full h-full"
+            />
+          )}
+        </div>
+
+        {/* Thumbnails - Grid of 9 */}
+        <div className="grid grid-cols-9 gap-2 mt-4">
+          {Array.from({length: 9}).map((_, i) => {
+            const med = media[i];
+            const image =
+              med?.__typename === 'MediaImage'
+                ? {...med.image, altText: med.alt || 'Product image'}
+                : null;
+
+            const isActive = i === activeIndex;
+            const hasImage = !!image;
+
+            return (
+              <button
+                key={med?.id || `thumb-${i}`}
+                type="button"
+                onClick={() => hasImage && setActiveIndex(i)}
+                disabled={!hasImage}
+                className={clsx(
+                  'relative aspect-square rounded-lg overflow-hidden transition-all',
+                  hasImage
+                    ? 'bg-slate-100 dark:bg-slate-800 cursor-pointer'
+                    : 'bg-slate-50 dark:bg-slate-900 cursor-default',
+                  isActive && hasImage
+                    ? 'ring-2 ring-primary-500 ring-offset-2'
+                    : hasImage
+                    ? 'hover:ring-2 hover:ring-slate-300 hover:ring-offset-1 opacity-70 hover:opacity-100'
+                    : 'opacity-30',
+                )}
+              >
+                {image && (
+                  <Image
+                    loading="lazy"
+                    data={image}
+                    sizes="80px"
+                    className="object-contain w-full h-full"
+                  />
+                )}
+              </button>
+            );
+          })}
+        </div>
       </div>
+
+      {/* Modal */}
+      <Transition show={isOpenModal} as={'div'}>
+        <Dialog
+          as="div"
+          className="fixed inset-0 z-50 overflow-y-auto"
+          onClose={closeModal}
+        >
+          <>
+            <Transition.Child
+              as={'div'}
+              enter="ease-out duration-150"
+              enterFrom="opacity-0"
+              enterTo="opacity-100"
+              leave="ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+              className="fixed inset-0 bg-black/80"
+            />
+
+            <Transition.Child
+              as={'div'}
+              enter="ease-out duration-150"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-100"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
+              className="min-h-screen flex items-center justify-center p-4"
+            >
+              <ButtonClose
+                onClick={closeModal}
+                className="fixed right-4 top-4 z-50 !w-11 !h-11 border bg-white dark:bg-slate-800"
+                IconclassName="w-6 h-6"
+              />
+              
+              <div className="relative w-full max-w-4xl">
+                <ModalImageGallery
+                  media={media}
+                  indexActive={activeIndex}
+                  onChangeIndex={setActiveIndex}
+                />
+              </div>
+            </Transition.Child>
+          </>
+        </Dialog>
+      </Transition>
     </>
   );
 }
@@ -134,43 +168,66 @@ export function ProductGallery({
 function ModalImageGallery({
   media,
   indexActive,
+  onChangeIndex,
 }: {
   media: MediaFragment[];
   indexActive: number;
+  onChangeIndex: (index: number) => void;
 }) {
-  useEffect(() => {
-    if (!indexActive) return;
-    const image = document.getElementById('image' + indexActive);
-    if (image) {
-      image.scrollIntoView({
-        behavior: 'instant',
-        block: 'start',
-        inline: 'nearest',
-      });
-    }
-  }, [indexActive]);
+  const activeMedia = media[indexActive];
+  const activeImage =
+    activeMedia?.__typename === 'MediaImage'
+      ? {...activeMedia.image, altText: activeMedia.alt || 'Product image'}
+      : null;
 
   return (
-    <div className="grid gap-5">
-      {media.map((med, i) => {
-        const image =
-          med.__typename === 'MediaImage'
-            ? {...med.image, altText: med.alt || 'Product image'}
-            : null;
+    <div className="flex flex-col items-center">
+      {/* Main modal image */}
+      <div className="w-full bg-white dark:bg-slate-900 rounded-xl overflow-hidden">
+        {activeImage && (
+          <Image
+            loading="eager"
+            data={activeImage}
+            sizes="90vw"
+            className="w-full h-auto max-h-[70vh] object-contain"
+          />
+        )}
+      </div>
 
-        return (
-          <div key={med.id || image?.id} id={'image' + i}>
-            {image && (
+      {/* Modal thumbnails */}
+      <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+        {media.map((med, i) => {
+          const image =
+            med.__typename === 'MediaImage'
+              ? {...med.image, altText: med.alt || 'Product image'}
+              : null;
+
+          if (!image) return null;
+
+          const isActive = i === indexActive;
+
+          return (
+            <button
+              key={med.id || image?.id}
+              type="button"
+              onClick={() => onChangeIndex(i)}
+              className={clsx(
+                'relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-white dark:bg-slate-800 transition-all',
+                isActive
+                  ? 'ring-2 ring-primary-500 ring-offset-2'
+                  : 'opacity-60 hover:opacity-100 hover:ring-2 hover:ring-slate-300',
+              )}
+            >
               <Image
-                loading={i === 0 ? 'eager' : 'lazy'}
+                loading="lazy"
                 data={image}
-                sizes="95vw"
-                className="w-full"
+                sizes="64px"
+                className="object-contain w-full h-full"
               />
-            )}
-          </div>
-        );
-      })}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
