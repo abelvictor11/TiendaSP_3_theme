@@ -113,7 +113,7 @@ export default function Collection() {
             <div className="flex items-center gap-2 py-3 overflow-x-auto hiddenScroll justify-center">
               <Link
                 to={`/collections/${collection.handle}`}
-                className="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-full bg-[#e5f7fd] text-white dark:bg-white dark:text-slate-900"
+                className="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-full bg-[#e5f7fd] dark:bg-white dark:text-slate-900"
               >
                 All {collection.title}
               </Link>
@@ -234,6 +234,21 @@ function CollectionContent({
     })
     .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
 
+  // Handle wheel event to prevent propagation when scrolling inside products grid
+  const handleProductsWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    const isScrollable = target.scrollHeight > target.clientHeight;
+    
+    if (isScrollable) {
+      const isAtTop = target.scrollTop === 0;
+      const isAtBottom = target.scrollTop + target.clientHeight >= target.scrollHeight;
+      
+      if ((e.deltaY < 0 && !isAtTop) || (e.deltaY > 0 && !isAtBottom)) {
+        e.stopPropagation();
+      }
+    }
+  };
+
   return (
     <div className="flex gap-8">
       {/* Sidebar with Filters */}
@@ -246,7 +261,10 @@ function CollectionContent({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1">
+      <div 
+        className="flex-1 lg:max-h-[calc(100vh-160px)] lg:overflow-y-auto lg:overscroll-contain"
+        onWheel={handleProductsWheel}
+      >
         {/* Mobile Filters + Sort */}
         <div className="lg:hidden mb-8">
           <SortFilter
