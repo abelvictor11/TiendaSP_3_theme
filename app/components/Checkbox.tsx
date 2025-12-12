@@ -14,7 +14,7 @@ const Checkbox: FC<CheckboxProps> = ({
   label = '',
   name,
   className = '',
-  sizeClassName = 'w-6 h-6',
+  sizeClassName = 'w-4 h-4',
   labelClassName = '',
   id,
   ...props

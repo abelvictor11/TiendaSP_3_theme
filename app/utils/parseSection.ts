@@ -21,7 +21,13 @@ export function parseSection<InputType, ReturnType>(_section: InputType) {
       const isMetafield = node?.type && node?.value;
       const isArray = Array.isArray(node);
       if (isArray) {
-        parsed[key] = node.map((item) => parseSection(item));
+        // Check if array contains primitives (strings, numbers, etc.) - don't process them
+        const hasPrimitives = node.length > 0 && typeof node[0] !== 'object';
+        if (hasPrimitives) {
+          parsed[key] = node;
+        } else {
+          parsed[key] = node.map((item) => parseSection(item));
+        }
       } else if (isMetafield) {
         parsed[key] = parseMetafieldValue(node);
       } else if (node && Object.keys(node as object).length > 0) {
