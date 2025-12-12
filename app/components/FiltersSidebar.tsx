@@ -50,28 +50,10 @@ export default function FiltersSidebar({
     });
   };
 
-  // Handle wheel event to prevent propagation when scrolling inside sidebar
-  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    const target = e.currentTarget;
-    const isScrollable = target.scrollHeight > target.clientHeight;
-    
-    if (isScrollable) {
-      const isAtTop = target.scrollTop === 0;
-      const isAtBottom = target.scrollTop + target.clientHeight >= target.scrollHeight;
-      
-      // Prevent scroll propagation unless at boundaries
-      if ((e.deltaY < 0 && !isAtTop) || (e.deltaY > 0 && !isAtBottom)) {
-        e.stopPropagation();
-      }
-    }
-  };
 
   return (
-    <aside 
-      className="w-full lg:w-64 flex-shrink-0 lg:sticky lg:top-32 lg:self-start lg:max-h-[calc(100vh-160px)] lg:overflow-y-auto lg:overscroll-contain pr-2"
-      onWheel={handleWheel}
-    >
-      <h3 className="text-lg font-semibold mb-4 sticky top-0 bg-white dark:bg-neutral-900 py-2 z-10">Filtros</h3>
+    <aside className="w-full lg:w-64 flex-shrink-0 lg:sticky lg:top-32 lg:self-start pr-2">
+      <h3 className="text-lg font-semibold mb-4">Filtros</h3>
       
       <div className="space-y-1 pb-4">
         {filters.map((filter: Filter) => {

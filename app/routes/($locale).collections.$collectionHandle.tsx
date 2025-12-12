@@ -235,20 +235,6 @@ function CollectionContent({
     })
     .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
 
-  // Handle wheel event to prevent propagation when scrolling inside products grid
-  const handleProductsWheel = (e: React.WheelEvent<HTMLDivElement>) => {
-    const target = e.currentTarget;
-    const isScrollable = target.scrollHeight > target.clientHeight;
-    
-    if (isScrollable) {
-      const isAtTop = target.scrollTop === 0;
-      const isAtBottom = target.scrollTop + target.clientHeight >= target.scrollHeight;
-      
-      if ((e.deltaY < 0 && !isAtTop) || (e.deltaY > 0 && !isAtBottom)) {
-        e.stopPropagation();
-      }
-    }
-  };
 
   return (
     <div className="flex gap-8">
@@ -262,10 +248,7 @@ function CollectionContent({
       </div>
 
       {/* Main Content */}
-      <div 
-        className="flex-1 lg:max-h-[calc(100vh-160px)] lg:overflow-y-auto lg:overscroll-contain"
-        onWheel={handleProductsWheel}
-      >
+      <div className="flex-1">
         {/* Mobile Filters + Sort */}
         <div className="lg:hidden mb-8">
           <SortFilter
