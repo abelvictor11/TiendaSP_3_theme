@@ -597,57 +597,133 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
     return null;
   }
 
+  // Check if any option has a variant image
+  const hasVariantImages = option.optionValues.some(
+    (opt) => opt.variant?.image?.url
+  );
+
   return (
     <div>
-      <div className="text-sm font-medium">{option.name}</div>
-      <div className="flex flex-wrap gap-3 mt-3">
-        {option.optionValues.map(
-          ({
-            name: value,
-            variantUriQuery,
-            selected: isActive,
-            available: isAvailable,
-            isDifferentProduct,
-            handle,
-          }) => (
-            <Link
-              key={option.name + value}
-              {...(!isDifferentProduct ? {rel: 'nofollow'} : {})}
-              to={`/products/${handle}?${variantUriQuery}`}
-              preventScrollReset
-              prefetch="intent"
-              replace
-              className={clsx(
-                'relative w-8 h-8 md:w-9 md:h-9 rounded-full',
-                isActive ? 'ring ring-offset-1 ring-primary-500/60' : '',
-                !isAvailable && 'opacity-50 cursor-not-allowed',
-              )}
-              title={value}
-            >
-              <span className="sr-only">{value}</span>
+      <div className="text-sm font-medium">Select {option.name}</div>
+      
+      {/* Large cards with variant images */}
+      {hasVariantImages ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
+          {option.optionValues.map(
+            ({
+              name: value,
+              variantUriQuery,
+              selected: isActive,
+              available: isAvailable,
+              isDifferentProduct,
+              handle,
+              variant,
+            }) => {
+              const variantImage = variant?.image;
+              // Fallback to CDN image if no variant image
+              const imageUrl = variantImage?.url || getImageWithCdnUrlByName(value.replaceAll(/ /g, '_'));
+              
+              return (
+                <Link
+                  key={option.name + value}
+                  {...(!isDifferentProduct ? {rel: 'nofollow'} : {})}
+                  to={`/products/${handle}?${variantUriQuery}`}
+                  preventScrollReset
+                  prefetch="intent"
+                  replace
+                  className={clsx(
+                    'relative flex flex-col rounded-lg border-2 p-3 transition-all',
+                    isActive 
+                      ? 'border-primary-500 bg-primary-50/50' 
+                      : 'border-slate-200 dark:border-slate-700 hover:border-slate-300',
+                    !isAvailable && 'opacity-50 cursor-not-allowed',
+                  )}
+                >
+                  {/* Image */}
+                  <div className="relative aspect-square w-full rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 mb-2">
+                    <Image
+                      data={{
+                        url: imageUrl,
+                        altText: value,
+                        width: 200,
+                        height: 200,
+                      }}
+                      width={200}
+                      height={200}
+                      sizes="(max-width: 640px) 120px, 150px"
+                      className="absolute inset-0 w-full h-full object-contain"
+                    />
+                  </div>
+                  
+                  {/* Color name */}
+                  <span className={clsx(
+                    'text-sm font-medium text-center',
+                    isActive ? 'text-primary-600' : 'text-slate-700 dark:text-slate-300'
+                  )}>
+                    {value}
+                  </span>
 
-              <div className="absolute inset-0.5 rounded-full overflow-hidden z-0">
-                <Image
-                  data={{
-                    url: getImageWithCdnUrlByName(value.replaceAll(/ /g, '_')),
-                    altText: value,
-                    width: 36,
-                    height: 36,
-                  }}
-                  width={36}
-                  height={36}
-                  sizes="(max-width: 640px) 36px, 40px"
-                  className="absolute inset-0 w-full h-full object-cover"
-                />
-              </div>
+                  {!isAvailable && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-slate-900/60 rounded-lg">
+                      <span className="text-xs text-slate-500">Agotado</span>
+                    </div>
+                  )}
+                </Link>
+              );
+            },
+          )}
+        </div>
+      ) : (
+        /* Fallback: Small circular swatches */
+        <div className="flex flex-wrap gap-3 mt-3">
+          {option.optionValues.map(
+            ({
+              name: value,
+              variantUriQuery,
+              selected: isActive,
+              available: isAvailable,
+              isDifferentProduct,
+              handle,
+            }) => (
+              <Link
+                key={option.name + value}
+                {...(!isDifferentProduct ? {rel: 'nofollow'} : {})}
+                to={`/products/${handle}?${variantUriQuery}`}
+                preventScrollReset
+                prefetch="intent"
+                replace
+                className={clsx(
+                  'relative w-8 h-8 md:w-9 md:h-9 rounded-full',
+                  isActive ? 'ring ring-offset-1 ring-primary-500/60' : '',
+                  !isAvailable && 'opacity-50 cursor-not-allowed',
+                )}
+                title={value}
+              >
+                <span className="sr-only">{value}</span>
 
-              {!isAvailable && (
-                <div className="absolute inset-x-1 border-t border-dashed top-1/2 rotate-[-30deg]" />
-              )}
-            </Link>
-          ),
-        )}
-      </div>
+                <div className="absolute inset-0.5 rounded-full overflow-hidden z-0">
+                  <Image
+                    data={{
+                      url: getImageWithCdnUrlByName(value.replaceAll(/ /g, '_')),
+                      altText: value,
+                      width: 36,
+                      height: 36,
+                    }}
+                    width={36}
+                    height={36}
+                    sizes="(max-width: 640px) 36px, 40px"
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                </div>
+
+                {!isAvailable && (
+                  <div className="absolute inset-x-1 border-t border-dashed top-1/2 rotate-[-30deg]" />
+                )}
+              </Link>
+            ),
+          )}
+        </div>
+      )}
     </div>
   );
 };
