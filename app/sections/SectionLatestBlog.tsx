@@ -97,7 +97,7 @@ export function SectionLatestBlog(props: SectionLatestBlogFragment) {
                 href={button_view_all?.href?.value}
                 targetBlank={button_view_all.target?.value === 'true'}
               >
-                {button_view_all?.text?.value || 'View all'}
+                {button_view_all?.text?.value || 'Ver todo'}
               </ButtonSecondary>
             </div>
           )}

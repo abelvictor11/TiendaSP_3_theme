@@ -1,7 +1,7 @@
 import React from 'react';
 
 export const Empty = ({
-  description = 'We couldn’t find any results. Try for something else.',
+  description = 'No encontramos resultados. Intenta con otra búsqueda.',
   className = '',
 }: {
   description?: string;
@@ -25,7 +25,7 @@ export const Empty = ({
         ></path>
       </svg>
       <h3 className="mt-2 text-sm font-semibold text-gray-900">
-        No results found.
+        No se encontraron resultados.
       </h3>
       <div
         className="mt-1 text-sm text-gray-500"

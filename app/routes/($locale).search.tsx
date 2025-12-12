@@ -204,7 +204,7 @@ export default function Search() {
                         {hasNextPage && (
                           <div className="flex items-center justify-center mt-14">
                             <ButtonPrimary loading={isLoading} as={NextLink}>
-                              {'Load more products'}
+                              {'Cargar más productos'}
                             </ButtonPrimary>
                           </div>
                         )}

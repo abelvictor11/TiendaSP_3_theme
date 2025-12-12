@@ -487,7 +487,7 @@ export function ProductForm({
                     className="w-full h-full flex items-center justify-center gap-3 "
                   >
                     <BagIcon className="hidden sm:inline-block w-5 h-5 mb-0.5" />
-                    <span>Add to Cart</span>
+                    <span>Agregar al carrito</span>
                   </ButtonPrimary>
                 </AddToCartButton>
               </div>
@@ -767,7 +767,7 @@ const ProductReviews = ({product}: {product: ProductFragment}) => {
         {/* HEADING */}
         {product?.okendoReviewsSnippet ? (
           <h2 className="text-2xl font-semibold text-center sm:text-left">
-            <span>Reviews</span>
+            <span>Reseñas</span>
           </h2>
         ) : null}
 

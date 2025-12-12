@@ -324,41 +324,41 @@ export const ProductBadge = ({
   status,
   className,
 }: {
-  status: 'Sold out' | 'Sale' | 'New' | null;
+  status: 'Sold out' | 'Sale' | 'New' | 'Agotado' | 'Oferta' | 'Nuevo' | null;
   className?: string;
 }) => {
   if (!status) {
     return null;
   }
 
-  if (status === 'Sold out') {
+  if (status === 'Sold out' || status === 'Agotado') {
     return (
       <ProductStatus
         className={className}
         color="zinc"
-        status={status}
+        status="Agotado"
         icon="NoSymbolIcon"
       />
     );
   }
 
-  if (status === 'Sale') {
+  if (status === 'Sale' || status === 'Oferta') {
     return (
       <ProductStatus
         className={className}
         color="rose"
-        status={status}
+        status="Oferta"
         icon="IconDiscount"
       />
     );
   }
 
-  if (status === 'New') {
+  if (status === 'New' || status === 'Nuevo') {
     return (
       <ProductStatus
         className={className}
         color="green"
-        status={status}
+        status="Nuevo"
         icon="SparklesIcon"
       />
     );
@@ -385,15 +385,15 @@ export const getProductStatus = ({
       Number(priceRangeMinVariantPrice.amount);
 
   if (!availableForSale) {
-    return 'Sold out';
+    return 'Agotado';
   }
 
   if (isSale && availableForSale) {
-    return 'Sale';
+    return 'Oferta';
   }
 
   if (isNewArrival(publishedAt)) {
-    return 'New';
+    return 'Nuevo';
   }
 
   return null;

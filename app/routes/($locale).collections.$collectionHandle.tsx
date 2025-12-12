@@ -138,7 +138,7 @@ export default function Collection() {
             <div className="flex items-center text-sm font-medium gap-2 text-neutral-500 mb-1">
               <FireIcon className="w-5 h-5" />
               <span className="text-neutral-700 dark:text-neutral-300">
-                {totalProducts} products
+                {totalProducts} productos
               </span>
             </div>
             <PageHeader
@@ -307,19 +307,19 @@ function CollectionContent({
                         className="flex items-center gap-2 px-4 py-2 rounded-full border border-neutral-300 hover:border-neutral-500 hover:bg-neutral-50 transition-colors font-medium"
                       >
                         <ChevronLeftIcon className="w-5 h-5" />
-                        <span>Previous</span>
+                        <span>Anterior</span>
                       </a>
                     ) : (
                       <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-neutral-200 text-neutral-300 cursor-not-allowed font-medium">
                         <ChevronLeftIcon className="w-5 h-5" />
-                        <span>Previous</span>
+                        <span>Anterior</span>
                       </div>
                     )}
 
                     {/* Page indicator */}
                     <div className="flex items-center gap-2 px-4 py-2">
                       <span className="text-sm text-neutral-600">
-                        {nodes.length} products
+                        {nodes.length} productos
                       </span>
                     </div>
 
@@ -329,12 +329,12 @@ function CollectionContent({
                         href={nextPageUrl.replace(/%3D$/, '=')}
                         className="flex items-center gap-2 px-4 py-2 rounded-full border border-neutral-300 hover:border-neutral-500 hover:bg-neutral-50 transition-colors font-medium"
                       >
-                        <span>Next</span>
+                        <span>Siguiente</span>
                         <ChevronRightIcon className="w-5 h-5" />
                       </a>
                     ) : (
                       <div className="flex items-center gap-2 px-4 py-2 rounded-full border border-neutral-200 text-neutral-300 cursor-not-allowed font-medium">
-                        <span>Next</span>
+                        <span>Siguiente</span>
                         <ChevronRightIcon className="w-5 h-5" />
                       </div>
                     )}

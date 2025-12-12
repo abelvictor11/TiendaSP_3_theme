@@ -73,7 +73,7 @@ export function SectionGridProductsAndFilter(
                   {!!hasNextPage && (
                     <div className="flex items-center justify-center mt-16">
                       <ButtonPrimary as={NextLink} loading={isLoading}>
-                        {'Load more products'}
+                        {'Cargar más productos'}
                       </ButtonPrimary>
                     </div>
                   )}

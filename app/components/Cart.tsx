@@ -106,7 +106,7 @@ function CartSummary({
       className="grid gap-4 py-6 border-t border-slate-100 flex-shrink-0 mt-auto"
     >
       <h2 id="summary-heading" className="sr-only">
-        Order summary
+        Resumen del pedido
       </h2>
       <div className="">
         <div className="flex justify-between text-base font-medium text-gray-900">
@@ -120,7 +120,7 @@ function CartSummary({
           </>
         </div>
         <p className="mt-0.5 text-sm text-gray-500">
-          Shipping and taxes calculated at checkout.
+          Envío e impuestos calculados en el checkout.
         </p>
         <div className="grid grid-cols-2 gap-2 mt-5">
           <ButtonSecondary
@@ -128,21 +128,21 @@ function CartSummary({
             className="flex-1 border border-slate-200 dark:border-slate-700"
             onClick={onClose}
           >
-            View cart
+            Ver carrito
           </ButtonSecondary>
           <a className="flex" href={checkoutUrl} target="_self">
-            <ButtonPrimary className="flex-1">Check out</ButtonPrimary>
+            <ButtonPrimary className="flex-1">Finalizar compra</ButtonPrimary>
           </a>
         </div>
         <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
           <p>
-            or{' '}
+            o{' '}
             <button
               type="button"
               className="font-medium text-primary-600 hover:text-primary-500"
               onClick={onClose}
             >
-              Continue Shopping
+              Seguir comprando
               <span aria-hidden="true"> &rarr;</span>
             </button>
           </p>
@@ -232,7 +232,7 @@ function CartLineItem({line}: {line: OptimisticCartLine}) {
         </div>
         <div className="flex flex-1 items-end justify-between text-sm">
           <p className="text-slate-500 dark:text-slate-400">
-            {`Qty ` + line.quantity}
+            {`Cant: ` + line.quantity}
           </p>
 
           <div className="flex">
@@ -263,9 +263,9 @@ export function ItemRemoveButton({
         type="submit"
         className="font-medium text-primary-600 hover:text-primary-700 disabled:text-slate-600"
         disabled={disabled}
-        title="Remove item from cart"
+        title="Eliminar del carrito"
       >
-        Remove
+        Eliminar
       </button>
     </CartForm>
   );
@@ -315,20 +315,19 @@ function CartEmpty({
     <div className={clsx('h-full overflow-auto py-6')} hidden={hidden}>
       <section className="grid gap-6">
         <p>
-          Looks like you haven&rsquo;t added anything yet, let&rsquo;s get you
-          started!
+          Parece que no has agregado nada todavía. ¡Comencemos!
         </p>
         <div>
           <ButtonPrimary onClick={onClose}>
             <ArrowLeftIcon className="w-4 h-4 me-2" />
-            <span>Continue shopping</span>
+            <span>Seguir comprando</span>
           </ButtonPrimary>
         </div>
       </section>
       <section className="grid gap-8 pt-16">
         <FeaturedProducts
           count={4}
-          heading="Shop Best Sellers"
+          heading="Los más vendidos"
           onClose={onClose}
           sortKey="BEST_SELLING"
           isCardSmall

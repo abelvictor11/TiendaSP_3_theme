@@ -21,21 +21,21 @@ export type SortParam =
   | 'relevance';
 
 const DEMO: {label: string; key: SortParam}[] = [
-  {label: 'Featured', key: 'featured'},
+  {label: 'Destacados', key: 'featured'},
   {
-    label: 'Price: Low - High',
+    label: 'Precio: Menor a Mayor',
     key: 'price-low-high',
   },
   {
-    label: 'Price: High - Low',
+    label: 'Precio: Mayor a Menor',
     key: 'price-high-low',
   },
   {
-    label: 'Best Selling',
+    label: 'Más Vendidos',
     key: 'best-selling',
   },
   {
-    label: 'Newest',
+    label: 'Más Recientes',
     key: 'newest',
   },
 ];
@@ -68,11 +68,11 @@ export default function SortMenu({items = DEMO}: SortMenuProps) {
               <MySortIcon />
 
               <span className="hidden sm:block flex-shrink-0">
-                {(activeItem || items[0]).label || 'Sort order'}
+                {(activeItem || items[0]).label || 'Ordenar'}
               </span>
               <span className="block sm:hidden flex-shrink-0">
-                <span className="hidden sm:inline-block">Sort order</span>
-                <span className="inline-block sm:hidden">Sort</span>
+                <span className="hidden sm:inline-block">Ordenar</span>
+                <span className="inline-block sm:hidden">Ordenar</span>
               </span>
               <ChevronDownIcon className="w-4 h-4 ml-3 flex-shrink-0 hidden sm:block" />
             </PopoverButton>

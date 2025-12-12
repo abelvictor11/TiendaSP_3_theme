@@ -112,7 +112,7 @@ export default function News() {
                     {hasNextPage && (
                       <div className="flex items-center justify-center mt-20">
                         <ButtonPrimary loading={isLoading} as={NextLink}>
-                          {'Load more posts'}
+                          {'Cargar más artículos'}
                         </ButtonPrimary>
                       </div>
                     )}
