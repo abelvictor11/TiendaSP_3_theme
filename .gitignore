@@ -25,3 +25,4 @@ add-*.js
 *.log
 .vercel
 .shopify
+*.sh

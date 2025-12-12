@@ -108,12 +108,12 @@ export default function Collection() {
     <div className="nc-PageCollection pb-20 lg:pb-28 xl:pb-32">
       {/* Subcollections Bar */}
       {subcollections.length > 0 && (
-        <div className="border-b border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 sticky top-[64px] lg:top-[120px] z-30">
+        <div className="border-b border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 sticky top-[64px] lg:top-[120px] z-30">
           <div className="container">
-            <div className="flex items-center gap-2 py-3 overflow-x-auto hiddenScroll">
+            <div className="flex items-center gap-2 py-3 overflow-x-auto hiddenScroll justify-center">
               <Link
                 to={`/collections/${collection.handle}`}
-                className="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-full bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                className="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-full bg-[#e5f7fd] text-white dark:bg-white dark:text-slate-900"
               >
                 All {collection.title}
               </Link>
@@ -121,7 +121,7 @@ export default function Collection() {
                 <Link
                   key={sub.id}
                   to={`/collections/${sub.handle}`}
-                  className="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-full border border-neutral-300 dark:border-neutral-600 hover:border-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                  className="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-full dark:border-neutral-600  hover:bg-[#e5f7fd] dark:hover:bg-neutral-800 transition-colors"
                 >
                   {sub.title}
                 </Link>
