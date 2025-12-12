@@ -52,7 +52,7 @@ function MyHeader() {
       <CartAside />
       <MobileMenuAside />
       <TopBarMarqueeWrap />
-      <div className="nc-Header z-20 sticky top-0">
+      <div className="nc-Header z-40 sticky top-0">
         <MainNav isHome={isHome} />
         <HeaderMenuDataWrap>
           {({headerData, headerMenu}) => (
