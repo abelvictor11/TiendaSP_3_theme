@@ -3,7 +3,7 @@ import {
   type LoaderFunctionArgs,
   type MetaArgs,
 } from '@shopify/remix-oxygen';
-import {Await, useLoaderData} from '@remix-run/react';
+import {Await, useLoaderData, Link} from '@remix-run/react';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
 import {Pagination, Analytics, getSeoMeta} from '@shopify/hydrogen';
 import invariant from 'tiny-invariant';
@@ -101,20 +101,43 @@ export default function Collection() {
     ? 0
     : getProductTotalByFilter(availabilityFilter?.values as any);
 
+  // Get subcollections from metafield
+  const subcollections = collection.subcollections?.references?.nodes || [];
+
   return (
-    <div
-      className={clsx(
-        `nc-PageCollection pt-16 lg:pt-24 pb-20 lg:pb-28 xl:pb-32`,
-        'space-y-20 sm:space-y-24 lg:space-y-28',
+    <div className="nc-PageCollection pb-20 lg:pb-28 xl:pb-32">
+      {/* Subcollections Bar */}
+      {subcollections.length > 0 && (
+        <div className="border-b border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 sticky top-[64px] lg:top-[120px] z-30">
+          <div className="container">
+            <div className="flex items-center gap-2 py-3 overflow-x-auto hiddenScroll">
+              <Link
+                to={`/collections/${collection.handle}`}
+                className="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-full bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+              >
+                All {collection.title}
+              </Link>
+              {subcollections.map((sub: any) => (
+                <Link
+                  key={sub.id}
+                  to={`/collections/${sub.handle}`}
+                  className="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-full border border-neutral-300 dark:border-neutral-600 hover:border-neutral-500 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
+                >
+                  {sub.title}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
       )}
-    >
-      <div className="container">
-        <div className="space-y-14 lg:space-y-24">
+
+      <div className="container pt-6 lg:pt-8">
+        <div className="space-y-6 lg:space-y-8">
           {/* HEADING */}
           <div>
-            <div className="flex items-center text-sm font-medium gap-2 text-neutral-500 mb-2">
+            <div className="flex items-center text-sm font-medium gap-2 text-neutral-500 mb-1">
               <FireIcon className="w-5 h-5" />
-              <span className="text-neutral-700 ">
+              <span className="text-neutral-700 dark:text-neutral-300">
                 {totalProducts} products
               </span>
             </div>
@@ -147,7 +170,7 @@ export default function Collection() {
             <>
               <RouteContent
                 route={route}
-                className="space-y-20 sm:space-y-24 lg:space-y-28"
+                className="space-y-12 sm:space-y-16 lg:space-y-20 mt-12"
               />
             </>
           )}
@@ -338,6 +361,17 @@ const COLLECTION_QUERY = `#graphql
         width
         height
         altText
+      }
+      subcollections: metafield(namespace: "custom", key: "subcollections") {
+        references(first: 20) {
+          nodes {
+            ... on Collection {
+              id
+              handle
+              title
+            }
+          }
+        }
       }
       productsWithDefaultFilter:products(
         first: 0,
