@@ -56,10 +56,10 @@ const ProductCard: FC<ProductCardProps> = ({
 
   const optColor = options.find((option) => option.name === 'Color');
   const optSizes = options.find((option) => option.name === 'Size');
-  // const isSale =
-  //   Number(product.compareAtPriceRange.minVariantPrice.amount) >
-  //   Number(product.priceRange.minVariantPrice.amount);
-  //
+  const isSale =
+    Number(product.compareAtPriceRange?.minVariantPrice?.amount || 0) >
+    Number(product.priceRange.minVariantPrice.amount);
+
   const {open} = useAside();
   const variantUrl = useVariantUrl(
     product.handle,
@@ -296,9 +296,9 @@ const ProductCard: FC<ProductCardProps> = ({
             <div>
               <Prices
                 price={product.priceRange.minVariantPrice}
-                // compareAtPrice={
-                //   isSale ? product.compareAtPriceRange.minVariantPrice : undefined
-                // }
+                compareAtPrice={
+                  isSale ? product.compareAtPriceRange?.minVariantPrice : undefined
+                }
                 withoutTrailingZeros={
                   Number(product.priceRange.minVariantPrice.amount || 1) > 99
                 }
