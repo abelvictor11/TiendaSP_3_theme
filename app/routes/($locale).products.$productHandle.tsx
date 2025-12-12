@@ -640,7 +640,7 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
                   )}
                 >
                   {/* Image */}
-                  <div className="relative aspect-square w-full rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 mb-2">
+                  <div className="aspect-square w-full rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 mb-2 flex items-center justify-center">
                     <Image
                       data={{
                         url: imageUrl,
@@ -651,7 +651,7 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
                       width={200}
                       height={200}
                       sizes="(max-width: 640px) 120px, 150px"
-                      className="absolute inset-0 w-full h-full object-contain"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                   
