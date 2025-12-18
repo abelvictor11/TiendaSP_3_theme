@@ -197,7 +197,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
   >(section);
 
   return (
-    <div className="aspect-h-16 aspect-w-10 relative flex flex-col-reverse overflow-hidden sm:aspect-h-16 sm:aspect-w-13 lg:aspect-h-7 lg:aspect-w-16 2xl:aspect-h-[5.75] 2xl:aspect-w-16 lg:flex-col bg-slate-100">
+    <div className="h-[50vh] max-h-full min-h-[325px] w-full max-[375px]:h-[60vh] sm:h-[45vh] md:max-h-[650px] xl:h-[60vh] relative flex flex-col-reverse overflow-hidden lg:flex-col bg-slate-100">
       {/* BG */}
       <div className="nc-SectionHeroSliderItem__image">
         {!!item.horizontal_image?.image && (
