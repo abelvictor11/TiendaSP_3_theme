@@ -309,7 +309,7 @@ const ProductCard: FC<ProductCardProps> = ({
             <Link
               to={variantUrl}
               prefetch="intent"
-              className="relative z-10 mt-3 inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
+              className="relative z-10 mt-3 inline-flex items-center justify-center px-6 py-2.5 text-sm font-semibold tracking-wider text-slate-900 dark:text-slate-100 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-full hover:bg-slate-50 dark:hover:bg-slate-600 transition-colors"
             >
               Ver producto
             </Link>
