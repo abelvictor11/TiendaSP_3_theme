@@ -388,6 +388,18 @@ export function ProductForm({
 
   const collection = product.collections.nodes[0];
 
+  // Parse custom badges from metafield
+  // Format: [{"text": "Destacado", "color": "#d4f542", "textColor": "#1a1a2e"}, ...]
+  const customBadges = (() => {
+    try {
+      const badgesValue = (product as any).custom_badges?.value;
+      if (!badgesValue) return [];
+      return JSON.parse(badgesValue) as Array<{text: string; color: string; textColor?: string}>;
+    } catch {
+      return [];
+    }
+  })();
+
   return (
     <>
       {/* ---------- HEADING ----------  */}
@@ -401,7 +413,7 @@ export function ProductForm({
                     to={'/'}
                     className="font-medium text-gray-500 hover:text-gray-900"
                   >
-                    Home
+                    Inicio
                   </Link>
                   <SlashIcon className="ml-2 h-5 w-5 flex-shrink-0 text-gray-300 " />
                 </div>
@@ -434,27 +446,40 @@ export function ProductForm({
             compareAtPrice={selectedVariant?.compareAtPrice}
           />
 
-          {(status || product.reviews_rating_count) && (
+          {(product?.okendoStarRatingSnippet || customBadges.length > 0) && (
             <div className="h-7 border-l border-slate-300 dark:border-slate-700 opacity-0 sm:opacity-100" />
           )}
 
           {/* Reviews */}
           <div className="flex items-center gap-2.5">
             {product?.okendoStarRatingSnippet ? (
-              <>
-                <OkendoStarRating
-                  productId={product.id}
-                  okendoStarRatingSnippet={product.okendoStarRatingSnippet}
-                />
-                {!!status && <span className="block">·</span>}
-              </>
+              <OkendoStarRating
+                productId={product.id}
+                okendoStarRatingSnippet={product.okendoStarRatingSnippet}
+              />
             ) : null}
-            {!!status && (
-              <>
-                <ProductBadge className="" status={status} />
-              </>
-            )}
           </div>
+
+          {/* Custom Badges */}
+          {customBadges.length > 0 && (
+            <div className="flex flex-wrap items-center gap-2">
+              {customBadges.map((badge: {text: string; color: string; textColor?: string}, index: number) => (
+                <span
+                  key={index}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wide"
+                  style={{
+                    backgroundColor: badge.color || '#d4f542',
+                    color: badge.textColor || '#1a1a2e',
+                  }}
+                >
+                  <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                  {badge.text}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
@@ -474,7 +499,7 @@ export function ProductForm({
           {isOutOfStock ? (
             <ButtonSecondary disabled>
               <NoSymbolIcon className="w-5 h-5" />
-              <span className="ms-2">Sold out</span>
+              <span className="ms-2">Agotado</span>
             </ButtonSecondary>
           ) : (
             <div className="flex gap-2 sm:gap-3.5 items-stretch">
@@ -865,6 +890,12 @@ const PRODUCT_FRAGMENT = `#graphql
         key
       }
       outstanding_features: metafield(namespace: "ciseco--product", key:"outstanding_features") {
+        id
+        value
+        namespace
+        key
+      }
+      custom_badges: metafield(namespace: "custom", key:"badges") {
         id
         value
         namespace
