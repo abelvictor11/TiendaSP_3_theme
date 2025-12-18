@@ -98,7 +98,7 @@ export function SectionImageWithText(props: SectionImageWithTextFragment) {
             dangerouslySetInnerHTML={{__html: heading?.value || ''}}
           ></h2>
           <div
-            className="block mt-6 text-slate-500 dark:text-slate-400 "
+            className="block mt-6 text-slate-500 dark:text-black "
             dangerouslySetInnerHTML={{__html: content?.value || ''}}
           ></div>
           {!!features?.value && (

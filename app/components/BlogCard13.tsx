@@ -21,7 +21,7 @@ const BlogCard13: FC<BlogCard13Props> = ({className = 'w-full', post}) => {
             {post.title || 'title'}
           </Link>
         </h2>
-        <span className="hidden sm:block my-3 text-slate-500 dark:text-slate-400 leading-6">
+        <span className="hidden sm:block my-3 text-slate-500 dark:text-black leading-6">
           <span className="line-clamp-2">{post.excerpt || ''}</span>
         </span>
 

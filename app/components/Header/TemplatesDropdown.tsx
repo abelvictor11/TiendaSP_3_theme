@@ -123,7 +123,7 @@ function MenuItem({
           <li key={subItem.id} onClick={close} aria-hidden>
             {!subItem.to.startsWith('http') ? (
               <Link
-                className="font-normal text-slate-600 hover:text-black dark:text-slate-400 dark:hover:text-white"
+                className="font-normal text-slate-600 hover:text-black dark:text-black dark:hover:text-white"
                 to={subItem.to}
                 target={subItem.target}
                 prefetch="intent"
@@ -133,7 +133,7 @@ function MenuItem({
               </Link>
             ) : (
               <a
-                className="font-normal text-slate-600 hover:text-black dark:text-slate-400 dark:hover:text-white"
+                className="font-normal text-slate-600 hover:text-black dark:text-black dark:hover:text-white"
                 href={subItem.to}
                 target={subItem.target}
                 onClick={close}

@@ -15,7 +15,7 @@ const Prev: FC<PrevProps> = ({
 }) => {
   return (
     <div
-      className={`nc-Prev text-slate-500 dark:text-slate-400 ${className}`}
+      className={`nc-Prev text-slate-500 dark:text-black ${className}`}
       data-glide-el="controls"
     >
       <button

@@ -88,7 +88,7 @@ const ProductCardLarge: FC<ProductCardProps> = ({
         <div className="flex-1">
           <h2 className="font-semibold text-lg sm:text-xl ">{title}</h2>
           {/* AUTHOR */}
-          <div className="mt-3 flex items-center text-slate-500 dark:text-slate-400">
+          <div className="mt-3 flex items-center text-slate-500 dark:text-black">
             <span className="text-sm ">
               <span className="line-clamp-1 capitalize">{featureText}</span>
             </span>
@@ -152,7 +152,7 @@ export const ProductCardLargeSkeleton = ({
         <div className="flex-1">
           <h2 className="font-semibold text-lg sm:text-xl ">Product Title</h2>
           {/* AUTHOR */}
-          <div className="mt-3 flex items-center text-slate-500 dark:text-slate-400">
+          <div className="mt-3 flex items-center text-slate-500 dark:text-black">
             <span className="text-sm ">
               <span className="line-clamp-1 capitalize">The best feature</span>
             </span>

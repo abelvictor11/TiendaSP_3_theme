@@ -199,7 +199,7 @@ function CartLineItem({line}: {line: OptimisticCartLine}) {
                 <span>{merchandise?.product?.title || ''}</span>
               )}
             </h3>
-            <div className="mt-1 text-sm text-slate-500 dark:text-slate-400 flex pe-3 gap-x-4">
+            <div className="mt-1 text-sm text-slate-500 dark:text-black flex pe-3 gap-x-4">
               {merchandise?.selectedOptions.length < 3
                 ? (merchandise?.selectedOptions || []).map((option, index) => {
                     // Default Title is not a useful option
@@ -231,7 +231,7 @@ function CartLineItem({line}: {line: OptimisticCartLine}) {
           <CartLinePrice line={line} className="mt-0.5" />
         </div>
         <div className="flex flex-1 items-end justify-between text-sm">
-          <p className="text-slate-500 dark:text-slate-400">
+          <p className="text-slate-500 dark:text-black">
             {`Cant: ` + line.quantity}
           </p>
 

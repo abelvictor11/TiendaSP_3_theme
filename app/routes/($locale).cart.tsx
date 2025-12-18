@@ -229,7 +229,7 @@ function CartLineItem({line}: {line: OptimisticCartLine}) {
                   <span>{merchandise?.product?.title || ''}</span>
                 )}
               </h3>
-              <div className="mt-2 sm:mt-2.5 text-sm text-slate-500 dark:text-slate-400 flex pe-3 gap-x-4 capitalize">
+              <div className="mt-2 sm:mt-2.5 text-sm text-slate-500 dark:text-black flex pe-3 gap-x-4 capitalize">
                 {merchandise?.selectedOptions.some(
                   (option) =>
                     option.name === 'Title' && option.value === 'Default Title',

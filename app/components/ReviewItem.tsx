@@ -45,7 +45,7 @@ const ReviewItem: FC<ReviewItemProps> = ({
         <div className="flex-1 flex justify-between">
           <div className="text-sm sm:text-base">
             <span className="block font-semibold">{data.name}</span>
-            <span className="block mt-0.5 text-slate-500 dark:text-slate-400 text-sm">
+            <span className="block mt-0.5 text-slate-500 dark:text-black text-sm">
               {data.date}
             </span>
           </div>

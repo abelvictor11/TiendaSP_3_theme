@@ -41,7 +41,7 @@ const Checkbox: FC<CheckboxProps> = ({
             {label}
           </span>
           {subLabel && (
-            <p className="mt-0.5 text-slate-500 dark:text-slate-400 text-sm font-light">
+            <p className="mt-0.5 text-slate-500 dark:text-black text-sm font-light">
               {subLabel}
             </p>
           )}

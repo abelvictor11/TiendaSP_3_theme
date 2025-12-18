@@ -53,7 +53,7 @@ export function SectionSteps(props: SectionStepsFragment) {
                   {labels?.parsedValue?.[index]}
                 </Badge>
                 <h5 className="text-base font-semibold">{item}</h5>
-                <span className="block text-slate-600 dark:text-slate-400 text-sm leading-6">
+                <span className="block text-slate-600 dark:text-black text-sm leading-6">
                   {contents?.parsedValue?.[index]}
                 </span>
               </div>

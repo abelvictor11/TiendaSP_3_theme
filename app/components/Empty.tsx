@@ -16,7 +16,7 @@ export const Empty = ({
         strokeWidth="1.5"
         stroke="currentColor"
         aria-hidden="true"
-        className="inline-block h-12 w-12 text-slate-400 "
+        className="inline-block h-12 w-12 text-black "
       >
         <path
           strokeLinecap="round"

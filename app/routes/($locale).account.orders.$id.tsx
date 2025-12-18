@@ -136,7 +136,7 @@ export default function OrderRoute() {
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-4 sm:p-8 bg-slate-50 dark:bg-slate-500/5">
           <div>
             <p className="text-lg font-semibold">Order No. {order.name}</p>
-            <div className="text-slate-500 dark:text-slate-400 text-sm mt-1.5 sm:mt-2">
+            <div className="text-slate-500 dark:text-black text-sm mt-1.5 sm:mt-2">
               <div className="flex items-center flex-wrap gap-y-2">
                 {fulfillmentStatus && (
                   <div
@@ -227,7 +227,7 @@ export default function OrderRoute() {
               </ButtonPrimary>
             )}
 
-            <span className="self-center text-slate-400">/</span>
+            <span className="self-center text-black">/</span>
 
             <ButtonSecondary
               fontSize="text-sm font-medium"
@@ -272,7 +272,7 @@ export default function OrderRoute() {
                       <div className="flex flex-wrap gap-2 justify-between ">
                         <div>
                           <h3 className="text-base font-medium">{title}</h3>
-                          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                          <p className="mt-1 text-sm text-slate-500 dark:text-black">
                             {variantTitle}
                           </p>
                         </div>
@@ -280,7 +280,7 @@ export default function OrderRoute() {
                       </div>
                     </div>
                     <div className="flex flex-1 items-end justify-between text-sm">
-                      <p className="text-gray-500 dark:text-slate-400 flex items-center">
+                      <p className="text-gray-500 dark:text-black flex items-center">
                         <span className="hidden sm:inline-block">Qty</span>
                         <span className="inline-block sm:hidden">x</span>
                         <span className="ml-2">{quantity}</span>

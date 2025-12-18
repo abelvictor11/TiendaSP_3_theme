@@ -15,7 +15,7 @@ const Next: FC<NextProps> = ({
 }) => {
   return (
     <div
-      className={`nc-Next text-slate-500 dark:text-slate-400 ${className}`}
+      className={`nc-Next text-slate-500 dark:text-black ${className}`}
       data-glide-el="controls"
     >
       <button

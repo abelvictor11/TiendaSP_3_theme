@@ -23,7 +23,7 @@ const NextPrev: FC<NextPrevProps> = ({
 
   return (
     <div
-      className={`nc-NextPrev relative flex items-center text-slate-500 dark:text-slate-400 ${className}`}
+      className={`nc-NextPrev relative flex items-center text-slate-500 dark:text-black ${className}`}
     >
       {!onlyNext && (
         <button
