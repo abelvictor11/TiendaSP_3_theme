@@ -50,7 +50,7 @@ const Prices: FC<PricesProps> = ({
         ) : null}
         {hasDiscount && compareAtPrice ? (
           <>
-            <s className={`${compareAtPriceClass} text-slate-400 line-through`}>
+            <s className={`${compareAtPriceClass} text-black line-through`}>
               {formatPrice(compareAtPrice.amount, withoutTrailingZeros)}
             </s>
             <span className="text-xs font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded">

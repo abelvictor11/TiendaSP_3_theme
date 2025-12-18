@@ -275,7 +275,7 @@ const ProductCard: FC<ProductCardProps> = ({
             </h6>
             {product.tags && product.tags.length > 0 && (
               <p
-                className="text-slate-500 dark:text-slate-400 capitalize whitespace-nowrap overflow-hidden text-ellipsis"
+                className="capitalize whitespace-nowrap overflow-hidden text-ellipsis"
                 style={{
                   fontStyle: 'normal',
                   fontWeight: 400,
