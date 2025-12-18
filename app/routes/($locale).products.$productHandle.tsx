@@ -186,19 +186,35 @@ export default function Product() {
     >
       <main className="container">
         <div className="lg:flex">
-          {/* Galleries */}
-          <div className="w-full lg:w-[55%] relative">
-            <ProductGallery
-              media={media.nodes}
-              className="w-full lg:col-span-2 lg:gap-7"
-            />
-            <LikeButton
-              id={id}
-              className="absolute top-3 end-3 z-10 !w-10 !h-10"
-            />
+          {/* Left Column - Galleries + Description */}
+          <div className="w-full lg:w-[55%]">
+            {/* Galleries */}
+            <div className="relative">
+              <ProductGallery
+                media={media.nodes}
+                className="w-full lg:col-span-2 lg:gap-7"
+              />
+              <LikeButton
+                id={id}
+                className="absolute top-3 end-3 z-10 !w-10 !h-10"
+              />
+            </div>
+
+            {/* Product Description - Below images on desktop */}
+            {!!descriptionHtml && (
+              <div className="hidden lg:block mt-10">
+                <h2 className="text-2xl font-semibold">Detalles del producto</h2>
+                <div
+                  className="prose prose-sm sm:prose dark:prose-invert sm:max-w-4xl mt-7"
+                  dangerouslySetInnerHTML={{
+                    __html: descriptionHtml || '',
+                  }}
+                />
+              </div>
+            )}
           </div>
 
-          {/* Product Details */}
+          {/* Right Column - Product Info */}
           <div className="w-full lg:w-[45%] pt-10 lg:pt-0 lg:pl-7 xl:pl-9 2xl:pl-10">
             <div className="sticky top-10 grid gap-7 2xl:gap-8">
               <ProductForm
@@ -237,7 +253,7 @@ export default function Product() {
               {!!outstanding_features?.value && (
                 <div>
                   <h2 className="text-sm font-medium text-gray-900">
-                    Outstanding Features
+                    Características destacadas
                   </h2>
                   <div>
                     <div
@@ -272,10 +288,10 @@ export default function Product() {
 
         {/* DETAIL AND REVIEW */}
         <div className="mt-12 sm:mt-16 space-y-12 sm:space-y-16">
-          {/* Product description */}
+          {/* Product description - Mobile only (desktop shows below images) */}
           {!!descriptionHtml && (
-            <div className="">
-              <h2 className="text-2xl font-semibold">Product Details</h2>
+            <div className="lg:hidden">
+              <h2 className="text-2xl font-semibold">Detalles del producto</h2>
               <div
                 className="prose prose-sm sm:prose dark:prose-invert sm:max-w-4xl mt-7"
                 dangerouslySetInnerHTML={{
@@ -285,7 +301,7 @@ export default function Product() {
             </div>
           )}
 
-          {/* PROduct reviews */}
+          {/* Product reviews */}
           <ProductReviews product={product} />
 
           <hr className="border-slate-200 dark:border-slate-700" />
