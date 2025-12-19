@@ -53,8 +53,8 @@ function MyHeader() {
       <CartAside />
       <MobileMenuAside />
       <TopBarMarqueeWrap />
-      {/* Main Header */}
-      <div className="nc-Header z-40 sticky top-0">
+      {/* Main Header - Not sticky, scrolls with page */}
+      <div className="nc-Header z-40 relative">
         <MainNav isHome={isHome} />
         <HeaderMenuDataWrap>
           {({headerData, headerMenu}) => (
