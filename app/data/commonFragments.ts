@@ -173,6 +173,19 @@ export const COMMON_PRODUCT_CARD_FRAGMENT = `#graphql
 		) {
 			value
 		}
+    # Metafields para tarjeta enriquecida de fitness
+    uso_tipo: metafield(namespace: "custom", key: "uso_tipo") {
+      value
+    }
+    peso_maximo_usuario: metafield(namespace: "custom", key: "peso_maximo_usuario") {
+      value
+    }
+    material: metafield(namespace: "custom", key: "material") {
+      value
+    }
+    envio_gratis: metafield(namespace: "custom", key: "envio_gratis") {
+      value
+    }
   } 
 `;
 //

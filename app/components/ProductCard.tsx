@@ -50,12 +50,22 @@ const ProductCard: FC<ProductCardProps> = ({
     variants,
     outstanding_features,
     okendoStarRatingSnippet,
+    vendor,
+    images,
+    uso_tipo,
+    peso_maximo_usuario,
+    material,
+    envio_gratis,
   } = product;
+
+  // Segunda imagen para hover (producto en uso/contexto)
+  const secondImage = images?.edges?.[1]?.node;
 
   const firstVariant = variants?.nodes?.[0];
 
   const optColor = options.find((option) => option.name === 'Color');
   const optSizes = options.find((option) => option.name === 'Size');
+  const optWeight = options.find((option) => option.name === 'Peso' || option.name === 'Weight');
   const isSale =
     Number(product.compareAtPriceRange?.minVariantPrice?.amount || 0) >
     Number(product.priceRange.minVariantPrice.amount);
@@ -234,33 +244,94 @@ const ProductCard: FC<ProductCardProps> = ({
 
         <div className="relative flex-shrink-0 overflow-hidden z-1 group p-5">
           <Link to={variantUrl} className="block">
-            <div className="flex aspect-w-1 aspect-h-1 w-full group-hover:opacity-80 transition-opacity">
+            <div className="flex aspect-w-1 aspect-h-1 w-full relative">
+              {/* Imagen principal */}
               {image && (
                 <Image
                   data={{...image, width: undefined, height: undefined}}
-                  className="object-contain"
+                  className={`object-contain transition-opacity duration-300 ${secondImage ? 'group-hover:opacity-0' : 'group-hover:opacity-80'}`}
                   sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 40vw"
                   loading={loading}
                 />
               )}
+              {/* Imagen secundaria en hover (producto en uso) */}
+              {secondImage && (
+                <Image
+                  data={{...secondImage, width: undefined, height: undefined}}
+                  className="object-contain absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 40vw"
+                  loading="lazy"
+                />
+              )}
             </div>
           </Link>
-          <ProductBadge
-            status={getProductStatus({
-              availableForSale: product.availableForSale,
-              compareAtPriceRangeMinVariantPrice:
-                product.compareAtPriceRange.minVariantPrice,
-              priceRangeMinVariantPrice: product.priceRange.minVariantPrice,
-              publishedAt: product.publishedAt,
-            })}
-          />
+          {/* Badges de estado */}
+          <div className="absolute top-3 start-3 z-10 flex flex-col gap-1">
+            <ProductBadge
+              status={getProductStatus({
+                availableForSale: product.availableForSale,
+                compareAtPriceRangeMinVariantPrice:
+                  product.compareAtPriceRange.minVariantPrice,
+                priceRangeMinVariantPrice: product.priceRange.minVariantPrice,
+                publishedAt: product.publishedAt,
+              })}
+            />
+            {/* Badge Uso Comercial/Doméstico */}
+            {uso_tipo?.value && (
+              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                uso_tipo.value === 'comercial' 
+                  ? 'bg-blue-100 text-blue-800' 
+                  : 'bg-green-100 text-green-800'
+              }`}>
+                {uso_tipo.value === 'comercial' ? '🏢 Comercial' : '🏠 Doméstico'}
+              </span>
+            )}
+            {/* Badge Envío Gratis */}
+            {envio_gratis?.value === 'true' && (
+              <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
+                🚚 Envío Gratis
+              </span>
+            )}
+          </div>
           {renderWishlistButton()}
           {renderSizeList()}
           {renderGroupButtons()}
         </div>
 
         <div className="space-y-3 px-2.5 pt-5 pb-2.5 flex-grow flex flex-col bg-[#f6f7f8] dark:bg-slate-800">
+          {/* Marca */}
+          {vendor && (
+            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+              {vendor}
+            </span>
+          )}
+          
           {renderColorOptions()}
+          
+          {/* Selector de pesos (para mancuernas, pesas, etc.) */}
+          {optWeight && optWeight.values.length > 1 && (
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {optWeight.values.slice(0, 6).map((weight) => (
+                <Link
+                  key={weight}
+                  to={getProductUrlWithSelectedOption({
+                    productHandle: product.handle,
+                    selectedOptions: [
+                      ...(firstVariant.selectedOptions ?? []),
+                      { name: optWeight.name, value: weight },
+                    ],
+                  })}
+                  className="relative z-10 min-w-8 h-6 px-1.5 flex items-center justify-center text-xs font-medium bg-white border border-slate-200 rounded-full hover:border-slate-400 transition-colors"
+                >
+                  {weight}
+                </Link>
+              ))}
+              {optWeight.values.length > 6 && (
+                <span className="text-xs text-slate-500">+{optWeight.values.length - 6}</span>
+              )}
+            </div>
+          )}
+          
           <div className="space-y-2 flex-grow">
             <h5
               className="nc-ProductCard__title transition-colors"
@@ -274,7 +345,24 @@ const ProductCard: FC<ProductCardProps> = ({
             >
               {title}
             </h5>
-            {product.tags && product.tags.length > 0 && (
+            
+            {/* Atributo maestro técnico */}
+            {(peso_maximo_usuario?.value || material?.value) && (
+              <p className="text-xs text-slate-600 flex items-center gap-2">
+                {peso_maximo_usuario?.value && (
+                  <span className="flex items-center gap-1">
+                    <span className="font-medium">⚖️ Max:</span> {peso_maximo_usuario.value}kg
+                  </span>
+                )}
+                {material?.value && (
+                  <span className="flex items-center gap-1">
+                    <span className="font-medium">🔧</span> {material.value}
+                  </span>
+                )}
+              </p>
+            )}
+            
+            {product.tags && product.tags.length > 0 && !peso_maximo_usuario?.value && !material?.value && (
               <p
                 className="capitalize whitespace-nowrap overflow-hidden text-ellipsis"
                 style={{
