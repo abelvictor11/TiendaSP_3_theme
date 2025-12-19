@@ -307,12 +307,7 @@ const ProductCard: FC<ProductCardProps> = ({
         </div>
 
         <div className="py-5 px-2.5 flex-grow flex flex-col bg-[#F9F9F9] dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-          {/* Marca */}
-          {vendor && (
-            <span className="text-xs font-body uppercase tracking-wide" style={{ color: '#666666' }}>
-              {vendor}
-            </span>
-          )}
+          
           
           {renderColorOptions()}
           
@@ -340,7 +335,15 @@ const ProductCard: FC<ProductCardProps> = ({
             </div>
           )}
           
+
+
           <div className="flex-grow mt-1">
+            {/* Marca */}
+          {vendor && (
+            <span className="text-xs font-body uppercase tracking-wide" style={{ color: '#666666' }}>
+              {vendor}
+            </span>
+          )}
             <h5
               className="nc-ProductCard__title transition-colors"
               style={{

@@ -9,6 +9,7 @@ import {type EnhancedMenu, parseMenu, useIsHomePath} from '~/lib/utils';
 import MainNav from './Header/MainNav';
 import NavigationBar from './Header/NavigationBar';
 import NavMobile from './Header/NavMobile';
+import StickyHeader from './Header/StickyHeader';
 import Logo from './Logo';
 import Footer from './Footer';
 import {CartLoading} from './CartLoading';
@@ -52,6 +53,7 @@ function MyHeader() {
       <CartAside />
       <MobileMenuAside />
       <TopBarMarqueeWrap />
+      {/* Main Header */}
       <div className="nc-Header z-40 sticky top-0">
         <MainNav isHome={isHome} />
         <HeaderMenuDataWrap>
@@ -63,6 +65,8 @@ function MyHeader() {
           )}
         </HeaderMenuDataWrap>
       </div>
+      {/* Sticky Header - appears on scroll up */}
+      <StickyHeader />
     </>
   );
 }
