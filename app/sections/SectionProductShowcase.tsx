@@ -2,7 +2,7 @@ import {Image} from '@shopify/hydrogen';
 import {Link} from '@remix-run/react';
 import type {SectionProductShowcaseFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
-import ProductCard from '~/components/ProductCard';
+import {ProductCardShowcase} from '~/components/ProductCardShowcase';
 
 export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   const section = parseSection<SectionProductShowcaseFragment, {}>(props);
@@ -77,8 +77,8 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           {/* Left Content Card */}
           <div className="lg:col-span-5">
             <div
-              className="rounded-3xl p-8 lg:p-12 h-full shadow-2xl"
-              style={{backgroundColor: contentBg}}
+              className="rounded-3xl p-8 lg:p-12 h-full shadow-2xl backdrop-blur-md"
+              style={{backgroundColor: `${contentBg}cc`}} // cc = 80% opacity
             >
 
               {/* Heading */}
@@ -126,10 +126,10 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           <div className="lg:col-span-7">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {productsToShow.map((product: any) => (
-                <ProductCard
+                <ProductCardShowcase
                   key={product.id}
                   product={product}
-                  quickAddToCart={true}
+                  cardBackgroundColor={cardBg}
                 />
               ))}
             </div>
