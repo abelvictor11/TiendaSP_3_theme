@@ -306,10 +306,10 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="space-y-3 px-2.5 pt-5 pb-2.5 flex-grow flex flex-col bg-[#f6f7f8] dark:bg-slate-800">
+        <div className="px-2.5 flex-grow flex flex-col bg-[#f6f7f8] dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
           {/* Marca */}
           {vendor && (
-            <span className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+            <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#666666' }}>
               {vendor}
             </span>
           )}
@@ -318,7 +318,7 @@ const ProductCard: FC<ProductCardProps> = ({
           
           {/* Selector de pesos (para mancuernas, pesas, etc.) */}
           {optWeight && optWeight.values.length > 1 && (
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center gap-1.5 flex-wrap mt-1">
               {optWeight.values.slice(0, 4).map((weight) => (
                 <Link
                   key={weight}
@@ -335,12 +335,12 @@ const ProductCard: FC<ProductCardProps> = ({
                 </Link>
               ))}
               {optWeight.values.length > 4 && (
-                <span className="text-xs text-slate-500">+{optWeight.values.length - 4}</span>
+                <span className="text-xs" style={{ color: '#666666' }}>+{optWeight.values.length - 4}</span>
               )}
             </div>
           )}
           
-          <div className="space-y-2 flex-grow">
+          <div className="flex-grow mt-1">
             <h5
               className="nc-ProductCard__title transition-colors"
               style={{
@@ -356,18 +356,18 @@ const ProductCard: FC<ProductCardProps> = ({
             
             {/* Atributos técnicos con separador | */}
             {(peso_maximo_usuario?.value || materialValue || hasEnvioGratis) && (
-              <p className="text-xs text-slate-500 flex items-center flex-wrap">
+              <p className="text-xs flex items-center flex-wrap mt-1" style={{ color: '#666666' }}>
                 {materialValue && (
                   <span>{materialValue}</span>
                 )}
                 {materialValue && peso_maximo_usuario?.value && (
-                  <span className="text-slate-300 mx-1.5">|</span>
+                  <span className="mx-1.5" style={{ color: '#cccccc' }}>|</span>
                 )}
                 {peso_maximo_usuario?.value && (
                   <span>Max {peso_maximo_usuario.value}kg</span>
                 )}
                 {(materialValue || peso_maximo_usuario?.value) && hasEnvioGratis && (
-                  <span className="text-slate-300 mx-1.5">|</span>
+                  <span className="mx-1.5" style={{ color: '#cccccc' }}>|</span>
                 )}
                 {hasEnvioGratis && (
                   <span className="text-green-600 font-medium">Envío Gratis</span>
