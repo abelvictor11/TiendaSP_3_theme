@@ -281,7 +281,7 @@ const ProductCard: FC<ProductCardProps> = ({
             </div>
           </Link>
           {/* Badges de estado - fila horizontal */}
-          <div className="absolute top-3 start-3 z-10 flex flex-row flex-wrap gap-1.5">
+          <div className="absolute top-3 start-3 z-10 flex flex-row items-center gap-1.5">
             <ProductBadge
               status={getProductStatus({
                 availableForSale: product.availableForSale,
@@ -290,10 +290,11 @@ const ProductCard: FC<ProductCardProps> = ({
                 priceRangeMinVariantPrice: product.priceRange.minVariantPrice,
                 publishedAt: product.publishedAt,
               })}
+              className="px-2 py-1 text-xs !relative !top-0 !start-0"
             />
             {/* Badge Uso Comercial/Doméstico */}
             {uso_tipo?.value && (
-              <span className={`px-2 py-0.5 text-xs font-medium rounded ${
+              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
                 uso_tipo.value === 'comercial' 
                   ? 'bg-blue-100 text-blue-700' 
                   : 'bg-emerald-100 text-emerald-700'
