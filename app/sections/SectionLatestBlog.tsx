@@ -61,7 +61,7 @@ export function SectionLatestBlog(props: SectionLatestBlogFragment) {
 
   return (
     <section className="section-SectionLatestBlog container">
-      <div className={hasBgColor ? 'relative py-24 lg:py-32' : ''}>
+      <div className={hasBgColor ? 'relative py-12 lg:py-16' : ''}>
         {hasBgColor && (
           <BackgroundSection
             style={{backgroundColor: background_color?.value}}

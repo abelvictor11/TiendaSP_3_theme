@@ -60,7 +60,7 @@ export const CollectionSlider = ({
   return (
     <div className="nc-DiscoverMoreSlider">
       <Heading
-        className="mb-12 lg:mb-14 text-neutral-900 dark:text-neutral-50 container"
+        className="mb-8 lg:mb-10 text-neutral-900 dark:text-neutral-50 container"
         desc={sub_heading || ''}
         rightDescText={heading_light || ''}
         hasNextPrev

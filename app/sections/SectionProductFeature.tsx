@@ -33,7 +33,7 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
   const imageOnLeft = image_position?.value === 'left';
 
   return (
-    <section className="nc-SectionProductFeature py-16 lg:py-24">
+    <section className="nc-SectionProductFeature py-10 lg:py-16">
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-10 gap-0 rounded-3xl overflow-hidden shadow-2xl">
           {/* Image Side - 60% */}

@@ -74,7 +74,7 @@ export function SectionTabsCollectionsByGroup(
     return (
       <div>
         <Heading
-          className="mb-12 lg:mb-14 text-neutral-900 dark:text-neutral-50"
+          className="mb-8 lg:mb-10 text-neutral-900 dark:text-neutral-50"
           fontClass="text-3xl md:text-4xl 2xl:text-5xl font-semibold"
           isCenter
           desc={sub_heading?.value || ''}
@@ -84,7 +84,7 @@ export function SectionTabsCollectionsByGroup(
         {moreThanOneGroup && (
           <Nav
             className="p-1 bg-white dark:bg-neutral-800 rounded-full shadow-lg overflow-x-auto hiddenScrollbar"
-            containerClassName="mb-12 lg:mb-14 relative flex justify-center w-full text-sm md:text-base"
+            containerClassName="mb-8 lg:mb-10 relative flex justify-center w-full text-sm md:text-base"
           >
             {collection_groups?.nodes.map((item, index) => (
               <NavItem
@@ -113,7 +113,7 @@ export function SectionTabsCollectionsByGroup(
 
   return (
     <section className="section-TabsCollectionsByGroup container">
-      <div className={!noneBgColor ? 'relative py-24 lg:py-32' : ''}>
+      <div className={!noneBgColor ? 'relative py-12 lg:py-16' : ''}>
         {background_color?.value && (
           <BackgroundSection
             style={{backgroundColor: background_color?.value}}

@@ -146,7 +146,7 @@ export function SectionCategoryCardsCarousel(
     return (
       <div>
         <Heading
-          className="mb-12 lg:mb-14 text-neutral-900 dark:text-neutral-50"
+          className="mb-8 lg:mb-10 text-neutral-900 dark:text-neutral-50"
           fontClass="text-3xl md:text-4xl 2xl:text-5xl font-semibold"
           desc={sub_heading?.value || ''}
           hasNextPrev
@@ -158,7 +158,7 @@ export function SectionCategoryCardsCarousel(
         {moreThanOneGroup && (
           <Nav
             className="p-1 bg-white dark:bg-neutral-800 rounded-full shadow-lg overflow-x-auto hiddenScrollbar"
-            containerClassName="mb-12 lg:mb-14 relative flex justify-center w-full text-sm md:text-base"
+            containerClassName="mb-8 lg:mb-10 relative flex justify-center w-full text-sm md:text-base"
           >
             {category_groups?.nodes.map((item, index) => (
               <NavItem
@@ -178,7 +178,7 @@ export function SectionCategoryCardsCarousel(
   const cards = currentGroup?.category_cards?.nodes || [];
 
   return (
-    <section className="nc-SectionCategoryCardsCarousel py-16 lg:py-28">
+    <section className="nc-SectionCategoryCardsCarousel py-10 lg:py-16">
       <div className="px-8">
         {/* Heading with Tabs */}
         {renderHeading()}
