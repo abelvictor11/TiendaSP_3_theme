@@ -197,15 +197,15 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
   >(section);
 
   return (
-    <div className="h-[50vh] max-h-full min-h-[325px] w-full max-[375px]:h-[60vh] sm:h-[45vh] md:max-h-[650px] xl:h-[60vh] relative flex flex-col-reverse overflow-hidden lg:flex-col bg-slate-100">
+    <div className="h-[60vh] min-h-[400px] w-full lg:h-[55vh] lg:min-h-[450px] relative overflow-hidden bg-slate-100">
       {/* BG - Absolute positioned */}
       <div className="nc-SectionHeroSliderItem__image absolute inset-0 w-full h-full">
         {!!item.horizontal_image?.image && (
           <Image
             data={item.horizontal_image?.image}
             sizes="110vw"
-            className="hidden h-full w-full object-cover object-center lg:block"
-            style={{objectPosition: 'center bottom'}}
+            className="hidden h-full w-full object-cover lg:block"
+            style={{objectPosition: 'center center'}}
           />
         )}
 
@@ -214,16 +214,16 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
             data={item.vertical_image?.image}
             sizes="100vw"
             className="block h-full w-full object-cover lg:hidden"
-            style={{objectPosition: 'center bottom'}}
+            style={{objectPosition: 'center center'}}
           />
         )}
       </div>
 
-      {/* CONTENT - Above image */}
-      <div className="relative z-10 flex py-12 sm:py-14 lg:items-center lg:pb-20">
-        <div className="container relative">
-          <div className="nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-8 lg:space-y-14">
-            <div className="space-y-5 sm:space-y-6">
+      {/* CONTENT - Above image, vertically centered */}
+      <div className="relative z-10 h-full flex items-center">
+        <div className="container">
+          <div className="nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8">
+            <div className="space-y-3 sm:space-y-4">
               {!!item.sub_heading?.value && (
                 <span
                   className="nc-SectionHeroSliderItem__subheading block text-base font-medium text-slate-700 md:text-xl"
