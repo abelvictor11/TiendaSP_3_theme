@@ -90,9 +90,13 @@ export function Sections({
   paddingTopPx,
   ...args
 }: SectionProps) {
+  // Check if first section is a hero type (no top spacing needed)
+  const firstSectionType = sections?.references?.nodes?.[0]?.type as CisecoSectionType;
+  const isFirstHero = firstSectionType === 'ciseco--section_hero' || firstSectionType === 'ciseco--section_hero_slider';
+  
   return (
     <div
-      className={clsx('sections', className)}
+      className={clsx('sections', className, isFirstHero && '[&>*:first-child]:mt-0')}
       style={{
         paddingTop: paddingTopPx ? `${paddingTopPx}px` : undefined,
       }}
@@ -101,13 +105,13 @@ export function Sections({
         switch (section.type as CisecoSectionType) {
           case 'ciseco--section_hero':
             return (
-              <WrapSection key={section.id} index={index} {...args}>
+              <WrapSection key={section.id} index={index} {...args} isHero>
                 <SectionHero {...section} key={section.id} />
               </WrapSection>
             );
           case 'ciseco--section_hero_slider':
             return (
-              <WrapSection key={section.id} index={index} {...args}>
+              <WrapSection key={section.id} index={index} {...args} isHero>
                 <SectionHeroSlider {...section} key={section.id} />
               </WrapSection>
             );
@@ -204,13 +208,20 @@ function WrapSection({
   index,
   hasDivider,
   showFirstDivider,
+  isHero,
 }: {
   children: React.ReactNode;
   index: number;
   hasDivider?: boolean;
   showFirstDivider?: boolean;
+  isHero?: boolean;
 }) {
   const isFirst = index === 0;
+
+  // Hero sections at first position should have no margin
+  if (isFirst && isHero) {
+    return <div className="!mt-0">{children}</div>;
+  }
 
   return (
     <>
