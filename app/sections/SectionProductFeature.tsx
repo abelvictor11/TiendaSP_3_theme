@@ -35,7 +35,7 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
   return (
     <section className="nc-SectionProductFeature py-10 lg:py-16">
       <div className="container">
-        <div className="grid grid-cols-1 lg:grid-cols-10 gap-0 rounded-3xl overflow-hidden shadow-2xl">
+        <div className="grid grid-cols-1 lg:grid-cols-10 gap-0 rounded-xl overflow-hidden">
           {/* Image Side - 60% */}
           <div className={`relative lg:col-span-6 ${imageOnLeft ? 'lg:order-1' : 'lg:order-2'}`}>
             {displayImage && (
@@ -59,7 +59,7 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
               {/* Heading */}
               {heading?.value && (
                 <h2
-                  className="text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight"
+                  className="text-3xl lg:text-4xl xl:text-5xl font-semibold leading-tight"
                   style={{color: txtColor}}
                 >
                   {heading.value}
@@ -81,7 +81,7 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
                 <div className="pt-2">
                   <Link to={cta_link.value}>
                     <button
-                      className="px-8 py-3 rounded-full font-bold uppercase text-xs tracking-wider transition-all hover:shadow-xl hover:scale-105"
+                      className="px-8 py-3 rounded-full font-bold text-xs tracking-wider transition-all hover:shadow-xl hover:scale-105"
                       style={{
                         backgroundColor: btnBgColor,
                         color: btnTxtColor,
