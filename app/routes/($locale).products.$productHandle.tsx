@@ -57,6 +57,8 @@ import type {RootLoader} from '~/root';
 import {useAside} from '~/components/Aside';
 import {SlashIcon} from '@heroicons/react/24/solid';
 import ProductHelpBanner from '~/components/ProductHelpBanner';
+import ProductHighlights from '~/components/ProductHighlights';
+import ProductSpecs from '~/components/ProductSpecs';
 
 export const headers = routeHeaders;
 
@@ -161,7 +163,28 @@ export const meta = ({matches}: MetaArgs<typeof loader>) => {
 export default function Product() {
   const {product, shop, recommended, variants, routePromise, storeDomain, helpBannerPromise} =
     useLoaderData<typeof loader>();
-  const {media, outstanding_features, descriptionHtml, id} = product;
+  const {
+    media,
+    outstanding_features,
+    descriptionHtml,
+    id,
+    // Specs
+    specs_dimensiones,
+    specs_peso_max_usuario,
+    specs_tipo_resistencia,
+    specs_niveles_resistencia,
+    specs_potencia_motor,
+    specs_peso_producto,
+    specs_garantia,
+    specs_nivel_ruido,
+    specs_conectividad,
+    specs_certificaciones,
+    specs_plegable,
+    specs_requiere_electricidad,
+    specs_ficha_tecnica_pdf,
+    specs_video_producto,
+    specs_highlights,
+  } = product as any;
   const {shippingPolicy, refundPolicy, subscriptionPolicy} = shop;
 
   // Optimistically selects a variant with given available variant information
@@ -229,6 +252,14 @@ export default function Product() {
                 productOptions={productOptions}
                 selectedVariant={selectedVariant}
                 storeDomain={storeDomain}
+              />
+
+              {/* Highlights - Quick specs icons */}
+              <ProductHighlights
+                highlights={specs_highlights?.value ? JSON.parse(specs_highlights.value) as string[] : undefined}
+                pesoMaxUsuario={specs_peso_max_usuario?.value}
+                plegable={specs_plegable?.value === 'true'}
+                requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
               />
 
               {/*  */}
@@ -308,6 +339,24 @@ export default function Product() {
               />
             </div>
           )}
+
+          {/* Technical Specifications */}
+          <ProductSpecs
+            dimensiones={specs_dimensiones?.value}
+            pesoMaxUsuario={specs_peso_max_usuario?.value}
+            tipoResistencia={specs_tipo_resistencia?.value}
+            nivelesResistencia={specs_niveles_resistencia?.value}
+            potenciaMotor={specs_potencia_motor?.value}
+            pesoProducto={specs_peso_producto?.value}
+            garantia={specs_garantia?.value}
+            nivelRuido={specs_nivel_ruido?.value}
+            conectividad={specs_conectividad?.value}
+            certificaciones={specs_certificaciones?.value}
+            plegable={specs_plegable?.value === 'true'}
+            requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
+            fichaTecnicaPdf={specs_ficha_tecnica_pdf?.reference?.url}
+            videoProducto={specs_video_producto?.value}
+          />
 
           {/* Product reviews */}
           <ProductReviews product={product} />
@@ -910,6 +959,56 @@ const PRODUCT_FRAGMENT = `#graphql
         value
         namespace
         key
+      }
+      # Especificaciones técnicas
+      specs_dimensiones: metafield(namespace: "specs", key:"dimensiones") {
+        value
+      }
+      specs_peso_max_usuario: metafield(namespace: "specs", key:"peso_max_usuario") {
+        value
+      }
+      specs_tipo_resistencia: metafield(namespace: "specs", key:"tipo_resistencia") {
+        value
+      }
+      specs_niveles_resistencia: metafield(namespace: "specs", key:"niveles_resistencia") {
+        value
+      }
+      specs_potencia_motor: metafield(namespace: "specs", key:"potencia_motor") {
+        value
+      }
+      specs_peso_producto: metafield(namespace: "specs", key:"peso_producto") {
+        value
+      }
+      specs_garantia: metafield(namespace: "specs", key:"garantia") {
+        value
+      }
+      specs_nivel_ruido: metafield(namespace: "specs", key:"nivel_ruido") {
+        value
+      }
+      specs_conectividad: metafield(namespace: "specs", key:"conectividad") {
+        value
+      }
+      specs_certificaciones: metafield(namespace: "specs", key:"certificaciones") {
+        value
+      }
+      specs_plegable: metafield(namespace: "specs", key:"plegable") {
+        value
+      }
+      specs_requiere_electricidad: metafield(namespace: "specs", key:"requiere_electricidad") {
+        value
+      }
+      specs_ficha_tecnica_pdf: metafield(namespace: "specs", key:"ficha_tecnica_pdf") {
+        reference {
+          ... on GenericFile {
+            url
+          }
+        }
+      }
+      specs_video_producto: metafield(namespace: "specs", key:"video_producto") {
+        value
+      }
+      specs_highlights: metafield(namespace: "specs", key:"highlights") {
+        value
       }
       options {
         name
