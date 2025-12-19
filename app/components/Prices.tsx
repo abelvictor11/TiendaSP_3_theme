@@ -53,8 +53,8 @@ const Prices: FC<PricesProps> = ({
             <s className={`${compareAtPriceClass} text-black line-through`}>
               {formatPrice(compareAtPrice.amount, withoutTrailingZeros)}
             </s>
-            <span className="text-xs font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded">
-              SAVE {discountPercentage}%
+            <span className="text-xs font-semibold text-[#F9F9F9] bg-[#17B2FF] px-2 py-0.5 rounded-md">
+              Ahorra {discountPercentage}%
             </span>
           </>
         ) : null}

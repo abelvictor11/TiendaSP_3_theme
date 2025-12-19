@@ -178,6 +178,13 @@ export default function Product() {
     selectedOrFirstAvailableVariant: selectedVariant,
   });
 
+  // Calculate discount percentage
+  const price = parseFloat(selectedVariant?.price?.amount || '0');
+  const compareAtPrice = parseFloat(selectedVariant?.compareAtPrice?.amount || '0');
+  const discountPercentage = compareAtPrice > price 
+    ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
+    : 0;
+
   return (
     <div
       className={clsx(
@@ -193,6 +200,7 @@ export default function Product() {
               <ProductGallery
                 media={media.nodes}
                 className="w-full lg:col-span-2 lg:gap-7"
+                discountPercentage={discountPercentage}
               />
               <LikeButton
                 id={id}

@@ -12,9 +12,11 @@ import {MagnifyingGlassPlusIcon} from '@heroicons/react/24/outline';
 export function ProductGallery({
   media,
   className,
+  discountPercentage,
 }: {
   media: MediaFragment[];
   className?: string;
+  discountPercentage?: number;
 }) {
   const [isOpenModal, setOpenModal] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -48,6 +50,15 @@ export function ProductGallery({
           onClick={() => openModal(activeIndex)}
           aria-hidden
         >
+          {/* Badge de descuento flotante */}
+          {discountPercentage && discountPercentage > 0 && (
+            <div className="absolute z-10 top-4 left-4">
+              <span className="bg-[#17B2FF] text-[#F9F9F9] text-sm font-semibold px-3 py-1.5 rounded-md shadow-lg">
+                Ahorra {discountPercentage}%
+              </span>
+            </div>
+          )}
+
           {/* Zoom button */}
           <button
             className="absolute z-10 bottom-4 right-4 w-10 h-10 text-slate-700 dark:text-slate-200 rounded-full border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm hover:bg-slate-50 dark:hover:bg-slate-600 transition-all"
