@@ -61,6 +61,18 @@ const ProductCard: FC<ProductCardProps> = ({
   // Segunda imagen para hover (producto en uso/contexto)
   const secondImage = images?.edges?.[1]?.node;
 
+  // Parsear material (puede venir como JSON array)
+  const parseMaterialValue = (value: string | undefined): string | null => {
+    if (!value) return null;
+    try {
+      const parsed = JSON.parse(value);
+      return Array.isArray(parsed) ? parsed.join(' | ') : String(parsed);
+    } catch {
+      return value;
+    }
+  };
+  const materialValue = parseMaterialValue(material?.value);
+
   const firstVariant = variants?.nodes?.[0];
 
   const optColor = options.find((option) => option.name === 'Color');
@@ -346,18 +358,23 @@ const ProductCard: FC<ProductCardProps> = ({
               {title}
             </h5>
             
-            {/* Atributo maestro técnico */}
-            {(peso_maximo_usuario?.value || material?.value) && (
-              <p className="text-xs text-slate-600 flex items-center gap-2">
-                {peso_maximo_usuario?.value && (
-                  <span className="flex items-center gap-1">
-                    <span className="font-medium">⚖️ Max:</span> {peso_maximo_usuario.value}kg
-                  </span>
+            {/* Atributos técnicos con separador | */}
+            {(peso_maximo_usuario?.value || materialValue || envio_gratis?.value === 'true') && (
+              <p className="text-xs text-slate-500 flex items-center flex-wrap gap-x-1">
+                {materialValue && (
+                  <span>{materialValue}</span>
                 )}
-                {material?.value && (
-                  <span className="flex items-center gap-1">
-                    <span className="font-medium">🔧</span> {material.value}
-                  </span>
+                {materialValue && peso_maximo_usuario?.value && (
+                  <span className="text-slate-300">|</span>
+                )}
+                {peso_maximo_usuario?.value && (
+                  <span>Max {peso_maximo_usuario.value}kg</span>
+                )}
+                {(materialValue || peso_maximo_usuario?.value) && envio_gratis?.value === 'true' && (
+                  <span className="text-slate-300">|</span>
+                )}
+                {envio_gratis?.value === 'true' && (
+                  <span className="text-green-600 font-medium">Envío Gratis</span>
                 )}
               </p>
             )}
