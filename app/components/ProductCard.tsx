@@ -340,7 +340,7 @@ const ProductCard: FC<ProductCardProps> = ({
           <div className="flex-grow mt-1">
             {/* Marca */}
           {vendor && (
-            <span className="text-xs font-body uppercase tracking-wide" style={{ color: '#666666' }}>
+            <span className="text-[8px] font-body uppercase tracking-wide" style={{ color: '#000000' }}>
               {vendor}
             </span>
           )}
@@ -373,7 +373,7 @@ const ProductCard: FC<ProductCardProps> = ({
                   <span className="mx-1.5" style={{ color: '#000000' }}>|</span>
                 )}
                 {hasEnvioGratis && (
-                  <span className="bg-[#28faa5] text-[#213875] font-medium px-2 py-0.5 rounded-xs text-xs">Envío Gratis</span>
+                  <span className="bg-[#28faa5] text-[#213875] font-medium px-2 py-0.5 rounded-md text-xs">Envío Gratis</span>
                 )}
               </p>
             )}

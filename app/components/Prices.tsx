@@ -32,7 +32,7 @@ const Prices: FC<PricesProps> = ({
   price,
   compareAtPrice,
   contentClass = 'py-1 md:py-1.5 text-sm font-bold',
-  compareAtPriceClass = 'text-xs',
+  compareAtPriceClass = 'text-md',
   withoutTrailingZeros,
 }) => {
   const hasDiscount = compareAtPrice && parseFloat(compareAtPrice.amount) > parseFloat(price?.amount || '0');
@@ -50,7 +50,7 @@ const Prices: FC<PricesProps> = ({
         ) : null}
         {hasDiscount && compareAtPrice ? (
           <>
-            <s className={`${compareAtPriceClass} text-black line-through`}>
+            <s className={`${compareAtPriceClass} text-black font-body line-through`}>
               {formatPrice(compareAtPrice.amount, withoutTrailingZeros)}
             </s>
             <span className="text-xs font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded-md">
