@@ -249,7 +249,7 @@ const ProductCard: FC<ProductCardProps> = ({
   return (
     <>
       <div
-        className={`ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] rounded-2xl overflow-hidden ${className}`}
+        className={`ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] hover:border-[#1a1a1a] rounded-2xl overflow-hidden ${className}`}
       >
         <Link to={variantUrl} className="absolute inset-0" prefetch="viewport">
           <span className="sr-only">{title}</span>
@@ -292,7 +292,7 @@ const ProductCard: FC<ProductCardProps> = ({
             />
             {/* Badge Uso Comercial/Doméstico */}
             {uso_tipo?.value && (
-              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+              <span className={`px-2 py-1 text-xs font-medium rounded-md ${
                 uso_tipo.value === 'comercial' 
                   ? 'bg-blue-100 text-blue-700' 
                   : 'bg-emerald-100 text-emerald-700'
@@ -306,10 +306,10 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="px-2.5 flex-grow flex flex-col bg-[#f6f7f8] dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+        <div className="py-5 px-2.5 flex-grow flex flex-col bg-[#F9F9F9] dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
           {/* Marca */}
           {vendor && (
-            <span className="text-xs font-semibold uppercase tracking-wide" style={{ color: '#666666' }}>
+            <span className="text-xs font-body uppercase tracking-wide" style={{ color: '#666666' }}>
               {vendor}
             </span>
           )}
@@ -346,7 +346,7 @@ const ProductCard: FC<ProductCardProps> = ({
               style={{
                 fontSize: '1rem',
                 fontStyle: 'normal',
-                fontWeight: 700,
+                fontWeight: 600,
                 lineHeight: '1.2',
               }}
               title={title}
