@@ -49,7 +49,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   const btnText = button_text?.value || 'VIEW PRODUCT';
 
   return (
-    <section className="nc-SectionProductShowcase relative min-h-[80vh] flex items-center overflow-hidden">
+    <section className="nc-SectionProductShowcase relative h-screen flex items-end overflow-hidden">
       {/* Background Image */}
       {bgImage && (
         <div className="absolute inset-0 w-full h-full">
@@ -72,8 +72,8 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
         </div>
       )}
 
-      <div className="container relative z-10 py-8 lg:py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+      <div className="container relative z-10 pb-12 lg:pb-16 pt-[40vh]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[55vh]">
           {/* Left Content Card */}
           <div className="lg:col-span-5">
             <div
