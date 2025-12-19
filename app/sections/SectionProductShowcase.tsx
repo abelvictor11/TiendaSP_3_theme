@@ -129,7 +129,6 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
                 <ProductCard
                   key={product.id}
                   product={product}
-                  showViewProductButton={true}
                   quickAddToCart={true}
                 />
               ))}

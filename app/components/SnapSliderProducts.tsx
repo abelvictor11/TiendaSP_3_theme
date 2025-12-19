@@ -20,8 +20,6 @@ export interface Props {
   isSkeleton?: boolean;
   /** Number of columns visible on desktop (xl breakpoint). Default is 4. Options: 3 or 4 */
   columnsDesktop?: 3 | 4;
-  /** Show/hide the "Ver producto" button on cards */
-  showViewProductButton?: boolean;
 }
 
 export function SnapSliderProducts(props: Props) {
@@ -35,7 +33,6 @@ export function SnapSliderProducts(props: Props) {
     headingFontClass,
     isSkeleton,
     columnsDesktop = 4,
-    showViewProductButton = true,
   } = props;
 
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -95,7 +92,6 @@ export function SnapSliderProducts(props: Props) {
                 className="w-full"
                 product={item}
                 loading={getImageLoadingPriority(index)}
-                showViewProductButton={showViewProductButton}
               />
             </div>
           ))}

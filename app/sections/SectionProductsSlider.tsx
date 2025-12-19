@@ -9,9 +9,6 @@ export function SectionProductsSlider(props: SectionProductsSliderFragment) {
 
   // Parse columns value (default to 4 if not set)
   const columnsDesktop = columns?.value === '3' ? 3 : 4;
-  
-  // Parse show_view_button value (default to true if not set)
-  const showViewProductButton = show_view_button?.value !== 'false';
 
   return (
     <section>
@@ -23,7 +20,6 @@ export function SectionProductsSlider(props: SectionProductsSliderFragment) {
         cardStyle={style?.value as '1' | '2'}
         isSkeleton={!collection}
         columnsDesktop={columnsDesktop}
-        showViewProductButton={showViewProductButton}
       />
     </section>
   );
