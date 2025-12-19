@@ -1144,6 +1144,47 @@ const mutaionMetafieldDefinitionsFetchs = async ({
           description: 'A list of outstanding features of the product.',
         }
       : null,
+    // Metafields para tarjeta enriquecida de fitness
+    otherFields['product_mtf_uso_tipo']
+      ? {
+          name: 'Tipo de Uso',
+          key: 'uso_tipo',
+          namespace: 'custom',
+          type: 'single_line_text_field',
+          ownerType: 'PRODUCT',
+          description: 'Tipo de uso del producto: "comercial" o "domestico"',
+        }
+      : null,
+    otherFields['product_mtf_peso_maximo_usuario']
+      ? {
+          name: 'Peso Máximo Usuario',
+          key: 'peso_maximo_usuario',
+          namespace: 'custom',
+          type: 'number_integer',
+          ownerType: 'PRODUCT',
+          description: 'Peso máximo soportado en kg (para máquinas de ejercicio)',
+        }
+      : null,
+    otherFields['product_mtf_material']
+      ? {
+          name: 'Material',
+          key: 'material',
+          namespace: 'custom',
+          type: 'single_line_text_field',
+          ownerType: 'PRODUCT',
+          description: 'Material principal del producto (ej: Acero, Hierro fundido, Neopreno)',
+        }
+      : null,
+    otherFields['product_mtf_envio_gratis']
+      ? {
+          name: 'Envío Gratis',
+          key: 'envio_gratis',
+          namespace: 'custom',
+          type: 'boolean',
+          ownerType: 'PRODUCT',
+          description: 'Indica si el producto tiene envío gratis',
+        }
+      : null,
   ].filter(Boolean);
 
   const fetch2_create_metafield_definitions = Promise.all(
@@ -3095,6 +3136,19 @@ function BoxMessage({accessToken}: {accessToken: string}) {
       item.namespace === 'ciseco--collection' &&
       item.key === 'horizontal_image',
   );
+  // Metafields para tarjeta enriquecida de fitness
+  const product_mtf_uso_tipo = productMetafieldDefinitions.find(
+    (item) => item.namespace === 'custom' && item.key === 'uso_tipo',
+  );
+  const product_mtf_peso_maximo_usuario = productMetafieldDefinitions.find(
+    (item) => item.namespace === 'custom' && item.key === 'peso_maximo_usuario',
+  );
+  const product_mtf_material = productMetafieldDefinitions.find(
+    (item) => item.namespace === 'custom' && item.key === 'material',
+  );
+  const product_mtf_envio_gratis = productMetafieldDefinitions.find(
+    (item) => item.namespace === 'custom' && item.key === 'envio_gratis',
+  );
   const ciseco_metaobjectDefinitions: {
     name: string;
     item: Record<string, any> | null;
@@ -3236,6 +3290,36 @@ function BoxMessage({accessToken}: {accessToken: string}) {
               />
             )}
 
+            {/* Metafields para tarjeta enriquecida de fitness */}
+            {!product_mtf_uso_tipo && (
+              <input
+                type="hidden"
+                name="product_mtf_uso_tipo"
+                value="product_mtf_uso_tipo"
+              />
+            )}
+            {!product_mtf_peso_maximo_usuario && (
+              <input
+                type="hidden"
+                name="product_mtf_peso_maximo_usuario"
+                value="product_mtf_peso_maximo_usuario"
+              />
+            )}
+            {!product_mtf_material && (
+              <input
+                type="hidden"
+                name="product_mtf_material"
+                value="product_mtf_material"
+              />
+            )}
+            {!product_mtf_envio_gratis && (
+              <input
+                type="hidden"
+                name="product_mtf_envio_gratis"
+                value="product_mtf_envio_gratis"
+              />
+            )}
+
             {ciseco_metaobjectDefinitions.map((item) =>
               !item.item ? (
                 <input
@@ -3349,6 +3433,23 @@ function BoxMessage({accessToken}: {accessToken: string}) {
           {renderItemStatus(
             collection_mtf_horizontal_image,
             'Collection metafield - Horizontal Image',
+          )}
+          {/* Metafields para tarjeta enriquecida de fitness */}
+          {renderItemStatus(
+            product_mtf_uso_tipo,
+            'Product metafield - Tipo de Uso (comercial/doméstico)',
+          )}
+          {renderItemStatus(
+            product_mtf_peso_maximo_usuario,
+            'Product metafield - Peso Máximo Usuario',
+          )}
+          {renderItemStatus(
+            product_mtf_material,
+            'Product metafield - Material',
+          )}
+          {renderItemStatus(
+            product_mtf_envio_gratis,
+            'Product metafield - Envío Gratis',
           )}
           {ciseco_metaobjectDefinitions.map((item) => (
             <div key={item.name}>
