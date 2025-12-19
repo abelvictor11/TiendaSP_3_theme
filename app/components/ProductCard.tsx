@@ -295,7 +295,7 @@ const ProductCard: FC<ProductCardProps> = ({
               <span className={`px-2 py-1 text-xs font-medium rounded-md ${
                 uso_tipo.value === 'comercial' 
                   ? 'bg-blue-100 text-blue-700' 
-                  : 'bg-emerald-100 text-emerald-700'
+                  : 'bg-[#F9F9F9] text-[#2B2A2A]'
               }`}>
                 {uso_tipo.value === 'comercial' ? 'Comercial' : 'Doméstico'}
               </span>
