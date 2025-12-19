@@ -76,9 +76,6 @@ const ProductCard: FC<ProductCardProps> = ({
   // Verificar envío gratis (puede ser "true" o "1")
   const hasEnvioGratis = envio_gratis?.value === 'true' || envio_gratis?.value === '1';
 
-  // DEBUG: Ver datos de metafields
-  console.log('ProductCard metafields:', { title, materialValue, peso_maximo: peso_maximo_usuario?.value, envio_gratis: envio_gratis?.value, hasEnvioGratis });
-
   const firstVariant = variants?.nodes?.[0];
 
   const optColor = options.find((option) => option.name === 'Color');
@@ -283,8 +280,8 @@ const ProductCard: FC<ProductCardProps> = ({
               )}
             </div>
           </Link>
-          {/* Badges de estado */}
-          <div className="absolute top-3 start-3 z-10 flex flex-col gap-1">
+          {/* Badges de estado - fila horizontal */}
+          <div className="absolute top-3 start-3 z-10 flex flex-row flex-wrap gap-1.5">
             <ProductBadge
               status={getProductStatus({
                 availableForSale: product.availableForSale,
@@ -296,18 +293,12 @@ const ProductCard: FC<ProductCardProps> = ({
             />
             {/* Badge Uso Comercial/Doméstico */}
             {uso_tipo?.value && (
-              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+              <span className={`px-2 py-0.5 text-xs font-medium rounded ${
                 uso_tipo.value === 'comercial' 
-                  ? 'bg-blue-100 text-blue-800' 
-                  : 'bg-green-100 text-green-800'
+                  ? 'bg-blue-100 text-blue-700' 
+                  : 'bg-emerald-100 text-emerald-700'
               }`}>
-                {uso_tipo.value === 'comercial' ? '🏢 Comercial' : '🏠 Doméstico'}
-              </span>
-            )}
-            {/* Badge Envío Gratis */}
-            {envio_gratis?.value === 'true' && (
-              <span className="px-2 py-1 text-xs font-medium rounded-full bg-purple-100 text-purple-800">
-                🚚 Envío Gratis
+                {uso_tipo.value === 'comercial' ? 'Comercial' : 'Doméstico'}
               </span>
             )}
           </div>
@@ -329,7 +320,7 @@ const ProductCard: FC<ProductCardProps> = ({
           {/* Selector de pesos (para mancuernas, pesas, etc.) */}
           {optWeight && optWeight.values.length > 1 && (
             <div className="flex items-center gap-1.5 flex-wrap">
-              {optWeight.values.slice(0, 6).map((weight) => (
+              {optWeight.values.slice(0, 4).map((weight) => (
                 <Link
                   key={weight}
                   to={getProductUrlWithSelectedOption({
@@ -339,13 +330,13 @@ const ProductCard: FC<ProductCardProps> = ({
                       { name: optWeight.name, value: weight },
                     ],
                   })}
-                  className="relative z-10 min-w-8 h-6 px-1.5 flex items-center justify-center text-xs font-medium bg-white border border-slate-200 rounded-full hover:border-slate-400 transition-colors"
+                  className="relative z-10 min-w-8 h-6 px-1.5 flex items-center justify-center text-xs font-medium bg-white rounded-md hover:border hover:border-slate-400 transition-colors"
                 >
                   {weight}
                 </Link>
               ))}
-              {optWeight.values.length > 6 && (
-                <span className="text-xs text-slate-500">+{optWeight.values.length - 6}</span>
+              {optWeight.values.length > 4 && (
+                <span className="text-xs text-slate-500">+{optWeight.values.length - 4}</span>
               )}
             </div>
           )}
