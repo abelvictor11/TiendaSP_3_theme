@@ -196,6 +196,12 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
     }
   >(section);
 
+  // Get colors with defaults
+  const headingColor = (item as any).heading_color?.value || '#1e293b';
+  const subheadingColor = (item as any).subheading_color?.value || '#475569';
+  const buttonBgColor = (item as any).button_bg_color?.value || '#1e293b';
+  const buttonTextColor = (item as any).button_text_color?.value || '#ffffff';
+
   return (
     <div className="h-[60vh] min-h-[400px] w-full lg:h-[55vh] lg:min-h-[450px] relative overflow-hidden bg-slate-100">
       {/* BG - Absolute positioned */}
@@ -226,27 +232,32 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
             <div className="space-y-3 sm:space-y-4">
               {!!item.sub_heading?.value && (
                 <span
-                  className="nc-SectionHeroSliderItem__subheading block text-base font-medium text-slate-700 md:text-xl"
+                  className="nc-SectionHeroSliderItem__subheading block text-base font-medium md:text-xl"
+                  style={{color: subheadingColor}}
                   dangerouslySetInnerHTML={{__html: item.sub_heading.value}}
                 />
               )}
               {!!item.heading?.value && (
                 <h2
-                  className="nc-SectionHeroSliderItem__heading text-3xl font-semibold !leading-[114%] text-slate-900 sm:text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl"
+                  className="nc-SectionHeroSliderItem__heading text-3xl font-semibold !leading-[114%] sm:text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl"
+                  style={{color: headingColor}}
                   dangerouslySetInnerHTML={{__html: item.heading.value}}
                 />
               )}
             </div>
 
-            {!!item.cta_button?.href && (
-              <ButtonPrimary
-                className="nc-SectionHeroSliderItem__button"
-                sizeClass="py-3 px-6 sm:py-5 sm:px-9"
-                fontSize="text-sm sm:text-base xl:text-lg font-medium"
-                href={item.cta_button?.href?.value}
-                targetBlank={item.cta_button?.target?.value === 'true'}
+            {!!item.cta_button?.href?.value && (
+              <a
+                href={item.cta_button.href.value}
+                target={item.cta_button?.target?.value === 'true' ? '_blank' : '_self'}
+                rel={item.cta_button?.target?.value === 'true' ? 'noopener noreferrer' : undefined}
+                className="nc-SectionHeroSliderItem__button inline-flex items-center justify-center rounded-full py-3 px-6 sm:py-5 sm:px-9 text-sm sm:text-base xl:text-lg font-medium transition-colors hover:opacity-90"
+                style={{
+                  backgroundColor: buttonBgColor,
+                  color: buttonTextColor,
+                }}
               >
-                <span>{item.cta_button?.text?.value}</span>
+                <span>{item.cta_button?.text?.value || 'Ver más'}</span>
                 {!!item.cta_button?.icon_svg?.value && (
                   <span
                     className="ms-2.5 *:!h-5 *:!w-5"
@@ -255,7 +266,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
                     }}
                   />
                 )}
-              </ButtonPrimary>
+              </a>
             )}
           </div>
         </div>
@@ -291,6 +302,18 @@ export const HERO_ITEM_FRAGMENT = `#graphql
             ...MediaImage
           }
         }
+      }
+      heading_color: field(key: "heading_color") {
+        value
+      }
+      subheading_color: field(key: "subheading_color") {
+        value
+      }
+      button_bg_color: field(key: "button_bg_color") {
+        value
+      }
+      button_text_color: field(key: "button_text_color") {
+        value
       }
   }
 `;

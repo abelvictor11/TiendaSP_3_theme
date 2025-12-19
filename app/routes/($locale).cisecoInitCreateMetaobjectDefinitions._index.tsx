@@ -209,6 +209,30 @@ const mutationMetaObjectDefinitionsFetchs = async ({
               value: metaobject_Link_ID,
             },
           },
+          {
+            name: 'Heading color',
+            key: 'heading_color',
+            type: 'color',
+            description: 'Color for the main heading text',
+          },
+          {
+            name: 'Subheading color',
+            key: 'subheading_color',
+            type: 'color',
+            description: 'Color for the subheading text',
+          },
+          {
+            name: 'Button background color',
+            key: 'button_bg_color',
+            type: 'color',
+            description: 'Background color for the CTA button',
+          },
+          {
+            name: 'Button text color',
+            key: 'button_text_color',
+            type: 'color',
+            description: 'Text color for the CTA button',
+          },
         ],
       },
     })) as Record<string, any> | null;
