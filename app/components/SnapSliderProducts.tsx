@@ -63,7 +63,7 @@ export function SnapSliderProducts(props: Props) {
             <div
               key={index}
               className={clsx(
-                `mySnapItem snap-start shrink-0 px-1`,
+                `mySnapItem snap-start shrink-0 px-2`,
                 cardStyle !== '2'
                   ? columnsDesktop === 3
                     ? 'w-[17rem] lg:w-80 xl:w-[33.33%]'

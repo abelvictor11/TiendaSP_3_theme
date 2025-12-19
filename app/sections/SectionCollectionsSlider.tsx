@@ -73,7 +73,7 @@ export const CollectionSlider = ({
       <div className="">
         <div
           ref={sliderRef}
-          className="relative w-full flex gap-4 lg:gap-8 snap-x snap-mandatory overflow-x-auto scroll-p-l-container hiddenScrollbar"
+          className="relative w-full flex gap-4 snap-x snap-mandatory overflow-x-auto scroll-p-l-container hiddenScrollbar"
         >
           <div className="w-0 nc-p-l-container"></div>
           {isSkeleton

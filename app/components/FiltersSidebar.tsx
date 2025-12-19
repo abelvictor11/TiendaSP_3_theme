@@ -111,7 +111,7 @@ export default function FiltersSidebar({
                               name={option.label}
                               label={option.label}
                               checked={isChecked}
-                              labelClassName="capitalize text-sm"
+                              labelClassName="text-xs"
                               onChange={(event) => {
                                 handleFilterChange(option, event.target.checked);
                               }}

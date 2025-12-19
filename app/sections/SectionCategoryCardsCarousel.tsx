@@ -56,7 +56,7 @@ export function SectionCategoryCardsCarousel(
     return (
       <div
         key={item.id}
-        className="mySnapItem snap-start shrink-0 px-2 lg:px-4"
+        className="mySnapItem snap-start shrink-0 px-2"
       >
         <div className="relative overflow-hidden rounded-2xl group w-[350px] sm:w-[450px] lg:w-[500px] h-[400px] sm:h-[450px]">
           {/* Background with color or gradient */}
