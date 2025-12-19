@@ -262,17 +262,18 @@ const ProductCard: FC<ProductCardProps> = ({
         <div className="space-y-3 px-2.5 pt-5 pb-2.5 flex-grow flex flex-col bg-[#f6f7f8] dark:bg-slate-800">
           {renderColorOptions()}
           <div className="space-y-2 flex-grow">
-            <h6
+            <h5
               className="nc-ProductCard__title transition-colors"
               style={{
                 fontSize: '1rem',
                 fontStyle: 'normal',
-                fontWeight: 600,
+                fontWeight: 700,
+                lineHeight: '1.2',
               }}
               title={title}
             >
               {title}
-            </h6>
+            </h5>
             {product.tags && product.tags.length > 0 && (
               <p
                 className="capitalize whitespace-nowrap overflow-hidden text-ellipsis"
