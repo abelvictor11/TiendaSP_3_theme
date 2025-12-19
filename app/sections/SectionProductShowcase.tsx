@@ -77,14 +77,14 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           {/* Left Content Card */}
           <div className="lg:col-span-5">
             <div
-              className="rounded-3xl p-8 lg:p-12 h-full shadow-2xl backdrop-blur-md"
+              className="rounded-xl p-8 lg:p-12 h-full shadow-2xl backdrop-blur-md"
               style={{backgroundColor: `${contentBg}cc`}} // cc = 80% opacity
             >
 
               {/* Heading */}
               {heading?.value && (
                 <h2
-                  className="text-3xl lg:text-4xl xl:text-5xl font-bold mb-6"
+                  className="text-3xl lg:text-4xl xl:text-5xl capitalize font-semibold mb-6"
                   style={{color: txtColor}}
                 >
                   {heading.value}
@@ -103,17 +103,17 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
               {/* Subheading */}
               {subheading?.value && (
                 <h3
-                  className="text-lg font-semibold mb-4 uppercase tracking-wide"
+                  className="text-md font-semibold mb-4 tracking-wide"
                   style={{color: txtColor}}
                 >
                   {subheading.value}
                 </h3>
               )}
-
+<hr className="my-4 border-gray-300" />
               {/* Description */}
               {description?.value && (
                 <p
-                  className="text-base leading-relaxed"
+                  className="text-base leading-relaxed mt-12"
                   style={{color: txtColor}}
                 >
                   {description.value}
@@ -130,6 +130,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
                   key={product.id}
                   product={product}
                   cardBackgroundColor={cardBg}
+                  cardTextColor={cardTxt}
                 />
               ))}
             </div>

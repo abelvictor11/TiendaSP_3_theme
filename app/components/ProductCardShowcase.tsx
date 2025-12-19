@@ -8,11 +8,13 @@ import {getVariantUrl} from '~/lib/variants';
 export interface ProductCardShowcaseProps {
   product: CommonProductCardFragment;
   cardBackgroundColor?: string;
+  cardTextColor?: string;
 }
 
 export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
   product,
   cardBackgroundColor = '#ffffff',
+  cardTextColor = '#FFFFFF',
 }) => {
   const {
     id,
@@ -61,7 +63,7 @@ export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
       <div className="p-4 flex-grow flex flex-col" style={{fontFamily: 'Montserrat, sans-serif'}}>
         {/* Vendor */}
         {vendor && (
-          <span className="text-xs font-medium uppercase tracking-wide mb-1" style={{color: '#666666'}}>
+          <span className="text-xs font-medium uppercase tracking-wide mb-1" style={{color: cardTextColor, opacity: 0.7}}>
             {vendor}
           </span>
         )}
@@ -69,7 +71,7 @@ export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
         {/* Title */}
         <h5
           className="text-base font-semibold mb-2 line-clamp-2"
-          style={{lineHeight: '1.3'}}
+          style={{lineHeight: '1.3', color: cardTextColor}}
         >
           {title}
         </h5>
