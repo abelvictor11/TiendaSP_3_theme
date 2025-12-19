@@ -359,21 +359,21 @@ const ProductCard: FC<ProductCardProps> = ({
             
             {/* Atributos técnicos con separador | */}
             {(peso_maximo_usuario?.value || materialValue || hasEnvioGratis) && (
-              <p className="text-xs flex items-center flex-wrap mt-1" style={{ color: '#666666' }}>
+              <p className="text-xs flex items-center flex-wrap mt-1" style={{ color: '#000000' }}>
                 {materialValue && (
                   <span>{materialValue}</span>
                 )}
                 {materialValue && peso_maximo_usuario?.value && (
-                  <span className="mx-1.5" style={{ color: '#cccccc' }}>|</span>
+                  <span className="mx-1.5" style={{ color: '#000000' }}>|</span>
                 )}
                 {peso_maximo_usuario?.value && (
                   <span>Max {peso_maximo_usuario.value}kg</span>
                 )}
                 {(materialValue || peso_maximo_usuario?.value) && hasEnvioGratis && (
-                  <span className="mx-1.5" style={{ color: '#cccccc' }}>|</span>
+                  <span className="mx-1.5" style={{ color: '#000000' }}>|</span>
                 )}
                 {hasEnvioGratis && (
-                  <span className="text-green-600 font-medium">Envío Gratis</span>
+                  <span className="bg-[#28faa5] text-[#213875] font-medium px-2 py-0.5 rounded-xs text-xs">Envío Gratis</span>
                 )}
               </p>
             )}
