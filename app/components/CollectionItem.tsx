@@ -29,6 +29,9 @@ const CollectionItem: FC<CollectionItemProps> = ({
 }) => {
   const {description, handle, title, horizontal_image, products, image} = item;
 
+  // DEBUG: Ver qué datos llegan de la colección
+  console.log('CollectionItem data:', {title, horizontal_image, image});
+
   const hImage = horizontal_image?.reference?.image;
 
   return (
