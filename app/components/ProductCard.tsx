@@ -72,6 +72,12 @@ const ProductCard: FC<ProductCardProps> = ({
     }
   };
   const materialValue = parseMaterialValue(material?.value);
+  
+  // Verificar envío gratis (puede ser "true" o "1")
+  const hasEnvioGratis = envio_gratis?.value === 'true' || envio_gratis?.value === '1';
+
+  // DEBUG: Ver datos de metafields
+  console.log('ProductCard metafields:', { title, materialValue, peso_maximo: peso_maximo_usuario?.value, envio_gratis: envio_gratis?.value, hasEnvioGratis });
 
   const firstVariant = variants?.nodes?.[0];
 
@@ -359,21 +365,21 @@ const ProductCard: FC<ProductCardProps> = ({
             </h5>
             
             {/* Atributos técnicos con separador | */}
-            {(peso_maximo_usuario?.value || materialValue || envio_gratis?.value === 'true') && (
-              <p className="text-xs text-slate-500 flex items-center flex-wrap gap-x-1">
+            {(peso_maximo_usuario?.value || materialValue || hasEnvioGratis) && (
+              <p className="text-xs text-slate-500 flex items-center flex-wrap">
                 {materialValue && (
                   <span>{materialValue}</span>
                 )}
                 {materialValue && peso_maximo_usuario?.value && (
-                  <span className="text-slate-300">|</span>
+                  <span className="text-slate-300 mx-1.5">|</span>
                 )}
                 {peso_maximo_usuario?.value && (
                   <span>Max {peso_maximo_usuario.value}kg</span>
                 )}
-                {(materialValue || peso_maximo_usuario?.value) && envio_gratis?.value === 'true' && (
-                  <span className="text-slate-300">|</span>
+                {(materialValue || peso_maximo_usuario?.value) && hasEnvioGratis && (
+                  <span className="text-slate-300 mx-1.5">|</span>
                 )}
-                {envio_gratis?.value === 'true' && (
+                {hasEnvioGratis && (
                   <span className="text-green-600 font-medium">Envío Gratis</span>
                 )}
               </p>
