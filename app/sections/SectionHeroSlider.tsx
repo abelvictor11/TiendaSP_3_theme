@@ -198,13 +198,14 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
 
   return (
     <div className="h-[50vh] max-h-full min-h-[325px] w-full max-[375px]:h-[60vh] sm:h-[45vh] md:max-h-[650px] xl:h-[60vh] relative flex flex-col-reverse overflow-hidden lg:flex-col bg-slate-100">
-      {/* BG */}
-      <div className="nc-SectionHeroSliderItem__image">
+      {/* BG - Absolute positioned */}
+      <div className="nc-SectionHeroSliderItem__image absolute inset-0 w-full h-full">
         {!!item.horizontal_image?.image && (
           <Image
             data={item.horizontal_image?.image}
             sizes="110vw"
-            className="hidden h-full w-full object-cover lg:block"
+            className="hidden h-full w-full object-cover object-center lg:block"
+            style={{objectPosition: 'center bottom'}}
           />
         )}
 
@@ -212,13 +213,14 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
           <Image
             data={item.vertical_image?.image}
             sizes="100vw"
-            className="block h-full w-full object-cover object-bottom lg:hidden"
+            className="block h-full w-full object-cover lg:hidden"
+            style={{objectPosition: 'center bottom'}}
           />
         )}
       </div>
 
-      {/* CONTENT */}
-      <div className="flex py-12 sm:py-14 lg:items-center lg:pb-20">
+      {/* CONTENT - Above image */}
+      <div className="relative z-10 flex py-12 sm:py-14 lg:items-center lg:pb-20">
         <div className="container relative">
           <div className="nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-8 lg:space-y-14">
             <div className="space-y-5 sm:space-y-6">
