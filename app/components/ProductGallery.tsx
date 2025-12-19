@@ -45,12 +45,9 @@ export function ProductGallery({
   return (
     <>
       <div className={clsx('flex flex-col', className)}>
-        {/* Main Image - Limited to viewport height with 20px margin */}
+        {/* Main Image - Limited to viewport height accounting for header */}
         <div
-          className="relative w-full aspect-square lg:aspect-auto bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden cursor-zoom-in group"
-          style={{
-            maxHeight: 'calc(100svh - 40px)',
-          }}
+          className="relative w-full aspect-square lg:aspect-auto bg-slate-100 dark:bg-slate-800 rounded-xl overflow-hidden cursor-zoom-in group lg:max-h-[calc(90svh-40px)]"
           onClick={() => openModal(activeIndex)}
           aria-hidden
         >
