@@ -5,6 +5,7 @@ import {Dialog, Transition} from '@headlessui/react';
 import ButtonClose from './ButtonClose';
 import clsx from 'clsx';
 import {MagnifyingGlassPlusIcon} from '@heroicons/react/24/outline';
+import ProductStatus from './ProductStatus';
 
 /**
  * A client component that defines a media gallery for hosting images, 3D models, and videos of products
@@ -50,12 +51,15 @@ export function ProductGallery({
           onClick={() => openModal(activeIndex)}
           aria-hidden
         >
-          {/* Badge de descuento flotante */}
+          {/* Badge de Oferta flotante */}
           {discountPercentage && discountPercentage > 0 && (
             <div className="absolute z-10 top-4 left-4">
-              <span className="bg-[#17B2FF] text-[#F9F9F9] text-sm font-semibold px-3 py-1.5 rounded-md shadow-lg">
-                Ahorra {discountPercentage}%
-              </span>
+              <ProductStatus
+                status="Oferta"
+                icon="IconDiscount"
+                color="rose"
+                className="px-3 py-1.5 text-sm"
+              />
             </div>
           )}
 
