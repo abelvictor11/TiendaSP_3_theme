@@ -3,6 +3,8 @@ import {Link} from '@remix-run/react';
 import type {SectionProductShowcaseFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
 import {ProductCardShowcase} from '~/components/ProductCardShowcase';
+import {useRef, useState} from 'react';
+import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/24/outline';
 
 export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   const section = parseSection<SectionProductShowcaseFragment, {}>(props);
@@ -48,8 +50,35 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   const cardTxt = card_text_color?.value || '#000000';
   const btnText = button_text?.value || 'VIEW PRODUCT';
 
+  // Carousel state for mobile
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const scrollToSlide = (index: number) => {
+    if (scrollContainerRef.current) {
+      const slideWidth = scrollContainerRef.current.offsetWidth;
+      scrollContainerRef.current.scrollTo({
+        left: slideWidth * index,
+        behavior: 'smooth',
+      });
+      setCurrentSlide(index);
+    }
+  };
+
+  const handleScroll = () => {
+    if (scrollContainerRef.current) {
+      const slideWidth = scrollContainerRef.current.offsetWidth;
+      const scrollPosition = scrollContainerRef.current.scrollLeft;
+      const newSlide = Math.round(scrollPosition / slideWidth);
+      setCurrentSlide(newSlide);
+    }
+  };
+
+  // Total slides: 1 (content) + products
+  const totalSlides = 1 + productsToShow.length;
+
   return (
-    <section className="nc-SectionProductShowcase relative h-screen flex items-end overflow-hidden">
+    <section className="nc-SectionProductShowcase relative min-h-[600px] lg:min-h-[700px] lg:h-screen flex items-end overflow-hidden">
       {/* Background Image */}
       {bgImage && (
         <div className="absolute inset-0 w-full h-full">
@@ -72,48 +101,38 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
         </div>
       )}
 
-      <div className="container relative z-10 pb-12 lg:pb-16 pt-[40vh]">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[55vh]">
+      {/* Desktop Layout */}
+      <div className="hidden lg:block container relative z-10 pb-12 lg:pb-16 pt-24">
+        <div className="grid grid-cols-12 gap-4">
           {/* Left Content Card */}
-          <div className="lg:col-span-5">
+          <div className="col-span-5">
             <div
-              className="rounded-xl p-8 lg:p-12 h-full shadow-2xl backdrop-blur-md"
-              style={{backgroundColor: `${contentBg}cc`}} // cc = 80% opacity
+              className="rounded-xl p-8 lg:p-10 h-full shadow-2xl backdrop-blur-md"
+              style={{backgroundColor: `${contentBg}cc`}}
             >
-
-              {/* Heading */}
               {heading?.value && (
                 <h2
-                  className="text-3xl lg:text-4xl xl:text-5xl capitalize font-semibold mb-6"
+                  className="font-headline text-3xl lg:text-4xl xl:text-5xl capitalize font-bold mb-6"
                   style={{color: txtColor}}
                 >
                   {heading.value}
                 </h2>
               )}
 
-              {/* Icon */}
-              {icon_svg?.value && (
-                <div
-                  className="w-12 h-12 mb-4"
-                  dangerouslySetInnerHTML={{__html: icon_svg.value}}
-                  style={{color: txtColor}}
-                />
-              )}
-
-              {/* Subheading */}
               {subheading?.value && (
                 <h3
-                  className="text-md font-semibold mb-4 tracking-wide"
+                  className="text-md font-semibold mb-4 tracking-wide uppercase"
                   style={{color: txtColor}}
                 >
                   {subheading.value}
                 </h3>
               )}
-<hr className="my-4 border-gray-300" />
-              {/* Description */}
+
+              <hr className="my-4" style={{borderColor: `${txtColor}33`}} />
+
               {description?.value && (
                 <p
-                  className="text-base leading-relaxed mt-12"
+                  className="text-base leading-relaxed mt-6"
                   style={{color: txtColor}}
                 >
                   {description.value}
@@ -123,8 +142,8 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           </div>
 
           {/* Right Product Cards */}
-          <div className="lg:col-span-7">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="col-span-7">
+            <div className="grid grid-cols-2 gap-4 h-full">
               {productsToShow.map((product: any) => (
                 <ProductCardShowcase
                   key={product.id}
@@ -135,6 +154,83 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
               ))}
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mobile Carousel Layout */}
+      <div className="lg:hidden relative z-10 w-full pb-8 pt-20">
+        {/* Carousel Container */}
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+          style={{scrollbarWidth: 'none', msOverflowStyle: 'none'}}
+        >
+          {/* Content Slide */}
+          <div className="flex-shrink-0 w-full snap-center px-4">
+            <div
+              className="rounded-xl p-6 shadow-2xl backdrop-blur-md h-[400px] flex flex-col justify-center"
+              style={{backgroundColor: `${contentBg}cc`}}
+            >
+              {heading?.value && (
+                <h2
+                  className="font-headline text-2xl sm:text-3xl capitalize font-bold mb-4"
+                  style={{color: txtColor}}
+                >
+                  {heading.value}
+                </h2>
+              )}
+
+              {subheading?.value && (
+                <h3
+                  className="text-sm font-semibold mb-3 tracking-wide uppercase"
+                  style={{color: txtColor}}
+                >
+                  {subheading.value}
+                </h3>
+              )}
+
+              <hr className="my-3" style={{borderColor: `${txtColor}33`}} />
+
+              {description?.value && (
+                <p
+                  className="text-sm leading-relaxed mt-3"
+                  style={{color: txtColor}}
+                >
+                  {description.value}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Product Slides */}
+          {productsToShow.map((product: any) => (
+            <div key={product.id} className="flex-shrink-0 w-full snap-center px-4">
+              <div className="h-[400px]">
+                <ProductCardShowcase
+                  product={product}
+                  cardBackgroundColor={cardBg}
+                  cardTextColor={cardTxt}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Carousel Indicators */}
+        <div className="flex justify-center gap-2 mt-4">
+          {Array.from({length: totalSlides}).map((_, index) => (
+            <button
+              key={index}
+              onClick={() => scrollToSlide(index)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                currentSlide === index
+                  ? 'bg-white w-6'
+                  : 'bg-white/50'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
         </div>
       </div>
     </section>
