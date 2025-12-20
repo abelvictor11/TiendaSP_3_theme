@@ -1,6 +1,5 @@
-import {Transition} from '@headlessui/react';
 import {ChevronDownIcon} from '@heroicons/react/24/solid';
-import {Fragment, useState, useRef} from 'react';
+import {useState, useRef} from 'react';
 import {Link} from '@remix-run/react';
 import type {ParentEnhancedMenuItem, ChildEnhancedMenuItem} from '~/lib/utils';
 import CollectionItem from '../CollectionItem';
@@ -90,56 +89,49 @@ function NavItem({
 
   return (
     <li 
-      className="static"
+      className="group/nav static"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
-      <div className="relative">
-        {/* Main Link - Click navigates to collection */}
-        {!menuItem.to.startsWith('http') ? (
-          <Link
-            to={menuItem.to}
-            prefetch="intent"
-            className={`
-              ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-300'}
-              group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
-          >
-            <span>{menuItem.title}</span>
-            <ChevronDownIcon
-              className={`${isHovered ? '-rotate-180' : ''}
-                ml-1 h-4 w-4 transition ease-in-out duration-150`}
-              aria-hidden="true"
-            />
-          </Link>
-        ) : (
-          <a
-            href={menuItem.to}
-            target={menuItem.target}
-            className={`
-              ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-300'}
-              group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
-          >
-            <span>{menuItem.title}</span>
-            <ChevronDownIcon
-              className={`${isHovered ? '-rotate-180' : ''}
-                ml-1 h-4 w-4 transition ease-in-out duration-150`}
-              aria-hidden="true"
-            />
-          </a>
-        )}
-
-        {/* Megamenu Panel - Shows on hover */}
-        <Transition
-          show={isHovered}
-          as={Fragment}
-          enter="transition ease-out duration-200"
-          enterFrom="opacity-0 translate-y-1"
-          enterTo="opacity-100 translate-y-0"
-          leave="transition ease-in duration-150"
-          leaveFrom="opacity-100 translate-y-0"
-          leaveTo="opacity-0 translate-y-1"
+      {/* Main Link - Click navigates to collection */}
+      {!menuItem.to.startsWith('http') ? (
+        <Link
+          to={menuItem.to}
+          prefetch="intent"
+          className={`
+            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-300'}
+            group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
-          <div className="absolute z-20 left-0 right-0 mt-0 top-full" style={{position: 'fixed', left: 0, right: 0}}>
+          <span>{menuItem.title}</span>
+          <ChevronDownIcon
+            className={`${isHovered ? '-rotate-180' : ''}
+              ml-1 h-4 w-4 transition ease-in-out duration-150`}
+            aria-hidden="true"
+          />
+        </Link>
+      ) : (
+        <a
+          href={menuItem.to}
+          target={menuItem.target}
+          className={`
+            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-300'}
+            group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
+        >
+          <span>{menuItem.title}</span>
+          <ChevronDownIcon
+            className={`${isHovered ? '-rotate-180' : ''}
+              ml-1 h-4 w-4 transition ease-in-out duration-150`}
+            aria-hidden="true"
+          />
+        </a>
+      )}
+
+      {/* Megamenu Panel - Shows on hover */}
+      {isHovered && (
+        <div 
+          className="absolute z-50 left-0 right-0 top-full pt-3"
+          style={{position: 'absolute'}}
+        >
             <div className="container">
               <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl overflow-hidden">
                 <div className="relative px-6 py-8 lg:px-8 lg:py-10">
@@ -190,8 +182,7 @@ function NavItem({
               </div>
             </div>
           </div>
-        </Transition>
-      </div>
+      )}
     </li>
   );
 }
