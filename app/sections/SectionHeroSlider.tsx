@@ -251,7 +251,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
                 href={item.cta_button.href.value}
                 target={item.cta_button?.target?.value === 'true' ? '_blank' : '_self'}
                 rel={item.cta_button?.target?.value === 'true' ? 'noopener noreferrer' : undefined}
-                className="nc-SectionHeroSliderItem__button font-headline inline-flex items-center justify-center rounded px-4 min-h-[48px] text-base font-bold whitespace-nowrap border border-solid transition-all duration-100 ease-in-out hover:opacity-90 hover:scale-[1.02]"
+                className="group nc-SectionHeroSliderItem__button font-headline inline-flex items-center justify-center gap-2 rounded px-4 min-h-[48px] text-base font-bold whitespace-nowrap border border-solid transition-all duration-200 ease-in-out hover:opacity-90"
                 style={{
                   backgroundColor: buttonBgColor,
                   color: buttonTextColor,
@@ -259,14 +259,16 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
                 }}
               >
                 <span>{item.cta_button?.text?.value || 'Ver más'}</span>
-                {!!item.cta_button?.icon_svg?.value && (
-                  <span
-                    className="ms-2.5 *:!h-5 *:!w-5"
-                    dangerouslySetInnerHTML={{
-                      __html: item.cta_button?.icon_svg.value,
-                    }}
-                  />
-                )}
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  strokeWidth="2" 
+                  stroke="currentColor" 
+                  className="w-5 h-5 transition-transform duration-200 ease-in-out group-hover:translate-x-1"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+                </svg>
               </a>
             )}
           </div>
