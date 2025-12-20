@@ -1056,7 +1056,68 @@ const mutationMetaObjectDefinitionsFetchs = async ({
     }
   }
 
-  // 18. Create ROUTE metaobject definition - Route -------------------------------------
+  // 18. Create SECTION PRODUCT TESTIMONIAL metaobject definition -------------------------------------
+  let metaobject_SectionProductTestimonial = null;
+  let metaobject_SectionProductTestimonial_ID =
+    otherFields['metaobject_done_created__ciseco--section_product_testimonial'];
+  if (!metaobject_SectionProductTestimonial_ID) {
+    metaobject_SectionProductTestimonial =
+      (await fetchMutationMetaobjectDefinitionItem({
+        storeDomain,
+        shopify_Access_Token,
+        input: {
+          name: 'Section | ProductTestimonial',
+          type: 'ciseco--section_product_testimonial',
+          description: 'A section with testimonial quote and featured product card over background image',
+          displayNameKey: 'title',
+          fieldDefinitions: [
+            {key: 'title', type: 'single_line_text_field'},
+            {key: 'brand_title', name: 'Brand Title', type: 'single_line_text_field'},
+            {key: 'quote_text', name: 'Quote Text', type: 'multi_line_text_field'},
+            {key: 'author_name', name: 'Author Name', type: 'single_line_text_field'},
+            {key: 'author_title', name: 'Author Title', type: 'single_line_text_field'},
+            {
+              key: 'author_image',
+              name: 'Author Image',
+              type: 'file_reference',
+              validations: {name: 'file_type_options', value: '["Image"]'},
+            },
+            {key: 'icon_svg', name: 'Icon SVG', type: 'multi_line_text_field'},
+            {key: 'subtitle', name: 'Subtitle', type: 'single_line_text_field'},
+            {key: 'description', type: 'multi_line_text_field'},
+            {key: 'left_background_color', name: 'Left Background Color', type: 'color'},
+            {key: 'left_text_color', name: 'Left Text Color', type: 'color'},
+            {
+              key: 'right_background_image',
+              name: 'Right Background Image',
+              type: 'file_reference',
+              validations: {name: 'file_type_options', value: '["Image"]'},
+            },
+            {key: 'featured_product', name: 'Featured Product', type: 'product_reference'},
+            {key: 'button_text', name: 'Button Text', type: 'single_line_text_field'},
+            {key: 'button_background_color', name: 'Button Background Color', type: 'color'},
+            {key: 'button_text_color', name: 'Button Text Color', type: 'color'},
+          ],
+        },
+      })) as Record<string, any> | null;
+    RESULT.push(metaobject_SectionProductTestimonial);
+
+    metaobject_SectionProductTestimonial_ID =
+      metaobject_SectionProductTestimonial?.data?.metaobjectDefinitionCreate
+        ?.metaobjectDefinition?.id;
+    if (
+      metaobject_SectionProductTestimonial?.errors ||
+      metaobject_SectionProductTestimonial?.userErrors ||
+      !metaobject_SectionProductTestimonial_ID
+    ) {
+      return [
+        ...RESULT,
+        {errors: 'Error when create metaobject_SectionProductTestimonial'},
+      ];
+    }
+  }
+
+  // 19. Create ROUTE metaobject definition - Route -------------------------------------
   let metaobject_Route = null;
   const metaobject_Route_ID =
     otherFields['metaobject_done_created__ciseco--route'];
@@ -1074,7 +1135,8 @@ const mutationMetaObjectDefinitionsFetchs = async ({
       !metaobject_SectionProductsSlider_ID ||
       !metaobject_SectionCollectionsSlider_ID ||
       !metaobject_SectionProductFeature_ID ||
-      !metaobject_SectionProductShowcase_ID
+      !metaobject_SectionProductShowcase_ID ||
+      !metaobject_SectionProductTestimonial_ID
     ) {
       return [
         ...RESULT,
@@ -1117,7 +1179,7 @@ const mutationMetaObjectDefinitionsFetchs = async ({
             type: 'list.mixed_reference',
             validations: {
               name: 'metaobject_definition_ids',
-              value: `["${metaobject_SectionHero_ID}","${metaobject_SectionHeroSlider_ID}","${metaobject_SectionClientsSay_ID}","${metaobject_SectionLatestBlog_ID}","${metaobject_SectionGridProductsAndFilter_ID}","${metaobject_SectionTabsCollectionsByGroup_ID}","${metaobject_SectionImageWithText_ID}","${metaobject_SectionSteps_ID}","${metaobject_SectionProductsSlider_ID}","${metaobject_SectionCollectionsSlider_ID}","${metaobject_SectionProductFeature_ID}","${metaobject_SectionProductShowcase_ID}"]`,
+              value: `["${metaobject_SectionHero_ID}","${metaobject_SectionHeroSlider_ID}","${metaobject_SectionClientsSay_ID}","${metaobject_SectionLatestBlog_ID}","${metaobject_SectionGridProductsAndFilter_ID}","${metaobject_SectionTabsCollectionsByGroup_ID}","${metaobject_SectionImageWithText_ID}","${metaobject_SectionSteps_ID}","${metaobject_SectionProductsSlider_ID}","${metaobject_SectionCollectionsSlider_ID}","${metaobject_SectionProductFeature_ID}","${metaobject_SectionProductShowcase_ID}","${metaobject_SectionProductTestimonial_ID}"]`,
             },
           },
         ],
@@ -1332,6 +1394,7 @@ const fetchImportMetaobjectEntries = async ({
     'ciseco--section_collections_slider',
     'ciseco--section_product_feature',
     'ciseco--section_product_showcase',
+    'ciseco--section_product_testimonial',
     'ciseco--route',
   ];
 
