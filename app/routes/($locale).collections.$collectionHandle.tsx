@@ -108,7 +108,7 @@ export default function Collection() {
     <div className="nc-PageCollection pb-20 lg:pb-28 xl:pb-32">
       {/* Subcollections Bar */}
       {subcollections.length > 0 && (
-        <div className="border-b border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 sticky top-[64px] lg:top-[120px] z-30">
+        <div id="subcollections-bar" className="nc-SubcollectionsBar border-b border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900">
           <div className="container">
             <div className="flex items-center gap-2 py-3 overflow-x-auto hiddenScroll justify-center">
               <Link
