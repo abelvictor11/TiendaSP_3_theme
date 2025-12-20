@@ -32,9 +32,10 @@ export function SectionBrandsTicker(props: any) {
           <h2 className="text-lg font-semibold text-left text-black">
             {title.value}
           </h2>
+          <hr className="border-black my-4" />
         </div>
       )}
-<hr className="border-black my-4" />
+
       {/* Ticker Container */}
       <div className="relative">
         <div 
