@@ -505,7 +505,7 @@ export function ProductForm({
 
         {/* Vendor */}
         {product.vendor && (
-          <p className="text-sm font-medium text-slate-500 uppercase tracking-wide mb-2">
+          <p className="text-xs font-normal text-black uppercase tracking-wide mb-2">
             {product.vendor}
           </p>
         )}
