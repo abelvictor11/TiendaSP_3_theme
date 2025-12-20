@@ -251,10 +251,11 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
                 href={item.cta_button.href.value}
                 target={item.cta_button?.target?.value === 'true' ? '_blank' : '_self'}
                 rel={item.cta_button?.target?.value === 'true' ? 'noopener noreferrer' : undefined}
-                className="nc-SectionHeroSliderItem__button inline-flex items-center justify-center rounded-full py-3 px-6 sm:py-5 sm:px-9 text-sm sm:text-base xl:text-lg font-medium transition-colors hover:opacity-90"
+                className="nc-SectionHeroSliderItem__button font-headline inline-flex items-center justify-center rounded px-4 min-h-[48px] text-base font-bold whitespace-nowrap border border-solid transition-all duration-100 ease-in-out hover:opacity-90 hover:scale-[1.02]"
                 style={{
                   backgroundColor: buttonBgColor,
                   color: buttonTextColor,
+                  borderColor: buttonBgColor,
                 }}
               >
                 <span>{item.cta_button?.text?.value || 'Ver más'}</span>
