@@ -14,7 +14,7 @@ const Heading2: React.FC<Heading2Props> = ({
 }) => {
   return (
     <div className={`mb-12 lg:mb-16 ${className}`}>
-      <h2 className="text-4xl font-semibold">{heading}</h2>
+      <h2 className="font-headline text-4xl font-bold">{heading}</h2>
       {subHeading ? (
         subHeading
       ) : (
