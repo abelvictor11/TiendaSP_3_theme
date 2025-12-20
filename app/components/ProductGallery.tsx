@@ -45,9 +45,9 @@ export function ProductGallery({
   return (
     <>
       <div className={clsx('flex flex-col', className)}>
-        {/* Main Image - Limited to viewport height accounting for header */}
+        {/* Main Image - Maintains aspect ratio and fits within container */}
         <div
-          className="relative w-full aspect-square lg:aspect-auto border border-slate-200 dark:bg-slate-800 rounded-xl overflow-hidden cursor-zoom-in group lg:max-h-[calc(90svh-40px)]"
+          className="relative w-full bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden cursor-zoom-in group flex items-center justify-center min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]"
           onClick={() => openModal(activeIndex)}
           aria-hidden
         >
@@ -81,7 +81,7 @@ export function ProductGallery({
               loading="eager"
               data={activeImage}
               sizes="(min-width: 1024px) 50vw, 100vw"
-              className="mix-blend-multiply object-contain w-full h-full"
+              className="mix-blend-multiply object-contain max-w-full max-h-[70vh] lg:max-h-[75vh]"
             />
           )}
         </div>
