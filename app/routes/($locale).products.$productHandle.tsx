@@ -502,12 +502,30 @@ export function ProductForm({
             </ol>
           </nav>
         )}
+
+        {/* Vendor */}
+        {product.vendor && (
+          <p className="text-sm font-medium text-slate-500 uppercase tracking-wide mb-2">
+            {product.vendor}
+          </p>
+        )}
+
         <h1
           className="text-2xl sm:text-3xl font-semibold"
           title={product.title}
         >
           {product.title}
         </h1>
+
+        {/* Star Rating - Below title */}
+        {product?.okendoStarRatingSnippet && (
+          <div className="mt-2">
+            <OkendoStarRating
+              productId={product.id}
+              okendoStarRatingSnippet={product.okendoStarRatingSnippet}
+            />
+          </div>
+        )}
 
         <div className="flex flex-wrap items-center mt-5 gap-4 lg:gap-5">
           <Prices
@@ -516,41 +534,30 @@ export function ProductForm({
             compareAtPrice={selectedVariant?.compareAtPrice}
           />
 
-          {(product?.okendoStarRatingSnippet || customBadges.length > 0) && (
-            <div className="h-7 border-l border-slate-300 dark:border-slate-700 opacity-0 sm:opacity-100" />
-          )}
-
-          {/* Reviews */}
-          <div className="flex items-center gap-2.5">
-            {product?.okendoStarRatingSnippet ? (
-              <OkendoStarRating
-                productId={product.id}
-                okendoStarRatingSnippet={product.okendoStarRatingSnippet}
-              />
-            ) : null}
-          </div>
-
           {/* Custom Badges */}
           {customBadges.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2">
-              {customBadges.map((badge: {text: string; color: string; textColor?: string; showIcon?: boolean}, index: number) => (
-                <span
-                  key={index}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wide"
-                  style={{
-                    backgroundColor: badge.color || '#d4f542',
-                    color: badge.textColor || '#1a1a2e',
-                  }}
-                >
-                  {badge.showIcon && (
-                    <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                    </svg>
-                  )}
-                  {badge.text}
-                </span>
-              ))}
-            </div>
+            <>
+              <div className="h-7 border-l border-slate-300 dark:border-slate-700 opacity-0 sm:opacity-100" />
+              <div className="flex flex-wrap items-center gap-2">
+                {customBadges.map((badge: {text: string; color: string; textColor?: string; showIcon?: boolean}, index: number) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold uppercase tracking-wide"
+                    style={{
+                      backgroundColor: badge.color || '#d4f542',
+                      color: badge.textColor || '#1a1a2e',
+                    }}
+                  >
+                    {badge.showIcon && (
+                      <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    )}
+                    {badge.text}
+                  </span>
+                ))}
+              </div>
+            </>
           )}
         </div>
       </div>
