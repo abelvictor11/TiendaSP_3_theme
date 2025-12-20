@@ -45,7 +45,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
       <div className="container rounded-xl grid grid-cols-1 lg:grid-cols-2 min-h-[600px] lg:min-h-[700px]">
         {/* Left Side - Testimonial */}
         <div 
-          className="relative p-8 lg:p-12 xl:p-16 flex flex-col justify-center"
+          className="rounded-xl relative p-8 lg:p-12 xl:p-16 flex flex-col justify-center"
           style={{backgroundColor: leftBg, color: leftText}}
         >
           {/* Brand Title */}
