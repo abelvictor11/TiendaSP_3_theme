@@ -1,12 +1,7 @@
-import {
-  Popover,
-  PopoverButton,
-  PopoverPanel,
-  Transition,
-} from '@headlessui/react';
+import {Transition} from '@headlessui/react';
 import {ChevronDownIcon} from '@heroicons/react/24/solid';
 import {Fragment, useState, useRef} from 'react';
-import {Link, useNavigate} from '@remix-run/react';
+import {Link} from '@remix-run/react';
 import type {ParentEnhancedMenuItem, ChildEnhancedMenuItem} from '~/lib/utils';
 import CollectionItem from '../CollectionItem';
 import type {HeaderMenuQuery} from 'storefrontapi.generated';
@@ -76,66 +71,77 @@ function NavItem({
     );
   }
 
-  // Dropdown with megamenu
-  const navigate = useNavigate();
-  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const clickCountRef = useRef(0);
+  // Dropdown with megamenu - hover to open, click to navigate
+  const [isHovered, setIsHovered] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleClick = (e: React.MouseEvent) => {
-    clickCountRef.current += 1;
-
-    if (clickCountRef.current === 1) {
-      // First click - wait to see if there's a second click
-      clickTimeoutRef.current = setTimeout(() => {
-        clickCountRef.current = 0;
-        // Single click - do nothing (PopoverButton handles opening)
-      }, 300);
-    } else if (clickCountRef.current === 2) {
-      // Second click - navigate to collection
-      if (clickTimeoutRef.current) {
-        clearTimeout(clickTimeoutRef.current);
-      }
-      clickCountRef.current = 0;
-      
-      if (!menuItem.to.startsWith('http')) {
-        e.preventDefault();
-        e.stopPropagation();
-        navigate(menuItem.to);
-      } else {
-        window.location.href = menuItem.to;
-      }
+  const handleMouseEnter = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
     }
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      setIsHovered(false);
+    }, 150); // Small delay to allow moving to the panel
   };
 
   return (
-    <Popover as="li" className="static">
-      {({open, close}) => (
-        <>
-          <PopoverButton
-            onClick={handleClick}
+    <li 
+      className="static"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <div className="relative">
+        {/* Main Link - Click navigates to collection */}
+        {!menuItem.to.startsWith('http') ? (
+          <Link
+            to={menuItem.to}
+            prefetch="intent"
             className={`
-              ${open ? 'text-slate-900 dark:text-slate-100' : 'text-slate-700 dark:text-slate-300'}
+              ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-300'}
               group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
           >
             <span>{menuItem.title}</span>
             <ChevronDownIcon
-              className={`${open ? '-rotate-180' : ''}
+              className={`${isHovered ? '-rotate-180' : ''}
                 ml-1 h-4 w-4 transition ease-in-out duration-150`}
               aria-hidden="true"
             />
-          </PopoverButton>
-          <Transition
-            as={Fragment}
-            enter="transition ease-out duration-200"
-            enterFrom="opacity-0 translate-y-1"
-            enterTo="opacity-100 translate-y-0"
-            leave="transition ease-in duration-150"
-            leaveFrom="opacity-100 translate-y-0"
-            leaveTo="opacity-0 translate-y-1"
+          </Link>
+        ) : (
+          <a
+            href={menuItem.to}
+            target={menuItem.target}
+            className={`
+              ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-300'}
+              group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
           >
-            <PopoverPanel className="absolute z-20 left-0 right-0 mt-3">
-              <div className="container">
-                <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl overflow-hidden">
+            <span>{menuItem.title}</span>
+            <ChevronDownIcon
+              className={`${isHovered ? '-rotate-180' : ''}
+                ml-1 h-4 w-4 transition ease-in-out duration-150`}
+              aria-hidden="true"
+            />
+          </a>
+        )}
+
+        {/* Megamenu Panel - Shows on hover */}
+        <Transition
+          show={isHovered}
+          as={Fragment}
+          enter="transition ease-out duration-200"
+          enterFrom="opacity-0 translate-y-1"
+          enterTo="opacity-100 translate-y-0"
+          leave="transition ease-in duration-150"
+          leaveFrom="opacity-100 translate-y-0"
+          leaveTo="opacity-0 translate-y-1"
+        >
+          <div className="absolute z-20 left-0 right-0 mt-0 top-full" style={{position: 'fixed', left: 0, right: 0}}>
+            <div className="container">
+              <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl overflow-hidden">
                 <div className="relative px-6 py-8 lg:px-8 lg:py-10">
                   <div className="flex gap-8">
                     {/* Menu Items Grid */}
@@ -149,7 +155,7 @@ function NavItem({
                                 target={subItem.target}
                                 prefetch="intent"
                                 className="font-medium text-slate-900 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-                                onClick={close}
+                                onClick={() => setIsHovered(false)}
                               >
                                 {subItem.title}
                               </Link>
@@ -158,7 +164,7 @@ function NavItem({
                                 href={subItem.to}
                                 target={subItem.target}
                                 className="block group"
-                                onClick={close}
+                                onClick={() => setIsHovered(false)}
                               >
                                 <p className="font-medium text-slate-900 dark:text-neutral-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                   {subItem.title}
@@ -174,19 +180,18 @@ function NavItem({
                     {headerData?.featuredCollections?.nodes?.[0] && (
                       <div className="hidden xl:block w-[300px]">
                         <CollectionItem
-                          onClick={close}
+                          onClick={() => setIsHovered(false)}
                           item={headerData.featuredCollections.nodes[0]}
                         />
                       </div>
                     )}
                   </div>
                 </div>
-                </div>
               </div>
-            </PopoverPanel>
-          </Transition>
-        </>
-      )}
-    </Popover>
+            </div>
+          </div>
+        </Transition>
+      </div>
+    </li>
   );
 }
