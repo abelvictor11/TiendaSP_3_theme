@@ -59,6 +59,7 @@ import {SlashIcon} from '@heroicons/react/24/solid';
 import ProductHelpBanner from '~/components/ProductHelpBanner';
 import ProductHighlights from '~/components/ProductHighlights';
 import ProductSpecs from '~/components/ProductSpecs';
+import {ComplementaryProducts} from '~/components/ComplementaryProducts';
 
 export const headers = routeHeaders;
 
@@ -286,6 +287,18 @@ export default function Product() {
                       />
                     );
                   }}
+                </Await>
+              </Suspense>
+
+              {/* Complementary Products */}
+              <Suspense fallback={<div className="h-32" />}>
+                <Await resolve={recommended}>
+                  {(products) => (
+                    <ComplementaryProducts
+                      products={products.nodes.slice(0, 4)}
+                      title="Equípate al completo"
+                    />
+                  )}
                 </Await>
               </Suspense>
 
