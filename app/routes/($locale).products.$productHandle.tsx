@@ -385,7 +385,7 @@ export default function Product() {
               {(products) => (
                 <>
                   <SnapSliderProducts
-                    heading_bold={'Customers also purchased'}
+                    heading_bold={'Los clientes también compraron'}
                     products={products.nodes}
                     className=""
                     headingFontClass="text-2xl font-semibold"

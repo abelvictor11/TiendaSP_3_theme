@@ -65,10 +65,10 @@ const ProductHighlights: FC<ProductHighlightsProps> = ({
       {displayHighlights.map((item, index) => (
         <div
           key={index}
-          className="flex flex-col items-center text-center p-4 bg-slate-50 dark:bg-slate-800 rounded-xl"
+          className="flex flex-col items-start text-left p-4 rounded-2xl border-slate-200 dark:border-slate-700 border border-red-100 dark:bg-opacity-90"
         >
-          <item.icon className="w-8 h-8 text-primary-600 mb-2" />
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <item.icon className="w-6 h-6 text-black mb-2" />
+          <span className="text-sm block font-semibold text-slate-900">
             {item.text}
           </span>
         </div>
