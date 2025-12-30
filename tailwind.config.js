@@ -30,8 +30,9 @@ export default {
       center: true,
       padding: {
         DEFAULT: '1rem',
-        xl: '20px',
-        '2xl': '20px',
+        lg: '6rem',
+        xl: '6rem',
+        '2xl': '6rem',
       },
       screens: {
         ...defaultTheme.screens,
