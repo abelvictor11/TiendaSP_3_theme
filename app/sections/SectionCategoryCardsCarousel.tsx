@@ -142,19 +142,22 @@ export function SectionCategoryCardsCarousel(
 
   const renderHeading = () => {
     const moreThanOneGroup = (category_groups?.nodes?.length || 1) > 1;
+    const hasHeading = heading?.value || sub_heading?.value;
 
     return (
       <div>
-        <Heading
-          className="mb-8 lg:mb-10 text-neutral-900 dark:text-neutral-50"
-          fontClass="text-3xl md:text-4xl 2xl:text-5xl font-semibold"
-          desc={sub_heading?.value || ''}
-          hasNextPrev
-          onClickNext={scrollToNextSlide}
-          onClickPrev={scrollToPrevSlide}
-        >
-          {heading?.value || 'Shop By Category'}
-        </Heading>
+        {hasHeading && (
+          <Heading
+            className="mb-8 lg:mb-10 text-neutral-900 dark:text-neutral-50"
+            fontClass="text-3xl md:text-4xl 2xl:text-5xl font-semibold"
+            desc={sub_heading?.value || ''}
+            hasNextPrev
+            onClickNext={scrollToNextSlide}
+            onClickPrev={scrollToPrevSlide}
+          >
+            {heading?.value || ''}
+          </Heading>
+        )}
         {moreThanOneGroup && (
           <Nav
             className="p-1 bg-white dark:bg-neutral-800 rounded-full shadow-lg overflow-x-auto hiddenScrollbar"

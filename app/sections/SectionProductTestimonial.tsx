@@ -124,7 +124,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
         </div>
 
         {/* Right Side - Product with Background Image */}
-        <div className="relative flex items-center justify-center p-8 lg:p-12">
+        <div className="relative flex items-center justify-center p-8 lg:p-12 rounded-xl">
           {/* Background Image */}
           {rightBgImg && (
             <div className="absolute inset-0">
@@ -139,7 +139,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
 
           {/* Product Card */}
           {product && (
-            <div className="relative z-10 bg-[#F6F7F8] rounded-xl shadow-xl p-6 max-w-[300px] text-center">
+            <div className="relative z-10 bg-[#F6F7F8] rounded-xl shadow-xl p-6 max-w-[300px] text-left">
               {/* Product Image */}
               {productImage && (
                 <div className="mb-4">
