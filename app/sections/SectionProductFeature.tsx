@@ -81,7 +81,7 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
                 <div className="pt-2">
                   <Link to={cta_link.value}>
                     <button
-                      className="px-8 py-3 rounded-full font-bold text-xs tracking-wider transition-all hover:shadow-xl hover:scale-105"
+                      className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full font-medium shadow-xl transition-all hover:shadow-2xl hover:scale-105"
                       style={{
                         backgroundColor: btnBgColor,
                         color: btnTxtColor,
