@@ -146,14 +146,14 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
                   <Image
                     data={productImage}
                     sizes="300px"
-                    className="w-full h-auto object-contain max-h-[200px]"
+                    className="mix-blend-multiply w-full h-auto object-contain max-h-[200px]"
                   />
                 </div>
               )}
 
               {/* Product Title */}
               {productTitle && (
-                <h4 className="font-bold text-lg text-slate-900 mb-1">
+                <h4 className="font-semibold text-md text-slate-900 mb-1">
                   {productTitle}
                 </h4>
               )}
@@ -169,7 +169,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
               {productHandle && (
                 <Link
                   to={`/products/${productHandle}`}
-                  className="inline-block px-6 py-2 rounded-full border-2 font-medium text-sm transition-all hover:opacity-80"
+                  className="inline-block px-6 py-2 rounded-full border font-medium text-sm transition-all hover:opacity-80"
                   style={{
                     backgroundColor: btnBg,
                     color: btnText,
