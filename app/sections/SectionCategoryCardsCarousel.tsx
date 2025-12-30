@@ -9,6 +9,7 @@ import Nav from '~/components/Nav';
 import NavItem from '~/components/NavItem';
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import clsx from 'clsx';
+import NextPrev from '~/components/NextPrev/NextPrev';
 
 export function SectionCategoryCardsCarousel(
   props: SectionCategoryCardsCarouselFragment,
@@ -146,7 +147,7 @@ export function SectionCategoryCardsCarousel(
 
     return (
       <div>
-        {hasHeading && (
+        {hasHeading ? (
           <Heading
             className="mb-8 lg:mb-10 text-neutral-900 dark:text-neutral-50"
             fontClass="text-3xl md:text-4xl 2xl:text-5xl font-semibold"
@@ -157,6 +158,10 @@ export function SectionCategoryCardsCarousel(
           >
             {heading?.value || ''}
           </Heading>
+        ) : (
+          <div className="flex justify-end mb-6">
+            <NextPrev onClickNext={scrollToNextSlide} onClickPrev={scrollToPrevSlide} />
+          </div>
         )}
         {moreThanOneGroup && (
           <Nav
