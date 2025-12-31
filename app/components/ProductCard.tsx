@@ -290,14 +290,16 @@ const ProductCard: FC<ProductCardProps> = ({
               })}
               className="px-2 py-1 text-xs !relative !top-0 !start-0"
             />
-            {/* Badge Uso Comercial/Doméstico */}
+            {/* Badge Tipo de Uso */}
             {uso_tipo?.value && (
               <span className={`px-2 py-1 text-xs font-medium rounded-md ${
-                uso_tipo.value === 'comercial' 
+                uso_tipo.value.toLowerCase() === 'comercial' 
                   ? 'bg-blue-100 text-blue-700' 
+                  : uso_tipo.value.toLowerCase() === 'profesional'
+                  ? 'bg-purple-100 text-purple-700'
                   : 'bg-[#F9F9F9] text-[#2B2A2A]'
               }`}>
-                {uso_tipo.value === 'comercial' ? 'Comercial' : 'Doméstico'}
+                {uso_tipo.value}
               </span>
             )}
           </div>
