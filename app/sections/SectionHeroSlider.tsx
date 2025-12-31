@@ -239,7 +239,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
               )}
               {!!item.heading?.value && (
                 <h2
-                  className="nc-SectionHeroSliderItem__heading font-headline text-3xl font-bold !leading-[114%] sm:text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl"
+                  className="nc-SectionHeroSliderItem__heading font-headline text-3xl font-normal !leading-[114%] sm:text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl"
                   style={{color: headingColor}}
                   dangerouslySetInnerHTML={{__html: item.heading.value}}
                 />
