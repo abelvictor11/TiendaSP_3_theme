@@ -1,4 +1,5 @@
 import {Link} from '@remix-run/react';
+import {useMemo} from 'react';
 
 export function SectionBrandsTicker(props: any) {
   const {
@@ -18,8 +19,67 @@ export function SectionBrandsTicker(props: any) {
     return null;
   }
 
-  // Duplicate brands for seamless loop
-  const duplicatedBrands = [...brandsData, ...brandsData];
+  // Calculate how many times to repeat brands to fill the screen
+  // Each brand takes ~160px (128px width + 32px gap)
+  // We need at least 2 full sets for seamless loop, but more if there are few brands
+  const minBrandsForFullWidth = 12; // Minimum brands to fill ~1920px screen
+  const repeatCount = Math.max(2, Math.ceil(minBrandsForFullWidth / brandsData.length) * 2);
+  
+  // Create repeated brands array
+  const repeatedBrands = useMemo(() => {
+    const result = [];
+    for (let i = 0; i < repeatCount; i++) {
+      result.push(...brandsData);
+    }
+    return result;
+  }, [brandsData, repeatCount]);
+
+  const renderBrandItem = (brand: any, index: number) => {
+    const svgContent = brand.svg_logo?.value;
+    const imageUrl = brand.image_logo?.reference?.image?.url;
+    const brandUrl = brand.url?.value;
+    const brandName = brand.name?.value || `Brand ${index}`;
+
+    const BrandContent = () => (
+      <div className="flex-shrink-0 w-32 h-16 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
+        {svgContent ? (
+          <div 
+            className="w-full h-full flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
+            dangerouslySetInnerHTML={{__html: svgContent}}
+          />
+        ) : imageUrl ? (
+          <img 
+            src={imageUrl} 
+            alt={brandName}
+            className="max-w-full max-h-full object-contain"
+            loading="lazy"
+          />
+        ) : (
+          <span className="text-sm font-medium text-slate-500">{brandName}</span>
+        )}
+      </div>
+    );
+
+    return brandUrl ? (
+      <Link 
+        key={`${brand.id}-${index}`}
+        to={brandUrl}
+        className="flex-shrink-0"
+        prefetch="viewport"
+      >
+        <BrandContent />
+      </Link>
+    ) : (
+      <div key={`${brand.id}-${index}`} className="flex-shrink-0">
+        <BrandContent />
+      </div>
+    );
+  };
+
+  // Calculate animation duration based on number of brands
+  // More brands = longer duration to maintain consistent speed
+  const baseDuration = Number(animationSpeed);
+  const adjustedDuration = baseDuration * (repeatedBrands.length / (brandsData.length * 2));
 
   return (
     <section 
@@ -37,54 +97,14 @@ export function SectionBrandsTicker(props: any) {
       )}
 
       {/* Ticker Container */}
-      <div className="relative">
+      <div className="relative w-full">
         <div 
-          className="flex items-center gap-16 animate-ticker"
+          className="flex items-center gap-8 md:gap-12 lg:gap-16 animate-ticker"
           style={{
-            animationDuration: `${animationSpeed}s`,
+            animationDuration: `${adjustedDuration}s`,
           }}
         >
-          {duplicatedBrands.map((brand: any, index: number) => {
-            const svgContent = brand.svg_logo?.value;
-            const imageUrl = brand.image_logo?.reference?.image?.url;
-            const brandUrl = brand.url?.value;
-            const brandName = brand.name?.value || `Brand ${index}`;
-
-            const BrandContent = () => (
-              <div className="flex-shrink-0 w-32 h-16 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
-                {svgContent ? (
-                  <div 
-                    className="w-full h-full flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
-                    dangerouslySetInnerHTML={{__html: svgContent}}
-                  />
-                ) : imageUrl ? (
-                  <img 
-                    src={imageUrl} 
-                    alt={brandName}
-                    className="max-w-full max-h-full object-contain"
-                    loading="lazy"
-                  />
-                ) : (
-                  <span className="text-sm font-medium text-slate-500">{brandName}</span>
-                )}
-              </div>
-            );
-
-            return brandUrl ? (
-              <Link 
-                key={`${brand.id}-${index}`}
-                to={brandUrl}
-                className="flex-shrink-0"
-                prefetch="viewport"
-              >
-                <BrandContent />
-              </Link>
-            ) : (
-              <div key={`${brand.id}-${index}`} className="flex-shrink-0">
-                <BrandContent />
-              </div>
-            );
-          })}
+          {repeatedBrands.map((brand: any, index: number) => renderBrandItem(brand, index))}
         </div>
       </div>
 
@@ -95,12 +115,16 @@ export function SectionBrandsTicker(props: any) {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-50%);
+            transform: translateX(-${100 / repeatCount * (repeatCount / 2)}%);
           }
         }
         .animate-ticker {
           animation: ticker linear infinite;
           width: max-content;
+          will-change: transform;
+        }
+        .animate-ticker:hover {
+          animation-play-state: paused;
         }
       `}</style>
     </section>
