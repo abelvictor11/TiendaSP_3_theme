@@ -35,7 +35,7 @@ const Heading: React.FC<HeadingProps> = ({
   className = 'mb-12 lg:mb-14 text-neutral-900 dark:text-neutral-50',
   isCenter = false,
   hasNextPrev = false,
-  fontClass = 'font-headline text-3xl md:text-4xl font-bold',
+  fontClass = 'font-headline text-3xl md:text-4xl font-normal',
   rightDescText,
   rightPopoverOptions = solutions,
   onClickNext,
