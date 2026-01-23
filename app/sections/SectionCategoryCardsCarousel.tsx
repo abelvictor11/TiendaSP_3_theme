@@ -150,7 +150,7 @@ export function SectionCategoryCardsCarousel(
         {hasHeading ? (
           <Heading
             className="mb-8 lg:mb-10 text-neutral-900 dark:text-neutral-50"
-            fontClass="text-3xl md:text-4xl 2xl:text-5xl font-semibold"
+            fontClass="font-headline text-3xl md:text-3xl font-normal"
             desc={sub_heading?.value || ''}
             hasNextPrev
             onClickNext={scrollToNextSlide}
@@ -186,7 +186,7 @@ export function SectionCategoryCardsCarousel(
   const cards = currentGroup?.category_cards?.nodes || [];
 
   return (
-    <section className="nc-SectionCategoryCardsCarousel py-10 lg:py-16">
+    <section className="nc-SectionCategoryCardsCarousel">
       <div className="px-8">
         {/* Heading with Tabs */}
         {renderHeading()}

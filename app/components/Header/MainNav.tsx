@@ -26,7 +26,7 @@ const MainNav: FC<Props> = ({className = '', isHome}) => {
         'nc-MainNav2 relative z-10 bg-white dark:bg-slate-900',
       )}
     >
-      <div className="container">
+      <div className="px-8">
         <div className="h-16 sm:h-20 flex justify-between items-center">
           {/* Mobile Menu Button */}
           <div className="flex items-center lg:hidden">
