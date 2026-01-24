@@ -19,6 +19,7 @@ export function SectionIntroFeature(props: SectionIntroFeatureFragment) {
     badge_text_color,
     button_background_color,
     button_text_color,
+    text_position,
   } = section;
 
   // Colors with defaults
@@ -29,8 +30,15 @@ export function SectionIntroFeature(props: SectionIntroFeatureFragment) {
   const btnBgColor = button_background_color?.value || '#1a1a2e';
   const btnTxtColor = button_text_color?.value || '#FFFFFF';
 
-  // Image data
-  const imageData = (image as any)?.reference?.image;
+  // Position: default 'left' means text on left, image on right
+  const isTextRight = text_position?.value?.toLowerCase() === 'right';
+
+  // Image data - check multiple possible structures
+  const imageRef = image as any;
+  const imageData = imageRef?.reference?.image || imageRef?.reference?.previewImage;
+
+  // Debug
+  console.log('SectionIntroFeature image:', {image, imageRef, imageData});
 
   return (
     <section 
@@ -39,73 +47,91 @@ export function SectionIntroFeature(props: SectionIntroFeatureFragment) {
       style={{backgroundColor: bgColor}}
     >
       <div className="container">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Left Content */}
-          <div className="order-2 lg:order-1 flex flex-col justify-center">
-            {/* Badge */}
-            {badge_text?.value && (
-              <div className="mb-6">
-                <span 
-                  className="inline-block px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider"
-                  style={{
-                    backgroundColor: badgeBgColor,
-                    color: badgeTxtColor,
-                  }}
+        <div className={`flex flex-col lg:flex-row gap-8 lg:gap-0 items-stretch ${isTextRight ? 'lg:flex-row-reverse' : ''}`}>
+          {/* Text Content */}
+          <div 
+            className="flex flex-col justify-center p-8 rounded-xl"
+            style={{
+              flex: '0 0 auto',
+              width: '100%',
+              maxWidth: '100%',
+              minHeight: '400px',
+            }}
+          >
+            <style dangerouslySetInnerHTML={{__html: `
+              @media (min-width: 1024px) {
+                .intro-feature-text {
+                  flex: 0 0 373px !important;
+                  min-height: 600px !important;
+                }
+              }
+            `}} />
+            <div className="intro-feature-text flex flex-col justify-center h-full">
+              {/* Badge */}
+              {badge_text?.value && (
+                <div className="mb-6">
+                  <span 
+                    className="inline-block px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider"
+                    style={{
+                      backgroundColor: badgeBgColor,
+                      color: badgeTxtColor,
+                    }}
+                  >
+                    {badge_text.value}
+                  </span>
+                </div>
+              )}
+
+              {/* Heading */}
+              {heading?.value && (
+                <h2 
+                  className="font-headline text-3xl lg:text-4xl font-bold mb-6"
+                  style={{color: txtColor}}
                 >
-                  {badge_text.value}
-                </span>
-              </div>
-            )}
+                  {heading.value}
+                </h2>
+              )}
 
-            {/* Heading */}
-            {heading?.value && (
-              <h2 
-                className="font-headline text-3xl lg:text-4xl xl:text-5xl font-bold mb-6"
-                style={{color: txtColor}}
-              >
-                {heading.value}
-              </h2>
-            )}
-
-            {/* Description */}
-            {description?.value && (
-              <p 
-                className="text-base lg:text-lg leading-relaxed mb-8 max-w-lg"
-                style={{color: txtColor, opacity: 0.85}}
-              >
-                {description.value}
-              </p>
-            )}
-
-            {/* Button */}
-            {button_text?.value && (
-              <div>
-                <Link
-                  to={button_link?.value || '#'}
-                  className="inline-block px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wider transition-all hover:opacity-90 hover:scale-105"
-                  style={{
-                    backgroundColor: btnBgColor,
-                    color: btnTxtColor,
-                  }}
+              {/* Description */}
+              {description?.value && (
+                <p 
+                  className="text-base lg:text-lg leading-relaxed mb-8"
+                  style={{color: txtColor, opacity: 0.85}}
                 >
-                  {button_text.value}
-                </Link>
-              </div>
-            )}
+                  {description.value}
+                </p>
+              )}
+
+              {/* Button */}
+              {button_text?.value && (
+                <div>
+                  <Link
+                    to={button_link?.value || '#'}
+                    className="inline-block px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wider transition-all hover:opacity-90 hover:scale-105"
+                    style={{
+                      backgroundColor: btnBgColor,
+                      color: btnTxtColor,
+                    }}
+                  >
+                    {button_text.value}
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Right Image */}
-          <div className="order-1 lg:order-2">
+          {/* Image */}
+          <div className="flex-1 min-h-[300px] lg:min-h-[600px]">
             {imageData ? (
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+              <div className="relative h-full rounded-2xl overflow-hidden">
                 <Image
                   data={imageData}
-                  className="w-full h-auto object-cover"
-                  sizes="(max-width: 768px) 100vw, 50vw"
+                  className="w-full h-full object-cover"
+                  sizes="(max-width: 768px) 100vw, 60vw"
                 />
               </div>
             ) : (
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-slate-200 aspect-video flex items-center justify-center">
+              <div className="relative h-full rounded-2xl overflow-hidden bg-slate-200 flex items-center justify-center">
                 <svg className="w-24 h-24 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
@@ -176,6 +202,10 @@ export const SECTION_INTRO_FEATURE_FRAGMENT = `#graphql
       value
     }
     button_text_color: field(key: "button_text_color") {
+      key
+      value
+    }
+    text_position: field(key: "text_position") {
       key
       value
     }
