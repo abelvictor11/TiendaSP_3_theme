@@ -81,7 +81,7 @@ const CollectionItem: FC<CollectionItemProps> = ({
               <span className={`block text-sm text-white/90 font-medium`}>Collection</span>
               {!!title && (
                 <h2
-                  className="text-xl lg:text-2xl text-white font-semibold mt-0.5 sm:mt-2"
+                  className="text-xl lg:text-2xl text-white font-normal mt-0.5 sm:mt-2"
                   dangerouslySetInnerHTML={{__html: title}}
                 />
               )}
