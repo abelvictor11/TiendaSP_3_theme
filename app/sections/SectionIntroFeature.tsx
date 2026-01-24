@@ -82,7 +82,7 @@ export function SectionIntroFeature(props: SectionIntroFeatureFragment) {
               {/* Heading */}
               {heading?.value && (
                 <h2 
-                  className="font-headline text-3xl lg:text-4xl font-bold mb-6"
+                  className="font-headline text-3xl lg:text-4xl font-normal mb-6"
                   style={{color: txtColor}}
                 >
                   {heading.value}
