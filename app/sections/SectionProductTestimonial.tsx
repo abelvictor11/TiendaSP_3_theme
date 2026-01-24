@@ -333,7 +333,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
               <div className="flex justify-center gap-2 mt-4">
                 <button
                   onClick={scrollToPrevSlide}
-                  className="w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-md transition-all"
+                  className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center hover:shadow-md transition-all"
                   style={{color: leftText}}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -342,7 +342,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
                 </button>
                 <button
                   onClick={scrollToNextSlide}
-                  className="w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-md transition-all"
+                  className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center hover:shadow-md transition-all"
                   style={{color: leftText}}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

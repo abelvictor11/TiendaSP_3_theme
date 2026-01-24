@@ -112,7 +112,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
             >
               {heading?.value && (
                 <h2
-                  className="font-headline text-3xl lg:text-4xl xl:text-5xl font-semibold mb-6"
+                  className="font-headline text-3xl lg:text-4xl xl:text-5xl font-normalmb-6"
                   style={{color: txtColor}}
                 >
                   {heading.value}
