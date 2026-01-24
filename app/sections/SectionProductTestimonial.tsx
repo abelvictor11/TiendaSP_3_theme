@@ -2,9 +2,17 @@ import {Image, Money} from '@shopify/hydrogen';
 import {Link} from '@remix-run/react';
 import type {SectionProductTestimonialFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
+import {useRef} from 'react';
+import useSnapSlider from '~/hooks/useSnapSlider';
+import CollectionItem, {
+  CollectionItemSkeleton,
+  type TMyCommonCollectionItem,
+} from '~/components/CollectionItem';
 
 export function SectionProductTestimonial(props: SectionProductTestimonialFragment) {
-  const section = parseSection<SectionProductTestimonialFragment, {}>(props);
+  const section = parseSection<SectionProductTestimonialFragment, {
+    featured_collection?: any;
+  }>(props);
 
   const {
     brand_title,
@@ -18,19 +26,16 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
     left_background_color,
     left_text_color,
     right_background_image,
-    featured_product,
+    featured_collection,
     button_text,
     button_background_color,
     button_text_color,
   } = section;
 
-  // Get product data
-  const product = (featured_product as any);
-  const productImage = product?.featuredImage;
-  const productTitle = product?.title;
-  const productVariant = product?.variants?.nodes?.[0];
-  const productPrice = productVariant?.price;
-  const productHandle = product?.handle;
+  // Get collection data
+  const collections = (featured_collection as any)?.references?.nodes || [];
+  const sliderRef = useRef<HTMLDivElement>(null);
+  const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
 
   // Colors
   const leftBg = left_background_color?.value || '#87CEEB';
@@ -123,7 +128,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
           )}
         </div>
 
-        {/* Right Side - Product with Background Image */}
+        {/* Right Side - Collection Carousel with Background Image */}
         <div className="relative flex items-center justify-center p-8 lg:p-12 rounded-xl">
           {/* Background Image */}
           {rightBgImg && (
@@ -137,50 +142,105 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
             </div>
           )}
 
-          {/* Product Card */}
-          {product && (
-            <div className="relative z-10 bg-[#F6F7F8] rounded-xl shadow-xl p-6 max-w-[300px] text-left">
-              {/* Product Image */}
-              {productImage && (
-                <div className="mb-4">
-                  <Image
-                    data={productImage}
-                    sizes="300px"
-                    className="mix-blend-multiply w-full h-auto object-contain max-h-[200px]"
-                  />
-                </div>
-              )}
+          {/* Collection Carousel */}
+          <div className="relative z-10 w-full max-w-[400px]">
+            {collections.length > 0 ? (
+              <div
+                ref={sliderRef}
+                className="relative flex gap-4 snap-x snap-mandatory overflow-x-auto"
+              >
+                {collections.slice(0, 5).map((collection: TMyCommonCollectionItem, index: number) => (
+                  <div
+                    key={collection.id}
+                    className="flex-shrink-0 w-full snap-center"
+                  >
+                    <div className="bg-[#F6F7F8] rounded-xl shadow-xl p-6 text-left">
+                      {/* Collection Image */}
+                      {collection.horizontal_image?.reference?.image && (
+                        <div className="mb-4">
+                          <Image
+                            data={collection.horizontal_image.reference.image}
+                            sizes="400px"
+                            className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
+                          />
+                        </div>
+                      )}
+                      
+                      {/* Fallback to main collection image */}
+                      {!collection.horizontal_image?.reference?.image && collection.image && (
+                        <div className="mb-4">
+                          <Image
+                            data={collection.image}
+                            sizes="400px"
+                            className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
+                          />
+                        </div>
+                      )}
 
-              {/* Product Title */}
-              {productTitle && (
-                <h4 className="font-semibold text-md text-slate-900 mb-1">
-                  {productTitle}
-                </h4>
-              )}
+                      {/* Collection Title */}
+                      {collection.title && (
+                        <h4 className="font-semibold text-md text-slate-900 mb-1">
+                          {collection.title}
+                        </h4>
+                      )}
 
-              {/* Product Variant/Description */}
-              {productVariant?.title && productVariant.title !== 'Default Title' && (
-                <p className="text-sm text-slate-500 mb-4">
-                  {productVariant.title}
+                      {/* Collection Description */}
+                      {collection.description && (
+                        <p className="text-sm text-slate-500 mb-4 line-clamp-2">
+                          {collection.description}
+                        </p>
+                      )}
+
+                      {/* View Collection Button */}
+                      {collection.handle && (
+                        <Link
+                          to={`/collections/${collection.handle}`}
+                          className="inline-block px-6 py-2 rounded-full border font-medium text-sm transition-all hover:opacity-80"
+                          style={{
+                            backgroundColor: btnBg,
+                            color: btnText,
+                            borderColor: btnText,
+                          }}
+                        >
+                          {button_text?.value || 'Ver Colección'}
+                        </Link>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-[#F6F7F8] rounded-xl shadow-xl p-6 text-left">
+                <p className="text-slate-500 text-center">
+                  No hay colecciones disponibles
                 </p>
-              )}
+              </div>
+            )}
 
-              {/* View Product Button */}
-              {productHandle && (
-                <Link
-                  to={`/products/${productHandle}`}
-                  className="inline-block px-6 py-2 rounded-full border font-medium text-sm transition-all hover:opacity-80"
-                  style={{
-                    backgroundColor: btnBg,
-                    color: btnText,
-                    borderColor: btnText,
-                  }}
+            {/* Carousel Navigation */}
+            {collections.length > 1 && (
+              <div className="flex justify-center gap-2 mt-4">
+                <button
+                  onClick={scrollToPrevSlide}
+                  className="w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-md transition-all"
+                  style={{color: leftText}}
                 >
-                  {button_text?.value || 'View Product'}
-                </Link>
-              )}
-            </div>
-          )}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <button
+                  onClick={scrollToNextSlide}
+                  className="w-8 h-8 rounded-full bg-white/80 hover:bg-white flex items-center justify-center shadow-md transition-all"
+                  style={{color: leftText}}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Decorative Icon Bottom Right */}
           {icon_svg?.value && (
@@ -273,29 +333,13 @@ export const SECTION_PRODUCT_TESTIMONIAL_FRAGMENT = `#graphql
         }
       }
     }
-    featured_product: field(key: "featured_product") {
+    featured_collection: field(key: "featured_collection") {
       type
       key
-      reference {
-        ... on Product {
-          id
-          title
-          handle
-          featuredImage {
-            url
-            altText
-            width
-            height
-          }
-          variants(first: 1) {
-            nodes {
-              id
-              title
-              price {
-                amount
-                currencyCode
-              }
-            }
+      references(first: 5) {
+        nodes {
+          ... on Collection {
+            ...CommonCollectionItem
           }
         }
       }
