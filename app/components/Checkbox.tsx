@@ -34,7 +34,7 @@ const Checkbox: FC<CheckboxProps> = ({
           className="pl-2.5 sm:pl-3.5 flex flex-col flex-1 justify-center select-none text-sm xl:text-base"
         >
           <span
-            className={`text-slate-900 dark:text-slate-100 text-sm xl:text-base ${labelClassName} ${
+            className={`flex-shrink-0 text-sm font-normal ${labelClassName} ${
               subLabel ? '-mt-0.5' : ''
             }`}
           >
