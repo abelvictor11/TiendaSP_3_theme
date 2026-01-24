@@ -92,7 +92,7 @@ export function SectionBrandsTicker(props: any) {
           <h2 className="text-lg font-semibold text-left text-black">
             {title.value}
           </h2>
-          <hr className="border-black my-4" />
+          <hr className="border-neutral-900/10" />
         </div>
       )}
 

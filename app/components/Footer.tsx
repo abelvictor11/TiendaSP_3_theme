@@ -116,14 +116,13 @@ export function WidgetAddSubscriberForm() {
       >
         <h2 className="flex flex-wrap gap-3 text-base font-semibold text-neutral-900 dark:text-neutral-100">
           <EnvelopeIcon className="w-6 h-6" />
-          <span>Stay up to date</span>
+          <span>Manténgase actualizado</span>
         </h2>
       </div>
 
       <div className="p-4 xl:p-5">
         <span className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-400">
-          Subscribe to our newsletter to get the latest updates and special
-          offers.
+          Suscríbete a nuestro boletín para recibir las últimas actualizaciones y ofertas especiales.
         </span>
         <div className="mt-4">
           <fetcher.Form
@@ -135,7 +134,7 @@ export function WidgetAddSubscriberForm() {
             <Input
               required
               aria-required
-              placeholder="Enter your email address"
+              placeholder="Introduzca su dirección de correo electrónico"
               type="email"
               className="rounded-2xl"
               name="new_subscribe_email"
