@@ -59,7 +59,7 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
               {/* Heading */}
               {heading?.value && (
                 <h2
-                  className="font-headline text-3xl lg:text-4xl xl:text-5xl font-bold leading-tight"
+                  className="font-headline text-3xl lg:text-4xl xl:text-5xl font-normal leading-tight"
                   style={{color: txtColor}}
                 >
                   {heading.value}

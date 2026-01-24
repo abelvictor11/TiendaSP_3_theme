@@ -29,11 +29,19 @@ const CollectionItem: FC<CollectionItemProps> = ({
 }) => {
   const {description, handle, title, horizontal_image, products, image} = item;
 
-  // DEBUG: Ver qué datos llegan de la colección
-  console.log('CollectionItem data:', {title, horizontal_image, image});
-
   const hImage = horizontal_image?.reference?.image;
   const mainImage = image;
+
+  // DEBUG: Ver qué datos llegan de la colección
+  console.log('CollectionItem data:', {
+    title, 
+    horizontal_image, 
+    image,
+    hImage,
+    mainImage,
+    horizontal_image_type: typeof horizontal_image,
+    image_type: typeof image
+  });
 
   return (
     <Link
@@ -44,10 +52,19 @@ const CollectionItem: FC<CollectionItemProps> = ({
     >
       <div className="relative w-full aspect-w-16 aspect-h-12 sm:aspect-h-9 rounded-2xl overflow-hidden bg-slate-100 group">
         {/* Background image - use horizontal_image first, fallback to main image */}
-        {(hImage || mainImage) && (
+        {hImage && (
           <Image
             className="absolute inset-0 w-full h-full object-cover rounded-2xl"
-            data={hImage || (mainImage as any)}
+            data={hImage}
+            sizes="(max-width: 640px) 90vw, (max-width: 1200px) 50vw, 40vw"
+          />
+        )}
+        
+        {/* Fallback to main image only if no horizontal_image */}
+        {!hImage && mainImage && (
+          <Image
+            className="absolute inset-0 w-full h-full object-cover rounded-2xl"
+            data={mainImage as any}
             sizes="(max-width: 640px) 90vw, (max-width: 1200px) 50vw, 40vw"
           />
         )}

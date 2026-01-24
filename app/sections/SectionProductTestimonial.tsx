@@ -51,7 +51,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
           {/* Brand Title */}
           {brand_title?.value && (
             <h2 
-              className="font-headline text-3xl lg:text-4xl xl:text-5xl font-bold mb-6"
+              className="font-headline text-3xl lg:text-4xl xl:text-5xl font-normal mb-6"
               style={{color: leftText}}
             >
               {brand_title.value}
