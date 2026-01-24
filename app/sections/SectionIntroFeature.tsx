@@ -33,12 +33,9 @@ export function SectionIntroFeature(props: SectionIntroFeatureFragment) {
   // Position: default 'left' means text on left, image on right
   const isTextRight = text_position?.value?.toLowerCase() === 'right';
 
-  // Image data - check multiple possible structures
-  const imageRef = image as any;
-  const imageData = imageRef?.reference?.image || imageRef?.reference?.previewImage;
-
-  // Debug
-  console.log('SectionIntroFeature image:', {image, imageRef, imageData});
+  // Image data - handle different possible structures from metaobject
+  const imageField = image as any;
+  const imageData = imageField?.reference?.image;
 
   return (
     <section 
@@ -47,26 +44,13 @@ export function SectionIntroFeature(props: SectionIntroFeatureFragment) {
       style={{backgroundColor: bgColor}}
     >
       <div className="container">
-        <div className={`flex flex-col lg:flex-row gap-8 lg:gap-0 items-stretch ${isTextRight ? 'lg:flex-row-reverse' : ''}`}>
-          {/* Text Content */}
+        <div className={`flex flex-col lg:flex-row gap-6 items-stretch ${isTextRight ? 'lg:flex-row-reverse' : ''}`}>
+          {/* Text Content - 30% width */}
           <div 
-            className="flex flex-col justify-center p-8 rounded-xl"
-            style={{
-              flex: '0 0 auto',
-              width: '100%',
-              maxWidth: '100%',
-              minHeight: '400px',
-            }}
+            className="w-full lg:w-[30%] flex flex-col justify-center p-8"
+            style={{ minHeight: '400px' }}
           >
-            <style dangerouslySetInnerHTML={{__html: `
-              @media (min-width: 1024px) {
-                .intro-feature-text {
-                  flex: 0 0 373px !important;
-                  min-height: 600px !important;
-                }
-              }
-            `}} />
-            <div className="intro-feature-text flex flex-col justify-center h-full">
+            <div className="flex flex-col justify-center h-full lg:min-h-[500px]">
               {/* Badge */}
               {badge_text?.value && (
                 <div className="mb-6">
@@ -120,14 +104,22 @@ export function SectionIntroFeature(props: SectionIntroFeatureFragment) {
             </div>
           </div>
 
-          {/* Image */}
-          <div className="flex-1 min-h-[300px] lg:min-h-[600px]">
+          {/* Image - 70% width */}
+          <div className="w-full lg:w-[70%] min-h-[300px] lg:min-h-[500px]">
             {imageData ? (
               <div className="relative h-full rounded-2xl overflow-hidden">
                 <Image
                   data={imageData}
                   className="w-full h-full object-cover"
-                  sizes="(max-width: 768px) 100vw, 60vw"
+                  sizes="(max-width: 768px) 100vw, 70vw"
+                />
+              </div>
+            ) : imageField?.reference ? (
+              <div className="relative h-full rounded-2xl overflow-hidden">
+                <img
+                  src={(imageField.reference as any)?.image?.url || ''}
+                  alt={(imageField.reference as any)?.image?.altText || ''}
+                  className="w-full h-full object-cover"
                 />
               </div>
             ) : (
