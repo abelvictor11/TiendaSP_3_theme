@@ -4,10 +4,7 @@ import type {SectionProductTestimonialFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
 import {useRef} from 'react';
 import useSnapSlider from '~/hooks/useSnapSlider';
-import CollectionItem, {
-  CollectionItemSkeleton,
-  type TMyCommonCollectionItem,
-} from '~/components/CollectionItem';
+import type {CommonProductCardFragment} from 'storefrontapi.generated';
 
 export function SectionProductTestimonial(props: SectionProductTestimonialFragment) {
   const section = parseSection<SectionProductTestimonialFragment, {
@@ -35,55 +32,115 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
     button_text_color,
   } = section;
 
-  // Get collection data - try different possible field names
-  let collections = (featured_collection as any)?.references?.nodes || 
-                   (section as any).featured_collection?.references?.nodes ||
-                   (section as any).collections?.references?.nodes ||
-                   (section as any).collection?.references?.nodes ||
-                   [];
-  
-  // TEMPORAL: Add example collections if no collections found
-  if (collections.length === 0) {
-    console.log('No collections found, adding example collections for demo');
-    collections = [
-      {
-        id: 'demo-1',
-        title: 'Trotadoras',
-        handle: 'trotadoras',
-        description: 'Las mejores trotadoras para tu entrenamiento',
-        image: {url: 'https://via.placeholder.com/400x300/87CEEB/FFFFFF?text=Trotadoras'},
-        horizontal_image: null
-      },
-      {
-        id: 'demo-2', 
-        title: 'Pesas y Mancuernas',
-        handle: 'pesas-mancuernas',
-        description: 'Equipamiento completo de pesas y mancuernas',
-        image: {url: 'https://via.placeholder.com/400x300/87CEEB/FFFFFF?text=Pesas'},
-        horizontal_image: null
-      },
-      {
-        id: 'demo-3',
-        title: 'Funcional',
-        handle: 'funcional',
-        description: 'Accesorios para entrenamiento funcional',
-        image: {url: 'https://via.placeholder.com/400x300/87CEEB/FFFFFF?text=Funcional'},
-        horizontal_image: null
-      }
-    ];
-  }
+  // Get products from the featured collection
+  let products: any[] = [];
+  const collection = (featured_collection as any)?.reference;
   
   console.log('SectionProductTestimonial - featured_collection:', featured_collection);
-  console.log('SectionProductTestimonial - featured_collection type:', typeof featured_collection);
-  console.log('SectionProductTestimonial - featured_collection keys:', featured_collection ? Object.keys(featured_collection) : 'null');
-  console.log('SectionProductTestimonial - featured_collection.references:', featured_collection?.references);
-  console.log('SectionProductTestimonial - collections:', collections);
-  console.log('SectionProductTestimonial - collections length:', collections.length);
+  console.log('SectionProductTestimonial - collection:', collection);
   
-  // Try to find any collection-related field
-  const possibleFields = ['featured_collection', 'collections', 'collection', 'featured_collections'];
-  const foundField = possibleFields.find(field => (section as any)[field]);
-  console.log('SectionProductTestimonial - Found collection field:', foundField, foundField ? (section as any)[foundField] : 'None found');
+  // TEMPORAL: Add example products if no collection found
+  if (!collection || !collection.products) {
+    console.log('No collection or products found, adding example products for demo');
+    products = [
+      {
+        id: 'demo-product-1',
+        title: 'Trotadora Profesional X200',
+        handle: 'trotadora-profesional-x200',
+        featuredImage: {
+          url: 'https://cdn.shopify.com/s/files/1/0553/8637/3264/files/trotadora-placeholder.jpg',
+          altText: 'Trotadora Profesional X200',
+          width: 400,
+          height: 300
+        },
+        variants: {
+          nodes: [
+            {
+              id: 'demo-variant-1',
+              title: 'Default Title',
+              availableForSale: true,
+              price: {
+                amount: '1299900',
+                currencyCode: 'COP'
+              }
+            }
+          ]
+        },
+        priceRange: {
+          minVariantPrice: {
+            amount: '1299900',
+            currencyCode: 'COP'
+          }
+        }
+      },
+      {
+        id: 'demo-product-2',
+        title: 'Set de Mancuernas 20kg',
+        handle: 'set-mancuernas-20kg',
+        featuredImage: {
+          url: 'https://cdn.shopify.com/s/files/1/0553/8637/3264/files/mancuernas-placeholder.jpg',
+          altText: 'Set de Mancuernas 20kg',
+          width: 400,
+          height: 300
+        },
+        variants: {
+          nodes: [
+            {
+              id: 'demo-variant-2',
+              title: 'Default Title',
+              availableForSale: true,
+              price: {
+                amount: '459900',
+                currencyCode: 'COP'
+              }
+            }
+          ]
+        },
+        priceRange: {
+          minVariantPrice: {
+            amount: '459900',
+            currencyCode: 'COP'
+          }
+        }
+      },
+      {
+        id: 'demo-product-3',
+        title: 'Bandas de Resistencia',
+        handle: 'bandas-resistencia',
+        featuredImage: {
+          url: 'https://cdn.shopify.com/s/files/1/0553/8637/3264/files/bandas-placeholder.jpg',
+          altText: 'Bandas de Resistencia',
+          width: 400,
+          height: 300
+        },
+        variants: {
+          nodes: [
+            {
+              id: 'demo-variant-3',
+              title: 'Default Title',
+              availableForSale: true,
+              price: {
+                amount: '89900',
+                currencyCode: 'COP'
+              }
+            }
+          ]
+        },
+        priceRange: {
+          minVariantPrice: {
+            amount: '89900',
+            currencyCode: 'COP'
+          }
+        }
+      }
+    ];
+  } else {
+    // Get products from the actual collection
+    products = collection.products?.nodes?.slice(0, 5) || [];
+  }
+  
+  console.log('SectionProductTestimonial - products:', products);
+  console.log('SectionProductTestimonial - products length:', products.length);
   
   const sliderRef = useRef<HTMLDivElement>(null);
   const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
@@ -193,72 +250,74 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
             </div>
           )}
 
-          {/* Collection Carousel */}
+          {/* Product Carousel */}
           <div className="relative z-10 w-full max-w-[400px]">
-            {collections.length > 0 ? (
+            {products.length > 0 ? (
               <div
                 ref={sliderRef}
                 className="relative flex gap-4 snap-x snap-mandatory overflow-x-auto"
               >
-                {collections.slice(0, 5).map((collection: TMyCommonCollectionItem, index: number) => {
-                  console.log(`Rendering collection ${index}:`, collection);
+                {products.slice(0, 5).map((product: any, index: number) => {
+                  console.log(`Rendering product ${index}:`, product);
+                  const productImage = product.featuredImage;
+                  const productTitle = product.title;
+                  const productVariant = product.variants?.nodes?.[0];
+                  const productPrice = productVariant?.price;
+                  const productHandle = product.handle;
+                  
                   return (
                     <div
-                      key={collection.id}
+                      key={product.id}
                       className="flex-shrink-0 w-full snap-center"
                     >
                       <div className="bg-[#F6F7F8] rounded-xl shadow-xl p-6 text-left">
-                      {/* Collection Image */}
-                      {collection.horizontal_image?.reference?.image && (
-                        <div className="mb-4">
-                          <Image
-                            data={collection.horizontal_image.reference.image}
-                            sizes="400px"
-                            className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
-                          />
-                        </div>
-                      )}
-                      
-                      {/* Fallback to main collection image */}
-                      {!collection.horizontal_image?.reference?.image && collection.image && (
-                        <div className="mb-4">
-                          <Image
-                            data={collection.image}
-                            sizes="400px"
-                            className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
-                          />
-                        </div>
-                      )}
+                        {/* Product Image */}
+                        {productImage && (
+                          <div className="mb-4">
+                            <Image
+                              data={productImage}
+                              sizes="400px"
+                              className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
+                            />
+                          </div>
+                        )}
 
-                      {/* Collection Title */}
-                      {collection.title && (
-                        <h4 className="font-semibold text-md text-slate-900 mb-1">
-                          {collection.title}
-                        </h4>
-                      )}
+                        {/* Product Title */}
+                        {productTitle && (
+                          <h4 className="font-semibold text-md text-slate-900 mb-1">
+                            {productTitle}
+                          </h4>
+                        )}
 
-                      {/* Collection Description */}
-                      {collection.description && (
-                        <p className="text-sm text-slate-500 mb-4 line-clamp-2">
-                          {collection.description}
-                        </p>
-                      )}
+                        {/* Product Variant/Description */}
+                        {productVariant?.title && productVariant.title !== 'Default Title' && (
+                          <p className="text-sm text-slate-500 mb-4">
+                            {productVariant.title}
+                          </p>
+                        )}
 
-                      {/* View Collection Button */}
-                      {collection.handle && (
-                        <Link
-                          to={`/collections/${collection.handle}`}
-                          className="inline-block px-6 py-2 rounded-full border font-medium text-sm transition-all hover:opacity-80"
-                          style={{
-                            backgroundColor: btnBg,
-                            color: btnText,
-                            borderColor: btnText,
-                          }}
-                        >
-                          {button_text?.value || 'Ver Colección'}
-                        </Link>
-                      )}
-                    </div>
+                        {/* Product Price */}
+                        {productPrice && (
+                          <p className="text-lg font-semibold text-slate-900 mb-4">
+                            <Money data={productPrice} />
+                          </p>
+                        )}
+
+                        {/* View Product Button */}
+                        {productHandle && (
+                          <Link
+                            to={`/products/${productHandle}`}
+                            className="inline-block px-6 py-2 rounded-full border font-medium text-sm transition-all hover:opacity-80"
+                            style={{
+                              backgroundColor: btnBg,
+                              color: btnText,
+                              borderColor: btnText,
+                            }}
+                          >
+                            {button_text?.value || 'Ver Producto'}
+                          </Link>
+                        )}
+                      </div>
                     </div>
                   );
                 })}
@@ -266,13 +325,13 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
             ) : (
               <div className="bg-[#F6F7F8] rounded-xl shadow-xl p-6 text-left">
                 <p className="text-slate-500 text-center">
-                  No hay colecciones disponibles
+                  No hay productos disponibles
                 </p>
               </div>
             )}
 
             {/* Carousel Navigation */}
-            {collections.length > 1 && (
+            {products.length > 1 && (
               <div className="flex justify-center gap-2 mt-4">
                 <button
                   onClick={scrollToPrevSlide}
@@ -390,10 +449,35 @@ export const SECTION_PRODUCT_TESTIMONIAL_FRAGMENT = `#graphql
     featured_collection: field(key: "featured_collection") {
       type
       key
-      references(first: 5) {
-        nodes {
-          ... on Collection {
-            ...CommonCollectionItem
+      reference {
+        ... on Collection {
+          id
+          title
+          handle
+          description
+          image {
+            url
+            altText
+            width
+            height
+          }
+          horizontal_image: metafield(key: "horizontal_image", namespace: "ciseco--collection") {
+            reference {
+              ... on MediaImage {
+                id
+                image {
+                  altText
+                  height
+                  width
+                  url
+                }
+              }
+            }
+          }
+          products(first: 5) {
+            nodes {
+              ...CommonProductCard
+            }
           }
         }
       }
