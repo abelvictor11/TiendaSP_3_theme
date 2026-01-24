@@ -14,6 +14,9 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
     featured_collection?: any;
   }>(props);
 
+  // Debug: Ver todos los campos disponibles
+  console.log('SectionProductTestimonial - All section fields:', section);
+
   const {
     brand_title,
     quote_text,
@@ -34,6 +37,10 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
 
   // Get collection data
   const collections = (featured_collection as any)?.references?.nodes || [];
+  console.log('SectionProductTestimonial - featured_collection:', featured_collection);
+  console.log('SectionProductTestimonial - collections:', collections);
+  console.log('SectionProductTestimonial - collections length:', collections.length);
+  
   const sliderRef = useRef<HTMLDivElement>(null);
   const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
 
@@ -144,70 +151,83 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
 
           {/* Collection Carousel */}
           <div className="relative z-10 w-full max-w-[400px]">
+            {/* Debug: Visual temporal */}
+            <div className="bg-red-500 text-white p-2 mb-2 rounded">
+              DEBUG: Collections found: {collections.length}
+            </div>
+            
             {collections.length > 0 ? (
               <div
                 ref={sliderRef}
                 className="relative flex gap-4 snap-x snap-mandatory overflow-x-auto"
               >
-                {collections.slice(0, 5).map((collection: TMyCommonCollectionItem, index: number) => (
-                  <div
-                    key={collection.id}
-                    className="flex-shrink-0 w-full snap-center"
-                  >
-                    <div className="bg-[#F6F7F8] rounded-xl shadow-xl p-6 text-left">
-                      {/* Collection Image */}
-                      {collection.horizontal_image?.reference?.image && (
-                        <div className="mb-4">
-                          <Image
-                            data={collection.horizontal_image.reference.image}
-                            sizes="400px"
-                            className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
-                          />
+                {collections.slice(0, 5).map((collection: TMyCommonCollectionItem, index: number) => {
+                  console.log(`Rendering collection ${index}:`, collection);
+                  return (
+                    <div
+                      key={collection.id}
+                      className="flex-shrink-0 w-full snap-center"
+                    >
+                      <div className="bg-[#F6F7F8] rounded-xl shadow-xl p-6 text-left">
+                        {/* Debug info */}
+                        <div className="bg-blue-500 text-white p-1 mb-2 rounded text-xs">
+                          DEBUG: Collection {index + 1} - {collection.title}
                         </div>
-                      )}
-                      
-                      {/* Fallback to main collection image */}
-                      {!collection.horizontal_image?.reference?.image && collection.image && (
-                        <div className="mb-4">
-                          <Image
-                            data={collection.image}
-                            sizes="400px"
-                            className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
-                          />
-                        </div>
-                      )}
+                        
+                        {/* Collection Image */}
+                        {collection.horizontal_image?.reference?.image && (
+                          <div className="mb-4">
+                            <Image
+                              data={collection.horizontal_image.reference.image}
+                              sizes="400px"
+                              className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
+                            />
+                          </div>
+                        )}
+                        
+                        {/* Fallback to main collection image */}
+                        {!collection.horizontal_image?.reference?.image && collection.image && (
+                          <div className="mb-4">
+                            <Image
+                              data={collection.image}
+                              sizes="400px"
+                              className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
+                            />
+                          </div>
+                        )}
 
-                      {/* Collection Title */}
-                      {collection.title && (
-                        <h4 className="font-semibold text-md text-slate-900 mb-1">
-                          {collection.title}
-                        </h4>
-                      )}
+                        {/* Collection Title */}
+                        {collection.title && (
+                          <h4 className="font-semibold text-md text-slate-900 mb-1">
+                            {collection.title}
+                          </h4>
+                        )}
 
-                      {/* Collection Description */}
-                      {collection.description && (
-                        <p className="text-sm text-slate-500 mb-4 line-clamp-2">
-                          {collection.description}
-                        </p>
-                      )}
+                        {/* Collection Description */}
+                        {collection.description && (
+                          <p className="text-sm text-slate-500 mb-4 line-clamp-2">
+                            {collection.description}
+                          </p>
+                        )}
 
-                      {/* View Collection Button */}
-                      {collection.handle && (
-                        <Link
-                          to={`/collections/${collection.handle}`}
-                          className="inline-block px-6 py-2 rounded-full border font-medium text-sm transition-all hover:opacity-80"
-                          style={{
-                            backgroundColor: btnBg,
-                            color: btnText,
-                            borderColor: btnText,
-                          }}
-                        >
-                          {button_text?.value || 'Ver Colección'}
-                        </Link>
-                      )}
+                        {/* View Collection Button */}
+                        {collection.handle && (
+                          <Link
+                            to={`/collections/${collection.handle}`}
+                            className="inline-block px-6 py-2 rounded-full border font-medium text-sm transition-all hover:opacity-80"
+                            style={{
+                              backgroundColor: btnBg,
+                              color: btnText,
+                              borderColor: btnText,
+                            }}
+                          >
+                            {button_text?.value || 'Ver Colección'}
+                          </Link>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="bg-[#F6F7F8] rounded-xl shadow-xl p-6 text-left">
