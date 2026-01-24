@@ -170,12 +170,7 @@ export const SECTION_INTRO_FEATURE_FRAGMENT = `#graphql
       key
       reference {
         ... on MediaImage {
-          image {
-            url
-            altText
-            width
-            height
-          }
+          ...MediaImage
         }
       }
     }
