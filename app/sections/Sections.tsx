@@ -59,6 +59,10 @@ import {
   SECTION_PRODUCT_TESTIMONIAL_FRAGMENT,
   SectionProductTestimonial,
 } from './SectionProductTestimonial';
+import {
+  SECTION_INTRO_FEATURE_FRAGMENT,
+  SectionIntroFeature,
+} from './SectionIntroFeature';
 import clsx from 'clsx';
 import {SECTION_HERO_FRAGMENT, SectionHero} from './SectionHero';
 import {OKENDO_PRODUCT_STAR_RATING_FRAGMENT} from '@okendo/shopify-hydrogen';
@@ -87,7 +91,8 @@ export type CisecoSectionType =
   | 'ciseco--section_product_feature'
   | 'ciseco--section_product_showcase'
   | 'ciseco--section_brands_ticker'
-  | 'ciseco--section_product_testimonial';
+  | 'ciseco--section_product_testimonial'
+  | 'section_intro_feature';
 
 export function Sections({
   sections,
@@ -201,6 +206,12 @@ export function Sections({
                 <SectionProductTestimonial {...section} key={section.id} />
               </WrapSection>
             );
+          case 'section_intro_feature':
+            return (
+              <WrapSection key={section.id} index={index} {...args}>
+                <SectionIntroFeature {...section} key={section.id} />
+              </WrapSection>
+            );
 
           // case 'section_another':
           //   return <AnotherSection />;
@@ -269,6 +280,7 @@ export const SECTIONS_FRAGMENT = `#graphql
             ...SectionProductShowcase
             ...SectionBrandsTicker
             ...SectionProductTestimonial
+            ...SectionIntroFeature
           }
         }
       }
@@ -290,6 +302,7 @@ export const SECTIONS_FRAGMENT = `#graphql
   ${SECTION_PRODUCT_SHOWCASE_FRAGMENT}
   ${SECTION_BRANDS_TICKER_FRAGMENT}
   ${SECTION_PRODUCT_TESTIMONIAL_FRAGMENT}
+  ${SECTION_INTRO_FEATURE_FRAGMENT}
 
   # All common fragments
   ${COMMON_PRODUCT_CARD_FRAGMENT}
