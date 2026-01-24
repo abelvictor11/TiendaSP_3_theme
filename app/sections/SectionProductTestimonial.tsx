@@ -1,5 +1,4 @@
 import {Image, Money} from '@shopify/hydrogen';
-import {Heading} from '~/components/Heading';
 import {Link} from '~/components/Link';
 import useSnapSlider from '~/hooks/useSnapSlider';
 import type {SectionProductTestimonialFragment} from 'storefrontapi.generated';
@@ -41,88 +40,8 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
   console.log('SectionProductTestimonial - featured_collection:', featured_collection);
   console.log('SectionProductTestimonial - collection:', collection);
   
-  // TEMPORAL: Add example products if no collection found
-  if (!collection || !collection.products) {
-    console.log('No collection or products found, adding example products for demo');
-    products = [
-      {
-        id: 'demo-product-1',
-        title: 'Trotadora Profesional X200',
-        handle: 'trotadora-profesional-x200',
-        featuredImage: null, // No image - will show placeholder
-        variants: {
-          nodes: [
-            {
-              id: 'demo-variant-1',
-              title: 'Default Title',
-              availableForSale: true,
-              price: {
-                amount: '1299900',
-                currencyCode: 'COP'
-              }
-            }
-          ]
-        },
-        priceRange: {
-          minVariantPrice: {
-            amount: '1299900',
-            currencyCode: 'COP'
-          }
-        }
-      },
-      {
-        id: 'demo-product-2',
-        title: 'Set de Mancuernas 20kg',
-        handle: 'set-mancuernas-20kg',
-        featuredImage: null, // No image - will show placeholder
-        variants: {
-          nodes: [
-            {
-              id: 'demo-variant-2',
-              title: 'Default Title',
-              availableForSale: true,
-              price: {
-                amount: '459900',
-                currencyCode: 'COP'
-              }
-            }
-          ]
-        },
-        priceRange: {
-          minVariantPrice: {
-            amount: '459900',
-            currencyCode: 'COP'
-          }
-        }
-      },
-      {
-        id: 'demo-product-3',
-        title: 'Bandas de Resistencia',
-        handle: 'bandas-resistencia',
-        featuredImage: null, // No image - will show placeholder
-        variants: {
-          nodes: [
-            {
-              id: 'demo-variant-3',
-              title: 'Default Title',
-              availableForSale: true,
-              price: {
-                amount: '89900',
-                currencyCode: 'COP'
-              }
-            }
-          ]
-        },
-        priceRange: {
-          minVariantPrice: {
-            amount: '89900',
-            currencyCode: 'COP'
-          }
-        }
-      }
-    ];
-  } else {
-    // Get products from the actual collection
+  // Get products from the actual collection (no demo products - they break ProductCard)
+  if (collection && collection.products) {
     products = collection.products?.nodes?.slice(0, 5) || [];
   }
   
