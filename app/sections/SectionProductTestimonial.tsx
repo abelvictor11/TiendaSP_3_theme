@@ -36,11 +36,42 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
   } = section;
 
   // Get collection data - try different possible field names
-  const collections = (featured_collection as any)?.references?.nodes || 
-                     (section as any).featured_collection?.references?.nodes ||
-                     (section as any).collections?.references?.nodes ||
-                     (section as any).collection?.references?.nodes ||
-                     [];
+  let collections = (featured_collection as any)?.references?.nodes || 
+                   (section as any).featured_collection?.references?.nodes ||
+                   (section as any).collections?.references?.nodes ||
+                   (section as any).collection?.references?.nodes ||
+                   [];
+  
+  // TEMPORAL: Add example collections if no collections found
+  if (collections.length === 0) {
+    console.log('No collections found, adding example collections for demo');
+    collections = [
+      {
+        id: 'demo-1',
+        title: 'Trotadoras',
+        handle: 'trotadoras',
+        description: 'Las mejores trotadoras para tu entrenamiento',
+        image: {url: 'https://via.placeholder.com/400x300/87CEEB/FFFFFF?text=Trotadoras'},
+        horizontal_image: null
+      },
+      {
+        id: 'demo-2', 
+        title: 'Pesas y Mancuernas',
+        handle: 'pesas-mancuernas',
+        description: 'Equipamiento completo de pesas y mancuernas',
+        image: {url: 'https://via.placeholder.com/400x300/87CEEB/FFFFFF?text=Pesas'},
+        horizontal_image: null
+      },
+      {
+        id: 'demo-3',
+        title: 'Funcional',
+        handle: 'funcional',
+        description: 'Accesorios para entrenamiento funcional',
+        image: {url: 'https://via.placeholder.com/400x300/87CEEB/FFFFFF?text=Funcional'},
+        horizontal_image: null
+      }
+    ];
+  }
   
   console.log('SectionProductTestimonial - featured_collection:', featured_collection);
   console.log('SectionProductTestimonial - featured_collection type:', typeof featured_collection);
@@ -164,11 +195,6 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
 
           {/* Collection Carousel */}
           <div className="relative z-10 w-full max-w-[400px]">
-            {/* Debug: Visual temporal */}
-            <div className="bg-red-500 text-white p-2 mb-2 rounded">
-              DEBUG: Collections found: {collections.length}
-            </div>
-            
             {collections.length > 0 ? (
               <div
                 ref={sliderRef}
@@ -182,62 +208,57 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
                       className="flex-shrink-0 w-full snap-center"
                     >
                       <div className="bg-[#F6F7F8] rounded-xl shadow-xl p-6 text-left">
-                        {/* Debug info */}
-                        <div className="bg-blue-500 text-white p-1 mb-2 rounded text-xs">
-                          DEBUG: Collection {index + 1} - {collection.title}
+                      {/* Collection Image */}
+                      {collection.horizontal_image?.reference?.image && (
+                        <div className="mb-4">
+                          <Image
+                            data={collection.horizontal_image.reference.image}
+                            sizes="400px"
+                            className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
+                          />
                         </div>
-                        
-                        {/* Collection Image */}
-                        {collection.horizontal_image?.reference?.image && (
-                          <div className="mb-4">
-                            <Image
-                              data={collection.horizontal_image.reference.image}
-                              sizes="400px"
-                              className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
-                            />
-                          </div>
-                        )}
-                        
-                        {/* Fallback to main collection image */}
-                        {!collection.horizontal_image?.reference?.image && collection.image && (
-                          <div className="mb-4">
-                            <Image
-                              data={collection.image}
-                              sizes="400px"
-                              className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
-                            />
-                          </div>
-                        )}
+                      )}
+                      
+                      {/* Fallback to main collection image */}
+                      {!collection.horizontal_image?.reference?.image && collection.image && (
+                        <div className="mb-4">
+                          <Image
+                            data={collection.image}
+                            sizes="400px"
+                            className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
+                          />
+                        </div>
+                      )}
 
-                        {/* Collection Title */}
-                        {collection.title && (
-                          <h4 className="font-semibold text-md text-slate-900 mb-1">
-                            {collection.title}
-                          </h4>
-                        )}
+                      {/* Collection Title */}
+                      {collection.title && (
+                        <h4 className="font-semibold text-md text-slate-900 mb-1">
+                          {collection.title}
+                        </h4>
+                      )}
 
-                        {/* Collection Description */}
-                        {collection.description && (
-                          <p className="text-sm text-slate-500 mb-4 line-clamp-2">
-                            {collection.description}
-                          </p>
-                        )}
+                      {/* Collection Description */}
+                      {collection.description && (
+                        <p className="text-sm text-slate-500 mb-4 line-clamp-2">
+                          {collection.description}
+                        </p>
+                      )}
 
-                        {/* View Collection Button */}
-                        {collection.handle && (
-                          <Link
-                            to={`/collections/${collection.handle}`}
-                            className="inline-block px-6 py-2 rounded-full border font-medium text-sm transition-all hover:opacity-80"
-                            style={{
-                              backgroundColor: btnBg,
-                              color: btnText,
-                              borderColor: btnText,
-                            }}
-                          >
-                            {button_text?.value || 'Ver Colección'}
-                          </Link>
-                        )}
-                      </div>
+                      {/* View Collection Button */}
+                      {collection.handle && (
+                        <Link
+                          to={`/collections/${collection.handle}`}
+                          className="inline-block px-6 py-2 rounded-full border font-medium text-sm transition-all hover:opacity-80"
+                          style={{
+                            backgroundColor: btnBg,
+                            color: btnText,
+                            borderColor: btnText,
+                          }}
+                        >
+                          {button_text?.value || 'Ver Colección'}
+                        </Link>
+                      )}
+                    </div>
                     </div>
                   );
                 })}
