@@ -34,7 +34,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
 
   // Get products from the featured collection
   let products: any[] = [];
-  const collection = (featured_collection as any)?.reference;
+  const collection = (featured_collection as any);
   
   console.log('SectionProductTestimonial - featured_collection:', featured_collection);
   console.log('SectionProductTestimonial - collection:', collection);
@@ -47,12 +47,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
         id: 'demo-product-1',
         title: 'Trotadora Profesional X200',
         handle: 'trotadora-profesional-x200',
-        featuredImage: {
-          url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjODdDRUVCIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRkZGRkZGIiBmb250LXNpemU9IjE4IiBmb250LWZhbWlseT0iQXJpYWwiPlRyb3RhZG9yYTwvdGV4dD4KPC9zdmc+',
-          altText: 'Trotadora Profesional X200',
-          width: 400,
-          height: 300
-        },
+        featuredImage: null, // No image - will show placeholder
         variants: {
           nodes: [
             {
@@ -77,12 +72,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
         id: 'demo-product-2',
         title: 'Set de Mancuernas 20kg',
         handle: 'set-mancuernas-20kg',
-        featuredImage: {
-          url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjODdDRUVCIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRkZGRkZGIiBmb250LXNpemU9IjE2IiBmb250LWZhbWlseT0iQXJpYWwiPk1hbmN1ZXJuYXM8L3RleHQ+Cjx0ZXh0IHg9IjIwMCIgeT0iMTYwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRkZGRkZGIiBmb250LXNpemU9IjE0IiBmb250LWZhbWlseT0iQXJpYWwiPjIwIGtnPC90ZXh0Pgo8L3N2Zz4=',
-          altText: 'Set de Mancuernas 20kg',
-          width: 400,
-          height: 300
-        },
+        featuredImage: null, // No image - will show placeholder
         variants: {
           nodes: [
             {
@@ -107,12 +97,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
         id: 'demo-product-3',
         title: 'Bandas de Resistencia',
         handle: 'bandas-resistencia',
-        featuredImage: {
-          url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjODdDRUVCIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRkZGRkZGIiBmb250LXNpemU9IjE2IiBmb250LWZhbWlseT0iQXJpYWwiPkJhbmRhczwvdGV4dD4KPHRleHQgeD0iMjAwIiB5PSIxNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNGRkZGRkYiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtZmFtaWx5PSJBcmlhbCI+UmVzaXN0ZW5jaWE8L3RleHQ+Cjwvc3ZnPg==',
-          altText: 'Bandas de Resistencia',
-          width: 400,
-          height: 300
-        },
+        featuredImage: null, // No image - will show placeholder
         variants: {
           nodes: [
             {
