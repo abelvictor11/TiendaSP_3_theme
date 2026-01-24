@@ -4,7 +4,7 @@ export default function useSnapSlider({
   sliderRef: React.RefObject<HTMLDivElement>;
 }) {
   const get_slider_item_size = () =>
-    sliderRef.current?.querySelector('.mySnapItem')?.clientWidth || 0;
+    sliderRef.current?.querySelector('.flex-shrink-0')?.clientWidth || 0;
 
   function scrollToNextSlide() {
     sliderRef.current?.scrollBy({

@@ -48,7 +48,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
         title: 'Trotadora Profesional X200',
         handle: 'trotadora-profesional-x200',
         featuredImage: {
-          url: 'https://cdn.shopify.com/s/files/1/0553/8637/3264/files/trotadora-placeholder.jpg',
+          url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjODdDRUVCIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTUwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRkZGRkZGIiBmb250LXNpemU9IjE4IiBmb250LWZhbWlseT0iQXJpYWwiPlRyb3RhZG9yYTwvdGV4dD4KPC9zdmc+',
           altText: 'Trotadora Profesional X200',
           width: 400,
           height: 300
@@ -78,7 +78,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
         title: 'Set de Mancuernas 20kg',
         handle: 'set-mancuernas-20kg',
         featuredImage: {
-          url: 'https://cdn.shopify.com/s/files/1/0553/8637/3264/files/mancuernas-placeholder.jpg',
+          url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjODdDRUVCIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRkZGRkZGIiBmb250LXNpemU9IjE2IiBmb250LWZhbWlseT0iQXJpYWwiPk1hbmN1ZXJuYXM8L3RleHQ+Cjx0ZXh0IHg9IjIwMCIgeT0iMTYwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRkZGRkZGIiBmb250LXNpemU9IjE0IiBmb250LWZhbWlseT0iQXJpYWwiPjIwIGtnPC90ZXh0Pgo8L3N2Zz4=',
           altText: 'Set de Mancuernas 20kg',
           width: 400,
           height: 300
@@ -108,7 +108,7 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
         title: 'Bandas de Resistencia',
         handle: 'bandas-resistencia',
         featuredImage: {
-          url: 'https://cdn.shopify.com/s/files/1/0553/8637/3264/files/bandas-placeholder.jpg',
+          url: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjODdDRUVCIi8+Cjx0ZXh0IHg9IjIwMCIgeT0iMTQwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmaWxsPSIjRkZGRkZGIiBmb250LXNpemU9IjE2IiBmb250LWZhbWlseT0iQXJpYWwiPkJhbmRhczwvdGV4dD4KPHRleHQgeD0iMjAwIiB5PSIxNjAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNGRkZGRkYiIGZvbnQtc2l6ZT0iMTQiIGZvbnQtZmFtaWx5PSJBcmlhbCI+UmVzaXN0ZW5jaWE8L3RleHQ+Cjwvc3ZnPg==',
           altText: 'Bandas de Resistencia',
           width: 400,
           height: 300
@@ -272,13 +272,26 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
                     >
                       <div className="bg-[#F6F7F8] rounded-xl shadow-xl p-6 text-left">
                         {/* Product Image */}
-                        {productImage && (
+                        {productImage ? (
                           <div className="mb-4">
                             <Image
                               data={productImage}
                               sizes="400px"
                               className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
+                              onError={(e) => {
+                                console.error('Image failed to load:', productImage.url);
+                                e.currentTarget.style.display = 'none';
+                              }}
                             />
+                          </div>
+                        ) : (
+                          <div className="mb-4 flex items-center justify-center h-[200px] bg-slate-100 rounded-lg">
+                            <div className="text-center">
+                              <svg className="w-16 h-16 mx-auto mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                              </svg>
+                              <p className="text-sm text-slate-500">Sin imagen</p>
+                            </div>
                           </div>
                         )}
 
