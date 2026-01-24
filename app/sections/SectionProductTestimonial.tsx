@@ -4,7 +4,7 @@ import useSnapSlider from '~/hooks/useSnapSlider';
 import type {SectionProductTestimonialFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
 import {type CommonProductCardFragment} from 'storefrontapi.generated';
-import ProductCard from '~/components/ProductCard';
+import {ProductCardShowcase} from '~/components/ProductCardShowcase';
 import {useRef} from 'react';
 
 export function SectionProductTestimonial(props: SectionProductTestimonialFragment) {
@@ -171,9 +171,8 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
                       key={product.id}
                       className="flex-shrink-0 w-full snap-center"
                     >
-                      <ProductCard
+                      <ProductCardShowcase
                         product={product}
-                        quickAddToCart={false}
                       />
                     </div>
                   );

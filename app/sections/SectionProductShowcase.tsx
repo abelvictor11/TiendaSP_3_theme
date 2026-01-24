@@ -2,7 +2,7 @@ import {Image} from '@shopify/hydrogen';
 import {Link} from '@remix-run/react';
 import type {SectionProductShowcaseFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
-import ProductCard from '~/components/ProductCard';
+import {ProductCardShowcase} from '~/components/ProductCardShowcase';
 import {useRef, useState} from 'react';
 import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/24/outline';
 
@@ -145,10 +145,9 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           <div className="col-span-7">
             <div className="grid grid-cols-2 gap-4 h-full">
               {productsToShow.map((product: any) => (
-                <ProductCard
+                <ProductCardShowcase
                   key={product.id}
                   product={product}
-                  quickAddToCart={false}
                 />
               ))}
             </div>
@@ -206,9 +205,8 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           {productsToShow.map((product: any) => (
             <div key={product.id} className="flex-shrink-0 w-full snap-center px-4">
               <div className="h-[400px]">
-                <ProductCard
+                <ProductCardShowcase
                   product={product}
-                  quickAddToCart={false}
                 />
               </div>
             </div>
