@@ -1,10 +1,12 @@
 import {Image, Money} from '@shopify/hydrogen';
-import {Link} from '@remix-run/react';
+import {Heading} from '~/components/Heading';
+import {Link} from '~/components/Link';
+import useSnapSlider from '~/hooks/useSnapSlider';
 import type {SectionProductTestimonialFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
+import {type CommonProductCardFragment} from 'storefrontapi.generated';
+import ProductCardCollection from '~/components/ProductCardCollection';
 import {useRef} from 'react';
-import useSnapSlider from '~/hooks/useSnapSlider';
-import type {CommonProductCardFragment} from 'storefrontapi.generated';
 
 export function SectionProductTestimonial(props: SectionProductTestimonialFragment) {
   const section = parseSection<SectionProductTestimonialFragment, {
@@ -244,78 +246,16 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
               >
                 {products.slice(0, 5).map((product: any, index: number) => {
                   console.log(`Rendering product ${index}:`, product);
-                  const productImage = product.featuredImage;
-                  const productTitle = product.title;
-                  const productVariant = product.variants?.nodes?.[0];
-                  const productPrice = productVariant?.price;
-                  const productHandle = product.handle;
                   
                   return (
                     <div
                       key={product.id}
                       className="flex-shrink-0 w-full snap-center"
                     >
-                      <div className="bg-[#F6F7F8] rounded-xl shadow-xl p-6 text-left">
-                        {/* Product Image */}
-                        {productImage ? (
-                          <div className="mb-4">
-                            <Image
-                              data={productImage}
-                              sizes="400px"
-                              className="mix-blend-multiply w-full h-auto object-contain max-h-[200px] rounded-lg"
-                              onError={(e) => {
-                                console.error('Image failed to load:', productImage.url);
-                                e.currentTarget.style.display = 'none';
-                              }}
-                            />
-                          </div>
-                        ) : (
-                          <div className="mb-4 flex items-center justify-center h-[200px] bg-slate-100 rounded-lg">
-                            <div className="text-center">
-                              <svg className="w-16 h-16 mx-auto mb-2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                              <p className="text-sm text-slate-500">Sin imagen</p>
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Product Title */}
-                        {productTitle && (
-                          <h4 className="font-semibold text-md text-slate-900 mb-1">
-                            {productTitle}
-                          </h4>
-                        )}
-
-                        {/* Product Variant/Description */}
-                        {productVariant?.title && productVariant.title !== 'Default Title' && (
-                          <p className="text-sm text-slate-500 mb-4">
-                            {productVariant.title}
-                          </p>
-                        )}
-
-                        {/* Product Price */}
-                        {productPrice && (
-                          <p className="text-lg font-semibold text-slate-900 mb-4">
-                            <Money data={productPrice} />
-                          </p>
-                        )}
-
-                        {/* View Product Button */}
-                        {productHandle && (
-                          <Link
-                            to={`/products/${productHandle}`}
-                            className="inline-block px-6 py-2 rounded-full border font-medium text-sm transition-all hover:opacity-80"
-                            style={{
-                              backgroundColor: btnBg,
-                              color: btnText,
-                              borderColor: btnText,
-                            }}
-                          >
-                            {button_text?.value || 'Ver Producto'}
-                          </Link>
-                        )}
-                      </div>
+                      <ProductCardCollection
+                        product={product}
+                        button_text={button_text?.value || 'Ver Producto'}
+                      />
                     </div>
                   );
                 })}

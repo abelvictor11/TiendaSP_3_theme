@@ -2,7 +2,7 @@ import {Image} from '@shopify/hydrogen';
 import {Link} from '@remix-run/react';
 import type {SectionProductShowcaseFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
-import {ProductCardShowcase} from '~/components/ProductCardShowcase';
+import ProductCardCollection from '~/components/ProductCardCollection';
 import {useRef, useState} from 'react';
 import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/24/outline';
 
@@ -112,7 +112,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
             >
               {heading?.value && (
                 <h2
-                  className="font-headline text-3xl lg:text-4xl xl:text-5xl font-normalmb-6"
+                  className="font-headline text-3xl lg:text-4xl xl:text-5xl font-normal mb-6"
                   style={{color: txtColor}}
                 >
                   {heading.value}
@@ -145,11 +145,10 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           <div className="col-span-7">
             <div className="grid grid-cols-2 gap-4 h-full">
               {productsToShow.map((product: any) => (
-                <ProductCardShowcase
+                <ProductCardCollection
                   key={product.id}
                   product={product}
-                  cardBackgroundColor={cardBg}
-                  cardTextColor={cardTxt}
+                  button_text={button_text?.value || 'Ver ahora'}
                 />
               ))}
             </div>
@@ -207,10 +206,9 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           {productsToShow.map((product: any) => (
             <div key={product.id} className="flex-shrink-0 w-full snap-center px-4">
               <div className="h-[400px]">
-                <ProductCardShowcase
+                <ProductCardCollection
                   product={product}
-                  cardBackgroundColor={cardBg}
-                  cardTextColor={cardTxt}
+                  button_text={button_text?.value || 'Ver ahora'}
                 />
               </div>
             </div>
