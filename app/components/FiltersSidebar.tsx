@@ -52,7 +52,7 @@ export default function FiltersSidebar({
 
 
   return (
-    <aside className="w-full lg:w-64 flex-shrink-0 lg:sticky lg:top-32 lg:self-start pr-2">
+    <aside className="border border-[#e5e7eb] p-4 rounded-md w-full lg:w-64 flex-shrink-0 lg:sticky lg:top-32 lg:self-start pr-2">
       <h3 className="text-lg font-semibold mb-4">Filtros</h3>
       
       <div className="space-y-1 pb-4">
@@ -111,7 +111,7 @@ export default function FiltersSidebar({
                               name={option.label}
                               label={option.label}
                               checked={isChecked}
-                              labelClassName="text-xs"
+                              labelClassName=""
                               onChange={(event) => {
                                 handleFilterChange(option, event.target.checked);
                               }}
