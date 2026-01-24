@@ -230,18 +230,18 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
         <div className="container">
           <div className="nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8">
             <div className="space-y-3 sm:space-y-4">
-              {!!item.sub_heading?.value && (
-                <span
-                  className="nc-SectionHeroSliderItem__subheading block text-base font-normal md:text-lg"
-                  style={{color: subheadingColor}}
-                  dangerouslySetInnerHTML={{__html: item.sub_heading.value}}
-                />
-              )}
               {!!item.heading?.value && (
                 <h2
                   className="nc-SectionHeroSliderItem__heading font-headline text-2xl font-normal !leading-[114%] sm:text-3xl md:text-4xl xl:text-5xl 2xl:text-6xl"
                   style={{color: headingColor}}
                   dangerouslySetInnerHTML={{__html: item.heading.value}}
+                />
+              )}
+              {!!item.sub_heading?.value && (
+                <span
+                  className="nc-SectionHeroSliderItem__subheading block text-base font-normal md:text-lg"
+                  style={{color: subheadingColor}}
+                  dangerouslySetInnerHTML={{__html: item.sub_heading.value}}
                 />
               )}
             </div>

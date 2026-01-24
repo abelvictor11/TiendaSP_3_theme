@@ -33,6 +33,7 @@ const CollectionItem: FC<CollectionItemProps> = ({
   console.log('CollectionItem data:', {title, horizontal_image, image});
 
   const hImage = horizontal_image?.reference?.image;
+  const mainImage = image;
 
   return (
     <Link
@@ -42,23 +43,28 @@ const CollectionItem: FC<CollectionItemProps> = ({
       prefetch="viewport"
     >
       <div className="relative w-full aspect-w-16 aspect-h-12 sm:aspect-h-9 rounded-2xl overflow-hidden bg-slate-100 group">
-        {hImage && (
+        {/* Background image - use horizontal_image first, fallback to main image */}
+        {(hImage || mainImage) && (
           <Image
-            className="absolute inset-0 w-full h-full object-cover rounded-2xl "
-            data={hImage}
+            className="absolute inset-0 w-full h-full object-cover rounded-2xl"
+            data={hImage || (mainImage as any)}
             sizes="(max-width: 640px) 90vw, (max-width: 1200px) 50vw, 40vw"
           />
         )}
 
-        <span className="opacity-0 group-hover:opacity-40 absolute inset-0 bg-black/10 transition-opacity"></span>
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent rounded-2xl"></div>
+        
+        {/* Hover effect */}
+        <span className="opacity-0 group-hover:opacity-100 absolute inset-0 bg-black/20 transition-opacity rounded-2xl"></span>
 
         <div>
           <div className="absolute inset-4 lg:inset-8 flex flex-col">
             <div className="max-w-[18rem]">
-              <span className={`block text-sm text-slate-700`}>Collection</span>
+              <span className={`block text-sm text-white/90 font-medium`}>Collection</span>
               {!!title && (
                 <h2
-                  className="text-xl lg:text-2xl text-slate-900 font-semibold mt-0.5 sm:mt-2"
+                  className="text-xl lg:text-2xl text-white font-semibold mt-0.5 sm:mt-2"
                   dangerouslySetInnerHTML={{__html: title}}
                 />
               )}
@@ -67,7 +73,7 @@ const CollectionItem: FC<CollectionItemProps> = ({
               <ButtonSecondary
                 sizeClass="py-3 px-4 sm:py-3.5 sm:px-6"
                 fontSize="text-sm font-medium"
-                className="nc-shadow-lg"
+                className="nc-shadow-lg bg-white/90 hover:bg-white text-neutral-900 backdrop-blur-sm"
               >
                 {button_text || 'Shop now'}
               </ButtonSecondary>
@@ -87,13 +93,17 @@ export const CollectionItemSkeleton = ({
   return (
     <div className={clsx(`block w-full`, className)}>
       <div className="relative w-full aspect-w-16 aspect-h-12 sm:aspect-h-9 rounded-2xl overflow-hidden bg-slate-100 group">
-        <span className="opacity-0 group-hover:opacity-40 absolute inset-0 bg-black/10 transition-opacity"></span>
+        {/* Background gradient placeholder */}
+        <div className="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-300 rounded-2xl"></div>
+        
+        {/* Overlay for better text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent rounded-2xl"></div>
 
         <div>
           <div className="absolute inset-4 md:inset-8 flex flex-col">
             <div className="max-w-[18rem]">
-              <span className={`block text-sm text-slate-700`}>Collection</span>
-              <h2 className="text-xl md:text-2xl text-slate-900 font-semibold mt-0.5 sm:mt-2">
+              <span className={`block text-sm text-white/90 font-medium`}>Collection</span>
+              <h2 className="text-xl md:text-2xl text-white font-semibold mt-0.5 sm:mt-2">
                 Skeleton Collection
               </h2>
             </div>
@@ -102,7 +112,7 @@ export const CollectionItemSkeleton = ({
                 disabled
                 sizeClass="py-3 px-4 sm:py-3.5 sm:px-6"
                 fontSize="text-sm font-medium"
-                className="nc-shadow-lg"
+                className="nc-shadow-lg bg-white/90 text-neutral-900 backdrop-blur-sm"
               >
                 {'Explore now'}
               </ButtonSecondary>
