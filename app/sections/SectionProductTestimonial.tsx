@@ -35,11 +35,24 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
     button_text_color,
   } = section;
 
-  // Get collection data
-  const collections = (featured_collection as any)?.references?.nodes || [];
+  // Get collection data - try different possible field names
+  const collections = (featured_collection as any)?.references?.nodes || 
+                     (section as any).featured_collection?.references?.nodes ||
+                     (section as any).collections?.references?.nodes ||
+                     (section as any).collection?.references?.nodes ||
+                     [];
+  
   console.log('SectionProductTestimonial - featured_collection:', featured_collection);
+  console.log('SectionProductTestimonial - featured_collection type:', typeof featured_collection);
+  console.log('SectionProductTestimonial - featured_collection keys:', featured_collection ? Object.keys(featured_collection) : 'null');
+  console.log('SectionProductTestimonial - featured_collection.references:', featured_collection?.references);
   console.log('SectionProductTestimonial - collections:', collections);
   console.log('SectionProductTestimonial - collections length:', collections.length);
+  
+  // Try to find any collection-related field
+  const possibleFields = ['featured_collection', 'collections', 'collection', 'featured_collections'];
+  const foundField = possibleFields.find(field => (section as any)[field]);
+  console.log('SectionProductTestimonial - Found collection field:', foundField, foundField ? (section as any)[foundField] : 'None found');
   
   const sliderRef = useRef<HTMLDivElement>(null);
   const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
