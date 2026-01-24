@@ -224,7 +224,7 @@ const ProductCard: FC<ProductCardProps> = ({
                 as="span"
               >
                 <BagIcon className="w-3.5 h-3.5 mb-0.5" />
-                <span className="ms-1">Add to bag</span>
+                <span className="ms-1">Añadir al carrito</span>
               </ButtonPrimary>
             </AddToCartButton>
           </ClientOnly>

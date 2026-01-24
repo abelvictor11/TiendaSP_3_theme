@@ -89,7 +89,7 @@ export function SectionBrandsTicker(props: any) {
       {/* Title */}
       {title?.value && (
         <div className="container mb-6">
-          <h2 className="text-lg font-semibold text-left text-black">
+          <h2 className="font-headline text-3xl md:text-4xl font-normal">
             {title.value}
           </h2>
           <hr className="border-neutral-900/10" />
