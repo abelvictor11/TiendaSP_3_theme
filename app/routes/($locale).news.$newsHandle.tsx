@@ -178,7 +178,7 @@ export default function Article() {
         <Suspense fallback={<div />}>
           <Await resolve={relatedPromise}>
             {(relatedData) => {
-              const articles = relatedData.blog?.articles.edges
+              const articles = (relatedData?.blog?.articles?.edges || [])
                 .filter((item) => item.node.id !== article.id)
                 .filter(Boolean);
 

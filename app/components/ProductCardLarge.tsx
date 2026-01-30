@@ -27,10 +27,10 @@ const ProductCardLarge: FC<ProductCardProps> = ({
 
   const hasReviews = !!okendoStarRatingSnippet;
 
-  const image0 = images?.edges[0]?.node;
-  const image1 = images?.edges[1]?.node || image0;
-  const image2 = images?.edges[2]?.node || image1;
-  const image3 = images?.edges[3]?.node || image2;
+  const image0 = images?.edges?.[0]?.node;
+  const image1 = images?.edges?.[1]?.node || image0;
+  const image2 = images?.edges?.[2]?.node || image1;
+  const image3 = images?.edges?.[3]?.node || image2;
   const featureText = getProductFeatureText({
     outstanding_features: product.outstanding_features,
     variants: product.variants,
