@@ -406,6 +406,30 @@ const HEADER_QUERY = `#graphql
         }
       }
     }
+    brands: metaobjects(type: "ciseco--brand", first: 50) {
+      nodes {
+        id
+        handle
+        name: field(key: "name") {
+          value
+        }
+        slug: field(key: "slug") {
+          value
+        }
+        logo: field(key: "logo") {
+          reference {
+            ... on MediaImage {
+              image {
+                url
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
+      }
+    }
     topBarMarquee: metaobjects(type: "ciseco--top_bar_marquee", first: 1) {
       nodes {
         id

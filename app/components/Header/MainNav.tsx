@@ -10,13 +10,21 @@ import {Link} from '../Link';
 import {useAside} from '../Aside';
 import {Form, useParams} from '@remix-run/react';
 
+interface Brand {
+  id: string;
+  handle: string;
+  name?: { value: string };
+  slug?: { value: string };
+  logo?: { reference?: { image?: { url: string; altText?: string } } };
+}
+
 export interface Props {
   className?: string;
   isHome?: boolean;
-  vendors?: string[];
+  brands?: Brand[];
 }
 
-const MainNav: FC<Props> = ({className = '', isHome, vendors = []}) => {
+const MainNav: FC<Props> = ({className = '', isHome, brands = []}) => {
   const {type: activeType, close, open} = useAside();
   const params = useParams();
 
@@ -69,7 +77,7 @@ const MainNav: FC<Props> = ({className = '', isHome, vendors = []}) => {
 
           {/* Right side actions */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <VendorsDropdown className="hidden md:block" vendors={vendors} />
+            <VendorsDropdown className="hidden md:block" brands={brands} />
             {/* Mobile search icon - Hidden on desktop */}
             <Link
               to={'/search'}

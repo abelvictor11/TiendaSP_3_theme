@@ -4,34 +4,51 @@ import {type FC} from 'react';
 import {Link} from '@remix-run/react';
 import NcModal from '../NcModal';
 
+interface Brand {
+  id: string;
+  handle: string;
+  name?: { value: string };
+  slug?: { value: string };
+  logo?: { reference?: { image?: { url: string; altText?: string } } };
+}
+
 interface VendorsDropdownProps {
   panelClassName?: string;
   className?: string;
-  vendors?: string[];
+  brands?: Brand[];
 }
 
 const VendorsDropdown: FC<VendorsDropdownProps> = ({
   panelClassName = '',
   className = '',
-  vendors = [],
+  brands = [],
 }) => {
 
-  const renderVendors = (close: () => void) => {
+  const renderBrands = (close: () => void) => {
     return (
       <div className="grid gap-x-1 md:gap-x-4 gap-y-2 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-        {vendors.map((vendor: string) => (
-          <Link
-            key={vendor}
-            to={`/search?q=&productVendor=${encodeURIComponent(vendor)}`}
-            onClick={close}
-            className="flex flex-shrink-0 flex-1 w-full items-center p-2 transition duration-150 ease-in-out rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50 opacity-80 hover:opacity-100"
-          >
-            <div className="grid text-left">
-              <span className="text-sm font-medium">{vendor}</span>
-            </div>
-          </Link>
-        ))}
-        {vendors.length === 0 && (
+        {brands.map((brand) => {
+          const name = brand.name?.value || brand.handle;
+          const slug = brand.slug?.value || name;
+          const logoUrl = brand.logo?.reference?.image?.url;
+          
+          return (
+            <Link
+              key={brand.id}
+              to={`/search?q=&productVendor=${encodeURIComponent(slug)}`}
+              onClick={close}
+              className="flex flex-shrink-0 flex-1 w-full items-center gap-3 p-2 transition duration-150 ease-in-out rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 focus:outline-none focus-visible:ring focus-visible:ring-orange-500 focus-visible:ring-opacity-50 opacity-80 hover:opacity-100"
+            >
+              {logoUrl && (
+                <img src={logoUrl} alt={name} className="w-8 h-8 object-contain" />
+              )}
+              <div className="grid text-left">
+                <span className="text-sm font-medium">{name}</span>
+              </div>
+            </Link>
+          );
+        })}
+        {brands.length === 0 && (
           <p className="text-sm text-gray-500 col-span-full text-center py-4">
             No hay marcas disponibles
           </p>
@@ -60,7 +77,7 @@ const VendorsDropdown: FC<VendorsDropdownProps> = ({
             </button>
           );
         }}
-        renderContent={(closeModal) => renderVendors(closeModal)}
+        renderContent={(closeModal) => renderBrands(closeModal)}
         modalTitle="Selecciona una marca"
       />
     </div>
