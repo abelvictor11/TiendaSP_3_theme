@@ -57,9 +57,10 @@ function MyHeader() {
       <div className="nc-Header z-40 relative">
         <HeaderMenuDataWrap>
           {({headerData, headerMenu}) => {
-            const vendors = (headerData as any)?.vendors?.productVendors?.edges?.map(
-              (edge: {node: string}) => edge.node
-            ) || [];
+            const vendorEdges = (headerData as any)?.vendors?.productVendors?.edges;
+            const vendors = Array.isArray(vendorEdges) 
+              ? vendorEdges.map((edge: {node: string}) => edge.node) 
+              : [];
             return (
               <>
                 <MainNav isHome={isHome} vendors={vendors} />
