@@ -18,8 +18,10 @@ export interface Props {
   className?: string;
   headingFontClass?: string;
   isSkeleton?: boolean;
-  /** Number of columns visible on desktop (xl breakpoint). Default is 4. Options: 3 or 4 */
-  columnsDesktop?: 3 | 4;
+  /** Number of columns visible on desktop (xl breakpoint). Default is 4. Options: 2-6 */
+  columnsDesktop?: 2 | 3 | 4 | 5 | 6;
+  /** Color for heading text */
+  headingColor?: string;
 }
 
 export function SnapSliderProducts(props: Props) {
@@ -33,6 +35,7 @@ export function SnapSliderProducts(props: Props) {
     headingFontClass,
     isSkeleton,
     columnsDesktop = 4,
+    headingColor,
   } = props;
 
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -51,6 +54,7 @@ export function SnapSliderProducts(props: Props) {
         hasNextPrev
         onClickNext={scrollToNextSlide}
         onClickPrev={scrollToPrevSlide}
+        style={headingColor ? {color: headingColor} : undefined}
       >
         {heading_bold}
       </Heading>
@@ -65,10 +69,16 @@ export function SnapSliderProducts(props: Props) {
               className={clsx(
                 `mySnapItem snap-start shrink-0 px-2`,
                 cardStyle !== '2'
-                  ? columnsDesktop === 3
+                  ? columnsDesktop === 2
+                    ? 'w-[17rem] lg:w-80 xl:w-[50%]'
+                    : columnsDesktop === 3
                     ? 'w-[17rem] lg:w-80 xl:w-[33.33%]'
+                    : columnsDesktop === 5
+                    ? 'w-[17rem] lg:w-80 xl:w-[20%]'
+                    : columnsDesktop === 6
+                    ? 'w-[17rem] lg:w-80 xl:w-[16.66%]'
                     : 'w-[17rem] lg:w-80 xl:w-[25%]'
-                  : 'w-full sm:w-96 lg:w-[50%] xl:w-[33.33%]', // card style 2 large
+                  : 'w-full sm:w-96 lg:w-[50%] xl:w-[33.33%]',
               )}
             >
               <CardSkeleton index={index} className="w-full" />
@@ -82,10 +92,16 @@ export function SnapSliderProducts(props: Props) {
               className={clsx(
                 `mySnapItem snap-start shrink-0 px-2`,
                 cardStyle !== '2'
-                  ? columnsDesktop === 3
+                  ? columnsDesktop === 2
+                    ? 'w-[17rem] lg:w-80 xl:w-[50%]'
+                    : columnsDesktop === 3
                     ? 'w-[17rem] lg:w-80 xl:w-[33.33%]'
+                    : columnsDesktop === 5
+                    ? 'w-[17rem] lg:w-80 xl:w-[20%]'
+                    : columnsDesktop === 6
+                    ? 'w-[17rem] lg:w-80 xl:w-[16.66%]'
                     : 'w-[17rem] lg:w-80 xl:w-[25%]'
-                  : 'w-full sm:w-96 lg:w-[50%] xl:w-[33.33%]', // card style 2 large
+                  : 'w-full sm:w-96 lg:w-[50%] xl:w-[33.33%]',
               )}
             >
               <Card
