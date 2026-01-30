@@ -206,7 +206,18 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
     <div className="h-[60vh] min-h-[400px] w-full lg:h-[55vh] lg:min-h-[500px] relative overflow-hidden bg-slate-100">
       {/* BG - Absolute positioned */}
       <div className="nc-SectionHeroSliderItem__image absolute inset-0 w-full h-full">
-        {!!item.horizontal_image?.image && (
+        {/* Desktop: Video or Image */}
+        {(item as any).horizontal_video?.reference?.sources?.[0]?.url ? (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="hidden h-full w-full object-cover lg:block"
+          >
+            <source src={(item as any).horizontal_video.reference.sources[0].url} type={(item as any).horizontal_video.reference.sources[0].mimeType || 'video/mp4'} />
+          </video>
+        ) : item.horizontal_image?.image && (
           <Image
             data={item.horizontal_image?.image}
             sizes="110vw"
@@ -215,7 +226,18 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
           />
         )}
 
-        {!!item.vertical_image?.image && (
+        {/* Mobile: Video or Image */}
+        {(item as any).vertical_video?.reference?.sources?.[0]?.url ? (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="block h-full w-full object-cover lg:hidden"
+          >
+            <source src={(item as any).vertical_video.reference.sources[0].url} type={(item as any).vertical_video.reference.sources[0].mimeType || 'video/mp4'} />
+          </video>
+        ) : item.vertical_image?.image && (
           <Image
             data={item.vertical_image?.image}
             sizes="100vw"
@@ -303,6 +325,34 @@ export const HERO_ITEM_FRAGMENT = `#graphql
         reference {
           ... on MediaImage {
             ...MediaImage
+          }
+        }
+      }
+      vertical_video: field(key: "vertical_video") {
+        key
+        reference {
+          ... on Video {
+            id
+            sources {
+              url
+              mimeType
+              width
+              height
+            }
+          }
+        }
+      }
+      horizontal_video: field(key: "horizontal_video") {
+        key
+        reference {
+          ... on Video {
+            id
+            sources {
+              url
+              mimeType
+              width
+              height
+            }
           }
         }
       }

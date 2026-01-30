@@ -27,12 +27,33 @@ export function SectionHero(props: SectionHeroFragment) {
   const {cta_button, heading, horizontal_image, sub_heading, vertical_image} =
     heroItem;
 
+  // Get colors with defaults
+  const headingColor = (heroItem as any).heading_color?.value || '#000000';
+  const subheadingColor = (heroItem as any).subheading_color?.value || '#171717';
+  const buttonBgColor = (heroItem as any).button_bg_color?.value || '#171717';
+  const buttonTextColor = (heroItem as any).button_text_color?.value || '#ffffff';
+
+  // Get video sources
+  const horizontalVideo = (heroItem as any).horizontal_video?.reference?.sources?.[0];
+  const verticalVideo = (heroItem as any).vertical_video?.reference?.sources?.[0];
+
   return (
     <div className="container px-4">
       <div className="nc-SectionHero aspect-h-16 aspect-w-10 relative overflow-hidden rounded-2xl bg-slate-100 sm:aspect-h-4 sm:aspect-w-3 lg:aspect-h-7 lg:aspect-w-16 2xl:aspect-w-16 2xl:aspect-h-7">
         {/* BG */}
         <div>
-          {horizontal_image?.image && (
+          {/* Desktop: Video or Image */}
+          {horizontalVideo?.url ? (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="hidden h-full w-full object-cover lg:block"
+            >
+              <source src={horizontalVideo.url} type={horizontalVideo.mimeType || 'video/mp4'} />
+            </video>
+          ) : horizontal_image?.image && (
             <Image
               sizes="110vw"
               className="hidden h-full w-full object-cover lg:block"
@@ -40,7 +61,18 @@ export function SectionHero(props: SectionHeroFragment) {
             />
           )}
 
-          {vertical_image?.image && (
+          {/* Mobile: Video or Image */}
+          {verticalVideo?.url ? (
+            <video
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="block h-full w-full object-cover object-bottom lg:hidden"
+            >
+              <source src={verticalVideo.url} type={verticalVideo.mimeType || 'video/mp4'} />
+            </video>
+          ) : vertical_image?.image && (
             <Image
               sizes="100vw"
               className="block h-full w-full object-cover object-bottom lg:hidden"
@@ -54,23 +86,31 @@ export function SectionHero(props: SectionHeroFragment) {
           <div className="container relative">
             <div className="flex max-w-lg flex-col items-start space-y-5 xl:max-w-2xl xl:space-y-8 ">
               {sub_heading?.value && (
-                <span className="font-semibold text-neutral-900 sm:text-lg md:text-xl">
+                <span 
+                  className="font-semibold sm:text-lg md:text-xl"
+                  style={{color: subheadingColor}}
+                >
                   {sub_heading?.value}
                 </span>
               )}
               {heading?.value && (
                 <h2
-                  className="text-3xl font-bold !leading-[115%] text-black sm:text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl "
+                  className="text-3xl font-bold !leading-[115%] sm:text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl"
+                  style={{color: headingColor}}
                   dangerouslySetInnerHTML={{__html: heading?.value}}
                 />
               )}
               {!!cta_button?.href?.value && (
                 <div className="sm:pt-4">
-                  <ButtonPrimary
-                    sizeClass="px-6 py-3 lg:px-8 lg:py-4"
-                    fontSize="text-sm sm:text-base lg:text-lg font-medium"
+                  <a
                     href={cta_button?.href?.value || ''}
-                    targetBlank={cta_button?.target?.value === 'true'}
+                    target={cta_button?.target?.value === 'true' ? '_blank' : '_self'}
+                    rel={cta_button?.target?.value === 'true' ? 'noopener noreferrer' : undefined}
+                    className="group inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 lg:px-8 lg:py-4 text-sm sm:text-base lg:text-lg font-medium transition-all duration-200 hover:opacity-90"
+                    style={{
+                      backgroundColor: buttonBgColor,
+                      color: buttonTextColor,
+                    }}
                   >
                     <span>{cta_button?.text?.value}</span>
                     {!!cta_button?.icon_svg?.value && (
@@ -81,7 +121,7 @@ export function SectionHero(props: SectionHeroFragment) {
                         }}
                       />
                     )}
-                  </ButtonPrimary>
+                  </a>
                 </div>
               )}
             </div>
