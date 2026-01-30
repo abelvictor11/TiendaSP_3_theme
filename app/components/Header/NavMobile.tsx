@@ -163,7 +163,7 @@ const NavMobile: React.FC<NavMobileProps> = ({onClose}) => {
               {({headerData}) => {
                 return (
                   <SocialsList
-                    data={headerData.socials.edges.map((edge) => {
+                    data={(headerData?.socials?.edges || []).map((edge) => {
                       const node = edge.node;
                       return {
                         name: node.title?.value || '',

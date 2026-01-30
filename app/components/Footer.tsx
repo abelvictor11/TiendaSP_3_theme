@@ -77,9 +77,9 @@ const Footer: React.FC<FooterProps> = () => {
         <div className="mt-16 border-t border-gray-900/10 dark:border-neutral-700 pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-20">
           <div className="flex flex-wrap gap-x-6 gap-y-3 md:order-2">
             <HeaderMenuDataWrap>
-              {({headerData: {socials}}) => (
+              {({headerData}) => (
                 <SocialsList
-                  data={socials.edges.map((edge) => {
+                  data={(headerData?.socials?.edges || []).map((edge) => {
                     const node = edge.node;
                     return {
                       name: node.title?.value || '',
