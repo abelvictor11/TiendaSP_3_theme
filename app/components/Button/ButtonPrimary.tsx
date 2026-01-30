@@ -5,7 +5,7 @@ export interface ButtonPrimaryProps extends ButtonProps {}
 
 const ButtonPrimary: React.FC<ButtonPrimaryProps> = ({
   className = '',
-  sizeClass = 'py-3 px-4 lg:py-3.5 lg:px-8',
+  sizeClass = 'px-6 py-3 lg:px-8 lg:py-4',
   ...args
 }) => {
   return (

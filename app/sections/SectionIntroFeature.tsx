@@ -92,7 +92,7 @@ export function SectionIntroFeature(props: SectionIntroFeatureFragment) {
                 <div>
                   <Link
                     to={button_link?.value || '#'}
-                    className="inline-block px-6 py-3 rounded-full text-sm font-bold uppercase tracking-wider transition-all hover:opacity-90 hover:scale-105"
+                    className="inline-block px-6 py-3 lg:px-8 lg:py-4 rounded-full text-sm sm:text-base lg:text-lg font-medium transition-all hover:opacity-90 hover:scale-105"
                     style={{
                       backgroundColor: btnBgColor,
                       color: btnTxtColor,

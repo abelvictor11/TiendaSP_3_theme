@@ -88,8 +88,8 @@ const CollectionItem: FC<CollectionItemProps> = ({
             </div>
             <div className="mt-auto">
               <ButtonSecondary
-                sizeClass="py-3 px-4 sm:py-3.5 sm:px-6"
-                fontSize="text-sm font-medium"
+                sizeClass="px-6 py-3 lg:px-8 lg:py-4"
+                fontSize="text-sm sm:text-base lg:text-lg font-medium"
                 className="nc-shadow-lg bg-white/90 hover:bg-white text-neutral-900 backdrop-blur-sm"
               >
                 {button_text || 'Shop now'}

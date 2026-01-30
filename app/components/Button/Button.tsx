@@ -21,8 +21,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const Button: FC<ButtonProps> = ({
   className = 'text-neutral-700 disabled:cursor-not-allowed',
   translateClass = '',
-  sizeClass = 'py-3 px-4 lg:py-3.5 lg:px-7',
-  fontSize = 'text-sm sm:text-base font-medium',
+  sizeClass = 'px-6 py-3 lg:px-8 lg:py-4',
+  fontSize = 'text-sm sm:text-base lg:text-lg font-medium',
   disabled = false,
   href,
   children,

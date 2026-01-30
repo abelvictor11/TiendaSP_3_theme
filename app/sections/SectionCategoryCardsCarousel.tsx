@@ -121,7 +121,7 @@ export function SectionCategoryCardsCarousel(
               <div>
                 <Link to={ctaLink}>
                   <button
-                    className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full font-medium shadow-xl transition-all hover:shadow-2xl hover:scale-105"
+                    className="px-6 py-3 lg:px-8 lg:py-4 rounded-full text-sm sm:text-base lg:text-lg font-medium shadow-xl transition-all hover:shadow-2xl hover:scale-105"
                     style={{
                       backgroundColor: buttonBgColor,
                       color: buttonTextColor,
