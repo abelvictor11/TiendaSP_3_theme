@@ -55,14 +55,21 @@ function MyHeader() {
       <TopBarMarqueeWrap />
       {/* Main Header - Not sticky, scrolls with page */}
       <div className="nc-Header z-40 relative">
-        <MainNav isHome={isHome} />
         <HeaderMenuDataWrap>
-          {({headerData, headerMenu}) => (
-            <NavigationBar 
-              headerMenu={headerMenu?.items} 
-              headerData={headerData}
-            />
-          )}
+          {({headerData, headerMenu}) => {
+            const vendors = (headerData as any)?.vendors?.productVendors?.edges?.map(
+              (edge: {node: string}) => edge.node
+            ) || [];
+            return (
+              <>
+                <MainNav isHome={isHome} vendors={vendors} />
+                <NavigationBar 
+                  headerMenu={headerMenu?.items} 
+                  headerData={headerData}
+                />
+              </>
+            );
+          }}
         </HeaderMenuDataWrap>
       </div>
       {/* Sticky Header - appears on scroll up */}

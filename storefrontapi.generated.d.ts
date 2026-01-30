@@ -2855,7 +2855,7 @@ export type RouteContentQuery = {
                     image?: StorefrontAPI.Maybe<
                       Pick<
                         StorefrontAPI.Image,
-                        'altText' | 'url' | 'width' | 'height'
+                        'url' | 'altText' | 'width' | 'height'
                       >
                     >;
                   }>;
@@ -3385,22 +3385,136 @@ export type RouteContentQuery = {
                   }>;
                 }
               >;
-              featured_product?: StorefrontAPI.Maybe<
+              featured_collection?: StorefrontAPI.Maybe<
                 Pick<StorefrontAPI.MetaobjectField, 'type' | 'key'> & {
                   reference?: StorefrontAPI.Maybe<
-                    Pick<StorefrontAPI.Product, 'id' | 'title' | 'handle'> & {
-                      featuredImage?: StorefrontAPI.Maybe<
+                    Pick<
+                      StorefrontAPI.Collection,
+                      'id' | 'title' | 'handle' | 'description'
+                    > & {
+                      image?: StorefrontAPI.Maybe<
                         Pick<
                           StorefrontAPI.Image,
                           'url' | 'altText' | 'width' | 'height'
                         >
                       >;
-                      variants: {
+                      horizontal_image?: StorefrontAPI.Maybe<{
+                        reference?: StorefrontAPI.Maybe<
+                          Pick<StorefrontAPI.MediaImage, 'id'> & {
+                            image?: StorefrontAPI.Maybe<
+                              Pick<
+                                StorefrontAPI.Image,
+                                'altText' | 'height' | 'width' | 'url'
+                              >
+                            >;
+                          }
+                        >;
+                      }>;
+                      products: {
                         nodes: Array<
-                          Pick<StorefrontAPI.ProductVariant, 'id' | 'title'> & {
-                            price: Pick<
-                              StorefrontAPI.MoneyV2,
-                              'amount' | 'currencyCode'
+                          Pick<
+                            StorefrontAPI.Product,
+                            | 'id'
+                            | 'title'
+                            | 'handle'
+                            | 'publishedAt'
+                            | 'availableForSale'
+                            | 'vendor'
+                            | 'tags'
+                          > & {
+                            options: Array<
+                              Pick<
+                                StorefrontAPI.ProductOption,
+                                'name' | 'values'
+                              >
+                            >;
+                            featuredImage?: StorefrontAPI.Maybe<
+                              Pick<
+                                StorefrontAPI.Image,
+                                'url' | 'altText' | 'width' | 'height'
+                              >
+                            >;
+                            images: {
+                              edges: Array<{
+                                node: Pick<
+                                  StorefrontAPI.Image,
+                                  'url' | 'altText' | 'width' | 'height'
+                                >;
+                              }>;
+                            };
+                            variants: {
+                              nodes: Array<
+                                Pick<
+                                  StorefrontAPI.ProductVariant,
+                                  'id' | 'title' | 'availableForSale'
+                                > & {
+                                  price: Pick<
+                                    StorefrontAPI.MoneyV2,
+                                    'amount' | 'currencyCode'
+                                  >;
+                                  image?: StorefrontAPI.Maybe<
+                                    Pick<
+                                      StorefrontAPI.Image,
+                                      'url' | 'altText' | 'width' | 'height'
+                                    >
+                                  >;
+                                  selectedOptions: Array<
+                                    Pick<
+                                      StorefrontAPI.SelectedOption,
+                                      'name' | 'value'
+                                    >
+                                  >;
+                                  product: Pick<
+                                    StorefrontAPI.Product,
+                                    'title' | 'handle'
+                                  >;
+                                }
+                              >;
+                            };
+                            priceRange: {
+                              minVariantPrice: Pick<
+                                StorefrontAPI.MoneyV2,
+                                'amount' | 'currencyCode'
+                              >;
+                            };
+                            compareAtPriceRange: {
+                              minVariantPrice: Pick<
+                                StorefrontAPI.MoneyV2,
+                                'amount' | 'currencyCode'
+                              >;
+                            };
+                            reviews_rating_count?: StorefrontAPI.Maybe<
+                              Pick<
+                                StorefrontAPI.Metafield,
+                                'type' | 'id' | 'value' | 'namespace' | 'key'
+                              >
+                            >;
+                            reviews_rating?: StorefrontAPI.Maybe<
+                              Pick<
+                                StorefrontAPI.Metafield,
+                                'type' | 'id' | 'value' | 'namespace' | 'key'
+                              >
+                            >;
+                            outstanding_features?: StorefrontAPI.Maybe<
+                              Pick<
+                                StorefrontAPI.Metafield,
+                                'type' | 'id' | 'value' | 'namespace' | 'key'
+                              >
+                            >;
+                            okendoStarRatingSnippet?: StorefrontAPI.Maybe<
+                              Pick<StorefrontAPI.Metafield, 'value'>
+                            >;
+                            uso_tipo?: StorefrontAPI.Maybe<
+                              Pick<StorefrontAPI.Metafield, 'value'>
+                            >;
+                            peso_maximo_usuario?: StorefrontAPI.Maybe<
+                              Pick<StorefrontAPI.Metafield, 'value'>
+                            >;
+                            material?: StorefrontAPI.Maybe<
+                              Pick<StorefrontAPI.Metafield, 'value'>
+                            >;
+                            envio_gratis?: StorefrontAPI.Maybe<
+                              Pick<StorefrontAPI.Metafield, 'value'>
                             >;
                           }
                         >;
@@ -3408,6 +3522,15 @@ export type RouteContentQuery = {
                     }
                   >;
                 }
+              >;
+              button_link?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+              >;
+              badge_background_color?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+              >;
+              badge_text_color?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
               >;
             }
           >;
@@ -4230,6 +4353,54 @@ export type SectionImageWithTextFragment = Pick<
   >;
 };
 
+export type SectionIntroFeatureFragment = Pick<
+  StorefrontAPI.Metaobject,
+  'type' | 'id'
+> & {
+  badge_text?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+  >;
+  heading?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+  >;
+  description?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+  >;
+  button_text?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+  >;
+  button_link?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+  >;
+  image?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MetaobjectField, 'key'> & {
+      reference?: StorefrontAPI.Maybe<{
+        image?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.Image, 'url' | 'altText' | 'width' | 'height'>
+        >;
+      }>;
+    }
+  >;
+  background_color?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+  >;
+  text_color?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+  >;
+  badge_background_color?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+  >;
+  badge_text_color?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+  >;
+  button_background_color?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+  >;
+  button_text_color?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+  >;
+};
+
 export type SectionLatestBlogFragment = Pick<
   StorefrontAPI.Metaobject,
   'type'
@@ -4604,17 +4775,125 @@ export type SectionProductTestimonialFragment = Pick<
       }>;
     }
   >;
-  featured_product?: StorefrontAPI.Maybe<
+  featured_collection?: StorefrontAPI.Maybe<
     Pick<StorefrontAPI.MetaobjectField, 'type' | 'key'> & {
       reference?: StorefrontAPI.Maybe<
-        Pick<StorefrontAPI.Product, 'id' | 'title' | 'handle'> & {
-          featuredImage?: StorefrontAPI.Maybe<
+        Pick<
+          StorefrontAPI.Collection,
+          'id' | 'title' | 'handle' | 'description'
+        > & {
+          image?: StorefrontAPI.Maybe<
             Pick<StorefrontAPI.Image, 'url' | 'altText' | 'width' | 'height'>
           >;
-          variants: {
+          horizontal_image?: StorefrontAPI.Maybe<{
+            reference?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.MediaImage, 'id'> & {
+                image?: StorefrontAPI.Maybe<
+                  Pick<
+                    StorefrontAPI.Image,
+                    'altText' | 'height' | 'width' | 'url'
+                  >
+                >;
+              }
+            >;
+          }>;
+          products: {
             nodes: Array<
-              Pick<StorefrontAPI.ProductVariant, 'id' | 'title'> & {
-                price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+              Pick<
+                StorefrontAPI.Product,
+                | 'id'
+                | 'title'
+                | 'handle'
+                | 'publishedAt'
+                | 'availableForSale'
+                | 'vendor'
+                | 'tags'
+              > & {
+                options: Array<
+                  Pick<StorefrontAPI.ProductOption, 'name' | 'values'>
+                >;
+                featuredImage?: StorefrontAPI.Maybe<
+                  Pick<
+                    StorefrontAPI.Image,
+                    'url' | 'altText' | 'width' | 'height'
+                  >
+                >;
+                images: {
+                  edges: Array<{
+                    node: Pick<
+                      StorefrontAPI.Image,
+                      'url' | 'altText' | 'width' | 'height'
+                    >;
+                  }>;
+                };
+                variants: {
+                  nodes: Array<
+                    Pick<
+                      StorefrontAPI.ProductVariant,
+                      'id' | 'title' | 'availableForSale'
+                    > & {
+                      price: Pick<
+                        StorefrontAPI.MoneyV2,
+                        'amount' | 'currencyCode'
+                      >;
+                      image?: StorefrontAPI.Maybe<
+                        Pick<
+                          StorefrontAPI.Image,
+                          'url' | 'altText' | 'width' | 'height'
+                        >
+                      >;
+                      selectedOptions: Array<
+                        Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+                      >;
+                      product: Pick<StorefrontAPI.Product, 'title' | 'handle'>;
+                    }
+                  >;
+                };
+                priceRange: {
+                  minVariantPrice: Pick<
+                    StorefrontAPI.MoneyV2,
+                    'amount' | 'currencyCode'
+                  >;
+                };
+                compareAtPriceRange: {
+                  minVariantPrice: Pick<
+                    StorefrontAPI.MoneyV2,
+                    'amount' | 'currencyCode'
+                  >;
+                };
+                reviews_rating_count?: StorefrontAPI.Maybe<
+                  Pick<
+                    StorefrontAPI.Metafield,
+                    'type' | 'id' | 'value' | 'namespace' | 'key'
+                  >
+                >;
+                reviews_rating?: StorefrontAPI.Maybe<
+                  Pick<
+                    StorefrontAPI.Metafield,
+                    'type' | 'id' | 'value' | 'namespace' | 'key'
+                  >
+                >;
+                outstanding_features?: StorefrontAPI.Maybe<
+                  Pick<
+                    StorefrontAPI.Metafield,
+                    'type' | 'id' | 'value' | 'namespace' | 'key'
+                  >
+                >;
+                okendoStarRatingSnippet?: StorefrontAPI.Maybe<
+                  Pick<StorefrontAPI.Metafield, 'value'>
+                >;
+                uso_tipo?: StorefrontAPI.Maybe<
+                  Pick<StorefrontAPI.Metafield, 'value'>
+                >;
+                peso_maximo_usuario?: StorefrontAPI.Maybe<
+                  Pick<StorefrontAPI.Metafield, 'value'>
+                >;
+                material?: StorefrontAPI.Maybe<
+                  Pick<StorefrontAPI.Metafield, 'value'>
+                >;
+                envio_gratis?: StorefrontAPI.Maybe<
+                  Pick<StorefrontAPI.Metafield, 'value'>
+                >;
               }
             >;
           };
@@ -5575,7 +5854,7 @@ export type SectionsFragment = {
               image?: StorefrontAPI.Maybe<
                 Pick<
                   StorefrontAPI.Image,
-                  'altText' | 'url' | 'width' | 'height'
+                  'url' | 'altText' | 'width' | 'height'
                 >
               >;
             }>;
@@ -6062,22 +6341,133 @@ export type SectionsFragment = {
             }>;
           }
         >;
-        featured_product?: StorefrontAPI.Maybe<
+        featured_collection?: StorefrontAPI.Maybe<
           Pick<StorefrontAPI.MetaobjectField, 'type' | 'key'> & {
             reference?: StorefrontAPI.Maybe<
-              Pick<StorefrontAPI.Product, 'id' | 'title' | 'handle'> & {
-                featuredImage?: StorefrontAPI.Maybe<
+              Pick<
+                StorefrontAPI.Collection,
+                'id' | 'title' | 'handle' | 'description'
+              > & {
+                image?: StorefrontAPI.Maybe<
                   Pick<
                     StorefrontAPI.Image,
                     'url' | 'altText' | 'width' | 'height'
                   >
                 >;
-                variants: {
+                horizontal_image?: StorefrontAPI.Maybe<{
+                  reference?: StorefrontAPI.Maybe<
+                    Pick<StorefrontAPI.MediaImage, 'id'> & {
+                      image?: StorefrontAPI.Maybe<
+                        Pick<
+                          StorefrontAPI.Image,
+                          'altText' | 'height' | 'width' | 'url'
+                        >
+                      >;
+                    }
+                  >;
+                }>;
+                products: {
                   nodes: Array<
-                    Pick<StorefrontAPI.ProductVariant, 'id' | 'title'> & {
-                      price: Pick<
-                        StorefrontAPI.MoneyV2,
-                        'amount' | 'currencyCode'
+                    Pick<
+                      StorefrontAPI.Product,
+                      | 'id'
+                      | 'title'
+                      | 'handle'
+                      | 'publishedAt'
+                      | 'availableForSale'
+                      | 'vendor'
+                      | 'tags'
+                    > & {
+                      options: Array<
+                        Pick<StorefrontAPI.ProductOption, 'name' | 'values'>
+                      >;
+                      featuredImage?: StorefrontAPI.Maybe<
+                        Pick<
+                          StorefrontAPI.Image,
+                          'url' | 'altText' | 'width' | 'height'
+                        >
+                      >;
+                      images: {
+                        edges: Array<{
+                          node: Pick<
+                            StorefrontAPI.Image,
+                            'url' | 'altText' | 'width' | 'height'
+                          >;
+                        }>;
+                      };
+                      variants: {
+                        nodes: Array<
+                          Pick<
+                            StorefrontAPI.ProductVariant,
+                            'id' | 'title' | 'availableForSale'
+                          > & {
+                            price: Pick<
+                              StorefrontAPI.MoneyV2,
+                              'amount' | 'currencyCode'
+                            >;
+                            image?: StorefrontAPI.Maybe<
+                              Pick<
+                                StorefrontAPI.Image,
+                                'url' | 'altText' | 'width' | 'height'
+                              >
+                            >;
+                            selectedOptions: Array<
+                              Pick<
+                                StorefrontAPI.SelectedOption,
+                                'name' | 'value'
+                              >
+                            >;
+                            product: Pick<
+                              StorefrontAPI.Product,
+                              'title' | 'handle'
+                            >;
+                          }
+                        >;
+                      };
+                      priceRange: {
+                        minVariantPrice: Pick<
+                          StorefrontAPI.MoneyV2,
+                          'amount' | 'currencyCode'
+                        >;
+                      };
+                      compareAtPriceRange: {
+                        minVariantPrice: Pick<
+                          StorefrontAPI.MoneyV2,
+                          'amount' | 'currencyCode'
+                        >;
+                      };
+                      reviews_rating_count?: StorefrontAPI.Maybe<
+                        Pick<
+                          StorefrontAPI.Metafield,
+                          'type' | 'id' | 'value' | 'namespace' | 'key'
+                        >
+                      >;
+                      reviews_rating?: StorefrontAPI.Maybe<
+                        Pick<
+                          StorefrontAPI.Metafield,
+                          'type' | 'id' | 'value' | 'namespace' | 'key'
+                        >
+                      >;
+                      outstanding_features?: StorefrontAPI.Maybe<
+                        Pick<
+                          StorefrontAPI.Metafield,
+                          'type' | 'id' | 'value' | 'namespace' | 'key'
+                        >
+                      >;
+                      okendoStarRatingSnippet?: StorefrontAPI.Maybe<
+                        Pick<StorefrontAPI.Metafield, 'value'>
+                      >;
+                      uso_tipo?: StorefrontAPI.Maybe<
+                        Pick<StorefrontAPI.Metafield, 'value'>
+                      >;
+                      peso_maximo_usuario?: StorefrontAPI.Maybe<
+                        Pick<StorefrontAPI.Metafield, 'value'>
+                      >;
+                      material?: StorefrontAPI.Maybe<
+                        Pick<StorefrontAPI.Metafield, 'value'>
+                      >;
+                      envio_gratis?: StorefrontAPI.Maybe<
+                        Pick<StorefrontAPI.Metafield, 'value'>
                       >;
                     }
                   >;
@@ -6085,6 +6475,15 @@ export type SectionsFragment = {
               }
             >;
           }
+        >;
+        button_link?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+        >;
+        badge_background_color?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
+        >;
+        badge_text_color?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.MetaobjectField, 'key' | 'value'>
         >;
       }
     >;
@@ -6176,7 +6575,7 @@ interface GeneratedQueryTypes {
     return: ProductsByHandlesQuery;
     variables: ProductsByHandlesQueryVariables;
   };
-  '#graphql\n  query RouteContent($handle: String!\n    $country: CountryCode\n    $language: LanguageCode\n    $filters: [ProductFilter!]\n    $sortKey: ProductCollectionSortKeys!\n    $reverse: Boolean\n    $first: Int\n    $last: Int\n    $startCursor: String\n    $endCursor: String\n    )\n    @inContext(country: $country, language: $language)\n     {\n    route: metaobject(handle: {type: "ciseco--route", handle: $handle}) {\n      type\n      id\n      title: field(key: "title") {\n        key\n        value\n      }\n      padding_top_px: field(key: "padding_top_px") {\n        type\n        key\n        value\n      }\n      firt_line_on_top: field(key: "firt_line_on_top") {\n        type\n        key\n        value\n      }\n      separation_line_between_sections: field(key: "separation_line_between_sections") {\n        type\n        key\n        value\n      }\n      sections: field(key: "sections") {\n        ...Sections\n      }\n    }\n  }\n  #graphql\n  fragment Sections on MetaobjectField {\n    ... on MetaobjectField {\n      references(first: 20) {\n        nodes {\n          ... on Metaobject {\n            id\n            type\n            ...SectionHero\n            ...SectionHeroSlider\n            ...SectionCollectionsSlider\n            ...SectionProductsSlider\n            ...SectionSteps\n            ...SectionImageWithText\n            ...SectionTabsCollectionsByGroup\n            ...SectionGridProductsAndFilter\n            ...SectionLatestBlog\n            ...SectionClientsSay\n            ...SectionCategoryCardsCarousel\n            ...SectionProductFeature\n            ...SectionProductShowcase\n            ...SectionBrandsTicker\n            ...SectionProductTestimonial\n          }\n        }\n      }\n    }\n  }\n  # All section fragments\n  #graphql\n  fragment SectionHero on Metaobject {\n    type\n    hero_item: field(key: "hero_item") {\n      reference {\n          ... on Metaobject {\n            ...HeroItem\n          }\n      }\n    }\n  }\n \n  #graphql\n  fragment SectionHeroSlider on Metaobject {\n    type\n    hero_items: field(key: "hero_items") {\n      references(first: 10) {\n        nodes {\n          ... on Metaobject {\n            ...HeroItem\n          }\n        }\n      }\n    }\n  }\n \n  #graphql\n  fragment SectionCollectionsSlider on Metaobject {\n    type\n    id\n    heading_bold: field(key: "heading_bold") {\n      type\n      key\n      value\n    }\n    heading_light: field(key: "heading_light") {\n      type\n      key\n      value\n    }\n    sub_heading: field(key: "sub_heading") {\n      type\n      key\n      value\n    }\n    button_text: field(key: "button_text") {\n      type\n      key\n      value\n    }\n    collections: field(key: "collections") {\n      references(first: 10) {\n        nodes {\n          ... on Collection {\n            ...CommonCollectionItem\n          }\n        }\n      }\n    }\n  } \n\n  #graphql\n  fragment SectionProductsSlider on Metaobject {\n    type\n    heading_bold: field(key: "heading_bold") {\n      key\n      value\n    }\n    heading_light: field(key: "heading_light") {\n      key\n      value\n    }\n    sub_heading: field(key: "sub_heading") {\n      key\n      value\n    }\n    body: field(key: "body") {\n      key\n      value\n    }\n    style: field(key: "style") {\n      key\n      value\n    }\n    columns: field(key: "columns") {\n      key\n      value\n    }\n    show_view_button: field(key: "show_view_button") {\n      key\n      value\n    }\n\n    collection: field(key: "collection") {\n      type\n      key\n      reference {\n        ... on Collection {\n          id\n          handle\n          title\n          description\n          productsSliderSection: products(\n            first: 10, \n          ) {\n            nodes {\n              ...CommonProductCard\n            }\n          }\n        }\n      }\n    }\n  }\n\n  #graphql\n  fragment SectionSteps on Metaobject {\n    type\n    title: field(key: "title") {\n      type\n      key\n      value\n    }\n    headings: field(key: "headings") {\n      type\n      key\n      value\n    }\n    labels: field(key: "labels") {\n      type\n      key\n      value\n    }\n    contents: field(key: "contents") {\n      type\n      key\n      value\n    }\n    icons: field(key: "icons") {\n      key\n      type\n      value\n      references(first: 10) {\n        nodes {\n              ...MediaImage\n            }\n        }\n    }\n    style: field(key: "style") {\n      key\n      value\n    }\n  }\n\n  #graphql\n  fragment SectionImageWithText on Metaobject {\n    type\n    title: field(key: "title") {\n      key\n      value\n    }\n    heading: field(key: "heading") {\n      key\n      value\n    }\n    content: field(key: "content") {\n      key\n      value\n    }\n    hide_logo: field(key: "hide_logo") {\n      key\n      value\n    }\n    background_color: field(key: "background_color") {\n      key\n      value\n    }\n    button_1: field(key: "button_1") {\n      ...Link\n    }\n    button_2: field(key: "button_2") {\n      ...Link\n    }\n    image: field(key: "image") {\n      key\n      reference {\n        ... on MediaImage {\n          ...MediaImage\n        }\n      }\n    }\n    features: field(key: "features") {\n      key\n      type\n      value\n    }\n    show_subscribers_input: field(key: "show_subscribers_input") {\n      key\n      value\n    }\n    style: field(key: "style") {\n      key\n      value\n    }\n  }\n\n  #graphql\n  fragment SectionTabsCollectionsByGroup on Metaobject {\n    type\n    heading: field(key: "heading") {\n     type\n     key\n     value\n    }\n    card_style: field(key: "card_style") {\n     type\n     key\n     value\n    }\n    sub_heading: field(key: "sub_heading") {\n     type\n     key\n     value\n    }\n    number_collections_to_show: field(key: "number_collections_to_show") {\n     type\n     key\n     value\n    }\n    background_color: field(key: "background_color") {\n     type\n     key\n     value\n    }\n    collection_groups: field(key: "collection_groups") {\n      references(first: 20) {\n        nodes {\n          ...CollectionGroupItem\n        }\n      }\n    }\n  }\n  #graphql\nfragment CollectionOnGroupItem on Collection {\n    ...CommonCollectionItem\n    products(first: 0) {\n      filters {\n        values {\n          input\n          count\n          label\n        }\n      }\n    }\n  }\n\n  fragment CollectionGroupItem on Metaobject {\n    type\n    id\n    handle\n    title: field(key: "title") {\n     type\n     key\n     value\n    }\n    name: field(key: "name") {\n     type\n     key\n     value\n    }\n    icon_svg: field(key: "icon_svg") {\n     type\n     key\n     value\n    }\n    \n    collections: field(key: "collections") {\n      references(first: 12) {\n        nodes {\n          ... on Collection {\n            ...CollectionOnGroupItem\n          }\n        }\n      }\n    }\n}\n \n  #graphql\n  fragment SectionGridProductsAndFilter on Metaobject {\n    type\n    heading: field(key: "heading") {\n      key\n      value\n    }\n    sub_heading: field(key: "sub_heading") {\n      key\n      value\n    }\n    collection: field(key: "collection") {\n      type\n      key\n      reference {\n\n        ... on Collection {\n          id\n          handle\n          title\n          description\n          sectionGridProductsAndFilterProductsDefaultFilter :products(first: 0, filters : {}) {\n            filters {\n              id\n              label\n              type\n              values {\n                id\n                label\n                count\n                input\n              }\n            }\n          }\n          sectionGridProductsAndFilterProducts :products(\n            first: $first,\n            last: $last,\n            before: $startCursor,\n            after: $endCursor,\n            filters: $filters,\n            sortKey: $sortKey,\n            reverse: $reverse\n          ) {\n            filters {\n              id\n              label\n              type\n              values {\n                id\n                label\n                count\n                input\n              }\n            }\n            nodes {\n              ...CommonProductCard\n            }\n            pageInfo {\n              hasPreviousPage\n              hasNextPage\n              endCursor\n              startCursor\n            }\n          }\n        }\n      }\n    }\n  }\n\n  #graphql\n  fragment SectionLatestBlog on Metaobject {\n    type\n    heading: field(key: "heading") {\n      key\n      value\n    }\n    heading_bold: field(key: "heading_bold") {\n      key\n      value\n    }\n    heading_light: field(key: "heading_light") {\n      key\n      value\n    }\n    background_color: field(key: "background_color") {\n      key\n      value\n    }\n    button_view_all: field(key: "button_view_all") {\n      ...Link\n    }\n\n    number_of_items: field(key: "number_of_items") {\n      key\n      value\n    }\n    blog_slug: field(key: "blog_slug") {\n      key\n      value\n    }\n  }\n\n  #graphql\n  fragment ClientSay on Metaobject {\n    type\n    id\n    handle\n    title: field(key: "title") {\n      type\n      key\n      value\n    }\n    name: field(key: "name") {\n     type\n      key\n      value\n    }\n    stars: field(key: "stars") {\n     type\n      key\n      value\n    }\n    content: field(key: "content") {\n     type\n      key\n      value\n    }\n    image: field(key: "image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            altText\n            url\n            width\n            height\n          }\n        }\n      }\n    }\n  }\n\n  fragment SectionClientsSay on Metaobject {\n    type\n    heading: field(key: "heading") {\n      key\n      value\n    }\n    sub_heading: field(key: "sub_heading") {\n      key\n      value\n    }\n    clients_say: field(key: "clients_say") {\n      references(first: 10) {\n          nodes {\n            ...on Metaobject {\n              ...ClientSay\n            }\n        }\n       }\n    }\n  }\n\n  #graphql\n  fragment SectionCategoryCardsCarousel on Metaobject {\n    type\n    id\n    heading: field(key: "heading") {\n      type\n      key\n      value\n    }\n    sub_heading: field(key: "sub_heading") {\n      type\n      key\n      value\n    }\n    background_color: field(key: "background_color") {\n      type\n      key\n      value\n    }\n    category_groups: field(key: "category_groups") {\n      references(first: 20) {\n        nodes {\n          ...CategoryGroupItem\n        }\n      }\n    }\n  }\n  #graphql\n  fragment CategoryGroupItem on Metaobject {\n    type\n    id\n    handle\n    title: field(key: "title") {\n      type\n      key\n      value\n    }\n    name: field(key: "name") {\n      type\n      key\n      value\n    }\n    icon_svg: field(key: "icon_svg") {\n      type\n      key\n      value\n    }\n    category_cards: field(key: "category_cards") {\n      references(first: 20) {\n        nodes {\n          ...CategoryCardItem\n        }\n      }\n    }\n  }\n  #graphql\n  fragment CategoryCardItem on Metaobject {\n    type\n    id\n    handle\n    title: field(key: "title") {\n      type\n      key\n      value\n    }\n    subtitle: field(key: "subtitle") {\n      type\n      key\n      value\n    }\n    image: field(key: "image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    background_image: field(key: "background_image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    background_color: field(key: "background_color") {\n      type\n      key\n      value\n    }\n    cta_text: field(key: "cta_text") {\n      type\n      key\n      value\n    }\n    cta_link: field(key: "cta_link") {\n      type\n      key\n      value\n    }\n    content_background_color: field(key: "content_background_color") {\n      type\n      key\n      value\n    }\n    title_color: field(key: "title_color") {\n      type\n      key\n      value\n    }\n    subtitle_color: field(key: "subtitle_color") {\n      type\n      key\n      value\n    }\n    button_background_color: field(key: "button_background_color") {\n      type\n      key\n      value\n    }\n    button_text_color: field(key: "button_text_color") {\n      type\n      key\n      value\n    }\n  }\n\n\n\n  #graphql\n  fragment SectionProductFeature on Metaobject {\n    type\n    id\n    heading: field(key: "heading") {\n      type\n      key\n      value\n    }\n    description: field(key: "description") {\n      type\n      key\n      value\n    }\n    cta_text: field(key: "cta_text") {\n      type\n      key\n      value\n    }\n    cta_link: field(key: "cta_link") {\n      type\n      key\n      value\n    }\n    banner_image: field(key: "banner_image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    background_color: field(key: "background_color") {\n      type\n      key\n      value\n    }\n    text_color: field(key: "text_color") {\n      type\n      key\n      value\n    }\n    button_background_color: field(key: "button_background_color") {\n      type\n      key\n      value\n    }\n    button_text_color: field(key: "button_text_color") {\n      type\n      key\n      value\n    }\n    image_position: field(key: "image_position") {\n      type\n      key\n      value\n    }\n  }\n\n  #graphql\n  fragment SectionProductShowcase on Metaobject {\n    type\n    id\n    heading: field(key: "heading") {\n      type\n      key\n      value\n    }\n    subheading: field(key: "subheading") {\n      type\n      key\n      value\n    }\n    description: field(key: "description") {\n      type\n      key\n      value\n    }\n    icon_svg: field(key: "icon_svg") {\n      type\n      key\n      value\n    }\n    badge_text: field(key: "badge_text") {\n      type\n      key\n      value\n    }\n    background_image: field(key: "background_image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    content_background_color: field(key: "content_background_color") {\n      type\n      key\n      value\n    }\n    text_color: field(key: "text_color") {\n      type\n      key\n      value\n    }\n    products: field(key: "products") {\n      references(first: 2) {\n        nodes {\n          ... on Product {\n            ...CommonProductCard\n          }\n        }\n      }\n    }\n    collection: field(key: "collection") {\n      type\n      key\n      reference {\n        ... on Collection {\n          id\n          handle\n          title\n          productsShowcaseSection: products(first: 2) {\n            nodes {\n              ...CommonProductCard\n            }\n          }\n        }\n      }\n    }\n    card_background_color: field(key: "card_background_color") {\n      type\n      key\n      value\n    }\n    card_text_color: field(key: "card_text_color") {\n      type\n      key\n      value\n    }\n    button_text: field(key: "button_text") {\n      type\n      key\n      value\n    }\n  }\n\n  #graphql\n  fragment SectionBrandsTicker on Metaobject {\n    type\n    id\n    title: field(key: "title") {\n      type\n      key\n      value\n    }\n    background_color: field(key: "background_color") {\n      type\n      key\n      value\n    }\n    speed: field(key: "speed") {\n      type\n      key\n      value\n    }\n    brands: field(key: "brands") {\n      references(first: 20) {\n        nodes {\n          ... on Metaobject {\n            id\n            type\n            name: field(key: "name") {\n              value\n            }\n            svg_logo: field(key: "svg_logo") {\n              value\n            }\n            image_logo: field(key: "image_logo") {\n              reference {\n                ... on MediaImage {\n                  image {\n                    url\n                    altText\n                    width\n                    height\n                  }\n                }\n              }\n            }\n            url: field(key: "url") {\n              value\n            }\n          }\n        }\n      }\n    }\n  }\n\n  #graphql\n  fragment SectionProductTestimonial on Metaobject {\n    type\n    id\n    brand_title: field(key: "brand_title") {\n      type\n      key\n      value\n    }\n    quote_text: field(key: "quote_text") {\n      type\n      key\n      value\n    }\n    author_name: field(key: "author_name") {\n      type\n      key\n      value\n    }\n    author_title: field(key: "author_title") {\n      type\n      key\n      value\n    }\n    author_image: field(key: "author_image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    icon_svg: field(key: "icon_svg") {\n      type\n      key\n      value\n    }\n    subtitle: field(key: "subtitle") {\n      type\n      key\n      value\n    }\n    description: field(key: "description") {\n      type\n      key\n      value\n    }\n    left_background_color: field(key: "left_background_color") {\n      type\n      key\n      value\n    }\n    left_text_color: field(key: "left_text_color") {\n      type\n      key\n      value\n    }\n    right_background_image: field(key: "right_background_image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    featured_product: field(key: "featured_product") {\n      type\n      key\n      reference {\n        ... on Product {\n          id\n          title\n          handle\n          featuredImage {\n            url\n            altText\n            width\n            height\n          }\n          variants(first: 1) {\n            nodes {\n              id\n              title\n              price {\n                amount\n                currencyCode\n              }\n            }\n          }\n        }\n      }\n    }\n    button_text: field(key: "button_text") {\n      type\n      key\n      value\n    }\n    button_background_color: field(key: "button_background_color") {\n      type\n      key\n      value\n    }\n    button_text_color: field(key: "button_text_color") {\n      type\n      key\n      value\n    }\n  }\n\n\n  # All common fragments\n  #graphql\n  fragment CommonProductCardVariant on ProductVariant {\n    id\n    title\n    availableForSale\n    price {\n      amount\n      currencyCode\n    }\n    image {\n      url\n      altText\n      width\n      height\n    }\n    selectedOptions {\n      name\n      value\n    }\n    product {\n      title\n      handle\n    }\n  }\n\n  fragment CommonProductCard on Product {\n    id\n    title\n    handle\n    publishedAt\n    availableForSale\n    vendor\n    tags\n    options {\n      name\n      values\n    }\n    featuredImage {\n      url\n      altText\n      width\n      height\n    }\n    # Need to 4 images, so we can display the productCardLarge component correctly, which requires 4 images\n    images(first: 4) {\n      edges {\n        node {\n          url\n          altText\n          width\n          height\n        }\n      }\n    }\n    variants(first: 1) {\n      nodes {\n        ...CommonProductCardVariant\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    compareAtPriceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    reviews_rating_count: metafield(namespace: "reviews", key:"rating_count") {\n      type\n      id\n      value\n      namespace\n      key\n    }\n    reviews_rating: metafield(namespace: "reviews", key:"rating") {\n      type\n      id\n      value\n      namespace\n      key\n    }\n    outstanding_features: metafield(namespace: "ciseco--product", key:"outstanding_features") {\n      type\n      id\n      value\n      namespace\n      key\n    }\n    okendoStarRatingSnippet: metafield(\n\t\t\tnamespace: "okendo"\n\t\t\tkey: "StarRatingSnippet"\n\t\t) {\n\t\t\tvalue\n\t\t}\n    # Metafields para tarjeta enriquecida de fitness\n    uso_tipo: metafield(namespace: "custom", key: "uso_tipo") {\n      value\n    }\n    peso_maximo_usuario: metafield(namespace: "custom", key: "peso_maximo_usuario") {\n      value\n    }\n    material: metafield(namespace: "custom", key: "material") {\n      value\n    }\n    envio_gratis: metafield(namespace: "custom", key: "envio_gratis") {\n      value\n    }\n  } \n\n  #graphql\n  fragment MediaImage on MediaImage {\n    image {\n      altText\n      url\n      width\n      height\n    }\n  }\n\n  #graphql\n  fragment Link on MetaobjectField {\n    ... on MetaobjectField {\n      reference {\n        ...on Metaobject {\n          ...LinkContent\n        }\n      }\n    }\n  }\n\n  fragment LinkContent on Metaobject {\n      href: field(key: "href") {\n        value\n      }\n      target: field(key: "target") {\n        value\n      }\n      text: field(key: "text") {\n        value\n      }\n      icon_svg: field(key: "icon_svg") {\n        value\n      }\n    }\n\n  #graphql\n  fragment CommonCollectionItem on Collection {\n    id\n    title\n    updatedAt\n    description\n    handle\n    image {\n      altText\n      width\n      height\n      url\n    }\n    horizontal_image: metafield(key: "horizontal_image", namespace: "ciseco--collection") {\n      reference {\n        ... on MediaImage {\n          id\n          image {\n            altText\n            height\n            width\n            url\n          }\n        }\n      }\n    }\n    seo {\n      description\n      title\n    }\n  }\n\n  #graphql\n    fragment HeroItem on Metaobject {\n      type\n      heading: field(key: "heading") {\n        value\n      }\n      sub_heading: field(key: "sub_heading") {\n        value\n      }\n      cta_button: field(key: "cta_button") {\n        ...Link\n      }\n      vertical_image: field(key: "vertical_image") {\n        key\n        reference {\n          ... on MediaImage {\n            ...MediaImage\n          }\n        }\n      }\n      horizontal_image: field(key: "horizontal_image") {\n        key\n        reference {\n          ... on MediaImage {\n            ...MediaImage\n          }\n        }\n      }\n      heading_color: field(key: "heading_color") {\n        value\n      }\n      subheading_color: field(key: "subheading_color") {\n        value\n      }\n      button_bg_color: field(key: "button_bg_color") {\n        value\n      }\n      button_text_color: field(key: "button_text_color") {\n        value\n      }\n  }\n\n\n': {
+  '#graphql\n  query RouteContent($handle: String!\n    $country: CountryCode\n    $language: LanguageCode\n    $filters: [ProductFilter!]\n    $sortKey: ProductCollectionSortKeys!\n    $reverse: Boolean\n    $first: Int\n    $last: Int\n    $startCursor: String\n    $endCursor: String\n    )\n    @inContext(country: $country, language: $language)\n     {\n    route: metaobject(handle: {type: "ciseco--route", handle: $handle}) {\n      type\n      id\n      title: field(key: "title") {\n        key\n        value\n      }\n      padding_top_px: field(key: "padding_top_px") {\n        type\n        key\n        value\n      }\n      firt_line_on_top: field(key: "firt_line_on_top") {\n        type\n        key\n        value\n      }\n      separation_line_between_sections: field(key: "separation_line_between_sections") {\n        type\n        key\n        value\n      }\n      sections: field(key: "sections") {\n        ...Sections\n      }\n    }\n  }\n  #graphql\n  fragment Sections on MetaobjectField {\n    ... on MetaobjectField {\n      references(first: 20) {\n        nodes {\n          ... on Metaobject {\n            id\n            type\n            ...SectionHero\n            ...SectionHeroSlider\n            ...SectionCollectionsSlider\n            ...SectionProductsSlider\n            ...SectionSteps\n            ...SectionImageWithText\n            ...SectionTabsCollectionsByGroup\n            ...SectionGridProductsAndFilter\n            ...SectionLatestBlog\n            ...SectionClientsSay\n            ...SectionCategoryCardsCarousel\n            ...SectionProductFeature\n            ...SectionProductShowcase\n            ...SectionBrandsTicker\n            ...SectionProductTestimonial\n            ...SectionIntroFeature\n          }\n        }\n      }\n    }\n  }\n  # All section fragments\n  #graphql\n  fragment SectionHero on Metaobject {\n    type\n    hero_item: field(key: "hero_item") {\n      reference {\n          ... on Metaobject {\n            ...HeroItem\n          }\n      }\n    }\n  }\n \n  #graphql\n  fragment SectionHeroSlider on Metaobject {\n    type\n    hero_items: field(key: "hero_items") {\n      references(first: 10) {\n        nodes {\n          ... on Metaobject {\n            ...HeroItem\n          }\n        }\n      }\n    }\n  }\n \n  #graphql\n  fragment SectionCollectionsSlider on Metaobject {\n    type\n    id\n    heading_bold: field(key: "heading_bold") {\n      type\n      key\n      value\n    }\n    heading_light: field(key: "heading_light") {\n      type\n      key\n      value\n    }\n    sub_heading: field(key: "sub_heading") {\n      type\n      key\n      value\n    }\n    button_text: field(key: "button_text") {\n      type\n      key\n      value\n    }\n    collections: field(key: "collections") {\n      references(first: 10) {\n        nodes {\n          ... on Collection {\n            ...CommonCollectionItem\n          }\n        }\n      }\n    }\n  } \n\n  #graphql\n  fragment SectionProductsSlider on Metaobject {\n    type\n    heading_bold: field(key: "heading_bold") {\n      key\n      value\n    }\n    heading_light: field(key: "heading_light") {\n      key\n      value\n    }\n    sub_heading: field(key: "sub_heading") {\n      key\n      value\n    }\n    body: field(key: "body") {\n      key\n      value\n    }\n    style: field(key: "style") {\n      key\n      value\n    }\n    columns: field(key: "columns") {\n      key\n      value\n    }\n    show_view_button: field(key: "show_view_button") {\n      key\n      value\n    }\n\n    collection: field(key: "collection") {\n      type\n      key\n      reference {\n        ... on Collection {\n          id\n          handle\n          title\n          description\n          productsSliderSection: products(\n            first: 10, \n          ) {\n            nodes {\n              ...CommonProductCard\n            }\n          }\n        }\n      }\n    }\n  }\n\n  #graphql\n  fragment SectionSteps on Metaobject {\n    type\n    title: field(key: "title") {\n      type\n      key\n      value\n    }\n    headings: field(key: "headings") {\n      type\n      key\n      value\n    }\n    labels: field(key: "labels") {\n      type\n      key\n      value\n    }\n    contents: field(key: "contents") {\n      type\n      key\n      value\n    }\n    icons: field(key: "icons") {\n      key\n      type\n      value\n      references(first: 10) {\n        nodes {\n              ...MediaImage\n            }\n        }\n    }\n    style: field(key: "style") {\n      key\n      value\n    }\n  }\n\n  #graphql\n  fragment SectionImageWithText on Metaobject {\n    type\n    title: field(key: "title") {\n      key\n      value\n    }\n    heading: field(key: "heading") {\n      key\n      value\n    }\n    content: field(key: "content") {\n      key\n      value\n    }\n    hide_logo: field(key: "hide_logo") {\n      key\n      value\n    }\n    background_color: field(key: "background_color") {\n      key\n      value\n    }\n    button_1: field(key: "button_1") {\n      ...Link\n    }\n    button_2: field(key: "button_2") {\n      ...Link\n    }\n    image: field(key: "image") {\n      key\n      reference {\n        ... on MediaImage {\n          ...MediaImage\n        }\n      }\n    }\n    features: field(key: "features") {\n      key\n      type\n      value\n    }\n    show_subscribers_input: field(key: "show_subscribers_input") {\n      key\n      value\n    }\n    style: field(key: "style") {\n      key\n      value\n    }\n  }\n\n  #graphql\n  fragment SectionTabsCollectionsByGroup on Metaobject {\n    type\n    heading: field(key: "heading") {\n     type\n     key\n     value\n    }\n    card_style: field(key: "card_style") {\n     type\n     key\n     value\n    }\n    sub_heading: field(key: "sub_heading") {\n     type\n     key\n     value\n    }\n    number_collections_to_show: field(key: "number_collections_to_show") {\n     type\n     key\n     value\n    }\n    background_color: field(key: "background_color") {\n     type\n     key\n     value\n    }\n    collection_groups: field(key: "collection_groups") {\n      references(first: 20) {\n        nodes {\n          ...CollectionGroupItem\n        }\n      }\n    }\n  }\n  #graphql\nfragment CollectionOnGroupItem on Collection {\n    ...CommonCollectionItem\n    products(first: 0) {\n      filters {\n        values {\n          input\n          count\n          label\n        }\n      }\n    }\n  }\n\n  fragment CollectionGroupItem on Metaobject {\n    type\n    id\n    handle\n    title: field(key: "title") {\n     type\n     key\n     value\n    }\n    name: field(key: "name") {\n     type\n     key\n     value\n    }\n    icon_svg: field(key: "icon_svg") {\n     type\n     key\n     value\n    }\n    \n    collections: field(key: "collections") {\n      references(first: 12) {\n        nodes {\n          ... on Collection {\n            ...CollectionOnGroupItem\n          }\n        }\n      }\n    }\n}\n \n  #graphql\n  fragment SectionGridProductsAndFilter on Metaobject {\n    type\n    heading: field(key: "heading") {\n      key\n      value\n    }\n    sub_heading: field(key: "sub_heading") {\n      key\n      value\n    }\n    collection: field(key: "collection") {\n      type\n      key\n      reference {\n\n        ... on Collection {\n          id\n          handle\n          title\n          description\n          sectionGridProductsAndFilterProductsDefaultFilter :products(first: 0, filters : {}) {\n            filters {\n              id\n              label\n              type\n              values {\n                id\n                label\n                count\n                input\n              }\n            }\n          }\n          sectionGridProductsAndFilterProducts :products(\n            first: $first,\n            last: $last,\n            before: $startCursor,\n            after: $endCursor,\n            filters: $filters,\n            sortKey: $sortKey,\n            reverse: $reverse\n          ) {\n            filters {\n              id\n              label\n              type\n              values {\n                id\n                label\n                count\n                input\n              }\n            }\n            nodes {\n              ...CommonProductCard\n            }\n            pageInfo {\n              hasPreviousPage\n              hasNextPage\n              endCursor\n              startCursor\n            }\n          }\n        }\n      }\n    }\n  }\n\n  #graphql\n  fragment SectionLatestBlog on Metaobject {\n    type\n    heading: field(key: "heading") {\n      key\n      value\n    }\n    heading_bold: field(key: "heading_bold") {\n      key\n      value\n    }\n    heading_light: field(key: "heading_light") {\n      key\n      value\n    }\n    background_color: field(key: "background_color") {\n      key\n      value\n    }\n    button_view_all: field(key: "button_view_all") {\n      ...Link\n    }\n\n    number_of_items: field(key: "number_of_items") {\n      key\n      value\n    }\n    blog_slug: field(key: "blog_slug") {\n      key\n      value\n    }\n  }\n\n  #graphql\n  fragment ClientSay on Metaobject {\n    type\n    id\n    handle\n    title: field(key: "title") {\n      type\n      key\n      value\n    }\n    name: field(key: "name") {\n     type\n      key\n      value\n    }\n    stars: field(key: "stars") {\n     type\n      key\n      value\n    }\n    content: field(key: "content") {\n     type\n      key\n      value\n    }\n    image: field(key: "image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            altText\n            url\n            width\n            height\n          }\n        }\n      }\n    }\n  }\n\n  fragment SectionClientsSay on Metaobject {\n    type\n    heading: field(key: "heading") {\n      key\n      value\n    }\n    sub_heading: field(key: "sub_heading") {\n      key\n      value\n    }\n    clients_say: field(key: "clients_say") {\n      references(first: 10) {\n          nodes {\n            ...on Metaobject {\n              ...ClientSay\n            }\n        }\n       }\n    }\n  }\n\n  #graphql\n  fragment SectionCategoryCardsCarousel on Metaobject {\n    type\n    id\n    heading: field(key: "heading") {\n      type\n      key\n      value\n    }\n    sub_heading: field(key: "sub_heading") {\n      type\n      key\n      value\n    }\n    background_color: field(key: "background_color") {\n      type\n      key\n      value\n    }\n    category_groups: field(key: "category_groups") {\n      references(first: 20) {\n        nodes {\n          ...CategoryGroupItem\n        }\n      }\n    }\n  }\n  #graphql\n  fragment CategoryGroupItem on Metaobject {\n    type\n    id\n    handle\n    title: field(key: "title") {\n      type\n      key\n      value\n    }\n    name: field(key: "name") {\n      type\n      key\n      value\n    }\n    icon_svg: field(key: "icon_svg") {\n      type\n      key\n      value\n    }\n    category_cards: field(key: "category_cards") {\n      references(first: 20) {\n        nodes {\n          ...CategoryCardItem\n        }\n      }\n    }\n  }\n  #graphql\n  fragment CategoryCardItem on Metaobject {\n    type\n    id\n    handle\n    title: field(key: "title") {\n      type\n      key\n      value\n    }\n    subtitle: field(key: "subtitle") {\n      type\n      key\n      value\n    }\n    image: field(key: "image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    background_image: field(key: "background_image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    background_color: field(key: "background_color") {\n      type\n      key\n      value\n    }\n    cta_text: field(key: "cta_text") {\n      type\n      key\n      value\n    }\n    cta_link: field(key: "cta_link") {\n      type\n      key\n      value\n    }\n    content_background_color: field(key: "content_background_color") {\n      type\n      key\n      value\n    }\n    title_color: field(key: "title_color") {\n      type\n      key\n      value\n    }\n    subtitle_color: field(key: "subtitle_color") {\n      type\n      key\n      value\n    }\n    button_background_color: field(key: "button_background_color") {\n      type\n      key\n      value\n    }\n    button_text_color: field(key: "button_text_color") {\n      type\n      key\n      value\n    }\n  }\n\n\n\n  #graphql\n  fragment SectionProductFeature on Metaobject {\n    type\n    id\n    heading: field(key: "heading") {\n      type\n      key\n      value\n    }\n    description: field(key: "description") {\n      type\n      key\n      value\n    }\n    cta_text: field(key: "cta_text") {\n      type\n      key\n      value\n    }\n    cta_link: field(key: "cta_link") {\n      type\n      key\n      value\n    }\n    banner_image: field(key: "banner_image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    background_color: field(key: "background_color") {\n      type\n      key\n      value\n    }\n    text_color: field(key: "text_color") {\n      type\n      key\n      value\n    }\n    button_background_color: field(key: "button_background_color") {\n      type\n      key\n      value\n    }\n    button_text_color: field(key: "button_text_color") {\n      type\n      key\n      value\n    }\n    image_position: field(key: "image_position") {\n      type\n      key\n      value\n    }\n  }\n\n  #graphql\n  fragment SectionProductShowcase on Metaobject {\n    type\n    id\n    heading: field(key: "heading") {\n      type\n      key\n      value\n    }\n    subheading: field(key: "subheading") {\n      type\n      key\n      value\n    }\n    description: field(key: "description") {\n      type\n      key\n      value\n    }\n    icon_svg: field(key: "icon_svg") {\n      type\n      key\n      value\n    }\n    badge_text: field(key: "badge_text") {\n      type\n      key\n      value\n    }\n    background_image: field(key: "background_image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    content_background_color: field(key: "content_background_color") {\n      type\n      key\n      value\n    }\n    text_color: field(key: "text_color") {\n      type\n      key\n      value\n    }\n    products: field(key: "products") {\n      references(first: 2) {\n        nodes {\n          ... on Product {\n            ...CommonProductCard\n          }\n        }\n      }\n    }\n    collection: field(key: "collection") {\n      type\n      key\n      reference {\n        ... on Collection {\n          id\n          handle\n          title\n          productsShowcaseSection: products(first: 2) {\n            nodes {\n              ...CommonProductCard\n            }\n          }\n        }\n      }\n    }\n    card_background_color: field(key: "card_background_color") {\n      type\n      key\n      value\n    }\n    card_text_color: field(key: "card_text_color") {\n      type\n      key\n      value\n    }\n    button_text: field(key: "button_text") {\n      type\n      key\n      value\n    }\n  }\n\n  #graphql\n  fragment SectionBrandsTicker on Metaobject {\n    type\n    id\n    title: field(key: "title") {\n      type\n      key\n      value\n    }\n    background_color: field(key: "background_color") {\n      type\n      key\n      value\n    }\n    speed: field(key: "speed") {\n      type\n      key\n      value\n    }\n    brands: field(key: "brands") {\n      references(first: 20) {\n        nodes {\n          ... on Metaobject {\n            id\n            type\n            name: field(key: "name") {\n              value\n            }\n            svg_logo: field(key: "svg_logo") {\n              value\n            }\n            image_logo: field(key: "image_logo") {\n              reference {\n                ... on MediaImage {\n                  image {\n                    url\n                    altText\n                    width\n                    height\n                  }\n                }\n              }\n            }\n            url: field(key: "url") {\n              value\n            }\n          }\n        }\n      }\n    }\n  }\n\n  #graphql\n  fragment SectionProductTestimonial on Metaobject {\n    type\n    id\n    brand_title: field(key: "brand_title") {\n      type\n      key\n      value\n    }\n    quote_text: field(key: "quote_text") {\n      type\n      key\n      value\n    }\n    author_name: field(key: "author_name") {\n      type\n      key\n      value\n    }\n    author_title: field(key: "author_title") {\n      type\n      key\n      value\n    }\n    author_image: field(key: "author_image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    icon_svg: field(key: "icon_svg") {\n      type\n      key\n      value\n    }\n    subtitle: field(key: "subtitle") {\n      type\n      key\n      value\n    }\n    description: field(key: "description") {\n      type\n      key\n      value\n    }\n    left_background_color: field(key: "left_background_color") {\n      type\n      key\n      value\n    }\n    left_text_color: field(key: "left_text_color") {\n      type\n      key\n      value\n    }\n    right_background_image: field(key: "right_background_image") {\n      type\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    featured_collection: field(key: "featured_collection") {\n      type\n      key\n      reference {\n        ... on Collection {\n          id\n          title\n          handle\n          description\n          image {\n            url\n            altText\n            width\n            height\n          }\n          horizontal_image: metafield(key: "horizontal_image", namespace: "ciseco--collection") {\n            reference {\n              ... on MediaImage {\n                id\n                image {\n                  altText\n                  height\n                  width\n                  url\n                }\n              }\n            }\n          }\n          products(first: 5) {\n            nodes {\n              ...CommonProductCard\n            }\n          }\n        }\n      }\n    }\n    button_text: field(key: "button_text") {\n      type\n      key\n      value\n    }\n    button_background_color: field(key: "button_background_color") {\n      type\n      key\n      value\n    }\n    button_text_color: field(key: "button_text_color") {\n      type\n      key\n      value\n    }\n  }\n\n  #graphql\n  fragment SectionIntroFeature on Metaobject {\n    type\n    id\n    badge_text: field(key: "badge_text") {\n      key\n      value\n    }\n    heading: field(key: "heading") {\n      key\n      value\n    }\n    description: field(key: "description") {\n      key\n      value\n    }\n    button_text: field(key: "button_text") {\n      key\n      value\n    }\n    button_link: field(key: "button_link") {\n      key\n      value\n    }\n    image: field(key: "image") {\n      key\n      reference {\n        ... on MediaImage {\n          image {\n            url\n            altText\n            width\n            height\n          }\n        }\n      }\n    }\n    background_color: field(key: "background_color") {\n      key\n      value\n    }\n    text_color: field(key: "text_color") {\n      key\n      value\n    }\n    badge_background_color: field(key: "badge_background_color") {\n      key\n      value\n    }\n    badge_text_color: field(key: "badge_text_color") {\n      key\n      value\n    }\n    button_background_color: field(key: "button_background_color") {\n      key\n      value\n    }\n    button_text_color: field(key: "button_text_color") {\n      key\n      value\n    }\n  }\n\n\n  # All common fragments\n  #graphql\n  fragment CommonProductCardVariant on ProductVariant {\n    id\n    title\n    availableForSale\n    price {\n      amount\n      currencyCode\n    }\n    image {\n      url\n      altText\n      width\n      height\n    }\n    selectedOptions {\n      name\n      value\n    }\n    product {\n      title\n      handle\n    }\n  }\n\n  fragment CommonProductCard on Product {\n    id\n    title\n    handle\n    publishedAt\n    availableForSale\n    vendor\n    tags\n    options {\n      name\n      values\n    }\n    featuredImage {\n      url\n      altText\n      width\n      height\n    }\n    # Need to 4 images, so we can display the productCardLarge component correctly, which requires 4 images\n    images(first: 4) {\n      edges {\n        node {\n          url\n          altText\n          width\n          height\n        }\n      }\n    }\n    variants(first: 1) {\n      nodes {\n        ...CommonProductCardVariant\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    compareAtPriceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    reviews_rating_count: metafield(namespace: "reviews", key:"rating_count") {\n      type\n      id\n      value\n      namespace\n      key\n    }\n    reviews_rating: metafield(namespace: "reviews", key:"rating") {\n      type\n      id\n      value\n      namespace\n      key\n    }\n    outstanding_features: metafield(namespace: "ciseco--product", key:"outstanding_features") {\n      type\n      id\n      value\n      namespace\n      key\n    }\n    okendoStarRatingSnippet: metafield(\n\t\t\tnamespace: "okendo"\n\t\t\tkey: "StarRatingSnippet"\n\t\t) {\n\t\t\tvalue\n\t\t}\n    # Metafields para tarjeta enriquecida de fitness\n    uso_tipo: metafield(namespace: "custom", key: "uso_tipo") {\n      value\n    }\n    peso_maximo_usuario: metafield(namespace: "custom", key: "peso_maximo_usuario") {\n      value\n    }\n    material: metafield(namespace: "custom", key: "material") {\n      value\n    }\n    envio_gratis: metafield(namespace: "custom", key: "envio_gratis") {\n      value\n    }\n  } \n\n  #graphql\n  fragment MediaImage on MediaImage {\n    image {\n      altText\n      url\n      width\n      height\n    }\n  }\n\n  #graphql\n  fragment Link on MetaobjectField {\n    ... on MetaobjectField {\n      reference {\n        ...on Metaobject {\n          ...LinkContent\n        }\n      }\n    }\n  }\n\n  fragment LinkContent on Metaobject {\n      href: field(key: "href") {\n        value\n      }\n      target: field(key: "target") {\n        value\n      }\n      text: field(key: "text") {\n        value\n      }\n      icon_svg: field(key: "icon_svg") {\n        value\n      }\n    }\n\n  #graphql\n  fragment CommonCollectionItem on Collection {\n    id\n    title\n    updatedAt\n    description\n    handle\n    image {\n      altText\n      width\n      height\n      url\n    }\n    horizontal_image: metafield(key: "horizontal_image", namespace: "ciseco--collection") {\n      reference {\n        ... on MediaImage {\n          id\n          image {\n            altText\n            height\n            width\n            url\n          }\n        }\n      }\n    }\n    seo {\n      description\n      title\n    }\n  }\n\n  #graphql\n    fragment HeroItem on Metaobject {\n      type\n      heading: field(key: "heading") {\n        value\n      }\n      sub_heading: field(key: "sub_heading") {\n        value\n      }\n      cta_button: field(key: "cta_button") {\n        ...Link\n      }\n      vertical_image: field(key: "vertical_image") {\n        key\n        reference {\n          ... on MediaImage {\n            ...MediaImage\n          }\n        }\n      }\n      horizontal_image: field(key: "horizontal_image") {\n        key\n        reference {\n          ... on MediaImage {\n            ...MediaImage\n          }\n        }\n      }\n      heading_color: field(key: "heading_color") {\n        value\n      }\n      subheading_color: field(key: "subheading_color") {\n        value\n      }\n      button_bg_color: field(key: "button_bg_color") {\n        value\n      }\n      button_text_color: field(key: "button_text_color") {\n        value\n      }\n  }\n\n\n': {
     return: RouteContentQuery;
     variables: RouteContentQueryVariables;
   };

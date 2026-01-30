@@ -1,0 +1,25 @@
+# Comando para crear el metafield de imagen horizontal para colecciones
+# Reemplaza YOUR_ACCESS_TOKEN con el token de acceso de la API de Shopify
+
+curl -X POST "https://shop-sportfitness.myshopify.com/admin/api/2023-10/metafields.json" \
+-H "X-Shopify-Access-Token: YOUR_ACCESS_TOKEN" \
+-H "Content-Type: application/json" \
+-d '{
+  "metafield": {
+    "namespace": "ciseco--collection",
+    "key": "horizontal_image",
+    "value": "",
+    "type": "file_reference",
+    "description": "Imagen horizontal de fondo para el carousel de colecciones"
+  }
+}'
+
+# Después de crear el metafield, puedes asignarlo a cada colección con:
+curl -X PUT "https://shop-sportfitness.myshopify.com/admin/api/2023-10/collections/{COLLECTION_ID}/metafields/{METAFIELD_ID}.json" \
+-H "X-Shopify-Access-Token: YOUR_ACCESS_TOKEN" \
+-H "Content-Type: application/json" \
+-d '{
+  "metafield": {
+    "value": "gid://shopify/MediaImage/{IMAGE_ID}"
+  }
+}'

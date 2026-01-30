@@ -1,5 +1,5 @@
 import {type FC} from 'react';
-import LangDropdown from './LangDropdown';
+import VendorsDropdown from './VendorsDropdown';
 import AvatarDropdown from './AvatarDropdown';
 import Logo from '../Logo';
 import CartBtn from './CartBtn';
@@ -13,9 +13,10 @@ import {Form, useParams} from '@remix-run/react';
 export interface Props {
   className?: string;
   isHome?: boolean;
+  vendors?: string[];
 }
 
-const MainNav: FC<Props> = ({className = '', isHome}) => {
+const MainNav: FC<Props> = ({className = '', isHome, vendors = []}) => {
   const {type: activeType, close, open} = useAside();
   const params = useParams();
 
@@ -68,7 +69,7 @@ const MainNav: FC<Props> = ({className = '', isHome}) => {
 
           {/* Right side actions */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <LangDropdown className="hidden md:block" />
+            <VendorsDropdown className="hidden md:block" vendors={vendors} />
             {/* Mobile search icon - Hidden on desktop */}
             <Link
               to={'/search'}

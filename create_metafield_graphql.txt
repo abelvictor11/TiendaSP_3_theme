@@ -1,0 +1,30 @@
+# Para crear el metafield definition usando GraphQL
+# Usa esto en el GraphQL Playground de Shopify o con curl
+
+mutation {
+  metafieldDefinitionCreate(
+    definition: {
+      namespace: "ciseco--collection"
+      key: "horizontal_image"
+      name: "Imagen horizontal"
+      description: "Imagen de fondo para el carousel de colecciones"
+      type: "file_reference"
+      ownerType: COLLECTION
+    }
+  ) {
+    metafieldDefinition {
+      id
+      namespace
+      key
+      name
+      type {
+        name
+      }
+      ownerType
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}
