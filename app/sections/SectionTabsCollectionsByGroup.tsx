@@ -35,6 +35,7 @@ export function SectionTabsCollectionsByGroup(
     card_style,
     background_color,
   } = section;
+  const heading_color = (props as any).heading_color?.value;
   const boxCard = card_style?.value || '4';
 
   const [tabActive, setTabActive] = useState(0);
@@ -80,6 +81,7 @@ export function SectionTabsCollectionsByGroup(
             fontClass="text-3xl md:text-4xl 2xl:text-5xl font-semibold"
             isCenter
             desc={sub_heading?.value || ''}
+            style={heading_color ? {color: heading_color} : undefined}
           >
             {heading?.value || ''}
           </Heading>
@@ -209,6 +211,10 @@ export const SECTION_TABS_COLLECTONS_BY_GROUP_FRAGMENT = `#graphql
     }
     background_color: field(key: "background_color") {
      type
+     key
+     value
+    }
+    heading_color: field(key: "heading_color") {
      key
      value
     }

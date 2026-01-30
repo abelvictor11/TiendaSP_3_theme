@@ -22,9 +22,15 @@ export function SectionCollectionsSlider(
   >(props);
 
   const {id, heading_bold, heading_light, button_text, sub_heading} = section;
+  const background_color = (props as any).background_color?.value;
+  const heading_color = (props as any).heading_color?.value;
 
   return (
-    <section className="featured-collection" key={id}>
+    <section 
+      className="featured-collection py-8 lg:py-12" 
+      key={id}
+      style={background_color ? {backgroundColor: background_color} : undefined}
+    >
       <CollectionSlider
         isSkeleton={!props.collections}
         heading_bold={heading_bold?.parsedValue || ''}
@@ -32,6 +38,7 @@ export function SectionCollectionsSlider(
         sub_heading={sub_heading?.parsedValue || ''}
         collections={props.collections?.references?.nodes || []}
         button_text={button_text?.value}
+        headingColor={heading_color}
       />
     </section>
   );
@@ -45,6 +52,7 @@ export const CollectionSlider = ({
   collections = [],
   headingFontClass,
   isSkeleton,
+  headingColor,
 }: {
   heading_bold?: string;
   heading_light?: string;
@@ -53,6 +61,7 @@ export const CollectionSlider = ({
   button_text?: string;
   headingFontClass?: string;
   isSkeleton?: boolean;
+  headingColor?: string;
 }) => {
   const sliderRef = useRef<HTMLDivElement>(null);
   const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
@@ -67,6 +76,7 @@ export const CollectionSlider = ({
         onClickNext={scrollToNextSlide}
         onClickPrev={scrollToPrevSlide}
         fontClass={headingFontClass}
+        style={headingColor ? {color: headingColor} : undefined}
       >
         {heading_bold || ''}
       </Heading>
@@ -124,6 +134,14 @@ export const SECTION_COLLECTIONS_SLIDER_FRAGMENT = `#graphql
     }
     button_text: field(key: "button_text") {
       type
+      key
+      value
+    }
+    background_color: field(key: "background_color") {
+      key
+      value
+    }
+    heading_color: field(key: "heading_color") {
       key
       value
     }

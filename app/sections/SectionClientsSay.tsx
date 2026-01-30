@@ -18,6 +18,9 @@ export function SectionClientsSay(props: SectionClientsSayFragment) {
   >(props);
 
   const {heading, sub_heading, clients_say} = section;
+  const background_color = (props as any).background_color?.value;
+  const heading_color = (props as any).heading_color?.value;
+  const text_color = (props as any).text_color?.value;
 
   const sliderRef = useRef<HTMLDivElement>(null);
   const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
@@ -71,8 +74,15 @@ export function SectionClientsSay(props: SectionClientsSayFragment) {
   };
 
   return (
-    <div className="nc-SectionClientSay container overflow-hidden">
-      <Heading desc={sub_heading?.value} isCenter>
+    <div 
+      className="nc-SectionClientSay container overflow-hidden py-8 lg:py-12"
+      style={background_color ? {backgroundColor: background_color} : undefined}
+    >
+      <Heading 
+        desc={sub_heading?.value} 
+        isCenter
+        style={heading_color ? {color: heading_color} : undefined}
+      >
         {heading?.value || ''}
       </Heading>
       <div className="relative md:mb-16 max-w-2xl mx-auto">
@@ -108,8 +118,16 @@ export function SectionClientsSay(props: SectionClientsSayFragment) {
                 key={item.id}
                 className="flex flex-col items-center text-center -- mySnapItem snap-start shrink-0 px-2 sm:px-4 w-full"
               >
-                <span className="block text-2xl">{item.content?.value}</span>
-                <span className="block mt-8 text-2xl font-semibold">
+                <span 
+                  className="block text-2xl"
+                  style={text_color ? {color: text_color} : undefined}
+                >
+                  {item.content?.value}
+                </span>
+                <span 
+                  className="block mt-8 text-2xl font-semibold"
+                  style={heading_color ? {color: heading_color} : undefined}
+                >
                   {item.name?.value}
                 </span>
                 <div className="flex items-center space-x-0.5 mt-3.5 text-yellow-500">
@@ -190,6 +208,18 @@ export const SECTION_CLIENTS_SAY_FRAGMENT = `#graphql
       value
     }
     sub_heading: field(key: "sub_heading") {
+      key
+      value
+    }
+    background_color: field(key: "background_color") {
+      key
+      value
+    }
+    heading_color: field(key: "heading_color") {
+      key
+      value
+    }
+    text_color: field(key: "text_color") {
       key
       value
     }

@@ -17,9 +17,16 @@ export function SectionSteps(props: SectionStepsFragment) {
   >(props);
 
   const {title, headings, labels, contents, icons, style} = section;
+  const background_color = (props as any).background_color?.value;
+  const heading_color = (props as any).heading_color?.value;
+  const text_color = (props as any).text_color?.value;
 
   return (
-    <section className="section-steps container" title={title?.value}>
+    <section 
+      className="section-steps container py-8 lg:py-12" 
+      title={title?.value}
+      style={background_color ? {backgroundColor: background_color} : undefined}
+    >
       <div
         className={
           style?.value === '1'
@@ -52,8 +59,16 @@ export function SectionSteps(props: SectionStepsFragment) {
                 <Badge color={badgeColors[index]}>
                   {labels?.parsedValue?.[index]}
                 </Badge>
-                <h5 className="text-base font-semibold">{item}</h5>
-                <span className="block text-slate-600 dark:text-black text-sm leading-6">
+                <h5 
+                  className="text-base font-semibold"
+                  style={heading_color ? {color: heading_color} : undefined}
+                >
+                  {item}
+                </h5>
+                <span 
+                  className="block text-slate-600 dark:text-black text-sm leading-6"
+                  style={text_color ? {color: text_color} : undefined}
+                >
                   {contents?.parsedValue?.[index]}
                 </span>
               </div>
@@ -99,6 +114,18 @@ export const SECTION_STEPS_FRAGMENT = `#graphql
         }
     }
     style: field(key: "style") {
+      key
+      value
+    }
+    background_color: field(key: "background_color") {
+      key
+      value
+    }
+    heading_color: field(key: "heading_color") {
+      key
+      value
+    }
+    text_color: field(key: "text_color") {
       key
       value
     }

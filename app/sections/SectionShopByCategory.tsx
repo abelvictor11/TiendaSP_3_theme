@@ -16,6 +16,9 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
     categories,
   } = section;
 
+  const background_color = (props as any).background_color?.value;
+  const heading_color = (props as any).heading_color?.value;
+
   const sliderRef = useRef<HTMLDivElement>(null);
   const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -39,11 +42,17 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
   if (!categoryNodes.length) return null;
 
   return (
-    <section className="nc-SectionShopByCategory py-12 lg:py-16">
+    <section 
+      className="nc-SectionShopByCategory py-12 lg:py-16"
+      style={background_color ? {backgroundColor: background_color} : undefined}
+    >
       <div className="container">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h2 className="font-headline text-2xl md:text-3xl font-normal">
+          <h2 
+            className="font-headline text-2xl md:text-3xl font-normal"
+            style={heading_color ? {color: heading_color} : undefined}
+          >
             {heading?.value || 'Shop by Category'}
           </h2>
           {show_all_link?.value && (
@@ -136,6 +145,14 @@ export const SECTION_SHOP_BY_CATEGORY_FRAGMENT = `#graphql
       value
     }
     show_all_link: field(key: "show_all_link") {
+      key
+      value
+    }
+    background_color: field(key: "background_color") {
+      key
+      value
+    }
+    heading_color: field(key: "heading_color") {
       key
       value
     }

@@ -11,6 +11,9 @@ export function SectionGridProductsAndFilter(
   props: SectionGridProductsAndFilterFragment,
 ) {
   const {heading, sub_heading, collection} = props;
+  const background_color = (props as any).background_color?.value;
+  const heading_color = (props as any).heading_color?.value;
+  const columns = Number((props as any).columns?.value) || 4;
   const products = collection?.reference?.sectionGridProductsAndFilterProducts;
   const rootData = useRouteLoaderData<RootLoader>('root');
   const locale = rootData?.selectedLocale;
@@ -18,14 +21,15 @@ export function SectionGridProductsAndFilter(
 
   //
   return (
-    <section>
-      <div className="nc-SectionGridProductsAndFilter container">
+    <section style={background_color ? {backgroundColor: background_color} : undefined}>
+      <div className="nc-SectionGridProductsAndFilter container py-8 lg:py-12">
         <Heading
           className={
             'mb-12 lg:mb-14 text-neutral-900 dark:text-neutral-50 flex flex-1'
           }
           rightDescText={''}
           desc={sub_heading?.value ?? ''}
+          style={heading_color ? {color: heading_color} : undefined}
         >
           {heading?.value}
         </Heading>
@@ -49,7 +53,7 @@ export function SectionGridProductsAndFilter(
         <hr className="my-8" />
 
         <div className="">
-          {isSkeleton && <ProductsGrid isSkeleton className="grid sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4 gap-x-4 gap-y-10 auto-rows-fr" />}
+          {isSkeleton && <ProductsGrid isSkeleton className={`grid sm:grid-cols-2 lg:grid-cols-${columns} xl:grid-cols-${columns} gap-x-4 gap-y-10 auto-rows-fr`} />}
 
           {!isSkeleton && !!products?.nodes.length && (
             <Pagination connection={products}>
@@ -69,7 +73,7 @@ export function SectionGridProductsAndFilter(
                       </ButtonPrimary>
                     </div>
                   )}
-                  <ProductsGrid nodes={nodes} className="sm:!grid-cols-2 lg:!grid-cols-4 xl:!grid-cols-4" />
+                  <ProductsGrid nodes={nodes} className={`sm:!grid-cols-2 lg:!grid-cols-${columns} xl:!grid-cols-${columns}`} />
                   {!!hasNextPage && (
                     <div className="flex items-center justify-center mt-16">
                       <ButtonPrimary as={NextLink} loading={isLoading}>
@@ -95,6 +99,18 @@ export const SECTION_GRID_PRODUCTS_AND_FILTER_FRAGMENT = `#graphql
       value
     }
     sub_heading: field(key: "sub_heading") {
+      key
+      value
+    }
+    background_color: field(key: "background_color") {
+      key
+      value
+    }
+    heading_color: field(key: "heading_color") {
+      key
+      value
+    }
+    columns: field(key: "columns") {
       key
       value
     }
