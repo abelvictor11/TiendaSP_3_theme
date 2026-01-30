@@ -406,13 +406,6 @@ const HEADER_QUERY = `#graphql
         }
       }
     }
-    vendors: shop {
-      productVendors(first: 100) {
-        edges {
-          node
-        }
-      }
-    }
     topBarMarquee: metaobjects(type: "ciseco--top_bar_marquee", first: 1) {
       nodes {
         id
