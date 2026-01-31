@@ -84,7 +84,7 @@ export function SectionShopByBrand(props: SectionShopByBrandProps) {
           )}
         </div>
 
-        {/* Brands Slider */}
+        {/* Brands Grid/Slider */}
         <div className="relative">
           <div
             ref={sliderRef}
@@ -103,7 +103,7 @@ export function SectionShopByBrand(props: SectionShopByBrandProps) {
                   className="snap-start shrink-0 group"
                 >
                   <div 
-                    className="relative w-[160px] sm:w-[200px] lg:w-[220px] aspect-[4/3] rounded-xl overflow-hidden flex items-center justify-center p-6 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
+                    className="relative w-[calc((100vw-2rem-3rem)/2)] sm:w-[calc((100vw-2rem-3rem)/3)] md:w-[calc((100vw-4rem-3rem)/4)] lg:w-[calc((100vw-8rem-3rem)/4)] xl:w-[280px] aspect-[4/3] rounded-xl overflow-hidden flex items-center justify-center p-6 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
                     style={{backgroundColor: bgColor}}
                   >
                     {/* Logo SVG */}
