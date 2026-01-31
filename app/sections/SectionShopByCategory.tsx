@@ -43,7 +43,7 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
 
   return (
     <section 
-      className="nc-SectionShopByCategory py-12 lg:py-16"
+      className="nc-SectionShopByCategory"
       style={background_color ? {backgroundColor: background_color} : undefined}
     >
       <div className="container">

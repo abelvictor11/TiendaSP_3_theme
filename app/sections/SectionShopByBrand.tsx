@@ -62,7 +62,7 @@ export function SectionShopByBrand(props: SectionShopByBrandProps) {
 
   return (
     <section 
-      className="nc-SectionShopByBrand py-12 lg:py-16"
+      className="nc-SectionShopByBrand"
       style={background_color?.value ? {backgroundColor: background_color.value} : undefined}
     >
       <div className="container">

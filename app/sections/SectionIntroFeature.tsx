@@ -41,7 +41,7 @@ export function SectionIntroFeature(props: SectionIntroFeatureFragment) {
   return (
     <section 
       id="section-intro-feature" 
-      className="nc-SectionIntroFeature py-12 lg:py-20"
+      className="nc-SectionIntroFeature"
       style={{backgroundColor: bgColor}}
     >
       <div className="container">
@@ -92,7 +92,7 @@ export function SectionIntroFeature(props: SectionIntroFeatureFragment) {
                 <div>
                   <Link
                     to={button_link?.value || '#'}
-                    className="inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 lg:px-8 lg:py-4 text-sm sm:text-base lg:text-lg font-medium transition-all duration-200 hover:opacity-90 shadow-xl hover:shadow-2xl"
+                    className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded border border-current transition-all duration-200 hover:opacity-90"
                     style={{
                       backgroundColor: btnBgColor,
                       color: btnTxtColor,
