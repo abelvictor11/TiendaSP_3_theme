@@ -14,14 +14,16 @@ interface SectionShopByBrandProps {
   background_color?: { value?: string };
   heading_color?: { value?: string };
   brands?: {
-    nodes?: Array<{
-      id: string;
-      title?: { value?: string };
-      logo_svg?: { value?: string };
-      logo_image?: { reference?: { image?: any } };
-      link?: { value?: string };
-      background_color?: { value?: string };
-    }>;
+    references?: {
+      nodes?: Array<{
+        id: string;
+        title?: { value?: string };
+        logo_svg?: { value?: string };
+        logo_image?: { reference?: { image?: any } };
+        link?: { value?: string };
+        background_color?: { value?: string };
+      }>;
+    };
   };
 }
 
@@ -53,7 +55,7 @@ export function SectionShopByBrand(props: SectionShopByBrandProps) {
     return () => slider.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const brandNodes = brands?.nodes || [];
+  const brandNodes = brands?.references?.nodes || [];
 
   if (!brandNodes.length) return null;
 
