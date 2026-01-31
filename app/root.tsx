@@ -454,6 +454,85 @@ const HEADER_QUERY = `#graphql
         }
       }
     }
+    megamenuConfigs: metaobjects(type: "ciseco--megamenu_config", first: 20) {
+      nodes {
+        id
+        handle
+        menu_item_title: field(key: "menu_item_title") {
+          value
+        }
+        banner_image: field(key: "banner_image") {
+          reference {
+            ... on MediaImage {
+              image {
+                url
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
+        banner_title: field(key: "banner_title") {
+          value
+        }
+        banner_text: field(key: "banner_text") {
+          value
+        }
+        banner_cta_text: field(key: "banner_cta_text") {
+          value
+        }
+        banner_cta_link: field(key: "banner_cta_link") {
+          value
+        }
+        footer_text: field(key: "footer_text") {
+          value
+        }
+        footer_link: field(key: "footer_link") {
+          value
+        }
+        resources_title: field(key: "resources_title") {
+          value
+        }
+        resources_link: field(key: "resources_link") {
+          value
+        }
+        sections: field(key: "sections") {
+          references(first: 10) {
+            nodes {
+              ... on Metaobject {
+                id
+                handle
+                title: field(key: "title") {
+                  value
+                }
+                columns: field(key: "columns") {
+                  value
+                }
+                items: field(key: "items") {
+                  references(first: 20) {
+                    nodes {
+                      ... on Metaobject {
+                        id
+                        title: field(key: "title") {
+                          value
+                        }
+                        description: field(key: "description") {
+                          value
+                        }
+                        link: field(key: "link") {
+                          value
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
   ${MENU_FRAGMENT}
   ${COMMON_COLLECTION_ITEM_FRAGMENT}
