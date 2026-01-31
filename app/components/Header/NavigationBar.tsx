@@ -45,6 +45,10 @@ export default function NavigationBar({headerMenu, headerData}: NavigationBarPro
   }
 
   const megamenuConfigs = (headerData as any)?.megamenuConfigs?.nodes || [];
+  
+  // DEBUG: Remove after testing
+  console.log('📋 Menu items:', headerMenu.map(i => i.title));
+  console.log('🎯 Megamenu configs:', megamenuConfigs.map((c: any) => c.menu_item_title?.value));
 
   return (
     <div className="nc-NavigationBar bg-white dark:bg-slate-900 border-t border-slate-200/70 dark:border-slate-700">
