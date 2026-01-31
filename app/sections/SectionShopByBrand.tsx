@@ -20,6 +20,7 @@ interface SectionShopByBrandProps {
         title?: { value?: string };
         logo_svg?: { value?: string };
         logo_image?: { reference?: { image?: any } };
+        image?: { reference?: { image?: any } };
         link?: { value?: string };
         background_color?: { value?: string };
       }>;
@@ -93,8 +94,8 @@ export function SectionShopByBrand(props: SectionShopByBrandProps) {
             {brandNodes.map((brand, index: number) => {
               const logoSvg = brand.logo_svg?.value;
               const logoImage = brand.logo_image?.reference?.image;
+              const backgroundImage = (brand as any).image?.reference?.image;
               const link = brand.link?.value || '#';
-              const bgColor = brand.background_color?.value || '#f8f8f8';
 
               return (
                 <Link
@@ -102,33 +103,40 @@ export function SectionShopByBrand(props: SectionShopByBrandProps) {
                   to={link}
                   className="snap-start shrink-0 group"
                 >
-                  <div 
-                    className="relative w-[calc((100vw-2rem-3rem)/2)] sm:w-[calc((100vw-2rem-3rem)/3)] md:w-[calc((100vw-4rem-3rem)/4)] lg:w-[calc((100vw-8rem-3rem)/4)] xl:w-[280px] aspect-[4/3] rounded-xl overflow-hidden flex items-center justify-center p-6 transition-all duration-300 hover:shadow-lg hover:scale-[1.02]"
-                    style={{backgroundColor: bgColor}}
-                  >
-                    {/* Logo SVG */}
-                    {logoSvg && (
-                      <div 
-                        className="w-full h-full flex items-center justify-center *:max-w-full *:max-h-full *:w-auto *:h-auto"
-                        dangerouslySetInnerHTML={{__html: logoSvg}}
+                  <div className="relative w-[200px] sm:w-[240px] lg:w-[280px] aspect-[3/4] rounded-xl overflow-hidden">
+                    {/* Background Image */}
+                    {backgroundImage ? (
+                      <Image
+                        data={backgroundImage}
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="(max-width: 640px) 200px, (max-width: 1024px) 240px, 280px"
                       />
+                    ) : (
+                      <div className="absolute inset-0 bg-slate-200" />
                     )}
                     
-                    {/* Logo Image (fallback if no SVG) */}
-                    {!logoSvg && logoImage && (
-                      <Image
-                        data={logoImage}
-                        className="max-w-full max-h-full w-auto h-auto object-contain"
-                        sizes="(max-width: 640px) 160px, (max-width: 1024px) 200px, 220px"
-                      />
-                    )}
-
-                    {/* Placeholder if no logo */}
-                    {!logoSvg && !logoImage && (
-                      <div className="text-neutral-400 text-sm font-medium">
-                        {brand.title?.value || 'Brand'}
-                      </div>
-                    )}
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
+                    
+                    {/* Logo SVG or Image */}
+                    <div className="absolute inset-0 flex items-center justify-center p-6">
+                      {logoSvg ? (
+                        <div 
+                          className="w-full h-full flex items-center justify-center *:max-w-full *:max-h-full *:w-auto *:h-auto"
+                          dangerouslySetInnerHTML={{__html: logoSvg}}
+                        />
+                      ) : logoImage ? (
+                        <Image
+                          data={logoImage}
+                          className="max-w-full max-h-full w-auto h-auto object-contain"
+                          sizes="(max-width: 640px) 160px, (max-width: 1024px) 200px, 220px"
+                        />
+                      ) : (
+                        <h3 className="text-white text-lg sm:text-xl font-medium text-center">
+                          {brand.title?.value || 'Brand'}
+                        </h3>
+                      )}
+                    </div>
                   </div>
                 </Link>
               );
@@ -216,6 +224,19 @@ export const SECTION_SHOP_BY_BRAND_FRAGMENT = `#graphql
             background_color: field(key: "background_color") {
               key
               value
+            }
+            image: field(key: "image") {
+              key
+              reference {
+                ... on MediaImage {
+                  image {
+                    altText
+                    url
+                    width
+                    height
+                  }
+                }
+              }
             }
           }
         }

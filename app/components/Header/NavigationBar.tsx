@@ -18,7 +18,7 @@ export default function NavigationBar({headerMenu, headerData}: NavigationBarPro
 
   return (
     <div className="nc-NavigationBar bg-white dark:bg-slate-900 border-t border-slate-200/70 dark:border-slate-700">
-      <div className="container relative">
+      <div className="container-fluid relative">
         <nav className="nc-Navigation flex justify-center items-center py-0">
           <ul className="nc-Navigation hidden lg:flex items-center space-x-1">
             {headerMenu.map((item, index) => (
