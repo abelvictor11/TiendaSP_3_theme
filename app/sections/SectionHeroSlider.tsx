@@ -196,6 +196,14 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
     }
   >(section);
 
+  // Debug: log video data
+  console.log('HeroSlider item data:', {
+    horizontal_video: (item as any).horizontal_video,
+    vertical_video: (item as any).vertical_video,
+    horizontal_image: item.horizontal_image,
+    vertical_image: item.vertical_image,
+  });
+
   // Get colors with defaults
   const headingColor = (item as any).heading_color?.value || '#1e293b';
   const subheadingColor = (item as any).subheading_color?.value || '#475569';
