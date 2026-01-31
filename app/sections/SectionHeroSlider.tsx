@@ -196,11 +196,6 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
     }
   >(section);
 
-  // Debug: log video data with full structure
-  const hVideo = (item as any).horizontal_video;
-  console.log('HeroSlider horizontal_video FULL:', JSON.stringify(hVideo, null, 2));
-  console.log('HeroSlider video URL check:', hVideo?.reference?.sources?.[0]?.url);
-
   // Get colors with defaults
   const headingColor = (item as any).heading_color?.value || '#1e293b';
   const subheadingColor = (item as any).subheading_color?.value || '#475569';
@@ -212,7 +207,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
       {/* BG - Absolute positioned */}
       <div className="nc-SectionHeroSliderItem__image absolute inset-0 w-full h-full">
         {/* Desktop: Video or Image */}
-        {(item as any).horizontal_video?.reference?.sources?.[0]?.url ? (
+        {(item as any).horizontal_video?.sources?.[0]?.url ? (
           <video
             autoPlay
             muted
@@ -220,7 +215,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
             playsInline
             className="hidden h-full w-full object-cover lg:block"
           >
-            <source src={(item as any).horizontal_video.reference.sources[0].url} type={(item as any).horizontal_video.reference.sources[0].mimeType || 'video/mp4'} />
+            <source src={(item as any).horizontal_video.sources[0].url} type={(item as any).horizontal_video.sources[0].mimeType || 'video/mp4'} />
           </video>
         ) : item.horizontal_image?.image && (
           <Image
@@ -232,7 +227,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
         )}
 
         {/* Mobile: Video or Image */}
-        {(item as any).vertical_video?.reference?.sources?.[0]?.url ? (
+        {(item as any).vertical_video?.sources?.[0]?.url ? (
           <video
             autoPlay
             muted
@@ -240,7 +235,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
             playsInline
             className="block h-full w-full object-cover lg:hidden"
           >
-            <source src={(item as any).vertical_video.reference.sources[0].url} type={(item as any).vertical_video.reference.sources[0].mimeType || 'video/mp4'} />
+            <source src={(item as any).vertical_video.sources[0].url} type={(item as any).vertical_video.sources[0].mimeType || 'video/mp4'} />
           </video>
         ) : item.vertical_image?.image && (
           <Image
