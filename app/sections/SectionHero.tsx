@@ -41,7 +41,7 @@ export function SectionHero(props: SectionHeroFragment) {
     <div className="container px-4">
       <div className="nc-SectionHero aspect-h-16 aspect-w-10 relative overflow-hidden rounded-2xl bg-slate-100 sm:aspect-h-4 sm:aspect-w-3 lg:aspect-h-7 lg:aspect-w-16 2xl:aspect-w-16 2xl:aspect-h-7">
         {/* BG */}
-        <div>
+        <div className="absolute inset-0">
           {/* Desktop: Video or Image */}
           {horizontalVideo?.url ? (
             <video
