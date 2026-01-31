@@ -19,6 +19,13 @@ interface MegamenuSection {
   items?: { references?: { nodes?: MegamenuItem[] } };
 }
 
+interface MegamenuBrand {
+  id: string;
+  name?: { value?: string };
+  logo?: { reference?: { image?: { url?: string; altText?: string }; url?: string } };
+  link?: { value?: string };
+}
+
 interface MegamenuConfig {
   id: string;
   menu_item_title?: { value?: string };
@@ -32,6 +39,8 @@ interface MegamenuConfig {
   resources_title?: { value?: string };
   resources_link?: { value?: string };
   sections?: { references?: { nodes?: MegamenuSection[] } };
+  brands_title?: { value?: string };
+  featured_brands?: { references?: { nodes?: MegamenuBrand[] } };
 }
 
 interface NavigationBarProps {
@@ -45,10 +54,6 @@ export default function NavigationBar({headerMenu, headerData}: NavigationBarPro
   }
 
   const megamenuConfigs = (headerData as any)?.megamenuConfigs?.nodes || [];
-  
-  // DEBUG: Remove after testing
-  console.log('📋 Menu items:', headerMenu.map(i => i.title));
-  console.log('🎯 Megamenu configs:', megamenuConfigs.map((c: any) => c.menu_item_title?.value));
 
   return (
     <div className="nc-NavigationBar bg-white dark:bg-slate-900 border-t border-slate-200/70 dark:border-slate-700">
@@ -202,6 +207,8 @@ function CustomMegamenu({
   const sections = config.sections?.references?.nodes || [];
   const bannerImage = config.banner_image?.reference?.image;
   const hasBanner = bannerImage?.url || config.banner_title?.value;
+  const featuredBrands = config.featured_brands?.references?.nodes || [];
+  const hasBrands = featuredBrands.length > 0;
 
   return (
     <div className="flex gap-8">
@@ -271,6 +278,42 @@ function CustomMegamenu({
           </div>
         )}
       </div>
+
+      {/* Featured Brands */}
+      {hasBrands && (
+        <div className="hidden lg:block w-[220px] shrink-0 border-l border-slate-100 dark:border-slate-800 pl-8">
+          {config.brands_title?.value && (
+            <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4">
+              {config.brands_title.value}
+            </h3>
+          )}
+          <div className="space-y-3">
+            {featuredBrands.map((brand, idx) => {
+              const logoUrl = brand.logo?.reference?.image?.url || brand.logo?.reference?.url;
+              return (
+                <Link
+                  key={brand.id || idx}
+                  to={brand.link?.value || '#'}
+                  className="flex items-center justify-center px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
+                  onClick={onClose}
+                >
+                  {logoUrl ? (
+                    <img
+                      src={logoUrl}
+                      alt={brand.name?.value || ''}
+                      className="h-6 max-w-[140px] object-contain dark:brightness-0 dark:invert"
+                    />
+                  ) : (
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300 group-hover:text-primary-600">
+                      {brand.name?.value}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Banner */}
       {hasBanner && (

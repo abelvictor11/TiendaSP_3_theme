@@ -531,6 +531,39 @@ const HEADER_QUERY = `#graphql
             }
           }
         }
+        brands_title: field(key: "brands_title") {
+          value
+        }
+        featured_brands: field(key: "featured_brands") {
+          references(first: 20) {
+            nodes {
+              ... on Metaobject {
+                id
+                name: field(key: "name") {
+                  value
+                }
+                logo: field(key: "logo") {
+                  reference {
+                    ... on MediaImage {
+                      image {
+                        url
+                        altText
+                        width
+                        height
+                      }
+                    }
+                    ... on GenericFile {
+                      url
+                    }
+                  }
+                }
+                link: field(key: "link") {
+                  value
+                }
+              }
+            }
+          }
+        }
       }
     }
   }
