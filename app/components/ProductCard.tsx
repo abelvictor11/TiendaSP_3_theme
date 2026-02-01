@@ -108,7 +108,7 @@ const ProductCard: FC<ProductCardProps> = ({
           return (
             <Link
               key={color}
-              className={`relative w-4 h-4 rounded-full overflow-hidden cursor-pointer`}
+              className="relative w-5 h-5 rounded-full cursor-pointer border border-black p-[2px]"
               title={color}
               aria-hidden
               to={getProductUrlWithSelectedOption({
@@ -123,7 +123,7 @@ const ProductCard: FC<ProductCardProps> = ({
               })}
             >
               <div 
-                className="absolute inset-0 rounded-full overflow-hidden z-0"
+                className="w-full h-full rounded-full overflow-hidden"
                 style={!imageUrl ? {backgroundColor: colorHex} : undefined}
               >
                 {imageUrl && (
@@ -135,7 +135,7 @@ const ProductCard: FC<ProductCardProps> = ({
                     width={20}
                     height={20}
                     aspectRatio="1/1"
-                    className="rounded-full"
+                    className="rounded-full w-full h-full object-cover"
                     sizes="(max-width: 640px) 16px, 20px"
                   />
                 )}
