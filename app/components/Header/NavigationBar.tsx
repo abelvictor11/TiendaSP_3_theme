@@ -101,7 +101,7 @@ function NavItem({
             to={menuItem.to}
             target={menuItem.target}
             prefetch="intent"
-            className="inline-flex items-center text-sm lg:text-base font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
+            className="inline-flex items-center text-sm lg:text-sm font-medium text-black dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             {menuItem.title}
           </Link>
@@ -109,7 +109,7 @@ function NavItem({
           <a
             href={menuItem.to}
             target={menuItem.target}
-            className="inline-flex items-center text-sm lg:text-base font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
+            className="inline-flex items-center text-sm lg:text-sm font-medium text-black dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             {menuItem.title}
           </a>

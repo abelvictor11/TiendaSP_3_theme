@@ -63,14 +63,14 @@ const VendorsDropdown: FC<VendorsDropdownProps> = ({
         renderTrigger={(openModal) => {
           return (
             <button
-              className={`text-opacity-80 group h-10 sm:h-12 px-3 py-1.5 inline-flex items-center text-sm text-gray-800 dark:text-neutral-200 font-medium hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}
+              className={`text-black group h-10 sm:h-12 px-3 py-1.5 inline-flex items-center text-sm text-gray-800 dark:text-neutral-200 font-medium hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}
               onClick={openModal}
             >
               <BuildingStorefrontIcon className="w-[18px] h-[18px] opacity-80" />
               <span className="ms-2">Marcas</span>
               <ChevronDownIcon
                 className={
-                  'text-opacity-70 ms-1 h-4 w-4 group-hover:text-opacity-80 transition ease-in-out duration-150'
+                  'text-black ms-1 h-4 w-4 group-hover:text-opacity-80 transition ease-in-out duration-150'
                 }
                 aria-hidden="true"
               />
