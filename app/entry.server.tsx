@@ -60,6 +60,7 @@ export default async function handleRequest(
     ],
     mediaSrc: [
       "'self'",
+      'https://cdn.shopify.com',
       'https://d3hw6dc1ow8pp2.cloudfront.net',
       'https://d3g5hqndtiniji.cloudfront.net',
       'https://dov7r31oq5dkj.cloudfront.net',
