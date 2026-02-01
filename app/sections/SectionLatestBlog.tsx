@@ -140,11 +140,11 @@ export function SectionLatestBlog(props: SectionLatestBlogFragment) {
 
                     {/* Content */}
                     <div className="space-y-2 p-8">
-                      <h3 className="font-headline text-2xl md:text-3xl font-normal">
+                      <h3 className="font-headline text-xl md:text-2xl font-normal line-clamp-2">
                         {article.title}
                       </h3>
                       {article.excerpt && (
-                        <p className="text-sm text-neutral-600 line-clamp-2">
+                        <p className="text-sm text-neutral-600 line-clamp-1">
                           {article.excerpt}
                         </p>
                       )}
