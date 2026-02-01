@@ -22,9 +22,9 @@ const NavItem: FC<NavItemProps> = ({
     <li className="nc-NavItem relative">
       {renderX && renderX}
       <button
-        className={`block font-medium whitespace-nowrap ${className} ${radius} ${
+        className={`block font-normal whitespace-nowrap ${className} ${radius} ${
           isActive
-            ? 'bg-slate-900 text-slate-50'
+            ? 'bg-slate-900 text-slate-50 border border-black'
             : 'text-slate-600 dark:text-black dark:hover:text-slate-100 hover:text-slate-900 '
         } ${twFocusClass()}`}
         onClick={() => {

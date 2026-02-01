@@ -121,7 +121,7 @@ export function SectionLatestBlog(props: SectionLatestBlogFragment) {
                   <Link
                     key={article.id}
                     to={`/news/${article.handle}`}
-                    className="snap-start shrink-0 group w-[280px] sm:w-[320px] lg:w-[380px]"
+                    className="snap-start shrink-0 group w-[280px] sm:w-[320px] lg:w-[380px] bg-transparent border border-[#e5e7eb] hover:border-[#1a1a1a] rounded-2xl"
                   >
                     {/* Image */}
                     <div className="relative aspect-[4/3] rounded-xl overflow-hidden mb-4 bg-neutral-100">
@@ -139,8 +139,8 @@ export function SectionLatestBlog(props: SectionLatestBlogFragment) {
                     </div>
 
                     {/* Content */}
-                    <div className="space-y-2">
-                      <h3 className="font-headline text-lg sm:text-xl font-medium leading-tight line-clamp-2 group-hover:text-primary-600 transition-colors">
+                    <div className="space-y-2 p-8">
+                      <h3 className="font-headline text-2xl md:text-3xl font-normal">
                         {article.title}
                       </h3>
                       {article.excerpt && (
