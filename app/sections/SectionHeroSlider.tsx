@@ -196,6 +196,12 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
     }
   >(section);
 
+  // DEBUG Hero Item data
+  console.log('🎬 Hero Item raw section:', section);
+  console.log('🎬 Hero Item parsed:', item);
+  console.log('🎬 horizontal_video:', (item as any).horizontal_video);
+  console.log('🎬 horizontal_image:', item.horizontal_image);
+
   // Get colors with defaults
   const headingColor = (item as any).heading_color?.value || '#1e293b';
   const subheadingColor = (item as any).subheading_color?.value || '#475569';
