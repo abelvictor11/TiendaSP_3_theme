@@ -454,6 +454,36 @@ const HEADER_QUERY = `#graphql
         }
       }
     }
+    headerQuickLinks: metaobjects(type: "ciseco--header_quick_links", first: 1) {
+      nodes {
+        id
+        handle
+        enabled: field(key: "enabled") {
+          value
+        }
+        items: field(key: "items") {
+          references(first: 3) {
+            nodes {
+              ... on Metaobject {
+                id
+                svg_icon: field(key: "svg_icon") {
+                  value
+                }
+                link: field(key: "link") {
+                  value
+                }
+                label: field(key: "label") {
+                  value
+                }
+                icon_color: field(key: "icon_color") {
+                  value
+                }
+              }
+            }
+          }
+        }
+      }
+    }
     megamenuConfigs: metaobjects(type: "ciseco--megamenu_config", first: 20) {
       nodes {
         id

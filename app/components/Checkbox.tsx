@@ -25,13 +25,13 @@ const Checkbox: FC<CheckboxProps> = ({
         id={id || name}
         name={name}
         type="checkbox"
-        className={`focus:ring-action-primary text-primary-500 rounded border-slate-400/80 hover:border-slate-700 bg-transparent dark:border-slate-700 dark:hover:border-slate-500 dark:checked:bg-primary-500 focus:ring-primary-500 ${sizeClassName}`}
+        className={`focus:ring-action-primary text-primary-500 rounded border-black hover:border-slate-700 bg-transparent dark:border-slate-700 dark:hover:border-slate-500 dark:checked:bg-primary-500 focus:ring-primary-500 ${sizeClassName}`}
         {...props}
       />
       {label && (
         <label
           htmlFor={id || name}
-          className="pl-2.5 sm:pl-3.5 flex flex-col flex-1 justify-center select-none text-sm xl:text-base"
+          className="pl-2.5 sm:pl-3.5 flex flex-col flex-1 justify-center select-none text-sm xl:text-base/1"
         >
           <span
             className={`flex-shrink-0 text-[.875rem] font-normal ${labelClassName} ${

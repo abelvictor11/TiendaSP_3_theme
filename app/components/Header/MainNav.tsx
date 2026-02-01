@@ -1,6 +1,7 @@
 import {type FC} from 'react';
 import VendorsDropdown from './VendorsDropdown';
 import AvatarDropdown from './AvatarDropdown';
+import HeaderQuickLinks, {type QuickLinkItem} from './HeaderQuickLinks';
 import Logo from '../Logo';
 import CartBtn from './CartBtn';
 import {MagnifyingGlassIcon} from '../Icons/MyIcons';
@@ -18,13 +19,19 @@ interface Brand {
   logo?: { reference?: { image?: { url: string; altText?: string } } };
 }
 
+interface QuickLinksConfig {
+  enabled: boolean;
+  items: QuickLinkItem[];
+}
+
 export interface Props {
   className?: string;
   isHome?: boolean;
   brands?: Brand[];
+  quickLinks?: QuickLinksConfig;
 }
 
-const MainNav: FC<Props> = ({className = '', isHome, brands = []}) => {
+const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) => {
   const {type: activeType, close, open} = useAside();
   const params = useParams();
 
@@ -77,6 +84,11 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = []}) => {
 
           {/* Right side actions */}
           <div className="flex items-center gap-2 sm:gap-3">
+            <HeaderQuickLinks 
+              className="hidden md:flex" 
+              items={quickLinks?.items} 
+              enabled={quickLinks?.enabled}
+            />
             <VendorsDropdown className="hidden md:block" brands={brands} />
             {/* Mobile search icon - Hidden on desktop */}
             <Link

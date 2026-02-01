@@ -58,9 +58,14 @@ function MyHeader() {
         <HeaderMenuDataWrap>
           {({headerData, headerMenu}) => {
             const brands = (headerData as any)?.brands?.nodes || [];
+            const quickLinksConfig = (headerData as any)?.headerQuickLinks?.nodes?.[0];
+            const quickLinks = {
+              enabled: quickLinksConfig?.enabled?.value !== 'false',
+              items: quickLinksConfig?.items?.references?.nodes || [],
+            };
             return (
               <>
-                <MainNav isHome={isHome} brands={brands} />
+                <MainNav isHome={isHome} brands={brands} quickLinks={quickLinks} />
                 <NavigationBar 
                   headerMenu={headerMenu?.items} 
                   headerData={headerData}
