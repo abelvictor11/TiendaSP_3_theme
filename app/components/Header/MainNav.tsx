@@ -40,7 +40,7 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = []}) => {
           {/* Mobile Menu Button */}
           <div className="flex items-center lg:hidden">
             <button
-              className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none"
+              className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-black dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none"
               onClick={() => open('mobile')}
               type="button"
               aria-label="Open menu"

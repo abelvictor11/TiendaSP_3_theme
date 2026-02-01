@@ -56,7 +56,7 @@ const StickyHeader: FC<StickyHeaderProps> = ({className = ''}) => {
           <div className="h-14 flex justify-between items-center">
             {/* Mobile Menu Button */}
             <button
-              className="flex lg:hidden items-center justify-center w-10 h-10 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="flex lg:hidden items-center justify-center w-10 h-10 rounded-full text-black dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
               onClick={() => open('mobile')}
               type="button"
               aria-label="Open menu"
@@ -96,7 +96,7 @@ const StickyHeader: FC<StickyHeaderProps> = ({className = ''}) => {
               {/* Mobile search */}
               <Link
                 to="/search"
-                className="flex lg:hidden w-10 h-10 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 items-center justify-center"
+                className="flex lg:hidden w-10 h-10 rounded-full text-black dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 items-center justify-center"
                 aria-label="Search"
               >
                 <MagnifyingGlassIcon className="w-5 h-5" />

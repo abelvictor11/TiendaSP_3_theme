@@ -93,7 +93,7 @@ export function SectionLatestBlog(props: SectionLatestBlogFragment) {
         <div className="container">
           {/* Header */}
           <div className="flex items-center justify-between mb-8">
-            <h2 className="font-headline text-2xl md:text-3xl font-normal">
+            <h2 className="font-headline text-xl md:text-2xl font-normal">
               {heading_bold?.value || 'Latest Blog'}
               {heading_light?.value && (
                 <span className="font-light ml-2">{heading_light.value}</span>
