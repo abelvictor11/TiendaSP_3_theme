@@ -57,10 +57,6 @@ export function SectionShopByBrand(props: SectionShopByBrandProps) {
   }, []);
 
   const brandNodes = brands?.references?.nodes || [];
-  
-  // DEBUG
-  console.log('🏪 Shop by Brand nodes:', brandNodes);
-  console.log('🖼️ First brand data:', brandNodes[0]);
 
   if (!brandNodes.length) return null;
 
