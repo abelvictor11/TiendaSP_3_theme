@@ -316,7 +316,7 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="py-5 px-2.5 flex-grow flex flex-col bg-[#F9F9F9] dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+        <div className="py-5 px-2.5 flex-grow flex flex-col dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
           
           
           {renderColorOptions()}
