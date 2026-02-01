@@ -34,7 +34,7 @@ const Button: FC<ButtonProps> = ({
   ...args
 }) => {
   const CLASSES =
-    `relative h-auto inline-flex items-center justify-center rounded-full transition-colors ${fontSize} ${sizeClass} ${translateClass} ${className} ` +
+    `inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded border border-current transition-all duration-200 hover:opacity-90 ${className}` +
     twFocusClass(true);
 
   const _renderLoading = () => {

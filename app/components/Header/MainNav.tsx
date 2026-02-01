@@ -76,7 +76,7 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) =
                   type="search"
                   name="q"
                   placeholder="Buscar productos..."
-                  className="w-full h-11 pl-12 pr-4 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
+                  className="w-full h-11 pl-12 pr-4 text-sm bg-slate-50 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
                 />
               </div>
             </Form>

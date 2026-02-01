@@ -46,11 +46,11 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
       className="nc-SectionShopByCategory"
       style={background_color ? {backgroundColor: background_color} : undefined}
     >
-      <div className="container">
+      <div className="container-fluid">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h2 
-            className="font-headline text-2xl md:text-3xl font-normal"
+            className="container font-headline text-2xl md:text-3xl font-normal"
             style={heading_color ? {color: heading_color} : undefined}
           >
             {heading?.value || 'Shop by Category'}

@@ -65,11 +65,11 @@ export function SectionShopByBrand(props: SectionShopByBrandProps) {
       className="nc-SectionShopByBrand"
       style={background_color?.value ? {backgroundColor: background_color.value} : undefined}
     >
-      <div className="container">
+      <div className="container-fluid">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h2 
-            className="font-headline text-2xl md:text-3xl font-normal"
+            className="container font-headline text-2xl md:text-3xl font-normal"
             style={heading_color?.value ? {color: heading_color.value} : undefined}
           >
             {heading?.value || 'Shop by Brand'}

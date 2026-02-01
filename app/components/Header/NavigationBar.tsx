@@ -294,7 +294,7 @@ function CustomMegamenu({
                 <Link
                   key={brand.id || idx}
                   to={brand.link?.value || '#'}
-                  className="flex items-center justify-center px-4 py-3 bg-slate-50 dark:bg-slate-800 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
+                  className="flex items-center justify-center px-4 py-3 dark:bg-slate-800 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
                   onClick={onClose}
                 >
                   {logoUrl ? (
