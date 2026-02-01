@@ -88,7 +88,7 @@ const ProductCard: FC<ProductCardProps> = ({
     product.handle,
     firstVariant.selectedOptions,
   );
-  const {getImageWithCdnUrlByName} =
+  const {getImageWithCdnUrlByName, getColorHexByName} =
     useGetPublicStoreCdnStaticUrlFromRootLoaderData();
 
   const renderColorOptions = () => {
@@ -102,6 +102,9 @@ const ProductCard: FC<ProductCardProps> = ({
           if (index >= 5) {
             return null;
           }
+          const imageUrl = getImageWithCdnUrlByName(color.replaceAll(/ /g, '_'));
+          const colorHex = getColorHexByName(color);
+
           return (
             <Link
               key={color}
@@ -119,18 +122,23 @@ const ProductCard: FC<ProductCardProps> = ({
                 ],
               })}
             >
-              <div className="absolute inset-0 rounded-full overflow-hidden z-0 object-cover flex">
-                <Image
-                  data={{
-                    url: getImageWithCdnUrlByName(color.replaceAll(/ /g, '_')),
-                    altText: color,
-                  }}
-                  width={20}
-                  height={20}
-                  aspectRatio="1/1"
-                  className="rounded-full"
-                  sizes="(max-width: 640px) 16px, 20px"
-                />
+              <div 
+                className="absolute inset-0 rounded-full overflow-hidden z-0"
+                style={!imageUrl ? {backgroundColor: colorHex} : undefined}
+              >
+                {imageUrl && (
+                  <Image
+                    data={{
+                      url: imageUrl,
+                      altText: color,
+                    }}
+                    width={20}
+                    height={20}
+                    aspectRatio="1/1"
+                    className="rounded-full"
+                    sizes="(max-width: 640px) 16px, 20px"
+                  />
+                )}
               </div>
             </Link>
           );

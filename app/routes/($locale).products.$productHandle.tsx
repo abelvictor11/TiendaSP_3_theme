@@ -710,7 +710,7 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
 };
 
 const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
-  const {getImageWithCdnUrlByName} =
+  const {getImageWithCdnUrlByName, getColorHexByName} =
     useGetPublicStoreCdnStaticUrlFromRootLoaderData();
 
   if (!option.optionValues.length) {
@@ -740,8 +740,9 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
               variant,
             }) => {
               const variantImage = variant?.image;
-              // Fallback to CDN image if no variant image
-              const imageUrl = variantImage?.url || getImageWithCdnUrlByName(value.replaceAll(/ /g, '_'));
+              const cdnImageUrl = getImageWithCdnUrlByName(value.replaceAll(/ /g, '_'));
+              const imageUrl = variantImage?.url || cdnImageUrl;
+              const colorHex = getColorHexByName(value);
               
               return (
                 <Link
@@ -759,20 +760,25 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
                     !isAvailable && 'opacity-50 cursor-not-allowed',
                   )}
                 >
-                  {/* Image */}
-                  <div className="aspect-square w-full rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 mb-2 flex items-center justify-center">
-                    <Image
-                      data={{
-                        url: imageUrl,
-                        altText: value,
-                        width: 200,
-                        height: 200,
-                      }}
-                      width={200}
-                      height={200}
-                      sizes="(max-width: 640px) 120px, 150px"
-                      className="w-full h-full object-contain"
-                    />
+                  {/* Image or Color */}
+                  <div 
+                    className="aspect-square w-full rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 mb-2 flex items-center justify-center"
+                    style={!imageUrl ? {backgroundColor: colorHex} : undefined}
+                  >
+                    {imageUrl && (
+                      <Image
+                        data={{
+                          url: imageUrl,
+                          altText: value,
+                          width: 200,
+                          height: 200,
+                        }}
+                        width={200}
+                        height={200}
+                        sizes="(max-width: 640px) 120px, 150px"
+                        className="w-full h-full object-contain"
+                      />
+                    )}
                   </div>
                   
                   {/* Color name */}
@@ -804,43 +810,53 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
               available: isAvailable,
               isDifferentProduct,
               handle,
-            }) => (
-              <Link
-                key={option.name + value}
-                {...(!isDifferentProduct ? {rel: 'nofollow'} : {})}
-                to={`/products/${handle}?${variantUriQuery}`}
-                preventScrollReset
-                prefetch="intent"
-                replace
-                className={clsx(
-                  'relative w-8 h-8 md:w-9 md:h-9 rounded-full',
-                  isActive ? 'ring ring-offset-1 ring-primary-500/60' : '',
-                  !isAvailable && 'opacity-50 cursor-not-allowed',
-                )}
-                title={value}
-              >
-                <span className="sr-only">{value}</span>
+            }) => {
+              const imageUrl = getImageWithCdnUrlByName(value.replaceAll(/ /g, '_'));
+              const colorHex = getColorHexByName(value);
 
-                <div className="absolute inset-0.5 rounded-full overflow-hidden z-0">
-                  <Image
-                    data={{
-                      url: getImageWithCdnUrlByName(value.replaceAll(/ /g, '_')),
-                      altText: value,
-                      width: 36,
-                      height: 36,
-                    }}
-                    width={36}
-                    height={36}
-                    sizes="(max-width: 640px) 36px, 40px"
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
+              return (
+                <Link
+                  key={option.name + value}
+                  {...(!isDifferentProduct ? {rel: 'nofollow'} : {})}
+                  to={`/products/${handle}?${variantUriQuery}`}
+                  preventScrollReset
+                  prefetch="intent"
+                  replace
+                  className={clsx(
+                    'relative w-8 h-8 md:w-9 md:h-9 rounded-full',
+                    isActive ? 'ring ring-offset-1 ring-primary-500/60' : '',
+                    !isAvailable && 'opacity-50 cursor-not-allowed',
+                  )}
+                  title={value}
+                >
+                  <span className="sr-only">{value}</span>
 
-                {!isAvailable && (
-                  <div className="absolute inset-x-1 border-t border-dashed top-1/2 rotate-[-30deg]" />
-                )}
-              </Link>
-            ),
+                  <div 
+                    className="absolute inset-0.5 rounded-full overflow-hidden z-0"
+                    style={!imageUrl ? {backgroundColor: colorHex} : undefined}
+                  >
+                    {imageUrl && (
+                      <Image
+                        data={{
+                          url: imageUrl,
+                          altText: value,
+                          width: 36,
+                          height: 36,
+                        }}
+                        width={36}
+                        height={36}
+                        sizes="(max-width: 640px) 36px, 40px"
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    )}
+                  </div>
+
+                  {!isAvailable && (
+                    <div className="absolute inset-x-1 border-t border-dashed top-1/2 rotate-[-30deg]" />
+                  )}
+                </Link>
+              );
+            },
           )}
         </div>
       )}
