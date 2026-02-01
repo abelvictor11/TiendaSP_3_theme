@@ -209,6 +209,10 @@ function CustomMegamenu({
   const hasBanner = bannerImage?.url || config.banner_title?.value;
   const featuredBrands = config.featured_brands?.references?.nodes || [];
   const hasBrands = featuredBrands.length > 0;
+  
+  // DEBUG
+  console.log('🏷️ Featured brands:', featuredBrands);
+  console.log('🖼️ First brand logo:', featuredBrands[0]?.logo);
 
   return (
     <div className="flex gap-8">
