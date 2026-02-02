@@ -51,7 +51,7 @@ const ProductCard: FC<ProductCardProps> = ({
     vendor,
     images,
     uso_tipo,
-    peso_maximo_usuario,
+    modelo,
     material,
     envio_gratis,
   } = product;
@@ -368,18 +368,18 @@ const ProductCard: FC<ProductCardProps> = ({
             </h5>
             
             {/* Atributos técnicos con separador | */}
-            {(peso_maximo_usuario?.value || materialValue || hasEnvioGratis) && (
+            {(modelo?.value || materialValue || hasEnvioGratis) && (
               <p className="text-xs flex items-center flex-wrap mt-1" style={{ color: '#000000' }}>
+                {modelo?.value && (
+                  <span>{modelo.value}</span>
+                )}
+                {modelo?.value && materialValue && (
+                  <span className="mx-1.5" style={{ color: '#000000' }}>|</span>
+                )}
                 {materialValue && (
                   <span>{materialValue}</span>
                 )}
-                {materialValue && peso_maximo_usuario?.value && (
-                  <span className="mx-1.5" style={{ color: '#000000' }}>|</span>
-                )}
-                {peso_maximo_usuario?.value && (
-                  <span>Max {peso_maximo_usuario.value}kg</span>
-                )}
-                {(materialValue || peso_maximo_usuario?.value) && hasEnvioGratis && (
+                {(modelo?.value || materialValue) && hasEnvioGratis && (
                   <span className="mx-1.5" style={{ color: '#000000' }}>|</span>
                 )}
                 {hasEnvioGratis && (
@@ -388,7 +388,7 @@ const ProductCard: FC<ProductCardProps> = ({
               </p>
             )}
             
-            {product.tags && product.tags.length > 0 && !peso_maximo_usuario?.value && !material?.value && (
+            {product.tags && product.tags.length > 0 && !modelo?.value && !material?.value && (
               <p
                 className="capitalize whitespace-nowrap overflow-hidden text-ellipsis"
                 style={{

@@ -220,7 +220,7 @@ export default function Product() {
             {/* Product Description - Below images on desktop */}
             {!!descriptionHtml && (
               <div className="hidden lg:block mt-10">
-                <h2 className="text-2xl font-semibold">Detalles del producto</h2>
+                <h2 className="text-2xl font-semibold">Descripción</h2>
                 <div
                   className="prose prose-sm sm:prose dark:prose-invert sm:max-w-4xl mt-7"
                   dangerouslySetInnerHTML={{
