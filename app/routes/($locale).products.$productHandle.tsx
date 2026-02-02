@@ -241,9 +241,7 @@ export default function Product() {
               />
 
               {/* Highlights - Quick specs icons */}
-              <ProductHighlights
-                highlights={metafields?.find((m: any) => m?.key === 'highlights')?.value ? JSON.parse(metafields.find((m: any) => m?.key === 'highlights').value) as string[] : undefined}
-              />
+              <ProductHighlights metafields={metafields} />
 
               {/*  */}
               <hr className=" border-slate-200 dark:border-slate-700"></hr>
