@@ -682,149 +682,78 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
     return null;
   }
 
-  // Check if any option has a variant image
-  const hasVariantImages = option.optionValues.some(
-    (opt) => opt.variant?.image?.url
-  );
+  // Get the selected color name
+  const selectedColor = option.optionValues.find((opt) => opt.selected)?.name || '';
 
   return (
     <div>
-      <div className="text-sm font-medium">Select {option.name}</div>
+      {/* Color label with selected color name */}
+      <div className="flex items-center gap-2 text-sm">
+        <span className="font-semibold">Color:</span>
+        <span className="text-slate-700 dark:text-slate-300">{selectedColor}</span>
+      </div>
       
-      {/* Large cards with variant images */}
-      {hasVariantImages ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
-          {option.optionValues.map(
-            ({
-              name: value,
-              variantUriQuery,
-              selected: isActive,
-              available: isAvailable,
-              isDifferentProduct,
-              handle,
-              variant,
-            }) => {
-              const variantImage = variant?.image;
-              const cdnImageUrl = getImageWithCdnUrlByName(value.replaceAll(/ /g, '_'));
-              const imageUrl = variantImage?.url || cdnImageUrl;
-              const colorHex = getColorHexByName(value);
-              
-              return (
-                <Link
-                  key={option.name + value}
-                  {...(!isDifferentProduct ? {rel: 'nofollow'} : {})}
-                  to={`/products/${handle}?${variantUriQuery}`}
-                  preventScrollReset
-                  prefetch="intent"
-                  replace
-                  className={clsx(
-                    'relative flex flex-col rounded-lg border-2 p-3 transition-all',
-                    isActive 
-                      ? 'border-primary-500 bg-primary-50/50' 
-                      : 'border-slate-200 dark:border-slate-700 hover:border-slate-300',
-                    !isAvailable && 'opacity-50 cursor-not-allowed',
-                  )}
+      {/* Circular color swatches */}
+      <div className="flex flex-wrap gap-3 mt-3">
+        {option.optionValues.map(
+          ({
+            name: value,
+            variantUriQuery,
+            selected: isActive,
+            available: isAvailable,
+            isDifferentProduct,
+            handle,
+          }) => {
+            const imageUrl = getImageWithCdnUrlByName(value.replaceAll(/ /g, '_'));
+            const colorHex = getColorHexByName(value);
+
+            return (
+              <Link
+                key={option.name + value}
+                {...(!isDifferentProduct ? {rel: 'nofollow'} : {})}
+                to={`/products/${handle}?${variantUriQuery}`}
+                preventScrollReset
+                prefetch="intent"
+                replace
+                className={clsx(
+                  'relative w-10 h-10 rounded-full transition-all',
+                  isActive 
+                    ? 'ring-2 ring-black ring-offset-2' 
+                    : '',
+                  !isAvailable && 'opacity-50 cursor-not-allowed',
+                )}
+                title={value}
+              >
+                <span className="sr-only">{value}</span>
+
+                <div 
+                  className="absolute inset-0 rounded-full overflow-hidden"
+                  style={!imageUrl ? {backgroundColor: colorHex} : undefined}
                 >
-                  {/* Image or Color */}
-                  <div 
-                    className="aspect-square w-full rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 mb-2 flex items-center justify-center"
-                    style={!imageUrl ? {backgroundColor: colorHex} : undefined}
-                  >
-                    {imageUrl && (
-                      <Image
-                        data={{
-                          url: imageUrl,
-                          altText: value,
-                          width: 200,
-                          height: 200,
-                        }}
-                        width={200}
-                        height={200}
-                        sizes="(max-width: 640px) 120px, 150px"
-                        className="w-full h-full object-contain"
-                      />
-                    )}
-                  </div>
-                  
-                  {/* Color name */}
-                  <span className={clsx(
-                    'text-sm font-medium text-center',
-                    isActive ? 'text-primary-600' : 'text-slate-700 dark:text-slate-300'
-                  )}>
-                    {value}
-                  </span>
-
-                  {!isAvailable && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-slate-900/60 rounded-lg">
-                      <span className="text-xs text-slate-500">Agotado</span>
-                    </div>
+                  {imageUrl && (
+                    <Image
+                      data={{
+                        url: imageUrl,
+                        altText: value,
+                        width: 40,
+                        height: 40,
+                      }}
+                      width={40}
+                      height={40}
+                      sizes="40px"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
                   )}
-                </Link>
-              );
-            },
-          )}
-        </div>
-      ) : (
-        /* Fallback: Small circular swatches */
-        <div className="flex flex-wrap gap-3 mt-3">
-          {option.optionValues.map(
-            ({
-              name: value,
-              variantUriQuery,
-              selected: isActive,
-              available: isAvailable,
-              isDifferentProduct,
-              handle,
-            }) => {
-              const imageUrl = getImageWithCdnUrlByName(value.replaceAll(/ /g, '_'));
-              const colorHex = getColorHexByName(value);
+                </div>
 
-              return (
-                <Link
-                  key={option.name + value}
-                  {...(!isDifferentProduct ? {rel: 'nofollow'} : {})}
-                  to={`/products/${handle}?${variantUriQuery}`}
-                  preventScrollReset
-                  prefetch="intent"
-                  replace
-                  className={clsx(
-                    'relative w-8 h-8 md:w-9 md:h-9 rounded-full',
-                    isActive ? 'ring ring-offset-1 ring-primary-500/60' : '',
-                    !isAvailable && 'opacity-50 cursor-not-allowed',
-                  )}
-                  title={value}
-                >
-                  <span className="sr-only">{value}</span>
-
-                  <div 
-                    className="absolute inset-0.5 rounded-full overflow-hidden z-0"
-                    style={!imageUrl ? {backgroundColor: colorHex} : undefined}
-                  >
-                    {imageUrl && (
-                      <Image
-                        data={{
-                          url: imageUrl,
-                          altText: value,
-                          width: 36,
-                          height: 36,
-                        }}
-                        width={36}
-                        height={36}
-                        sizes="(max-width: 640px) 36px, 40px"
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                    )}
-                  </div>
-
-                  {!isAvailable && (
-                    <div className="absolute inset-x-1 border-t border-dashed top-1/2 rotate-[-30deg]" />
-                  )}
-                </Link>
-              );
-            },
-          )}
-        </div>
-      )}
+                {!isAvailable && (
+                  <div className="absolute inset-x-1 border-t border-slate-400 top-1/2 rotate-[-30deg]" />
+                )}
+              </Link>
+            );
+          },
+        )}
+      </div>
     </div>
   );
 };
