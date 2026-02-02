@@ -478,6 +478,15 @@ const HEADER_QUERY = `#graphql
                 icon_color: field(key: "icon_color") {
                   value
                 }
+                text_color: field(key: "text_color") {
+                  value
+                }
+                background_color: field(key: "background_color") {
+                  value
+                }
+                border_color: field(key: "border_color") {
+                  value
+                }
               }
             }
           }

@@ -8,6 +8,9 @@ export interface QuickLinkItem {
   link?: {value?: string};
   label?: {value?: string};
   icon_color?: {value?: string};
+  text_color?: {value?: string};
+  background_color?: {value?: string};
+  border_color?: {value?: string};
 }
 
 export interface HeaderQuickLinksProps {
@@ -35,6 +38,9 @@ const HeaderQuickLinks: FC<HeaderQuickLinksProps> = ({
         const link = item.link?.value || '#';
         const label = item.label?.value;
         const iconColor = item.icon_color?.value || '#000000';
+        const textColor = item.text_color?.value;
+        const backgroundColor = item.background_color?.value;
+        const borderColor = item.border_color?.value;
 
         if (!svgContent) return null;
 
@@ -50,11 +56,24 @@ const HeaderQuickLinks: FC<HeaderQuickLinksProps> = ({
             return match;
           });
 
+        // Build inline styles for customizable colors
+        const linkStyle: React.CSSProperties = {};
+        if (backgroundColor) linkStyle.backgroundColor = backgroundColor;
+        if (borderColor) {
+          linkStyle.borderColor = borderColor;
+          linkStyle.borderWidth = '1px';
+          linkStyle.borderStyle = 'solid';
+        }
+
         return (
           <Link
             key={item.id}
             to={link}
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors group"
+            className={clsx(
+              'flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors group',
+              !backgroundColor && 'hover:bg-slate-100 dark:hover:bg-slate-800',
+            )}
+            style={linkStyle}
             title={label}
           >
             <span
@@ -62,7 +81,13 @@ const HeaderQuickLinks: FC<HeaderQuickLinksProps> = ({
               dangerouslySetInnerHTML={{__html: processedSvg}}
             />
             {label && (
-              <span className="text-xs font-medium text-slate-700 dark:text-slate-300 hidden sm:inline">
+              <span 
+                className={clsx(
+                  'text-xs font-medium hidden sm:inline',
+                  !textColor && 'text-slate-700 dark:text-slate-300',
+                )}
+                style={textColor ? {color: textColor} : undefined}
+              >
                 {label}
               </span>
             )}
