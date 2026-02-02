@@ -47,7 +47,7 @@ export function ProductGallery({
       <div className={clsx('flex flex-col', className)}>
         {/* Main Image - Maintains aspect ratio and fits within container */}
         <div
-          className="relative w-full bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden cursor-zoom-in group flex items-center justify-center min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]"
+          className="relative w-full hover:border-black rounded-xl overflow-hidden cursor-zoom-in group flex items-center justify-center min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]"
           onClick={() => openModal(activeIndex)}
           aria-hidden
         >

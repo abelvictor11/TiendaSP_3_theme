@@ -128,13 +128,14 @@ export default function FiltersSidebar({
 
   // Render color filter with swatches
   const renderColorFilter = (filter: Filter, options: any[], isExpanded: boolean) => {
-    const visibleOptions = isExpanded ? options : options.slice(0, 9);
-    const hasMore = options.length > 9;
+    const initialOptions = options.slice(0, 9);
+    const extraOptions = options.slice(9);
+    const hasMore = extraOptions.length > 0;
 
     return (
       <div className="pt-2">
         <div className="grid grid-cols-3 gap-3">
-          {visibleOptions.map((option, index) => {
+          {initialOptions.map((option, index) => {
             const isChecked = appliedFilters.some(
               (af) => af.data?.id === option.id && af.label === option.label,
             );
@@ -166,10 +167,55 @@ export default function FiltersSidebar({
             );
           })}
         </div>
+        {/* Animated extra options */}
+        {hasMore && (
+          <div
+            className={clsx(
+              'grid transition-all duration-300 ease-in-out',
+              isExpanded ? 'grid-rows-[1fr] opacity-100 mt-3' : 'grid-rows-[0fr] opacity-0'
+            )}
+          >
+            <div className="overflow-hidden">
+              <div className="grid grid-cols-3 gap-3">
+                {extraOptions.map((option, index) => {
+                  const isChecked = appliedFilters.some(
+                    (af) => af.data?.id === option.id && af.label === option.label,
+                  );
+                  const color = getColorFromLabel(option.label);
+                  const isWhite = color === '#FFFFFF';
+
+                  return (
+                    <button
+                      key={`extra-${index}-${option.id}`}
+                      onClick={() => handleFilterChange(option, !isChecked)}
+                      className={clsx(
+                        'flex flex-col items-center gap-2 p-2 rounded-lg transition-all',
+                        LOADING && 'opacity-50 pointer-events-none',
+                        isChecked && 'bg-slate-100 dark:bg-slate-800',
+                      )}
+                    >
+                      <div
+                        className={clsx(
+                          'w-12 h-12 rounded-full transition-all',
+                          isWhite ? 'border border-slate-300' : '',
+                          isChecked && 'ring-2 ring-offset-2 ring-primary-500',
+                        )}
+                        style={{backgroundColor: color || '#C4C4C4'}}
+                      />
+                      <span className="text-xs text-center truncate w-full">
+                        {option.label.length > 7 ? option.label.slice(0, 7) + '...' : option.label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
         {hasMore && (
           <button
             onClick={() => setExpandedFilters(prev => ({...prev, [filter.id]: !isExpanded}))}
-            className="text-sm underline mt-3 hover:text-primary-600"
+            className="text-sm underline mt-3 hover:text-primary-600 transition-colors"
           >
             {isExpanded ? 'Mostrar Menos' : 'Mostrar Más'}
           </button>
@@ -180,13 +226,14 @@ export default function FiltersSidebar({
 
   // Render size filter with grid buttons
   const renderSizeFilter = (filter: Filter, options: any[], isExpanded: boolean) => {
-    const visibleOptions = isExpanded ? options : options.slice(0, 8);
-    const hasMore = options.length > 8;
+    const initialOptions = options.slice(0, 8);
+    const extraOptions = options.slice(8);
+    const hasMore = extraOptions.length > 0;
 
     return (
       <div className="pt-2">
         <div className="grid grid-cols-2 gap-2">
-          {visibleOptions.map((option, index) => {
+          {initialOptions.map((option, index) => {
             const isChecked = appliedFilters.some(
               (af) => af.data?.id === option.id && af.label === option.label,
             );
@@ -208,10 +255,45 @@ export default function FiltersSidebar({
             );
           })}
         </div>
+        {/* Animated extra options */}
+        {hasMore && (
+          <div
+            className={clsx(
+              'grid transition-all duration-300 ease-in-out',
+              isExpanded ? 'grid-rows-[1fr] opacity-100 mt-2' : 'grid-rows-[0fr] opacity-0'
+            )}
+          >
+            <div className="overflow-hidden">
+              <div className="grid grid-cols-2 gap-2">
+                {extraOptions.map((option, index) => {
+                  const isChecked = appliedFilters.some(
+                    (af) => af.data?.id === option.id && af.label === option.label,
+                  );
+
+                  return (
+                    <button
+                      key={`extra-${index}-${option.id}`}
+                      onClick={() => handleFilterChange(option, !isChecked)}
+                      className={clsx(
+                        'px-3 py-2.5 border rounded-lg text-sm font-medium transition-all text-left',
+                        LOADING && 'opacity-50 pointer-events-none',
+                        isChecked
+                          ? 'border-primary-500 bg-primary-50 text-primary-700 dark:bg-primary-900/20 dark:text-primary-400'
+                          : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500',
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
         {hasMore && (
           <button
             onClick={() => setExpandedFilters(prev => ({...prev, [filter.id]: !isExpanded}))}
-            className="text-sm underline mt-3 hover:text-primary-600"
+            className="text-sm underline mt-3 hover:text-primary-600 transition-colors"
           >
             {isExpanded ? 'Mostrar Menos' : 'Mostrar Más'}
           </button>

@@ -122,7 +122,7 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
   if (specs.length === 0 && !especificaciones) return null;
 
   return (
-    <div className={className}>
+    <div className="pt-8">
       <h2 className="text-2xl font-bold mb-6" style={{fontFamily: 'Montserrat, sans-serif'}}>
         Especificaciones Técnicas
       </h2>
