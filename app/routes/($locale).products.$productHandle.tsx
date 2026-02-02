@@ -210,6 +210,7 @@ export default function Product() {
                 media={media.nodes}
                 className="w-full lg:col-span-2 lg:gap-7"
                 discountPercentage={discountPercentage}
+                selectedVariantImageUrl={selectedVariant?.image?.url}
               />
               <LikeButton
                 id={id}

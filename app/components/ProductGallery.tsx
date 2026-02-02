@@ -14,13 +14,34 @@ export function ProductGallery({
   media,
   className,
   discountPercentage,
+  selectedVariantImageUrl,
 }: {
   media: MediaFragment[];
   className?: string;
   discountPercentage?: number;
+  selectedVariantImageUrl?: string;
 }) {
+  // Find the index of the selected variant's image in the media array
+  const getInitialIndex = () => {
+    if (!selectedVariantImageUrl) return 0;
+    const index = media.findIndex((m) => {
+      if (m.__typename === 'MediaImage' && m.image?.url) {
+        // Compare URLs - they might have different query params, so compare the base
+        return m.image.url.split('?')[0] === selectedVariantImageUrl.split('?')[0];
+      }
+      return false;
+    });
+    return index >= 0 ? index : 0;
+  };
+
   const [isOpenModal, setOpenModal] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(getInitialIndex);
+
+  // Update activeIndex when selectedVariantImageUrl changes
+  useEffect(() => {
+    const newIndex = getInitialIndex();
+    setActiveIndex(newIndex);
+  }, [selectedVariantImageUrl]);
 
   const closeModal = () => {
     setOpenModal(false);
