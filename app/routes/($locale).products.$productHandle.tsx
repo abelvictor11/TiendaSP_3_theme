@@ -622,15 +622,15 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
                 prefetch="intent"
                 replace
                 className={clsx(
-                  'relative flex items-center justify-center rounded-md border py-3 px-5 sm:px-3 text-sm font-medium uppercase sm:flex-1 cursor-pointer focus:outline-none border-gray-200 ',
+                  'relative flex items-center justify-center rounded-md border py-3 px-5 sm:px-3 text-sm font-medium uppercase sm:flex-1 cursor-pointer focus:outline-none border-black ',
                   !isAvailable
                     ? isActive
                       ? 'opacity-90 text-opacity-80 cursor-not-allowed'
                       : 'text-opacity-20 cursor-not-allowed'
                     : 'cursor-pointer',
                   isActive
-                    ? 'bg-slate-900 border-slate-900 text-slate-100'
-                    : 'border-slate-300 text-slate-900 hover:bg-neutral-50 ',
+                    ? 'bg-black border-back text-slate-100'
+                    : 'border-slate-300 text-black hover:bg-neutral-50 ',
                 )}
               >
                 {!isAvailable && (
