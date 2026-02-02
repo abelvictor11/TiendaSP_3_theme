@@ -59,7 +59,6 @@ import {SlashIcon} from '@heroicons/react/24/solid';
 import ProductHelpBanner from '~/components/ProductHelpBanner';
 import ProductHighlights from '~/components/ProductHighlights';
 import ProductSpecs from '~/components/ProductSpecs';
-import ProductDescription from '~/components/ProductDescription';
 import {ComplementaryProducts} from '~/components/ComplementaryProducts';
 
 export const headers = routeHeaders;
@@ -220,16 +219,16 @@ export default function Product() {
 
             {/* Product Description - Below images on desktop */}
             {!!descriptionHtml && (
-              <ProductDescription 
-                descriptionHtml={descriptionHtml} 
-                className="hidden lg:block mt-10"
-              />
+              <div className="hidden lg:block mt-10">
+                <h2 className="text-2xl font-semibold">Detalles del producto</h2>
+                <div
+                  className="prose prose-sm sm:prose dark:prose-invert sm:max-w-4xl mt-7"
+                  dangerouslySetInnerHTML={{
+                    __html: descriptionHtml || '',
+                  }}
+                />
+              </div>
             )}
-
-            {/* Technical Specifications - Below description on desktop */}
-            <div className="hidden lg:block">
-              <ProductSpecs metafields={metafields} />
-            </div>
           </div>
 
           {/* Right Column - Product Info */}
@@ -323,16 +322,19 @@ export default function Product() {
         <div className="mt-12 sm:mt-16 space-y-12 sm:space-y-16">
           {/* Product description - Mobile only (desktop shows below images) */}
           {!!descriptionHtml && (
-            <ProductDescription 
-              descriptionHtml={descriptionHtml} 
-              className="lg:hidden"
-            />
+            <div className="lg:hidden">
+              <h2 className="text-2xl font-semibold">Detalles del producto</h2>
+              <div
+                className="prose prose-sm sm:prose dark:prose-invert sm:max-w-4xl mt-7"
+                dangerouslySetInnerHTML={{
+                  __html: descriptionHtml || '',
+                }}
+              />
+            </div>
           )}
 
-          {/* Technical Specifications - Mobile only (desktop shows below description) */}
-          <div className="lg:hidden">
-            <ProductSpecs metafields={metafields} />
-          </div>
+          {/* Technical Specifications */}
+          <ProductSpecs metafields={metafields} />
 
           {/* Product reviews */}
           <ProductReviews product={product} />
@@ -691,7 +693,7 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
       
       {/* Large cards with variant images */}
       {hasVariantImages ? (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3">
           {option.optionValues.map(
             ({
               name: value,
