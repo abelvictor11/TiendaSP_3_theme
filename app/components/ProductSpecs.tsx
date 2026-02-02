@@ -11,56 +11,57 @@ interface Spec {
 }
 
 interface ProductSpecsProps {
-  dimensiones?: string;
-  pesoMaxUsuario?: string;
-  tipoResistencia?: string;
-  nivelesResistencia?: string;
-  potenciaMotor?: string;
-  pesoProducto?: string;
-  garantia?: string;
-  nivelRuido?: string;
-  conectividad?: string;
-  certificaciones?: string;
-  plegable?: boolean;
-  requiereElectricidad?: boolean;
-  fichaTecnicaPdf?: string;
-  videoProducto?: string;
+  cuadro?: string;
+  horquilla?: string;
+  frenos?: string;
+  cambios?: string;
+  ruedas?: string;
+  manillar?: string;
+  potencia?: string;
+  punos?: string;
+  direccion?: string;
+  tijaSillin?: string;
+  sillin?: string;
+  neumaticos?: string;
+  modelo?: string;
+  especificaciones?: string;
   className?: string;
 }
 
 const ProductSpecs: FC<ProductSpecsProps> = ({
-  dimensiones,
-  pesoMaxUsuario,
-  tipoResistencia,
-  nivelesResistencia,
-  potenciaMotor,
-  pesoProducto,
-  garantia,
-  nivelRuido,
-  conectividad,
-  certificaciones,
-  plegable,
-  requiereElectricidad,
-  fichaTecnicaPdf,
-  videoProducto,
+  cuadro,
+  horquilla,
+  frenos,
+  cambios,
+  ruedas,
+  manillar,
+  potencia,
+  punos,
+  direccion,
+  tijaSillin,
+  sillin,
+  neumaticos,
+  modelo,
+  especificaciones,
   className = '',
 }) => {
   const specs: Spec[] = [
-    {label: 'Dimensiones', value: dimensiones},
-    {label: 'Peso máx. usuario', value: pesoMaxUsuario},
-    {label: 'Tipo de resistencia', value: tipoResistencia},
-    {label: 'Niveles de resistencia', value: nivelesResistencia},
-    {label: 'Potencia motor', value: potenciaMotor},
-    {label: 'Peso del producto', value: pesoProducto},
-    {label: 'Garantía', value: garantia},
-    {label: 'Nivel de ruido', value: nivelRuido},
-    {label: 'Conectividad', value: conectividad},
-    {label: 'Certificaciones', value: certificaciones},
-    {label: 'Plegable', value: plegable !== undefined ? (plegable ? 'Sí' : 'No') : undefined},
-    {label: 'Requiere electricidad', value: requiereElectricidad !== undefined ? (requiereElectricidad ? 'Sí' : 'No') : undefined},
+    {label: 'Modelo', value: modelo},
+    {label: 'Cuadro', value: cuadro},
+    {label: 'Horquilla', value: horquilla},
+    {label: 'Frenos', value: frenos},
+    {label: 'Cambios', value: cambios},
+    {label: 'Ruedas', value: ruedas},
+    {label: 'Manillar', value: manillar},
+    {label: 'Potencia', value: potencia},
+    {label: 'Puños', value: punos},
+    {label: 'Dirección', value: direccion},
+    {label: 'Tija de Sillín', value: tijaSillin},
+    {label: 'Sillín', value: sillin},
+    {label: 'Neumáticos', value: neumaticos},
   ].filter((spec) => spec.value);
 
-  if (specs.length === 0 && !fichaTecnicaPdf && !videoProducto) return null;
+  if (specs.length === 0 && !especificaciones) return null;
 
   return (
     <div className={`${className}`}>
@@ -87,32 +88,12 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
         </div>
       )}
 
-      {/* Downloads & Video */}
-      {(fichaTecnicaPdf || videoProducto) && (
-        <div className="flex flex-wrap gap-3 mt-6">
-          {fichaTecnicaPdf && (
-            <a
-              href={fichaTecnicaPdf}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors text-sm font-medium"
-            >
-              <ArrowDownTrayIcon className="w-5 h-5" />
-              Descargar Ficha Técnica
-            </a>
-          )}
-          {videoProducto && (
-            <a
-              href={videoProducto}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium"
-            >
-              <PlayCircleIcon className="w-5 h-5" />
-              Ver Video del Producto
-            </a>
-          )}
-        </div>
+      {/* Rich Text Specifications */}
+      {especificaciones && (
+        <div 
+          className="prose prose-sm dark:prose-invert max-w-none mt-6"
+          dangerouslySetInnerHTML={{__html: especificaciones}}
+        />
       )}
     </div>
   );

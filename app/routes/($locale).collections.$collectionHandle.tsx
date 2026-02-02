@@ -131,7 +131,7 @@ export default function Collection() {
         </div>
       )}
 
-      <div className="container pt-6 lg:pt-8">
+      <div className="container-fluid px-6 pt-6 lg:pt-8">
         <div className="space-y-6 lg:space-y-8">
           {/* HEADING */}
           <div>
