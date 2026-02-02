@@ -69,14 +69,14 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) =
               className="relative w-full"
             >
               <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-black">
+                <span className="bg-black rounded-full text-white absolute left-2 top-1/2 -translate-y-1/2 text-black">
                   <MagnifyingGlassIcon />
                 </span>
                 <input
                   type="search"
                   name="q"
                   placeholder="Buscar productos..."
-                  className="w-full h-11 pl-12 pr-4 text-sm bg-slate-50 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
+                  className="w-full h-11 pl-12 pr-4 border-none bg-slate-100 text-sm bg-slate-50 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
                 />
               </div>
             </Form>
