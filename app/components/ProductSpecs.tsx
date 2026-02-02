@@ -1,70 +1,76 @@
 import {type FC} from 'react';
-import {
-  ArrowDownTrayIcon,
-  PlayCircleIcon,
-} from '@heroicons/react/24/outline';
 
-interface Spec {
-  label: string;
-  value: string | null | undefined;
-  icon?: string;
+interface Metafield {
+  key: string;
+  namespace: string;
+  value: string | null;
 }
 
 interface ProductSpecsProps {
-  cuadro?: string;
-  horquilla?: string;
-  frenos?: string;
-  cambios?: string;
-  ruedas?: string;
-  manillar?: string;
-  potencia?: string;
-  punos?: string;
-  direccion?: string;
-  tijaSillin?: string;
-  sillin?: string;
-  neumaticos?: string;
-  modelo?: string;
-  especificaciones?: string;
+  metafields?: Metafield[];
   className?: string;
 }
 
+const METAFIELD_LABELS: Record<string, string> = {
+  modelo: 'Modelo',
+  cuadro: 'Marco',
+  horquilla: 'Horquilla',
+  frenos: 'Frenos',
+  cambios: 'Cambios',
+  ruedas: 'Ruedas',
+  manillar: 'Manillar',
+  potencia: 'Potencia',
+  pu_os: 'Puños',
+  direcci_n: 'Dirección',
+  tija_de_sill_n: 'Tija de Sillín',
+  sill_n: 'Sillín',
+  neum_ticos: 'Neumáticos',
+  condici_n: 'Condición',
+  genero: 'Género',
+  material: 'Material',
+  modalidad: 'Modalidad',
+  tamanollanta: 'Tamaño Llanta',
+  potencia_motor: 'Potencia Motor',
+  grupo: 'Grupo',
+  suspenci_n: 'Suspensión',
+  tipo_de_suspenci_n: 'Tipo de Suspensión',
+  pedales: 'Pedales',
+  suspensi_n_delantera: 'Suspensión Delantera',
+  llantas: 'Llantas',
+  transmisi_n: 'Transmisión',
+  bielas_y_pedalier: 'Bielas y Pedalier',
+  cadena: 'Cadena',
+  casette: 'Casette',
+};
+
 const ProductSpecs: FC<ProductSpecsProps> = ({
-  cuadro,
-  horquilla,
-  frenos,
-  cambios,
-  ruedas,
-  manillar,
-  potencia,
-  punos,
-  direccion,
-  tijaSillin,
-  sillin,
-  neumaticos,
-  modelo,
-  especificaciones,
+  metafields = [],
   className = '',
 }) => {
-  const specs: Spec[] = [
-    {label: 'Modelo', value: modelo},
-    {label: 'Cuadro', value: cuadro},
-    {label: 'Horquilla', value: horquilla},
-    {label: 'Frenos', value: frenos},
-    {label: 'Cambios', value: cambios},
-    {label: 'Ruedas', value: ruedas},
-    {label: 'Manillar', value: manillar},
-    {label: 'Potencia', value: potencia},
-    {label: 'Puños', value: punos},
-    {label: 'Dirección', value: direccion},
-    {label: 'Tija de Sillín', value: tijaSillin},
-    {label: 'Sillín', value: sillin},
-    {label: 'Neumáticos', value: neumaticos},
-  ].filter((spec) => spec.value);
+  const specs = (metafields || [])
+    .filter((m) => m && m.value && m.key !== 'highlights' && m.key !== 'especificaciones' && m.namespace === 'custom')
+    .map((m) => {
+      let displayValue = m.value || '';
+      try {
+        const parsed = JSON.parse(m.value || '');
+        if (Array.isArray(parsed)) {
+          displayValue = parsed.join(', ');
+        }
+      } catch {
+        // Not JSON, use as-is
+      }
+      return {
+        label: METAFIELD_LABELS[m.key] || m.key,
+        value: displayValue,
+      };
+    });
+
+  const especificaciones = metafields?.find((m) => m?.key === 'especificaciones')?.value;
 
   if (specs.length === 0 && !especificaciones) return null;
 
   return (
-    <div className={`${className}`}>
+    <div className={className}>
       <h2 className="text-2xl font-bold mb-6" style={{fontFamily: 'Montserrat, sans-serif'}}>
         Especificaciones Técnicas
       </h2>
@@ -75,9 +81,9 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
           {specs.map((spec, index) => (
             <div
               key={index}
-              className="flex justify-between items-center py-3 px-4 bg-slate-50 dark:bg-slate-800 rounded-lg"
+              className="flex flex-col p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50"
             >
-              <span className="text-sm text-slate-500 dark:text-slate-400">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
                 {spec.label}
               </span>
               <span className="text-sm font-semibold text-slate-900 dark:text-white">

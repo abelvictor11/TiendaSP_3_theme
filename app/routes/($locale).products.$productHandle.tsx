@@ -169,22 +169,7 @@ export default function Product() {
     outstanding_features,
     descriptionHtml,
     id,
-    // Specs - Ciclismo
-    specs_cuadro,
-    specs_horquilla,
-    specs_frenos,
-    specs_cambios,
-    specs_ruedas,
-    specs_manillar,
-    specs_potencia,
-    specs_punos,
-    specs_direccion,
-    specs_tija_sillin,
-    specs_sillin,
-    specs_neumaticos,
-    specs_modelo,
-    specs_especificaciones,
-    specs_highlights,
+    metafields,
   } = product as any;
   const {shippingPolicy, refundPolicy, subscriptionPolicy} = shop;
 
@@ -257,7 +242,7 @@ export default function Product() {
 
               {/* Highlights - Quick specs icons */}
               <ProductHighlights
-                highlights={specs_highlights?.value ? JSON.parse(specs_highlights.value) as string[] : undefined}
+                highlights={metafields?.find((m: any) => m?.key === 'highlights')?.value ? JSON.parse(metafields.find((m: any) => m?.key === 'highlights').value) as string[] : undefined}
               />
 
               {/*  */}
@@ -351,22 +336,7 @@ export default function Product() {
           )}
 
           {/* Technical Specifications */}
-          <ProductSpecs
-            cuadro={specs_cuadro?.value}
-            horquilla={specs_horquilla?.value}
-            frenos={specs_frenos?.value}
-            cambios={specs_cambios?.value}
-            ruedas={specs_ruedas?.value}
-            manillar={specs_manillar?.value}
-            potencia={specs_potencia?.value}
-            punos={specs_punos?.value}
-            direccion={specs_direccion?.value}
-            tijaSillin={specs_tija_sillin?.value}
-            sillin={specs_sillin?.value}
-            neumaticos={specs_neumaticos?.value}
-            modelo={specs_modelo?.value}
-            especificaciones={specs_especificaciones?.value}
-          />
+          <ProductSpecs metafields={metafields} />
 
           {/* Product reviews */}
           <ProductReviews product={product} />
@@ -993,50 +963,42 @@ const PRODUCT_FRAGMENT = `#graphql
         namespace
         key
       }
-      # Especificaciones técnicas - Ciclismo
-      specs_cuadro: metafield(namespace: "custom", key:"cuadro") {
-        value
-      }
-      specs_horquilla: metafield(namespace: "custom", key:"horquilla") {
-        value
-      }
-      specs_frenos: metafield(namespace: "custom", key:"frenos") {
-        value
-      }
-      specs_cambios: metafield(namespace: "custom", key:"cambios") {
-        value
-      }
-      specs_ruedas: metafield(namespace: "custom", key:"ruedas") {
-        value
-      }
-      specs_manillar: metafield(namespace: "custom", key:"manillar") {
-        value
-      }
-      specs_potencia: metafield(namespace: "custom", key:"potencia") {
-        value
-      }
-      specs_punos: metafield(namespace: "custom", key:"pu_os") {
-        value
-      }
-      specs_direccion: metafield(namespace: "custom", key:"direcci_n") {
-        value
-      }
-      specs_tija_sillin: metafield(namespace: "custom", key:"tija_de_sill_n") {
-        value
-      }
-      specs_sillin: metafield(namespace: "custom", key:"sill_n") {
-        value
-      }
-      specs_neumaticos: metafield(namespace: "custom", key:"neum_ticos") {
-        value
-      }
-      specs_modelo: metafield(namespace: "custom", key:"modelo") {
-        value
-      }
-      specs_especificaciones: metafield(namespace: "custom", key:"especificaciones") {
-        value
-      }
-      specs_highlights: metafield(namespace: "specs", key:"highlights") {
+      # Especificaciones técnicas - Dinámicas
+      metafields(identifiers: [
+        {namespace: "custom", key: "cuadro"},
+        {namespace: "custom", key: "horquilla"},
+        {namespace: "custom", key: "frenos"},
+        {namespace: "custom", key: "cambios"},
+        {namespace: "custom", key: "ruedas"},
+        {namespace: "custom", key: "manillar"},
+        {namespace: "custom", key: "potencia"},
+        {namespace: "custom", key: "pu_os"},
+        {namespace: "custom", key: "direcci_n"},
+        {namespace: "custom", key: "tija_de_sill_n"},
+        {namespace: "custom", key: "sill_n"},
+        {namespace: "custom", key: "neum_ticos"},
+        {namespace: "custom", key: "modelo"},
+        {namespace: "custom", key: "especificaciones"},
+        {namespace: "custom", key: "condici_n"},
+        {namespace: "custom", key: "genero"},
+        {namespace: "custom", key: "material"},
+        {namespace: "custom", key: "modalidad"},
+        {namespace: "custom", key: "tamanollanta"},
+        {namespace: "custom", key: "potencia_motor"},
+        {namespace: "custom", key: "grupo"},
+        {namespace: "custom", key: "suspenci_n"},
+        {namespace: "custom", key: "tipo_de_suspenci_n"},
+        {namespace: "custom", key: "pedales"},
+        {namespace: "custom", key: "suspensi_n_delantera"},
+        {namespace: "custom", key: "llantas"},
+        {namespace: "custom", key: "transmisi_n"},
+        {namespace: "custom", key: "bielas_y_pedalier"},
+        {namespace: "custom", key: "cadena"},
+        {namespace: "custom", key: "casette"},
+        {namespace: "specs", key: "highlights"}
+      ]) {
+        key
+        namespace
         value
       }
       options {
