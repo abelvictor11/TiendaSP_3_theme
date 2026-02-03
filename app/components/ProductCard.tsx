@@ -91,10 +91,13 @@ const ProductCard: FC<ProductCardProps> = ({
   const {getImageWithCdnUrlByName, getColorHexByName} =
     useGetPublicStoreCdnStaticUrlFromRootLoaderData();
 
-  // State for hovered color - to change product image on hover
-  const [hoveredColor, setHoveredColor] = useState<string | null>(null);
+  // State for selected color on hover - persists until another color is hovered
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  
+  // Current active color: hovered one or first color as default
+  const activeColor = selectedColor || optColor?.values?.[0] || null;
 
-  // Find variant image for hovered color
+  // Find variant image for selected color
   const getVariantImageForColor = (colorName: string | null) => {
     if (!colorName || !variants?.nodes) return null;
     const variant = variants.nodes.find((v) =>
@@ -105,7 +108,7 @@ const ProductCard: FC<ProductCardProps> = ({
     return variant?.image;
   };
 
-  const hoveredVariantImage = getVariantImageForColor(hoveredColor);
+  const selectedVariantImage = selectedColor ? getVariantImageForColor(selectedColor) : null;
 
   const renderColorOptions = () => {
     if (!optColor || optColor.values.length < 2) {
@@ -121,28 +124,16 @@ const ProductCard: FC<ProductCardProps> = ({
           const imageUrl = getImageWithCdnUrlByName(color.replaceAll(/ /g, '_'));
           const colorHex = getColorHexByName(color);
 
-          const isActive = index === 0; // First color is the active/selected one
+          const isActive = color === activeColor;
           
           return (
-            <Link
+            <div
               key={color}
               className={`relative w-5 h-5 rounded-full cursor-pointer p-[2px] transition-all ${
                 isActive ? 'ring-1 ring-black ring-offset-1' : ''
               }`}
               title={color}
-              aria-hidden
-              to={getProductUrlWithSelectedOption({
-                productHandle: product.handle,
-                selectedOptions: [
-                  ...(firstVariant.selectedOptions ?? []),
-                  {
-                    name: 'Color',
-                    value: color,
-                  },
-                ],
-              })}
-              onMouseEnter={() => setHoveredColor(color)}
-              onMouseLeave={() => setHoveredColor(null)}
+              onMouseEnter={() => setSelectedColor(color)}
             >
               <div 
                 className="w-full h-full rounded-full overflow-hidden"
@@ -162,7 +153,7 @@ const ProductCard: FC<ProductCardProps> = ({
                   />
                 )}
               </div>
-            </Link>
+            </div>
           );
         })}
         {optColor.values.length > 5 && (
@@ -274,8 +265,8 @@ const ProductCard: FC<ProductCardProps> = ({
     );
   };
 
-  // Use hovered variant image if hovering, otherwise use default
-  const image = hoveredVariantImage || firstVariant?.image || featuredImage;
+  // Use selected variant image if color is hovered, otherwise use default
+  const image = selectedVariantImage || firstVariant?.image || featuredImage;
 
   return (
     <>
