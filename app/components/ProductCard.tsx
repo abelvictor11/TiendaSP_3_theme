@@ -1,4 +1,4 @@
-import {type FC} from 'react';
+import {type FC, useState} from 'react';
 import Prices from './Prices';
 import {StarIcon} from '@heroicons/react/24/solid';
 import ProductStatus from './ProductStatus';
@@ -91,6 +91,22 @@ const ProductCard: FC<ProductCardProps> = ({
   const {getImageWithCdnUrlByName, getColorHexByName} =
     useGetPublicStoreCdnStaticUrlFromRootLoaderData();
 
+  // State for hovered color - to change product image on hover
+  const [hoveredColor, setHoveredColor] = useState<string | null>(null);
+
+  // Find variant image for hovered color
+  const getVariantImageForColor = (colorName: string | null) => {
+    if (!colorName || !variants?.nodes) return null;
+    const variant = variants.nodes.find((v) =>
+      v.selectedOptions?.some(
+        (opt) => opt.name === 'Color' && opt.value === colorName
+      )
+    );
+    return variant?.image;
+  };
+
+  const hoveredVariantImage = getVariantImageForColor(hoveredColor);
+
   const renderColorOptions = () => {
     if (!optColor || optColor.values.length < 2) {
       return null;
@@ -105,10 +121,14 @@ const ProductCard: FC<ProductCardProps> = ({
           const imageUrl = getImageWithCdnUrlByName(color.replaceAll(/ /g, '_'));
           const colorHex = getColorHexByName(color);
 
+          const isActive = index === 0; // First color is the active/selected one
+          
           return (
             <Link
               key={color}
-              className="relative w-5 h-5 rounded-full cursor-pointer border border-black p-[2px]"
+              className={`relative w-5 h-5 rounded-full cursor-pointer p-[2px] transition-all ${
+                isActive ? 'ring-1 ring-black ring-offset-1' : ''
+              }`}
               title={color}
               aria-hidden
               to={getProductUrlWithSelectedOption({
@@ -121,6 +141,8 @@ const ProductCard: FC<ProductCardProps> = ({
                   },
                 ],
               })}
+              onMouseEnter={() => setHoveredColor(color)}
+              onMouseLeave={() => setHoveredColor(null)}
             >
               <div 
                 className="w-full h-full rounded-full overflow-hidden"
@@ -252,7 +274,8 @@ const ProductCard: FC<ProductCardProps> = ({
     );
   };
 
-  const image = firstVariant?.image || featuredImage;
+  // Use hovered variant image if hovering, otherwise use default
+  const image = hoveredVariantImage || firstVariant?.image || featuredImage;
 
   return (
     <>
