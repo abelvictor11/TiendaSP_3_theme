@@ -237,9 +237,9 @@ function CollectionContent({
 
 
   return (
-    <div className="flex gap-8 lg:h-[calc(100vh-180px)]">
-      {/* Sidebar with Filters */}
-      <div className="hidden lg:block lg:overflow-y-auto lg:sticky lg:top-0 lg:max-h-[calc(100vh-180px)] scrollbar-thin scrollbar-thumb-neutral-300 scrollbar-track-transparent">
+    <div className="flex gap-8">
+      {/* Sidebar with Filters - sticky with independent scroll */}
+      <div className="hidden lg:block lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-32px)] lg:overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 scrollbar-track-transparent">
         <FiltersSidebar
           filters={collection.products.filters as Filter[]}
           appliedFilters={appliedFilters}
@@ -248,7 +248,7 @@ function CollectionContent({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 lg:overflow-y-auto lg:max-h-[calc(100vh-180px)] scrollbar-thin scrollbar-thumb-neutral-300 scrollbar-track-transparent">
+      <div className="flex-1">
         {/* Mobile Filters + Sort */}
         <div className="lg:hidden mb-8">
           <SortFilter
