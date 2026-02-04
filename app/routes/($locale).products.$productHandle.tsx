@@ -227,18 +227,17 @@ export default function Product() {
               />
             </div>
 
-            {/* Product Description - Below images on desktop */}
-            {!!descriptionHtml && (
-              <div className="hidden lg:block mt-10">
-                <h2 className="text-2xl font-semibold">Descripción</h2>
-                <div
-                  className="prose prose-sm sm:prose dark:prose-invert sm:max-w-4xl mt-7"
-                  dangerouslySetInnerHTML={{
-                    __html: descriptionHtml || '',
-                  }}
-                />
+            {/* Product Description - Below images on desktop with "Ver más..." */}
+            <div className="hidden lg:block mt-10">
+              {!!descriptionHtml && (
+                <ProductDescription descriptionHtml={descriptionHtml} />
+              )}
+
+              {/* Technical Specifications - Below description on desktop */}
+              <div className="mt-10">
+                <ProductSpecs metafields={metafields} />
               </div>
-            )}
+            </div>
           </div>
 
           {/* Right Column - Product Info */}
@@ -340,13 +339,15 @@ export default function Product() {
 
         {/* DETAIL AND REVIEW */}
         <div className="mt-12 sm:mt-16 space-y-12 sm:space-y-16">
-          {/* Product description with "Ver más..." toggle */}
-          {!!descriptionHtml && (
-            <ProductDescription descriptionHtml={descriptionHtml} />
-          )}
-
-          {/* Technical Specifications - Below description */}
-          <ProductSpecs metafields={metafields} />
+          {/* Product description - Mobile only (desktop shows in left column) */}
+          <div className="lg:hidden">
+            {!!descriptionHtml && (
+              <ProductDescription descriptionHtml={descriptionHtml} />
+            )}
+            <div className="mt-10">
+              <ProductSpecs metafields={metafields} />
+            </div>
+          </div>
 
           {/* Product reviews */}
           <ProductReviews product={product} />
