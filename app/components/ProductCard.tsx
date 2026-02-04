@@ -23,6 +23,7 @@ import {OkendoStarRating} from '@okendo/shopify-hydrogen';
 import {useAside} from './Aside';
 import {getVariantUrl, useVariantUrl} from '~/lib/variants';
 import {ClientOnly} from './client-only';
+import {VendorLogoWithFallback} from './VendorLogo';
 
 export interface ProductCardProps {
   className?: string;
@@ -362,12 +363,16 @@ const ProductCard: FC<ProductCardProps> = ({
 
 
           <div className="flex-grow mt-1">
-            {/* Marca */}
-          {vendor && (
-            <span className="text-[8px] font-body uppercase tracking-wide" style={{ color: '#000000' }}>
-              {vendor}
-            </span>
-          )}
+            {/* Marca - Logo SVG */}
+            {vendor && (
+              <div className="mb-1">
+                <VendorLogoWithFallback 
+                  vendor={vendor} 
+                  className="h-4 w-auto max-w-[70px] object-contain"
+                  fallbackClassName="text-[10px] font-medium uppercase tracking-wide text-black"
+                />
+              </div>
+            )}
             <h5
               className="nc-ProductCard__title transition-colors"
               style={{
@@ -477,7 +482,7 @@ export const ProductBadge = ({
     return (
       <ProductStatus
         className={className}
-        color="green"
+        color="black"
         status="Nuevo"
         icon="SparklesIcon"
       />

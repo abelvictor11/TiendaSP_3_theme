@@ -1,0 +1,68 @@
+import {type FC} from 'react';
+
+interface VendorLogoProps {
+  vendor: string;
+  className?: string;
+  fallbackClassName?: string;
+}
+
+const VendorLogo: FC<VendorLogoProps> = ({
+  vendor,
+  className = 'h-5 w-auto',
+  fallbackClassName = 'text-[10px] font-medium uppercase tracking-wide text-slate-600',
+}) => {
+  if (!vendor) return null;
+
+  const vendorSlug = vendor.toLowerCase().replace(/\s+/g, '-');
+  const logoUrl = `/cdn/shop/t/73/assets/${vendorSlug}.svg`;
+
+  return (
+    <img
+      src={logoUrl}
+      alt={vendor}
+      className={className}
+      onError={(e) => {
+        const target = e.target as HTMLImageElement;
+        target.style.display = 'none';
+        const fallback = target.nextElementSibling as HTMLElement;
+        if (fallback) {
+          fallback.style.display = 'block';
+        }
+      }}
+    />
+  );
+};
+
+export const VendorLogoWithFallback: FC<VendorLogoProps> = ({
+  vendor,
+  className = 'h-5 w-auto max-w-[80px] object-contain',
+  fallbackClassName = 'text-[10px] font-medium uppercase tracking-wide text-slate-600',
+}) => {
+  if (!vendor) return null;
+
+  const vendorSlug = vendor.toLowerCase().replace(/\s+/g, '-');
+  const logoUrl = `/cdn/shop/t/73/assets/${vendorSlug}.svg`;
+
+  return (
+    <div className="vendor-logo-container">
+      <img
+        src={logoUrl}
+        alt={vendor}
+        className={className}
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.style.display = 'none';
+          const fallback = target.nextElementSibling as HTMLElement;
+          if (fallback) {
+            fallback.style.display = 'inline';
+          }
+        }}
+      />
+      <span className={fallbackClassName} style={{display: 'none'}}>
+        {vendor}
+      </span>
+    </div>
+  );
+};
+
+export default VendorLogo;

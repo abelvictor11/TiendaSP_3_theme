@@ -5,6 +5,7 @@ import ButtonSecondary from './Button/ButtonSecondary';
 import {type CommonProductCardFragment} from 'storefrontapi.generated';
 import Prices from './Prices';
 import clsx from 'clsx';
+import {VendorLogoWithFallback} from './VendorLogo';
 
 export interface ProductCardCollectionProps {
   product: CommonProductCardFragment;
@@ -60,9 +61,15 @@ const ProductCardCollection: FC<ProductCardCollectionProps> = ({
         <div>
           <div className="absolute inset-4 lg:inset-8 flex flex-col">
             <div className="max-w-[18rem]">
-              {/* Vendor/Category */}
+              {/* Vendor/Category - Logo SVG */}
               {vendor && (
-                <span className={`block text-sm text-white/90 font-medium`}>{vendor}</span>
+                <div className="mb-1">
+                  <VendorLogoWithFallback 
+                    vendor={vendor} 
+                    className="h-5 w-auto max-w-[80px] object-contain brightness-0 invert"
+                    fallbackClassName="text-sm text-white/90 font-medium"
+                  />
+                </div>
               )}
               
               {/* Product Title */}

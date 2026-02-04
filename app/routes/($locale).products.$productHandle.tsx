@@ -62,6 +62,7 @@ import ProductSpecs from '~/components/ProductSpecs';
 import ProductDescription from '~/components/ProductDescription';
 import CreditCalculator from '~/components/CreditCalculator';
 import {ComplementaryProducts} from '~/components/ComplementaryProducts';
+import {VendorLogoWithFallback} from '~/components/VendorLogo';
 
 export const headers = routeHeaders;
 
@@ -489,11 +490,15 @@ export function ProductForm({
           </nav>
         )}
 
-        {/* Vendor */}
+        {/* Vendor - Logo SVG */}
         {product.vendor && (
-          <p className="text-xs font-normal text-black uppercase tracking-wide mb-2">
-            {product.vendor}
-          </p>
+          <div className="mb-2">
+            <VendorLogoWithFallback 
+              vendor={product.vendor} 
+              className="h-6 w-auto max-w-[100px] object-contain"
+              fallbackClassName="text-xs font-normal text-black uppercase tracking-wide"
+            />
+          </div>
         )}
 
         <h1
