@@ -17,6 +17,18 @@ const PRIORITY_KEYS = [
   'peso_producto', 'garantia', 'tamano_de_rinshopi', 'tipo_de_frenoshopi'
 ];
 
+const EXCLUDED_FROM_HIGHLIGHTS = [
+  'condiciones', 'alto', 'ancho', 'largo', 'altoshopi', 'anchoshopi', 'largoshopi',
+  'anchodelproductoshopi', 'bielas', 'cadena', 'pedalier', 'sillin', 'tija_de_sillin',
+  'horquilla', 'tenedor', 'sensor', 'cassette', 'manillar', 'ruedas', 'frenos',
+  'suspensi_n', 'ancho_suspension', 'ancho_llanta_compatibleshopi', 'angulo_de_rotacion',
+  'espigo', 'tensor', 'palancas', 'posicion_manzana', 'posicionshopi', 'recorrido',
+  'numero_de_eslabonesshopi', 'numero_de_herramientas', 'tipo_de_eje', 'tipo_de_plato',
+  'tipodeplato', 'tipo_de_valvulashopi', 'tipo_de_bloqueo', 'tipo_de_aperturashopi',
+  'sistema_de_fijacionshopi', 'sistema_de_montajeshopi', 'caracteristicas_del_material',
+  'contiene_lactosashopi', 'libre_de_glutenshopi', 'es_veganoshopi', 'consistenciashopi'
+];
+
 const HIGHLIGHT_LABELS: Record<string, string> = {
   generoshopi: 'Género',
   materialshopi: 'Material',
@@ -47,8 +59,9 @@ const ProductHighlights: FC<ProductHighlightsProps> = ({
   className = '',
 }) => {
   // Build highlights from metafields that have values, prioritizing certain keys
+  // Exclude technical specs that should only appear in ProductSpecs
   const allHighlights = (metafields || [])
-    .filter((m) => m && m.value && m.key !== 'highlights' && m.key !== 'especificaciones' && (m.namespace === 'custom' || m.namespace === 'global'))
+    .filter((m) => m && m.value && m.key !== 'highlights' && m.key !== 'especificaciones' && !EXCLUDED_FROM_HIGHLIGHTS.includes(m.key) && (m.namespace === 'custom' || m.namespace === 'global'))
     .map((m) => {
       let displayValue = m.value || '';
       try {
