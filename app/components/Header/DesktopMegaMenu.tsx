@@ -45,7 +45,7 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
       {/* Menu Content */}
       <div className="flex flex-1 overflow-hidden">
         {/* Level 1 - Main Categories */}
-        <div className="w-[280px] border-r border-slate-200 overflow-y-auto py-6">
+        <div className={`w-[280px] overflow-y-auto py-6 ${hasLevel2 ? 'border-r border-slate-200' : ''}`}>
           <nav className="space-y-1 px-4">
             {menuItems.map((item) => {
               const hasChildren = 'items' in item && (item as any).items && (item as any).items.length > 0;
