@@ -44,15 +44,16 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) =
     >
       <div className="px-8">
         <div className="h-16 sm:h-20 flex justify-between items-center">
-          {/* Mobile Menu Button */}
-          <div className="flex items-center lg:hidden">
+          {/* Mobile Menu Button with text */}
+          <div className="flex items-center">
             <button
-              className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-black dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-colors"
               onClick={() => open('mobile')}
               type="button"
               aria-label="Open menu"
             >
-              <Bars3Icon className="w-6 h-6" aria-hidden="true" />
+              <Bars3Icon className="w-5 h-5" aria-hidden="true" />
+              <span className="text-sm font-medium hidden sm:inline">Menú</span>
             </button>
           </div>
 

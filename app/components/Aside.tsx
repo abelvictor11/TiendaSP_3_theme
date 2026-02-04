@@ -30,6 +30,7 @@ export function Aside({
   children,
   renderHeading,
   type,
+  noHeader = false,
 }: {
   heading?: string;
   // open: boolean;
@@ -38,6 +39,7 @@ export function Aside({
   children: React.ReactNode;
   renderHeading?: () => React.ReactNode;
   type: AsideType;
+  noHeader?: boolean;
 }) {
   const offScreen = {
     right: 'translate-x-full',
@@ -83,37 +85,41 @@ export function Aside({
                 leaveTo={offScreen[openFrom]}
               >
                 <DialogPanel className="w-screen max-w-lg text-left align-middle transition-all transform shadow-xl h-screen bg-white overflow-hidden">
-                  <div className="flex flex-col h-full px-5 md:px-8">
-                    <header
-                      className={`flex-shrink-0 flex items-center h-16 md:h-20 border-b border-slate-100 ${
-                        isHeading ? 'justify-between' : 'justify-end'
-                      }`}
-                    >
-                      {isHeading && (
-                        <DialogTitle>
-                          {!!heading && (
-                            <span
-                              className="text-xl font-semibold"
-                              id="cart-contents"
-                            >
-                              {heading}
-                            </span>
-                          )}
-                          {renderHeading && renderHeading()}
-                        </DialogTitle>
-                      )}
-
-                      <button
-                        type="button"
-                        className="p-4 -m-4 transition text-primary hover:text-primary/50"
-                        onClick={onClose}
-                        data-test="close-cart"
+                  {noHeader ? (
+                    <div className="h-full">{children}</div>
+                  ) : (
+                    <div className="flex flex-col h-full px-5 md:px-8">
+                      <header
+                        className={`flex-shrink-0 flex items-center h-16 md:h-20 border-b border-slate-100 ${
+                          isHeading ? 'justify-between' : 'justify-end'
+                        }`}
                       >
-                        <IconClose aria-label="Close panel" />
-                      </button>
-                    </header>
-                    <div className="flex-1 overflow-hidden">{children}</div>
-                  </div>
+                        {isHeading && (
+                          <DialogTitle>
+                            {!!heading && (
+                              <span
+                                className="text-xl font-semibold"
+                                id="cart-contents"
+                              >
+                                {heading}
+                              </span>
+                            )}
+                            {renderHeading && renderHeading()}
+                          </DialogTitle>
+                        )}
+
+                        <button
+                          type="button"
+                          className="p-4 -m-4 transition text-primary hover:text-primary/50"
+                          onClick={onClose}
+                          data-test="close-cart"
+                        >
+                          <IconClose aria-label="Close panel" />
+                        </button>
+                      </header>
+                      <div className="flex-1 overflow-hidden">{children}</div>
+                    </div>
+                  )}
                 </DialogPanel>
               </TransitionChild>
             </div>
