@@ -150,6 +150,7 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
       featuredCollectionsFirst: 1,
       socialsFirst: 10,
       headerMenuHandle: 'main-menu',
+      ultraMenuHandle: 'ultra-menu',
       language,
       country,
     },
@@ -357,10 +358,14 @@ const HEADER_QUERY = `#graphql
     $language: LanguageCode
     $country: CountryCode
     $headerMenuHandle: String!
+    $ultraMenuHandle: String!
     $featuredCollectionsFirst: Int!
     $socialsFirst: Int!
   ) @inContext(language: $language, country: $country) {
     headerMenu: menu(handle: $headerMenuHandle) {
+      ...Menu
+    }
+    ultraMenu: menu(handle: $ultraMenuHandle) {
       ...Menu
     }
     featuredCollections: collections(first: $featuredCollectionsFirst, sortKey: UPDATED_AT) {

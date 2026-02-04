@@ -140,8 +140,8 @@ function DesktopMenuAside() {
   return (
     <Aside openFrom="left" type="desktop-menu" noHeader>
       <HeaderMenuDataWrap>
-        {({headerMenu}) => (
-          <DesktopMegaMenu menu={headerMenu} onClose={close} />
+        {({ultraMenu}) => (
+          <DesktopMegaMenu menu={ultraMenu} onClose={close} />
         )}
       </HeaderMenuDataWrap>
     </Aside>
@@ -156,8 +156,10 @@ export function HeaderMenuDataWrap({
   children: ({
     headerData,
     headerMenu,
+    ultraMenu,
   }: {
     headerMenu: EnhancedMenu | null | undefined;
+    ultraMenu: EnhancedMenu | null | undefined;
     headerData: HeaderMenuQuery;
   }) => React.ReactNode;
 }) {
@@ -184,7 +186,17 @@ export function HeaderMenuDataWrap({
                 )
               : undefined;
 
-          return headerData ? children({headerData, headerMenu: menu}) : null;
+          const ultraMenuParsed =
+            (headerData as any)?.ultraMenu && shop?.primaryDomain?.url && env
+              ? parseMenu(
+                  (headerData as any).ultraMenu,
+                  shop?.primaryDomain?.url,
+                  env,
+                  customPrefixes,
+                )
+              : undefined;
+
+          return headerData ? children({headerData, headerMenu: menu, ultraMenu: ultraMenuParsed}) : null;
         }}
       </Await>
     </Suspense>
