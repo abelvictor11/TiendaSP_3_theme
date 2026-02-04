@@ -12,24 +12,43 @@ interface ProductHighlightsProps {
   className?: string;
 }
 
-const HIGHLIGHT_KEYS = ['talla', 'material', 'generoshopi', 'modalidad', 'disciplina', 'peso_producto'];
+const PRIORITY_KEYS = [
+  'generoshopi', 'materialshopi', 'tipo_de_bicicletashopi', 'velocidades',
+  'peso_producto', 'garantia', 'tamano_de_rinshopi', 'tipo_de_frenoshopi'
+];
 
 const HIGHLIGHT_LABELS: Record<string, string> = {
-  talla: 'Talla',
-  material: 'Material',
   generoshopi: 'Género',
-  modalidad: 'Modalidad',
-  disciplina: 'Disciplina',
+  materialshopi: 'Material',
+  tipo_de_bicicletashopi: 'Tipo',
+  velocidades: 'Velocidades',
   peso_producto: 'Peso',
+  garantia: 'Garantía',
+  tamano_de_rinshopi: 'Rin',
+  tipo_de_frenoshopi: 'Frenos',
+  marco: 'Marco',
+  motor: 'Motor',
+  bater_a: 'Batería',
+  llantas: 'Llantas',
 };
+
+function formatKeyToLabel(key: string): string {
+  if (HIGHLIGHT_LABELS[key]) return HIGHLIGHT_LABELS[key];
+  return key
+    .replace(/shopi$/i, '')
+    .replace(/_/g, ' ')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
 
 const ProductHighlights: FC<ProductHighlightsProps> = ({
   metafields = [],
   className = '',
 }) => {
-  // Build highlights from metafields that have values
-  const highlights = (metafields || [])
-    .filter((m) => m && m.value && HIGHLIGHT_KEYS.includes(m.key))
+  // Build highlights from metafields that have values, prioritizing certain keys
+  const allHighlights = (metafields || [])
+    .filter((m) => m && m.value && m.key !== 'highlights' && m.key !== 'especificaciones' && (m.namespace === 'custom' || m.namespace === 'global'))
     .map((m) => {
       let displayValue = m.value || '';
       try {
@@ -41,9 +60,20 @@ const ProductHighlights: FC<ProductHighlightsProps> = ({
         // Not JSON, use as-is
       }
       return {
-        label: HIGHLIGHT_LABELS[m.key] || m.key,
+        key: m.key,
+        label: formatKeyToLabel(m.key),
         value: displayValue,
+        priority: PRIORITY_KEYS.indexOf(m.key),
       };
+    });
+
+  // Sort by priority (prioritized keys first, then alphabetically)
+  const highlights = allHighlights
+    .sort((a, b) => {
+      if (a.priority >= 0 && b.priority >= 0) return a.priority - b.priority;
+      if (a.priority >= 0) return -1;
+      if (b.priority >= 0) return 1;
+      return a.label.localeCompare(b.label);
     });
 
   if (highlights.length === 0) return null;

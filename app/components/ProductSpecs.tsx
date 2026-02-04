@@ -64,24 +64,99 @@ function parseRichText(jsonString: string): string {
 }
 
 const METAFIELD_LABELS: Record<string, string> = {
-  talla: 'Talla',
-  material: 'Material',
-  generoshopi: 'Género',
-  modalidad: 'Modalidad',
-  disciplina: 'Disciplina',
-  tipo_de_cierre: 'Tipo de Cierre',
-  estilo_de_manga: 'Estilo de Manga',
-  peso_producto: 'Peso',
+  // Custom namespace
+  alto: 'Alto',
+  ancho: 'Ancho',
+  bater_a: 'Batería',
+  bielas: 'Bielas',
+  cadena: 'Cadena',
+  cassette: 'Cassette',
+  frenos: 'Frenos',
+  horquilla: 'Horquilla',
+  largo: 'Largo',
+  llantas: 'Llantas',
+  manillar: 'Manillar',
   marco: 'Marco',
   motor: 'Motor',
-  bater_a: 'Batería',
-  tenedor: 'Tenedor',
-  manillar: 'Manillar',
-  llantas: 'Llantas',
-  suspensi_n: 'Suspensión',
+  pedalier: 'Pedalier',
+  ruedas: 'Ruedas',
   sensor: 'Sensor',
-  cassette: 'Cassette',
+  sillin: 'Sillín',
+  suspensi_n: 'Suspensión',
+  tenedor: 'Tenedor',
+  tija_de_sillin: 'Tija de Sillín',
+  // Global namespace
+  altoshopi: 'Alto',
+  ancho_llanta_compatibleshopi: 'Ancho Llanta Compatible',
+  ancho_suspension: 'Ancho Suspensión',
+  anchodelproductoshopi: 'Ancho del Producto',
+  anchoshopi: 'Ancho',
+  angulo_de_rotacion: 'Ángulo de Rotación',
+  anoshopi: 'Año',
+  bluetooth: 'Bluetooth',
+  cadencia: 'Cadencia',
+  cantidad_de_huecos: 'Cantidad de Huecos',
+  capacidad_de_la_bateria: 'Capacidad de Batería',
+  capacidadshopi: 'Capacidad',
+  caracteristicas_del_material: 'Características del Material',
+  color_del_lente: 'Color del Lente',
+  compatible_monitor_de_ritmo_cardiaco: 'Compatible Monitor Cardíaco',
+  condiciones: 'Condiciones',
+  consistenciashopi: 'Consistencia',
+  contiene_lactosashopi: 'Contiene Lactosa',
+  desbloqueo: 'Desbloqueo',
+  es_veganoshopi: 'Es Vegano',
+  espigo: 'Espigo',
+  forma_del_candadoshopi: 'Forma del Candado',
+  fotocromatica: 'Fotocromática',
+  funciones_adicionalesshopi: 'Funciones Adicionales',
+  garantia: 'Garantía',
+  generoshopi: 'Género',
+  guantesldedo: 'Guantes Dedo',
+  largoshopi: 'Largo',
+  libre_de_glutenshopi: 'Libre de Gluten',
+  mapas: 'Mapas',
+  materialshopi: 'Material',
+  microfono: 'Micrófono',
+  numero_de_eslabonesshopi: 'Número de Eslabones',
+  numero_de_herramientas: 'Número de Herramientas',
+  palancas: 'Palancas',
+  pantalla: 'Pantalla',
+  peso_producto: 'Peso',
+  posicion_manzana: 'Posición Manzana',
+  posicionshopi: 'Posición',
+  'potencia_e-bike': 'Potencia E-Bike',
+  recorrido: 'Recorrido',
+  sensibilidadshopi: 'Sensibilidad',
+  sistema_de_fijacionshopi: 'Sistema de Fijación',
+  sistema_de_montajeshopi: 'Sistema de Montaje',
+  tamano_de_rinshopi: 'Tamaño de Rin',
+  tensor: 'Tensor',
+  tipo_de_alimentacionshopi: 'Tipo de Alimentación',
+  tipo_de_aperturashopi: 'Tipo de Apertura',
+  tipo_de_bicicletashopi: 'Tipo de Bicicleta',
+  tipo_de_bloqueo: 'Tipo de Bloqueo',
+  tipo_de_eje: 'Tipo de Eje',
+  tipo_de_frenoshopi: 'Tipo de Frenos',
+  tipo_de_mangashopi: 'Tipo de Manga',
+  tipo_de_plato: 'Tipo de Plato',
+  tipo_de_valvulashopi: 'Tipo de Válvula',
+  tipodeplato: 'Tipo de Plato',
+  tubelessshopi: 'Tubeless',
+  velocidades: 'Velocidades',
+  wirelesscicloc: 'Wireless',
 };
+
+function formatKeyToLabel(key: string): string {
+  if (METAFIELD_LABELS[key]) return METAFIELD_LABELS[key];
+  return key
+    .replace(/shopi$/i, '')
+    .replace(/_/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
+}
 
 const ProductSpecs: FC<ProductSpecsProps> = ({
   metafields = [],
@@ -100,7 +175,7 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
         // Not JSON, use as-is
       }
       return {
-        label: METAFIELD_LABELS[m.key] || m.key,
+        label: formatKeyToLabel(m.key),
         value: displayValue,
       };
     });
