@@ -71,13 +71,13 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) =
             >
               <div className="relative">
                 <span className="bg-black rounded-full text-white absolute left-2 top-1/2 -translate-y-1/2 text-black">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 32 32" fill="none"><title>Icon</title><path stroke="#252525" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" d="M28 27.9999L22.2 22.1999M25.3333 14.6667C25.3333 20.5577 20.5577 25.3333 14.6667 25.3333C8.77563 25.3333 4 20.5577 4 14.6667C4 8.77563 8.77563 4 14.6667 4C20.5577 4 25.3333 8.77563 25.3333 14.6667Z"></path></svg>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 32 32" fill="none"><title>Icon</title><path stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" d="M28 27.9999L22.2 22.1999M25.3333 14.6667C25.3333 20.5577 20.5577 25.3333 14.6667 25.3333C8.77563 25.3333 4 20.5577 4 14.6667C4 8.77563 8.77563 4 14.6667 4C20.5577 4 25.3333 8.77563 25.3333 14.6667Z"></path></svg>
                 </span>
                 <input
                   type="search"
                   name="q"
                   placeholder="Buscar productos..."
-                  className="w-full h-11 pl-12 pr-4 border-none bg-slate-100 text-sm bg-slate-50 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
+                  className="w-full h-11 pl-12 pr-4 border-none bg-[#ededed] text-sm bg-slate-50 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
                 />
               </div>
             </Form>
