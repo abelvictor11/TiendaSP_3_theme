@@ -100,7 +100,7 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
     throw new Error('Expected product handle to be defined');
   }
 
-  const [{shop, product}] = await Promise.all([
+  const [{shop, product}, creditCalculatorData] = await Promise.all([
     context.storefront.query(PRODUCT_QUERY, {
       variables: {
         handle: productHandle,
@@ -109,6 +109,7 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
         language: context.storefront.i18n.language,
       },
     }),
+    context.storefront.query(CREDIT_CALCULATOR_QUERY).catch(() => null),
   ]);
 
   if (!product?.id) {
@@ -125,6 +126,11 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
     url: request.url,
   });
 
+  // Parse credit calculator config from metaobject
+  const creditCalculatorConfig = creditCalculatorData?.metaobject
+    ? parseCreditCalculatorConfig(creditCalculatorData.metaobject)
+    : null;
+
   return {
     shop,
     variants,
@@ -132,6 +138,7 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
     recommended,
     storeDomain: shop.primaryDomain.url,
     seo,
+    creditCalculatorConfig,
   };
 }
 
@@ -164,7 +171,7 @@ export const meta = ({matches}: MetaArgs<typeof loader>) => {
 };
 
 export default function Product() {
-  const {product, shop, recommended, variants, routePromise, storeDomain, helpBannerPromise} =
+  const {product, shop, recommended, variants, routePromise, storeDomain, helpBannerPromise, creditCalculatorConfig} =
     useLoaderData<typeof loader>();
   const {
     media,
@@ -312,7 +319,11 @@ export default function Product() {
 
               {/* Credit Calculator */}
               {selectedVariant?.price && (
-                <CreditCalculator price={selectedVariant.price} className="mb-5" />
+                <CreditCalculator 
+                  price={selectedVariant.price} 
+                  config={creditCalculatorConfig}
+                  className="mb-5" 
+                />
               )}
 
               {/* ---------- 6 ----------  */}
@@ -1145,6 +1156,49 @@ async function getRecommendedProducts(
   mergedProducts.splice(originalProduct, 1);
 
   return {nodes: mergedProducts};
+}
+
+const CREDIT_CALCULATOR_QUERY = `#graphql
+  query creditCalculatorConfig {
+    metaobject(handle: {type: "ciseco--credit_calculator", handle: "credit-calculator-config"}) {
+      id
+      enabled: field(key: "enabled") { value }
+      title: field(key: "title") { value }
+      monthly_label: field(key: "monthly_label") { value }
+      installments_label: field(key: "installments_label") { value }
+      partners_title: field(key: "partners_title") { value }
+      installment_options: field(key: "installment_options") { value }
+      partners: field(key: "partners") { value }
+      benefits: field(key: "benefits") { value }
+    }
+  }
+` as const;
+
+function parseCreditCalculatorConfig(metaobject: any) {
+  if (!metaobject) return null;
+  
+  try {
+    return {
+      enabled: metaobject.enabled?.value === 'true',
+      title: metaobject.title?.value || 'Opciones de financiación',
+      monthlyLabel: metaobject.monthly_label?.value || 'Cuota mensual',
+      installmentsLabel: metaobject.installments_label?.value || 'Pagar en',
+      partnersTitle: metaobject.partners_title?.value || 'Métodos de crédito disponibles',
+      installmentOptions: metaobject.installment_options?.value 
+        ? JSON.parse(metaobject.installment_options.value) 
+        : [3, 6, 12, 24],
+      defaultInstallments: 12,
+      partners: metaobject.partners?.value 
+        ? JSON.parse(metaobject.partners.value) 
+        : [],
+      benefits: metaobject.benefits?.value 
+        ? JSON.parse(metaobject.benefits.value) 
+        : [],
+    };
+  } catch (e) {
+    console.error('Error parsing credit calculator config:', e);
+    return null;
+  }
 }
 
 const PDP_HELP_BANNER_QUERY = `#graphql
