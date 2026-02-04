@@ -9,6 +9,7 @@ import {type EnhancedMenu, parseMenu, useIsHomePath} from '~/lib/utils';
 import MainNav from './Header/MainNav';
 import NavigationBar from './Header/NavigationBar';
 import NavMobile from './Header/NavMobile';
+import DesktopMegaMenu from './Header/DesktopMegaMenu';
 import StickyHeader from './Header/StickyHeader';
 import Logo from './Logo';
 import Footer from './Footer';
@@ -52,6 +53,7 @@ function MyHeader() {
     <>
       <CartAside />
       <MobileMenuAside />
+      <DesktopMenuAside />
       <TopBarMarqueeWrap />
       {/* Main Header - Not sticky, scrolls with page */}
       <div className="nc-Header z-40 relative">
@@ -129,6 +131,19 @@ function MobileMenuAside() {
   return (
     <Aside openFrom="left" type="mobile" heading="Menu">
       <NavMobile onClose={close} />
+    </Aside>
+  );
+}
+
+function DesktopMenuAside() {
+  const {close} = useAside();
+  return (
+    <Aside openFrom="left" type="desktop-menu" noHeader>
+      <HeaderMenuDataWrap>
+        {({headerMenu}) => (
+          <DesktopMegaMenu menu={headerMenu} onClose={close} />
+        )}
+      </HeaderMenuDataWrap>
     </Aside>
   );
 }

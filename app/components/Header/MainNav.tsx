@@ -44,16 +44,26 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) =
     >
       <div className="px-8">
         <div className="h-16 sm:h-20 flex justify-between items-center">
-          {/* Mobile Menu Button with text */}
+          {/* Menu Button - Mobile opens NavMobile, Desktop opens MegaMenu */}
           <div className="flex items-center">
+            {/* Mobile button - opens mobile menu */}
             <button
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-colors"
+              className="lg:hidden flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-colors"
               onClick={() => open('mobile')}
               type="button"
               aria-label="Open menu"
             >
               <Bars3Icon className="w-5 h-5" aria-hidden="true" />
-              <span className="text-sm font-medium hidden sm:inline">Menú</span>
+            </button>
+            {/* Desktop button - opens mega menu */}
+            <button
+              className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-colors"
+              onClick={() => open('desktop-menu')}
+              type="button"
+              aria-label="Open menu"
+            >
+              <Bars3Icon className="w-5 h-5" aria-hidden="true" />
+              <span className="text-sm font-medium">Menú</span>
             </button>
           </div>
 
