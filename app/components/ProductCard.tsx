@@ -226,7 +226,7 @@ const ProductCard: FC<ProductCardProps> = ({
       return null;
     }
     return (
-      <div className="absolute bottom-0 group-hover:bottom-4 inset-x-1 flex justify-center opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+      <div className="absolute hidden bottom-0 group-hover:bottom-4 inset-x-1 flex justify-center opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
         {firstVariant.availableForSale && (
           <ClientOnly>
             <AddToCartButton
@@ -272,7 +272,7 @@ const ProductCard: FC<ProductCardProps> = ({
   return (
     <>
       <div
-        className={`ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] hover:border-[#1a1a1a] rounded-2xl overflow-hidden ${className}`}
+        className={`ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] hover:border-[#1a1a1a] rounded-md overflow-hidden ${className}`}
       >
         <Link to={variantUrl} className="absolute inset-0" prefetch="viewport">
           <span className="sr-only">{title}</span>
@@ -331,7 +331,7 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="py-5 px-2.5 flex-grow flex flex-col dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+        <div className="px-2.5 flex-grow flex flex-col dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
           
           
           {renderColorOptions()}
@@ -550,7 +550,7 @@ export const ProductCardSkeleton = ({
   return (
     <div
       className={
-        `ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] rounded-2xl overflow-hidden ` + className
+        `ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] rounded-md overflow-hidden ` + className
       }
     >
       <div className="relative flex-shrink-0 bg-slate-50 border border-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group p-5">

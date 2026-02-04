@@ -84,7 +84,7 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
                   to={link}
                   className="snap-start shrink-0 group"
                 >
-                  <div className="relative w-[200px] sm:w-[240px] lg:w-[280px] aspect-[3/4] rounded-xl overflow-hidden">
+                  <div className="relative w-[200px] sm:w-[240px] lg:w-[280px] aspect-[3/4] rounded-md overflow-hidden">
                     {/* Background Image */}
                     {imageData ? (
                       <Image
