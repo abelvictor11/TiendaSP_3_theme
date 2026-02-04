@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import {Link} from '@remix-run/react';
 import {XMarkIcon, ChevronRightIcon} from '@heroicons/react/24/outline';
 import {type EnhancedMenu, type ParentEnhancedMenuItem} from '~/lib/utils';
-import Logo from '../Logo';
 
 interface DesktopMegaMenuProps {
   menu: EnhancedMenu | null | undefined;
@@ -32,8 +31,8 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
 
   return (
     <div className="fixed inset-y-0 left-0 z-50 bg-white shadow-2xl flex flex-col transition-all duration-300" style={{width: `${visibleColumns * 280}px`, maxWidth: '100vw'}}>
-      {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
+      {/* Header - Solo botón cerrar */}
+      <div className="flex items-center px-6 py-4 border-b border-slate-200">
         <button
           onClick={onClose}
           className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
@@ -41,7 +40,6 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
         >
           <XMarkIcon className="w-6 h-6" />
         </button>
-        <Logo />
       </div>
 
       {/* Menu Content */}
