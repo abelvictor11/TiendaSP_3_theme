@@ -239,6 +239,7 @@ export default function Product() {
                 productOptions={productOptions}
                 selectedVariant={selectedVariant}
                 storeDomain={storeDomain}
+                metafields={metafields}
               />
 
               {/* Highlights - Quick specs icons */}
@@ -399,14 +400,22 @@ export default function Product() {
   );
 }
 
+interface Metafield {
+  key: string;
+  namespace: string;
+  value: string | null;
+}
+
 export function ProductForm({
   productOptions,
   selectedVariant,
   storeDomain,
+  metafields,
 }: {
   productOptions: MappedProductOptions[];
   selectedVariant: ProductFragment['selectedOrFirstAvailableVariant'];
   storeDomain: string;
+  metafields?: Metafield[];
 }) {
   const {open} = useAside();
   const {product} = useLoaderData<typeof loader>();
@@ -579,19 +588,57 @@ export function ProductForm({
               </div>
             </div>
           )}
-          {/* {!isOutOfStock && (
-            <ShopPayButton
-              width="100%"
-              className="rounded-full"
-              variantIds={[selectedVariant?.id!]}
-              storeDomain={storeDomain}
-            />
-          )} */}
+
+          {/* Highlights below Add to Cart */}
+          <ProductFormHighlights metafields={metafields} />
         </div>
       )}
     </>
   );
 }
+
+const ProductFormHighlights = ({metafields}: {metafields?: Metafield[]}) => {
+  const highlightsMetafield = metafields?.find(
+    (m) => m?.key === 'highlights' && m?.namespace === 'specs'
+  );
+  
+  if (!highlightsMetafield?.value) return null;
+  
+  let highlights: string[] = [];
+  try {
+    const parsed = JSON.parse(highlightsMetafield.value);
+    if (Array.isArray(parsed)) {
+      highlights = parsed as string[];
+    }
+  } catch {
+    return null;
+  }
+  
+  if (highlights.length === 0) return null;
+  
+  return (
+    <div className="flex flex-col gap-2 pt-2">
+      {highlights.map((item, index) => (
+        <div key={index} className="flex items-start gap-2">
+          <svg
+            className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5"
+            fill="currentColor"
+            viewBox="0 0 20 20"
+          >
+            <path
+              fillRule="evenodd"
+              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+              clipRule="evenodd"
+            />
+          </svg>
+          <span className="text-sm text-slate-700 dark:text-slate-300">
+            {item}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
   if (!option.optionValues.length) {
@@ -891,38 +938,25 @@ const PRODUCT_FRAGMENT = `#graphql
         namespace
         key
       }
-      # Especificaciones técnicas - Dinámicas
+      # Especificaciones técnicas - Dinámicas (Cyclewear)
       metafields(identifiers: [
-        {namespace: "custom", key: "cuadro"},
-        {namespace: "custom", key: "horquilla"},
-        {namespace: "custom", key: "frenos"},
-        {namespace: "custom", key: "cambios"},
-        {namespace: "custom", key: "ruedas"},
+        {namespace: "global", key: "talla"},
+        {namespace: "global", key: "material"},
+        {namespace: "global", key: "generoshopi"},
+        {namespace: "global", key: "modalidad"},
+        {namespace: "global", key: "disciplina"},
+        {namespace: "global", key: "tipo_de_cierre"},
+        {namespace: "global", key: "estilo_de_manga"},
+        {namespace: "global", key: "peso_producto"},
+        {namespace: "custom", key: "marco"},
+        {namespace: "custom", key: "motor"},
+        {namespace: "custom", key: "bater_a"},
+        {namespace: "custom", key: "tenedor"},
         {namespace: "custom", key: "manillar"},
-        {namespace: "custom", key: "potencia"},
-        {namespace: "custom", key: "pu_os"},
-        {namespace: "custom", key: "direcci_n"},
-        {namespace: "custom", key: "tija_de_sill_n"},
-        {namespace: "custom", key: "sill_n"},
-        {namespace: "custom", key: "neum_ticos"},
-        {namespace: "custom", key: "modelo"},
-        {namespace: "custom", key: "especificaciones"},
-        {namespace: "custom", key: "condici_n"},
-        {namespace: "custom", key: "genero"},
-        {namespace: "custom", key: "material"},
-        {namespace: "custom", key: "modalidad"},
-        {namespace: "custom", key: "tamanollanta"},
-        {namespace: "custom", key: "potencia_motor"},
-        {namespace: "custom", key: "grupo"},
-        {namespace: "custom", key: "suspenci_n"},
-        {namespace: "custom", key: "tipo_de_suspenci_n"},
-        {namespace: "custom", key: "pedales"},
-        {namespace: "custom", key: "suspensi_n_delantera"},
         {namespace: "custom", key: "llantas"},
-        {namespace: "custom", key: "transmisi_n"},
-        {namespace: "custom", key: "bielas_y_pedalier"},
-        {namespace: "custom", key: "cadena"},
-        {namespace: "custom", key: "casette"},
+        {namespace: "custom", key: "suspensi_n"},
+        {namespace: "custom", key: "sensor"},
+        {namespace: "custom", key: "cassette"},
         {namespace: "specs", key: "highlights"}
       ]) {
         key

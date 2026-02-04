@@ -12,15 +12,15 @@ interface ProductHighlightsProps {
   className?: string;
 }
 
-const HIGHLIGHT_KEYS = ['modalidad', 'material', 'genero', 'condici_n', 'grupo', 'tamanollanta'];
+const HIGHLIGHT_KEYS = ['talla', 'material', 'generoshopi', 'modalidad', 'disciplina', 'peso_producto'];
 
 const HIGHLIGHT_LABELS: Record<string, string> = {
-  modalidad: 'Modalidad',
+  talla: 'Talla',
   material: 'Material',
-  genero: 'Género',
-  condici_n: 'Condición',
-  grupo: 'Grupo',
-  tamanollanta: 'Tamaño Llanta',
+  generoshopi: 'Género',
+  modalidad: 'Modalidad',
+  disciplina: 'Disciplina',
+  peso_producto: 'Peso',
 };
 
 const ProductHighlights: FC<ProductHighlightsProps> = ({

@@ -64,35 +64,23 @@ function parseRichText(jsonString: string): string {
 }
 
 const METAFIELD_LABELS: Record<string, string> = {
-  modelo: 'Modelo',
-  cuadro: 'Marco',
-  horquilla: 'Horquilla',
-  frenos: 'Frenos',
-  cambios: 'Cambios',
-  ruedas: 'Ruedas',
-  manillar: 'Manillar',
-  potencia: 'Potencia',
-  pu_os: 'Puños',
-  direcci_n: 'Dirección',
-  tija_de_sill_n: 'Tija de Sillín',
-  sill_n: 'Sillín',
-  neum_ticos: 'Neumáticos',
-  condici_n: 'Condición',
-  genero: 'Género',
+  talla: 'Talla',
   material: 'Material',
+  generoshopi: 'Género',
   modalidad: 'Modalidad',
-  tamanollanta: 'Tamaño Llanta',
-  potencia_motor: 'Potencia Motor',
-  grupo: 'Grupo',
-  suspenci_n: 'Suspensión',
-  tipo_de_suspenci_n: 'Tipo de Suspensión',
-  pedales: 'Pedales',
-  suspensi_n_delantera: 'Suspensión Delantera',
+  disciplina: 'Disciplina',
+  tipo_de_cierre: 'Tipo de Cierre',
+  estilo_de_manga: 'Estilo de Manga',
+  peso_producto: 'Peso',
+  marco: 'Marco',
+  motor: 'Motor',
+  bater_a: 'Batería',
+  tenedor: 'Tenedor',
+  manillar: 'Manillar',
   llantas: 'Llantas',
-  transmisi_n: 'Transmisión',
-  bielas_y_pedalier: 'Bielas y Pedalier',
-  cadena: 'Cadena',
-  casette: 'Casette',
+  suspensi_n: 'Suspensión',
+  sensor: 'Sensor',
+  cassette: 'Cassette',
 };
 
 const ProductSpecs: FC<ProductSpecsProps> = ({
@@ -100,7 +88,7 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
   className = '',
 }) => {
   const specs = (metafields || [])
-    .filter((m) => m && m.value && m.key !== 'highlights' && m.key !== 'especificaciones' && m.namespace === 'custom')
+    .filter((m) => m && m.value && m.key !== 'highlights' && m.key !== 'especificaciones' && (m.namespace === 'custom' || m.namespace === 'global'))
     .map((m) => {
       let displayValue = m.value || '';
       try {
