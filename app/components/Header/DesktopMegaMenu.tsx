@@ -30,7 +30,7 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
   const visibleColumns = 1 + (hasLevel2 ? 1 : 0) + (hasLevel3 ? 1 : 0);
 
   return (
-    <div className="fixed inset-y-0 left-0 z-50 bg-white shadow-2xl flex flex-col transition-all duration-300" style={{width: `${visibleColumns * 280}px`, maxWidth: '100vw'}}>
+    <div className="h-full bg-white shadow-2xl flex flex-col transition-all duration-300" style={{width: `${visibleColumns * 280}px`, maxWidth: '100vw'}}>
       {/* Header - Solo botón cerrar */}
       <div className="flex items-center px-6 py-4 border-b border-slate-200">
         <button

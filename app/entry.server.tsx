@@ -76,6 +76,7 @@ export default async function handleRequest(
       'https://d3hw6dc1ow8pp2.cloudfront.net',
       'https://cdn-static.okendo.io',
       'https://surveys.okendo.io',
+      'https://use.typekit.net',
     ],
 
     fontSrc: [
@@ -86,6 +87,8 @@ export default async function handleRequest(
       'https://cdn.shopify.com',
       'https://cdn-static.okendo.io',
       'https://surveys.okendo.io',
+      'https://use.typekit.net',
+      'https://p.typekit.net',
     ],
     connectSrc: [
       "'self'",
