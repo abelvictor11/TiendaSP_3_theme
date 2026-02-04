@@ -8,7 +8,7 @@ import type {
 import {type EnhancedMenu, parseMenu, useIsHomePath} from '~/lib/utils';
 import MainNav from './Header/MainNav';
 import NavigationBar from './Header/NavigationBar';
-import MobileMenuSidebar from './Header/MobileMenuSidebar';
+import NavMobile from './Header/NavMobile';
 import StickyHeader from './Header/StickyHeader';
 import Logo from './Logo';
 import Footer from './Footer';
@@ -127,12 +127,8 @@ function CartAside() {
 function MobileMenuAside() {
   const {close} = useAside();
   return (
-    <Aside openFrom="left" type="mobile" noHeader>
-      <HeaderMenuDataWrap>
-        {({headerMenu}) => (
-          <MobileMenuSidebar menu={headerMenu?.items} onClose={close} />
-        )}
-      </HeaderMenuDataWrap>
+    <Aside openFrom="left" type="mobile" heading="Menu">
+      <NavMobile onClose={close} />
     </Aside>
   );
 }
