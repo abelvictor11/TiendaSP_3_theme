@@ -60,6 +60,7 @@ import ProductHelpBanner from '~/components/ProductHelpBanner';
 import ProductHighlights from '~/components/ProductHighlights';
 import ProductSpecs from '~/components/ProductSpecs';
 import ProductDescription from '~/components/ProductDescription';
+import CreditCalculator from '~/components/CreditCalculator';
 import {ComplementaryProducts} from '~/components/ComplementaryProducts';
 
 export const headers = routeHeaders;
@@ -307,6 +308,11 @@ export default function Product() {
                     ></div>
                   </div>
                 </div>
+              )}
+
+              {/* Credit Calculator */}
+              {selectedVariant?.price && (
+                <CreditCalculator price={selectedVariant.price} className="mb-5" />
               )}
 
               {/* ---------- 6 ----------  */}
