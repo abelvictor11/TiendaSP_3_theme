@@ -18,13 +18,22 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
   // Get active level 1 item
   const activeL1Item = menuItems.find((item) => item.id === activeLevel1) as ParentEnhancedMenuItem | undefined;
   
-  // Get active level 2 item
+  // Get active level 2 item  
   const activeL2Item = activeL1Item?.items?.find((item) => item.id === activeLevel2) as ParentEnhancedMenuItem | undefined;
 
+  // Check if level 2 has items
+  const hasLevel2 = activeL1Item && activeL1Item.items && activeL1Item.items.length > 0;
+  
+  // Check if level 3 has items
+  const hasLevel3 = activeL2Item && (activeL2Item as any).items && (activeL2Item as any).items.length > 0;
+
+  // Calculate number of visible columns
+  const visibleColumns = 1 + (hasLevel2 ? 1 : 0) + (hasLevel3 ? 1 : 0);
+
   return (
-    <div className="fixed inset-0 z-50 bg-white">
+    <div className="fixed inset-y-0 left-0 z-50 bg-white shadow-2xl flex flex-col transition-all duration-300" style={{width: `${visibleColumns * 280}px`, maxWidth: '100vw'}}>
       {/* Header */}
-      <div className="flex items-center justify-between px-8 py-4 border-b border-slate-200">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200">
         <button
           onClick={onClose}
           className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
@@ -32,15 +41,13 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
         >
           <XMarkIcon className="w-6 h-6" />
         </button>
-        <div className="absolute right-8">
-          <Logo />
-        </div>
+        <Logo />
       </div>
 
       {/* Menu Content */}
-      <div className="flex h-[calc(100vh-73px)]">
+      <div className="flex flex-1 overflow-hidden">
         {/* Level 1 - Main Categories */}
-        <div className="w-64 border-r border-slate-200 overflow-y-auto py-6">
+        <div className="w-[280px] border-r border-slate-200 overflow-y-auto py-6">
           <nav className="space-y-1 px-4">
             {menuItems.map((item) => {
               const hasChildren = 'items' in item && (item as any).items && (item as any).items.length > 0;
@@ -111,7 +118,7 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
 
         {/* Level 2 - Subcategories */}
         {activeL1Item && activeL1Item.items && activeL1Item.items.length > 0 && (
-          <div className="w-64 border-r border-slate-200 overflow-y-auto py-6 bg-slate-50">
+          <div className="w-[280px] border-r border-slate-200 overflow-y-auto py-6 bg-slate-50">
             <nav className="space-y-1 px-4">
               {activeL1Item.items.map((item) => {
                 const hasChildren = 'items' in item && (item as any).items && (item as any).items.length > 0;
@@ -149,13 +156,13 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
         )}
 
         {/* Level 3 - Sub-subcategories */}
-        {activeL2Item && activeL2Item.items && activeL2Item.items.length > 0 && (
-          <div className="w-64 overflow-y-auto py-6 bg-white">
+        {hasLevel3 && (
+          <div className="w-[280px] overflow-y-auto py-6 bg-white border-r border-slate-200">
             <nav className="space-y-1 px-4">
-              {activeL2Item.items.map((item) => (
+              {(activeL2Item as any).items.map((item: any) => (
                 <Link
                   key={item.id}
-                  to={(item as any).to || '#'}
+                  to={item.to || '#'}
                   onClick={onClose}
                   className="block px-4 py-3 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
                 >
@@ -165,9 +172,22 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
             </nav>
           </div>
         )}
+      </div>
 
-        {/* Empty space / Featured area */}
-        <div className="flex-1 bg-slate-50" />
+      {/* Footer with quick actions */}
+      <div className="border-t border-slate-200 px-6 py-4 flex items-center gap-6">
+        <Link to="/account" onClick={onClose} className="flex items-center gap-2 text-sm text-slate-700 hover:text-slate-900">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+          </svg>
+          Cuenta
+        </Link>
+        <Link to="/wishlist" onClick={onClose} className="flex items-center gap-2 text-sm text-slate-700 hover:text-slate-900">
+          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+          </svg>
+          Favoritos
+        </Link>
       </div>
     </div>
   );
