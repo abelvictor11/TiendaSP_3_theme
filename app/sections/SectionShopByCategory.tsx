@@ -75,6 +75,7 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
             {categoryNodes.map((category: any, index: number) => {
               const imageData = category.image?.image;
               const title = category.title?.value;
+              const subtitle = category.subtitle?.value;
               const link = category.link?.value || '#';
 
               return (
@@ -98,11 +99,18 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
                     {/* Overlay */}
                     <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
                     
-                    {/* Title */}
-                    <div className="absolute inset-0 flex items-center justify-center p-4">
-                      <h3 className="text-white text-lg sm:text-xl font-medium text-center">
-                        {title}
-                      </h3>
+                    {/* Title & Subtitle */}
+                    <div className="absolute inset-0 flex items-end justify-center p-4">
+                      <div className="text-center">
+                        <h3 className="text-white text-lg sm:text-xl font-medium">
+                          {title}
+                        </h3>
+                        {subtitle && (
+                          <p className="text-white/80 text-sm mt-1">
+                            {subtitle}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </Link>
@@ -164,6 +172,10 @@ export const SECTION_SHOP_BY_CATEGORY_FRAGMENT = `#graphql
             id
             type
             title: field(key: "title") {
+              key
+              value
+            }
+            subtitle: field(key: "subtitle") {
               key
               value
             }
