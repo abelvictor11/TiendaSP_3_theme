@@ -84,7 +84,7 @@ export function Aside({
                 leaveFrom="translate-x-0"
                 leaveTo={offScreen[openFrom]}
               >
-                <DialogPanel className={`text-left align-middle transition-all transform shadow-xl h-screen overflow-hidden ${type === 'desktop-menu' ? 'bg-transparent' : 'w-screen max-w-lg bg-white'}`}>
+                <DialogPanel className={`text-left align-middle transition-all transform shadow-xl h-screen overflow-hidden ${type === 'desktop-menu' ? 'w-auto' : 'w-screen max-w-lg bg-white'}`}>
                   {noHeader ? (
                     <div className="h-full">{children}</div>
                   ) : (
