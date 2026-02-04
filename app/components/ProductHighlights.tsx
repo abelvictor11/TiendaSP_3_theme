@@ -26,7 +26,8 @@ const EXCLUDED_FROM_HIGHLIGHTS = [
   'numero_de_eslabonesshopi', 'numero_de_herramientas', 'tipo_de_eje', 'tipo_de_plato',
   'tipodeplato', 'tipo_de_valvulashopi', 'tipo_de_bloqueo', 'tipo_de_aperturashopi',
   'sistema_de_fijacionshopi', 'sistema_de_montajeshopi', 'caracteristicas_del_material',
-  'contiene_lactosashopi', 'libre_de_glutenshopi', 'es_veganoshopi', 'consistenciashopi'
+  'contiene_lactosashopi', 'libre_de_glutenshopi', 'es_veganoshopi', 'consistenciashopi',
+  'marco', 'motor', 'bater_a', 'llantas'
 ];
 
 const HIGHLIGHT_LABELS: Record<string, string> = {

@@ -59,6 +59,7 @@ import {SlashIcon} from '@heroicons/react/24/solid';
 import ProductHelpBanner from '~/components/ProductHelpBanner';
 import ProductHighlights from '~/components/ProductHighlights';
 import ProductSpecs from '~/components/ProductSpecs';
+import ProductDescription from '~/components/ProductDescription';
 import {ComplementaryProducts} from '~/components/ComplementaryProducts';
 
 export const headers = routeHeaders;
@@ -322,20 +323,12 @@ export default function Product() {
 
         {/* DETAIL AND REVIEW */}
         <div className="mt-12 sm:mt-16 space-y-12 sm:space-y-16">
-          {/* Product description - Mobile only (desktop shows below images) */}
+          {/* Product description with "Ver más..." toggle */}
           {!!descriptionHtml && (
-            <div className="lg:hidden">
-              <h2 className="text-2xl font-semibold">Detalles del producto</h2>
-              <div
-                className="prose prose-sm sm:prose dark:prose-invert sm:max-w-4xl mt-7"
-                dangerouslySetInnerHTML={{
-                  __html: descriptionHtml || '',
-                }}
-              />
-            </div>
+            <ProductDescription descriptionHtml={descriptionHtml} />
           )}
 
-          {/* Technical Specifications */}
+          {/* Technical Specifications - Below description */}
           <ProductSpecs metafields={metafields} />
 
           {/* Product reviews */}
