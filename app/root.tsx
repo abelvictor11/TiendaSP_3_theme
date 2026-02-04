@@ -200,6 +200,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
         <link rel="stylesheet" href={styles}></link>
         <link rel="stylesheet" href={stylesFont}></link>
         <link rel="stylesheet" href={rcSliderStyle}></link>
+        <link rel="stylesheet" href="https://use.typekit.net/nfu3xaw.css"></link>
 
         <Meta />
         <Links />

@@ -24,7 +24,7 @@ export default {
     fontFamily: {
       display: ['var(--font-display)', ...defaultTheme.fontFamily.sans],
       body: ['var(--font-body)', ...defaultTheme.fontFamily.sans],
-      headline: ['F37Bolton', ...defaultTheme.fontFamily.sans],
+      headline: ['"proxima-nova"', 'sans-serif'],
     },
     container: {
       center: true,
