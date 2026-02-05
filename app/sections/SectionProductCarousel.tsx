@@ -21,7 +21,7 @@ export function SectionProductCarousel(props: any) {
   const sliderRef = useRef<HTMLDivElement>(null);
   const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
 
-  const products = collection?.reference?.products?.nodes || [];
+  const products = collection?.reference?.productCarouselSection?.nodes || [];
 
   if (!products.length) return null;
 
@@ -142,75 +142,16 @@ export const SECTION_PRODUCT_CAROUSEL_FRAGMENT = `#graphql
       value
     }
     collection: field(key: "collection") {
+      type
       key
       reference {
         ... on Collection {
           id
           title
           handle
-          products(first: 12) {
+          productCarouselSection: products(first: 12) {
             nodes {
-              id
-              title
-              handle
-              publishedAt
-              availableForSale
-              vendor
-              tags
-              options {
-                name
-                values
-              }
-              priceRange {
-                minVariantPrice {
-                  amount
-                  currencyCode
-                }
-                maxVariantPrice {
-                  amount
-                  currencyCode
-                }
-              }
-              compareAtPriceRange {
-                minVariantPrice {
-                  amount
-                  currencyCode
-                }
-                maxVariantPrice {
-                  amount
-                  currencyCode
-                }
-              }
-              variants(first: 1) {
-                nodes {
-                  id
-                  availableForSale
-                  selectedOptions {
-                    name
-                    value
-                  }
-                  price {
-                    amount
-                    currencyCode
-                  }
-                  compareAtPrice {
-                    amount
-                    currencyCode
-                  }
-                  image {
-                    url
-                    altText
-                    width
-                    height
-                  }
-                }
-              }
-              featuredImage {
-                url
-                altText
-                width
-                height
-              }
+              ...CommonProductCard
             }
           }
         }

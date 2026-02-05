@@ -80,8 +80,8 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) =
               className="relative w-full"
             >
               <div className="relative">
-                <span className="bg-black rounded-full text-white absolute left-2 top-1/2 -translate-y-1/2 text-black">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 32 32" fill="none"><title>Icon</title><path stroke="#fff" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" d="M28 27.9999L22.2 22.1999M25.3333 14.6667C25.3333 20.5577 20.5577 25.3333 14.6667 25.3333C8.77563 25.3333 4 20.5577 4 14.6667C4 8.77563 8.77563 4 14.6667 4C20.5577 4 25.3333 8.77563 25.3333 14.6667Z"></path></svg>
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-black">
+                  <svg className="w-4 h-4" width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M22 22L20 20" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
                 </span>
                 <input
                   type="search"
