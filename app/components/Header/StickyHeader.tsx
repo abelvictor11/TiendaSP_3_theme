@@ -86,7 +86,7 @@ const StickyHeader: FC<StickyHeaderProps> = ({className = ''}) => {
                   type="search"
                   name="q"
                   placeholder="Buscar..."
-                  className="w-full h-9 pl-9 pr-4 text-sm bg-slate-100 dark:bg-slate-800 border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder:text-slate-400"
+                  className="w-full h-9 pl-9 pr-4 text-sm bg-[#ededed] dark:bg-slate-800 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder:text-slate-400"
                 />
               </Form>
             </div>

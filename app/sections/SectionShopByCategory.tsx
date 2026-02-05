@@ -73,7 +73,7 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
             className="flex gap-4 overflow-x-auto snap-x snap-mandatory hiddenScrollbar pb-4"
           >
             {categoryNodes.map((category: any, index: number) => {
-              const mediaRef = category.media?.reference;
+              const mediaRef = category.media?.reference || category.image?.reference;
               const imageData = mediaRef?.image;
               const videoSources = mediaRef?.sources;
               const isVideo = !!videoSources;
@@ -197,6 +197,25 @@ export const SECTION_SHOP_BY_CATEGORY_FRAGMENT = `#graphql
             link: field(key: "link") {
               key
               value
+            }
+            image: field(key: "image") {
+              key
+              reference {
+                ... on MediaImage {
+                  image {
+                    url
+                    altText
+                    width
+                    height
+                  }
+                }
+                ... on Video {
+                  sources {
+                    url
+                    mimeType
+                  }
+                }
+              }
             }
             media: field(key: "media") {
               key
