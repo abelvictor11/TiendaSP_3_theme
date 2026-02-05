@@ -73,7 +73,10 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
             className="flex gap-4 overflow-x-auto snap-x snap-mandatory hiddenScrollbar pb-4"
           >
             {categoryNodes.map((category: any, index: number) => {
-              const imageData = category.image?.image;
+              const mediaRef = category.media?.reference;
+              const imageData = mediaRef?.image;
+              const videoSources = mediaRef?.sources;
+              const isVideo = !!videoSources;
               const title = category.title?.value;
               const subtitle = category.subtitle?.value;
               const link = category.link?.value || '#';
@@ -84,13 +87,25 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
                   to={link}
                   className="snap-start shrink-0 group"
                 >
-                  <div className="relative w-[200px] sm:w-[240px] lg:w-[280px] aspect-[3/4] rounded-md overflow-hidden">
-                    {/* Background Image */}
-                    {imageData ? (
+                  <div className="relative w-[200px] sm:w-[240px] lg:w-[340px] aspect-[3/4] rounded-md overflow-hidden">
+                    {/* Background Media (Image or Video) */}
+                    {isVideo ? (
+                      <video
+                        className="absolute inset-0 w-full h-full object-cover"
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                      >
+                        {videoSources.map((source: any, idx: number) => (
+                          <source key={idx} src={source.url} type={source.mimeType} />
+                        ))}
+                      </video>
+                    ) : imageData ? (
                       <Image
                         data={imageData}
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        sizes="(max-width: 640px) 200px, (max-width: 1024px) 240px, 280px"
+                        sizes="(max-width: 640px) 200px, (max-width: 1024px) 240px, 340px"
                       />
                     ) : (
                       <div className="absolute inset-0 bg-slate-200" />
@@ -183,11 +198,22 @@ export const SECTION_SHOP_BY_CATEGORY_FRAGMENT = `#graphql
               key
               value
             }
-            image: field(key: "image") {
+            media: field(key: "media") {
               key
               reference {
                 ... on MediaImage {
-                  ...MediaImage
+                  image {
+                    url
+                    altText
+                    width
+                    height
+                  }
+                }
+                ... on Video {
+                  sources {
+                    url
+                    mimeType
+                  }
                 }
               }
             }
