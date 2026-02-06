@@ -11,10 +11,13 @@ export default async function handleRequest(
   remixContext: EntryContext,
   context: AppLoadContext,
 ) {
+  const storeDomain = context.env.PUBLIC_STORE_DOMAIN;
+  const shopifyDomain = context.env.PUBLIC_SHOPIFY_STORE_DOMAIN || storeDomain;
+
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
     shop: {
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
-      storeDomain: context.env.PUBLIC_STORE_DOMAIN,
+      storeDomain,
     },
     scriptSrc: [
       'self',
@@ -57,6 +60,8 @@ export default async function handleRequest(
       'https://dov7r31oq5dkj.cloudfront.net',
       'https://cdn-static.okendo.io',
       'https://surveys.okendo.io',
+      `https://${shopifyDomain}`,
+      'https://*.myshopify.com',
     ],
     mediaSrc: [
       "'self'",
@@ -66,6 +71,8 @@ export default async function handleRequest(
       'https://d3g5hqndtiniji.cloudfront.net',
       'https://dov7r31oq5dkj.cloudfront.net',
       'https://cdn-static.okendo.io',
+      `https://${shopifyDomain}`,
+      'https://*.myshopify.com',
     ],
     styleSrc: [
       "'self'",
