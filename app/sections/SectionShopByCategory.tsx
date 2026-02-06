@@ -92,6 +92,11 @@ export function SectionShopByCategory(props: any) {
                         muted
                         loop
                         playsInline
+                        ref={(el) => {
+                          if (el) {
+                            el.play().catch(() => {});
+                          }
+                        }}
                       >
                         {videoSources.map((source: any, idx: number) => (
                           <source key={idx} src={source.url} type={source.mimeType} />
