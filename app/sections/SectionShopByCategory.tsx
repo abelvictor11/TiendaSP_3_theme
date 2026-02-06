@@ -1,23 +1,18 @@
 import {Image} from '@shopify/hydrogen';
 import {Link} from '~/components/Link';
-import {parseSection} from '~/utils/parseSection';
-import type {SectionShopByCategoryFragment} from 'storefrontapi.generated';
 import {useRef, useState, useEffect} from 'react';
 import useSnapSlider from '~/hooks/useSnapSlider';
 import {ArrowRightIcon} from '@heroicons/react/24/outline';
 
-export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
-  const section = parseSection<SectionShopByCategoryFragment, {}>(props);
-
+export function SectionShopByCategory(props: any) {
   const {
     heading,
     show_all_text,
     show_all_link,
     categories,
-  } = section;
-
-  const background_color = (props as any).background_color?.value;
-  const heading_color = (props as any).heading_color?.value;
+    background_color,
+    heading_color,
+  } = props;
 
   const sliderRef = useRef<HTMLDivElement>(null);
   const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
@@ -37,21 +32,21 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
     return () => slider.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const categoryNodes = categories?.nodes || [];
+  const categoryNodes = categories?.references?.nodes || [];
 
   if (!categoryNodes.length) return null;
 
   return (
     <section 
       className="nc-SectionShopByCategory"
-      style={background_color ? {backgroundColor: background_color} : undefined}
+      style={background_color?.value ? {backgroundColor: background_color.value} : undefined}
     >
       <div className="container-fluid">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <h2 
             className="container font-headline text-2xl md:text-3xl font-normal"
-            style={heading_color ? {color: heading_color} : undefined}
+            style={heading_color?.value ? {color: heading_color.value} : undefined}
           >
             {heading?.value || 'Shop by Category'}
           </h2>
@@ -73,11 +68,10 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
             className="flex gap-4 overflow-x-auto snap-x snap-mandatory hiddenScrollbar pb-4"
           >
             {categoryNodes.map((category: any, index: number) => {
-              // After parseSection lift('reference'), reference is removed and its content is lifted up
-              // So category.image.image (not category.image.reference.image)
-              // And category.media.sources (not category.media.reference.sources)
-              const imageData = category.media?.image || category.image?.image;
-              const videoSources = category.media?.sources || category.image?.sources;
+              // Access reference directly since we're not using parseSection
+              const mediaRef = category.media?.reference || category.image?.reference;
+              const imageData = mediaRef?.image;
+              const videoSources = mediaRef?.sources;
               const isVideo = !!videoSources;
               const title = category.title?.value;
               const subtitle = category.subtitle?.value;

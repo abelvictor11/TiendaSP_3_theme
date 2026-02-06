@@ -16,9 +16,10 @@ const VendorLogo: FC<VendorLogoProps> = ({
   if (!vendor) return null;
 
   const rootData = useRouteLoaderData<RootLoader>('root');
-  const storeDomain = rootData?.publicStoreSubdomain || '';
+  const storeDomain = rootData?.publicStoreSubdomain || rootData?.publicStoreDomain || '';
   const vendorSlug = vendor.toLowerCase().replace(/\s+/g, '-');
-  const logoUrl = `https://${storeDomain}/cdn/shop/t/73/assets/${vendorSlug}.svg`;
+  const baseUrl = storeDomain.startsWith('http') ? storeDomain : `https://${storeDomain}`;
+  const logoUrl = `${baseUrl}/cdn/shop/t/73/assets/${vendorSlug}.svg`;
 
   return (
     <img
@@ -45,9 +46,10 @@ export const VendorLogoWithFallback: FC<VendorLogoProps> = ({
   if (!vendor) return null;
 
   const rootData = useRouteLoaderData<RootLoader>('root');
-  const storeDomain = rootData?.publicStoreSubdomain || '';
+  const storeDomain = rootData?.publicStoreSubdomain || rootData?.publicStoreDomain || '';
   const vendorSlug = vendor.toLowerCase().replace(/\s+/g, '-');
-  const logoUrl = `https://${storeDomain}/cdn/shop/t/73/assets/${vendorSlug}.svg`;
+  const baseUrl = storeDomain.startsWith('http') ? storeDomain : `https://${storeDomain}`;
+  const logoUrl = `${baseUrl}/cdn/shop/t/73/assets/${vendorSlug}.svg`;
 
   return (
     <div className="vendor-logo-container">
