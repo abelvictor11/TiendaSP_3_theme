@@ -1,22 +1,18 @@
 import {Link} from '~/components/Link';
-import {parseSection} from '~/utils/parseSection';
 import {useRef} from 'react';
 import useSnapSlider from '~/hooks/useSnapSlider';
 import {ArrowLeftIcon, ArrowRightIcon} from '@heroicons/react/24/outline';
 import ProductCard from '~/components/ProductCard';
 
 export function SectionProductCarousel(props: any) {
-  const section = parseSection<any, {}>(props);
-
   const {
     heading,
     description,
     cta_text,
     cta_link,
     collection,
-  } = section;
-
-  const background_color = (props as any).background_color?.value;
+    background_color,
+  } = props;
 
   const sliderRef = useRef<HTMLDivElement>(null);
   const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
@@ -28,7 +24,7 @@ export function SectionProductCarousel(props: any) {
   return (
     <section 
       className="nc-SectionProductCarousel py-12 lg:py-16"
-      style={background_color ? {backgroundColor: background_color} : undefined}
+      style={background_color?.value ? {backgroundColor: background_color.value} : undefined}
     >
       <div className="container">
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-12">
