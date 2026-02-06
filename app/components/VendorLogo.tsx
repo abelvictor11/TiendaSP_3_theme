@@ -1,4 +1,6 @@
 import {type FC} from 'react';
+import {useRouteLoaderData} from '@remix-run/react';
+import type {RootLoader} from '~/root';
 
 interface VendorLogoProps {
   vendor: string;
@@ -13,8 +15,10 @@ const VendorLogo: FC<VendorLogoProps> = ({
 }) => {
   if (!vendor) return null;
 
+  const rootData = useRouteLoaderData<RootLoader>('root');
+  const storeDomain = rootData?.publicStoreSubdomain || '';
   const vendorSlug = vendor.toLowerCase().replace(/\s+/g, '-');
-  const logoUrl = `/cdn/shop/t/73/assets/${vendorSlug}.svg`;
+  const logoUrl = `https://${storeDomain}/cdn/shop/t/73/assets/${vendorSlug}.svg`;
 
   return (
     <img
@@ -40,8 +44,10 @@ export const VendorLogoWithFallback: FC<VendorLogoProps> = ({
 }) => {
   if (!vendor) return null;
 
+  const rootData = useRouteLoaderData<RootLoader>('root');
+  const storeDomain = rootData?.publicStoreSubdomain || '';
   const vendorSlug = vendor.toLowerCase().replace(/\s+/g, '-');
-  const logoUrl = `/cdn/shop/t/73/assets/${vendorSlug}.svg`;
+  const logoUrl = `https://${storeDomain}/cdn/shop/t/73/assets/${vendorSlug}.svg`;
 
   return (
     <div className="vendor-logo-container">

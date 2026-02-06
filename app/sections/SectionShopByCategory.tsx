@@ -73,9 +73,11 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
             className="flex gap-4 overflow-x-auto snap-x snap-mandatory hiddenScrollbar pb-4"
           >
             {categoryNodes.map((category: any, index: number) => {
-              const mediaRef = category.media?.reference || category.image?.reference;
-              const imageData = mediaRef?.image;
-              const videoSources = mediaRef?.sources;
+              // After parseSection lift('reference'), reference is removed and its content is lifted up
+              // So category.image.image (not category.image.reference.image)
+              // And category.media.sources (not category.media.reference.sources)
+              const imageData = category.media?.image || category.image?.image;
+              const videoSources = category.media?.sources || category.image?.sources;
               const isVideo = !!videoSources;
               const title = category.title?.value;
               const subtitle = category.subtitle?.value;
