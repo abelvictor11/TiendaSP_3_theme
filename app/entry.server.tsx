@@ -13,6 +13,7 @@ export default async function handleRequest(
 ) {
   const storeDomain = context.env.PUBLIC_STORE_DOMAIN;
   const shopifyDomain = context.env.PUBLIC_SHOPIFY_STORE_DOMAIN || storeDomain;
+  const requestOrigin = new URL(request.url).origin;
 
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
     shop: {
@@ -62,6 +63,7 @@ export default async function handleRequest(
       'https://surveys.okendo.io',
       `https://${shopifyDomain}`,
       'https://*.myshopify.com',
+      requestOrigin,
     ],
     mediaSrc: [
       "'self'",
@@ -73,6 +75,7 @@ export default async function handleRequest(
       'https://cdn-static.okendo.io',
       `https://${shopifyDomain}`,
       'https://*.myshopify.com',
+      requestOrigin,
     ],
     styleSrc: [
       "'self'",
