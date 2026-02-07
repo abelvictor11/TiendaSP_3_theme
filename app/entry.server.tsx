@@ -74,6 +74,7 @@ export default async function handleRequest(
       'https://dov7r31oq5dkj.cloudfront.net',
       'https://cdn-static.okendo.io',
       `https://${shopifyDomain}`,
+      `https://${storeDomain}`,
       'https://*.myshopify.com',
       requestOrigin,
     ],

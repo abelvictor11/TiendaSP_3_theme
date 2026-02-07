@@ -385,7 +385,7 @@ const COLLECTION_QUERY = `#graphql
         height
         altText
       }
-      subcollections: metafield(namespace: "custom", key: "subcollections") {
+      subcollections: metafield(namespace: "custom", key: "coleccion_hija") {
         references(first: 20) {
           nodes {
             ... on Collection {

@@ -472,7 +472,7 @@ const PARENT_COLLECTION_QUERY = `#graphql
       id
       handle
       title
-      subcollections: metafield(namespace: "custom", key: "subcollections") {
+      subcollections: metafield(namespace: "custom", key: "coleccion_hija") {
         references(first: 20) {
           nodes {
             ... on Collection {
