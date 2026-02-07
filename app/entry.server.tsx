@@ -87,6 +87,7 @@ export default async function handleRequest(
       'https://cdn-static.okendo.io',
       'https://surveys.okendo.io',
       'https://use.typekit.net',
+      'https://p.typekit.net',
     ],
 
     fontSrc: [

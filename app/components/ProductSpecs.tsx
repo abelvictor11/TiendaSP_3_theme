@@ -186,7 +186,7 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
 
   return (
     <div className="pt-8">
-      <h2 className="text-2xl font-bold mb-6" style={{fontFamily: 'Montserrat, sans-serif'}}>
+      <h2 className="text-2xl font-bold mb-6" style={{fontFamily: '"nudista-web", sans-serif'}}>
         Especificaciones Técnicas
       </h2>
 

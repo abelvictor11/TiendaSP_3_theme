@@ -331,7 +331,7 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="px-2.5 pb-4 flex-grow flex flex-col dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+        <div className="px-2.5 pb-4 flex-grow flex flex-col dark:bg-slate-800" style={{ fontFamily: '"nudista-web", sans-serif' }}>
           
           
           {renderColorOptions()}

@@ -2,23 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* F37Bolton Font - Display/Headlines */
-@font-face {
-  font-family: 'F37Bolton';
-  src: url('../assets/fonts/F37Bolton-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'F37Bolton';
-  src: url('../assets/fonts/F37Bolton-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* Tokens */
 :root {
   --color-primary-shopify: 20 20 20; /* Text, buttons, etc. */

@@ -22,9 +22,9 @@ export default {
   darkMode: 'false',
   theme: {
     fontFamily: {
-      display: ['var(--font-display)', ...defaultTheme.fontFamily.sans],
-      body: ['var(--font-body)', ...defaultTheme.fontFamily.sans],
-      headline: ['"proxima-nova"', 'sans-serif'],
+      display: ['"nudista-web"', 'sans-serif'],
+      body: ['"nudista-web"', 'sans-serif'],
+      headline: ['"nudista-web"', 'sans-serif'],
     },
     container: {
       center: true,
@@ -105,8 +105,8 @@ export default {
         mobileGallery: 'calc(100vw - 4rem)',
       },
       fontFamily: {
-        sans: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        serif: ['Poppins', 'Palatino', 'ui-serif'],
+        sans: ['"nudista-web"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['"nudista-web"', 'Palatino', 'ui-serif'],
       },
       fontSize: {
         display: ['var(--font-size-display)', '1.1'],

@@ -77,14 +77,14 @@ const HeaderQuickLinks: FC<HeaderQuickLinksProps> = ({
             title={label}
           >
             <span
-              className="w-5 h-5 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full"
+              className="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full"
               dangerouslySetInnerHTML={{__html: processedSvg}}
             />
             {label && (
               <span 
                 className={clsx(
-                  'text-xs font-medium hidden sm:inline',
-                  !textColor && 'text-slate-700 dark:text-slate-300',
+                  'text-xs font-normal hidden sm:inline',
+                  !textColor && 'text-black dark:text-slate-300',
                 )}
                 style={textColor ? {color: textColor} : undefined}
               >
