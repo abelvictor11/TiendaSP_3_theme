@@ -80,7 +80,7 @@ const CreditCalculator: FC<CreditCalculatorProps> = ({
       {/* Header - Always visible, clickable to expand/collapse */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+        className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-800 hover:bg-[#efefef] dark:hover:bg-slate-700 transition-colors"
       >
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">

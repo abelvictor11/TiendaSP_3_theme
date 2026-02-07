@@ -573,7 +573,7 @@ export function ProductForm({
             </ButtonSecondary>
           ) : (
             <div className="flex gap-2 sm:gap-3.5 items-stretch">
-              <div className="flex items-center justify-center bg-slate-100/70 dark:bg-slate-800/70 p-2 sm:p-3 rounded-full">
+              <div className="flex items-center justify-center bg-[#efefef]/70 dark:bg-slate-800/70 p-2 sm:p-3 rounded-full">
                 <NcInputNumber
                   className=""
                   defaultValue={quantity}

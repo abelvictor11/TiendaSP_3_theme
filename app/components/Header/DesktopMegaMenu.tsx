@@ -35,7 +35,7 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
       <div className="flex items-center px-6 py-4 border-b border-slate-200">
         <button
           onClick={onClose}
-          className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+          className="p-2 hover:bg-[#efefef] rounded-lg transition-colors"
           aria-label="Cerrar menú"
         >
           <XMarkIcon className="w-6 h-6" />
@@ -58,7 +58,7 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
                       className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-lg transition-colors ${
                         isActive
                           ? 'text-rose-500 bg-rose-50'
-                          : 'text-slate-900 hover:bg-slate-100'
+                          : 'text-slate-900 hover:bg-[#efefef]'
                       }`}
                       onMouseEnter={() => {
                         setActiveLevel1(item.id);
@@ -76,7 +76,7 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
                     <Link
                       to={item.to}
                       onClick={onClose}
-                      className="block px-4 py-3 text-slate-900 hover:bg-slate-100 rounded-lg transition-colors font-medium"
+                      className="block px-4 py-3 text-slate-900 hover:bg-[#efefef] rounded-lg transition-colors font-medium"
                     >
                       {item.title}
                     </Link>
@@ -162,7 +162,7 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
                   key={item.id}
                   to={item.to || '#'}
                   onClick={onClose}
-                  className="block px-4 py-3 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="block px-4 py-3 text-slate-700 hover:text-slate-900 hover:bg-[#efefef] rounded-lg transition-colors"
                 >
                   {item.title}
                 </Link>

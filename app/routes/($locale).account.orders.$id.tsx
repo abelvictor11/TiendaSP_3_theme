@@ -258,7 +258,7 @@ export default function OrderRoute() {
                   key={id}
                   className="flex flex-col sm:flex-row flex-wrap gap-4 py-4 sm:py-7 last:pb-0 first:pt-0"
                 >
-                  <div className="relative h-24 w-16 sm:w-20 flex-shrink-0 overflow-hidden rounded-xl bg-slate-100">
+                  <div className="relative h-24 w-16 sm:w-20 flex-shrink-0 overflow-hidden rounded-xl bg-[#efefef]">
                     <Image
                       sizes="100px"
                       data={image || undefined}

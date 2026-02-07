@@ -128,7 +128,7 @@ export function ProductGallery({
                 className={clsx(
                   'relative aspect-square rounded-lg overflow-hidden transition-all',
                   hasImage
-                    ? 'bg-slate-100 dark:bg-slate-800 cursor-pointer'
+                    ? 'bg-[#efefef] dark:bg-slate-800 cursor-pointer'
                     : 'bg-slate-50 dark:bg-slate-900 cursor-default',
                   isActive && hasImage
                     ? 'ring-2 ring-primary-500 ring-offset-2'

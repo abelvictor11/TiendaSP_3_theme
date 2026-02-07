@@ -26,7 +26,7 @@ const SocialsList1: FC<SocialsList1Props> = ({
               {item.icon ? (
                 <img width={30} sizes="30px" src={item.icon} alt={item.name} />
               ) : (
-                <div className="w-5 h-5 rounded-full bg-slate-100" />
+                <div className="w-5 h-5 rounded-full bg-[#efefef]" />
               )}
             </div>
             <span className="hidden lg:block text-sm">{item.name}</span>

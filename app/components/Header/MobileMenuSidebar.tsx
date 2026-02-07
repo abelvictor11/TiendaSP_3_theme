@@ -59,7 +59,7 @@ const MobileMenuSidebar: FC<MobileMenuSidebarProps> = ({menu = [], onClose}) => 
         )}
         <button
           onClick={onClose}
-          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"
+          className="p-2 rounded-full hover:bg-[#efefef] dark:hover:bg-slate-800"
         >
           <XMarkIcon className="w-6 h-6 text-slate-600 dark:text-slate-300" />
         </button>

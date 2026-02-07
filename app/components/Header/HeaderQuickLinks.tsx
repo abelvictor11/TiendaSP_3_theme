@@ -71,7 +71,7 @@ const HeaderQuickLinks: FC<HeaderQuickLinksProps> = ({
             to={link}
             className={clsx(
               'flex items-center gap-1.5 px-2 py-1.5 rounded-lg transition-colors group',
-              !backgroundColor && 'hover:bg-slate-100 dark:hover:bg-slate-800',
+              !backgroundColor && 'hover:bg-[#efefef] dark:hover:bg-slate-800',
             )}
             style={linkStyle}
             title={label}

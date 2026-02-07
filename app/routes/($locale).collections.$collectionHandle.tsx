@@ -27,6 +27,7 @@ import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject
 import {ProductsGrid} from '~/components/ProductsGrid';
 import clsx from 'clsx';
 import {Suspense} from 'react';
+import CollectionBannerCarousel from '~/components/CollectionBannerCarousel';
 
 export const headers = routeHeaders;
 
@@ -47,8 +48,8 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   const {paginationVariables, filters, sortKey, reverse} =
     getPaginationAndFiltersFromRequest(request, 24);
 
-  // 2. Query the colelction details
-  const [{collection}] = await Promise.all([
+  // 2. Query the collection details and banner config in parallel
+  const [{collection}, bannerConfigData] = await Promise.all([
     context.storefront.query(COLLECTION_QUERY, {
       variables: {
         ...paginationVariables,
@@ -60,6 +61,11 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
         language: context.storefront.i18n.language,
       },
     }),
+    context.storefront.query(COLLECTION_BANNER_CONFIG_QUERY, {
+      variables: {
+        type: 'ciseco--collection_banner_config',
+      },
+    }).catch(() => null),
   ]);
 
   if (!collection) {
@@ -72,9 +78,17 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
     (filter) => filter.id === 'filter.v.price',
   );
 
+  // Find the banner config matching this collection handle
+  const allBannerConfigs = bannerConfigData?.metaobjects?.nodes || [];
+  const bannerConfig = allBannerConfigs.find(
+    (config: any) => config.collection_handle?.value === collectionHandle,
+  );
+  const collectionBanners = bannerConfig?.banners?.references?.nodes || [];
+
   return defer({
     routePromise,
     collection,
+    collectionBanners,
     defaultPriceFilter: {
       value: defaultPriceFilter?.values[0] ?? null,
       locale,
@@ -88,7 +102,7 @@ export const meta = ({matches}: MetaArgs<typeof loader>) => {
 };
 
 export default function Collection() {
-  const {collection, defaultPriceFilter, routePromise} =
+  const {collection, defaultPriceFilter, routePromise, collectionBanners} =
     useLoaderData<typeof loader>();
 
   const noResults = !collection.products.nodes.length;
@@ -133,21 +147,28 @@ export default function Collection() {
 
       <div className="container-fluid px-6 pt-6 lg:pt-8">
         <div className="space-y-6 lg:space-y-8">
-          {/* HEADING */}
-          <div>
-            <div className="flex items-center text-sm font-medium gap-2 text-neutral-500 mb-1">
-              <FireIcon className="w-5 h-5" />
-              <span className="text-neutral-700 dark:text-neutral-300">
-                {totalProducts} productos
-              </span>
+          {/* HEADING + BANNERS */}
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+            <div className={collectionBanners.length > 0 ? 'lg:w-[40%] lg:shrink-0' : 'w-full'}>
+              <div className="flex items-center text-sm font-medium gap-2 text-neutral-500 mb-1">
+                <FireIcon className="w-5 h-5" />
+                <span className="text-neutral-700 dark:text-neutral-300">
+                  {totalProducts} productos
+                </span>
+              </div>
+              <PageHeader
+                // remove the html tags on title
+                title={collection.title.replace(/(<([^>]+)>)/gi, '')}
+                description={collection.description}
+                hasBreadcrumb={false}
+                breadcrumbText={collection.title}
+              />
             </div>
-            <PageHeader
-              // remove the html tags on title
-              title={collection.title.replace(/(<([^>]+)>)/gi, '')}
-              description={collection.description}
-              hasBreadcrumb={false}
-              breadcrumbText={collection.title}
-            />
+            {collectionBanners.length > 0 && (
+              <div className="lg:flex-1 min-w-0">
+                <CollectionBannerCarousel banners={collectionBanners} />
+              </div>
+            )}
           </div>
 
           <main>
@@ -436,4 +457,51 @@ const COLLECTION_QUERY = `#graphql
   }
    # All common fragments
    ${COMMON_PRODUCT_CARD_FRAGMENT}
+` as const;
+
+const COLLECTION_BANNER_CONFIG_QUERY = `#graphql
+  query CollectionBannerConfigs($type: String!) {
+    metaobjects(type: $type, first: 50) {
+      nodes {
+        id
+        handle
+        collection_handle: field(key: "collection_handle") {
+          value
+        }
+        banners: field(key: "banners") {
+          references(first: 10) {
+            nodes {
+              ... on Metaobject {
+                id
+                title: field(key: "title") {
+                  value
+                }
+                description: field(key: "description") {
+                  value
+                }
+                image: field(key: "image") {
+                  reference {
+                    ... on MediaImage {
+                      image {
+                        url
+                        altText
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
+                cta_text: field(key: "cta_text") {
+                  value
+                }
+                cta_link: field(key: "cta_link") {
+                  value
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 ` as const;

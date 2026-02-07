@@ -72,7 +72,7 @@ function ComplementaryProductItem({product}: {product: CommonProductCardFragment
       {/* Product Image */}
       <Link
         to={`/products/${product.handle}`}
-        className="shrink-0 w-24 h-24 bg-slate-100 rounded-lg overflow-hidden"
+        className="shrink-0 w-24 h-24 bg-[#efefef] rounded-lg overflow-hidden"
       >
         {image && (
           <Image

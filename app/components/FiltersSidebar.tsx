@@ -149,7 +149,7 @@ export default function FiltersSidebar({
                 className={clsx(
                   'flex flex-col items-center gap-2 p-2 rounded-lg transition-all',
                   LOADING && 'opacity-50 pointer-events-none',
-                  isChecked && 'bg-slate-100 dark:bg-slate-800',
+                  isChecked && 'bg-[#efefef] dark:bg-slate-800',
                 )}
               >
                 <div
@@ -191,7 +191,7 @@ export default function FiltersSidebar({
                       className={clsx(
                         'flex flex-col items-center gap-2 p-2 rounded-lg transition-all',
                         LOADING && 'opacity-50 pointer-events-none',
-                        isChecked && 'bg-slate-100 dark:bg-slate-800',
+                        isChecked && 'bg-[#efefef] dark:bg-slate-800',
                       )}
                     >
                       <div

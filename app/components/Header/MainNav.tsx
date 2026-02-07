@@ -54,7 +54,7 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) =
           <div className="flex items-center">
             {/* Mobile button - opens mobile menu */}
             <button
-              className="lg:hidden flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-colors"
+              className="lg:hidden flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-[#efefef] dark:hover:bg-slate-800 focus:outline-none transition-colors"
               onClick={() => open('mobile')}
               type="button"
               aria-label="Open menu"
@@ -63,7 +63,7 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) =
             </button>
             {/* Desktop button - opens mega menu */}
             <button
-              className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-colors"
+              className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-[#efefef] dark:hover:bg-slate-800 focus:outline-none transition-colors"
               onClick={() => open('desktop-menu')}
               type="button"
               aria-label="Open menu"
@@ -107,7 +107,7 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) =
             {/* Mobile search icon - Hidden on desktop */}
             <Link
               to={'/search'}
-              className="flex lg:hidden w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none items-center justify-center"
+              className="flex lg:hidden w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-[#efefef] dark:hover:bg-slate-800 focus:outline-none items-center justify-center"
               aria-label="Search"
             >
               <MagnifyingGlassIcon />

@@ -101,7 +101,7 @@ function NavItem({
             to={menuItem.to}
             target={menuItem.target}
             prefetch="intent"
-            className="inline-flex items-center text-sm lg:text-sm font-medium text-black dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
+            className="inline-flex items-center text-sm lg:text-sm font-medium text-black dark:text-slate-300 py-4 px-4 hover:bg-[#efefef] dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             {menuItem.title}
           </Link>
@@ -109,7 +109,7 @@ function NavItem({
           <a
             href={menuItem.to}
             target={menuItem.target}
-            className="inline-flex items-center text-sm lg:text-sm font-medium text-black dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
+            className="inline-flex items-center text-sm lg:text-sm font-medium text-black dark:text-slate-300 py-4 px-4 hover:bg-[#efefef] dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             {menuItem.title}
           </a>
@@ -145,8 +145,8 @@ function NavItem({
           to={menuItem.to}
           prefetch="intent"
           className={`
-            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : 'text-black dark:text-slate-300'}
-            group inline-flex items-center text-sm lg:text-sm font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
+            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-[#efefef] dark:bg-slate-800' : 'text-black dark:text-slate-300'}
+            group inline-flex items-center text-sm lg:text-sm font-medium py-4 px-4 hover:bg-[#efefef] dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
           <span>{menuItem.title}</span>
           <ChevronDownIcon
@@ -159,8 +159,8 @@ function NavItem({
           href={menuItem.to}
           target={menuItem.target}
           className={`
-            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-300'}
-            group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
+            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-[#efefef] dark:bg-slate-800' : 'text-slate-700 dark:text-slate-300'}
+            group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-[#efefef] dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
           <span>{menuItem.title}</span>
           <ChevronDownIcon
@@ -294,7 +294,7 @@ function CustomMegamenu({
                 <Link
                   key={brand.id || idx}
                   to={brand.link?.value || '#'}
-                  className="flex items-center justify-center px-4 py-3 dark:bg-slate-800 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors group"
+                  className="flex items-center justify-center px-4 py-3 dark:bg-slate-800 rounded-md hover:bg-[#efefef] dark:hover:bg-slate-700 transition-colors group"
                   onClick={onClose}
                 >
                   {logoUrl ? (
