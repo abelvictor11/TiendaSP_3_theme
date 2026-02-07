@@ -57,7 +57,7 @@ const DesktopMegaMenu: React.FC<DesktopMegaMenuProps> = ({menu, onClose}) => {
                     <button
                       className={`w-full flex items-center justify-between px-4 py-3 text-left rounded-lg transition-colors ${
                         isActive
-                          ? 'text-rose-500 bg-rose-50'
+                          ? 'text-black font-bold bg-[#efefef]'
                           : 'text-slate-900 hover:bg-[#efefef]'
                       }`}
                       onMouseEnter={() => {
