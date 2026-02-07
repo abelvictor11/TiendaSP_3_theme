@@ -1,27 +1,34 @@
-import {Image} from '@shopify/hydrogen';
 import {Link} from '~/components/Link';
-import {useRef, useState, useEffect} from 'react';
+import {useRef} from 'react';
 import {ArrowRightIcon} from '@heroicons/react/24/outline';
 import useSnapSlider from '~/hooks/useSnapSlider';
 
-interface BannerItem {
+interface Subcollection {
   id: string;
-  title?: {value?: string};
-  description?: {value?: string};
-  image?: {reference?: {image?: {url?: string; altText?: string; width?: number; height?: number}}};
-  cta_text?: {value?: string};
-  cta_link?: {value?: string};
+  handle: string;
+  title: string;
+  description?: string;
+  image?: {
+    url: string;
+    altText?: string;
+    width?: number;
+    height?: number;
+  };
 }
 
 interface CollectionBannerCarouselProps {
-  banners: BannerItem[];
+  subcollections: Subcollection[];
+  parentHandle: string;
 }
 
-export default function CollectionBannerCarousel({banners}: CollectionBannerCarouselProps) {
+export default function CollectionBannerCarousel({
+  subcollections,
+  parentHandle,
+}: CollectionBannerCarouselProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
   const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
 
-  if (!banners || banners.length === 0) return null;
+  if (!subcollections || subcollections.length === 0) return null;
 
   return (
     <div className="relative">
@@ -29,62 +36,48 @@ export default function CollectionBannerCarousel({banners}: CollectionBannerCaro
         ref={sliderRef}
         className="flex gap-4 overflow-x-auto snap-x snap-mandatory hiddenScrollbar"
       >
-        {banners.map((banner) => {
-          const imageData = banner.image?.reference?.image;
-          const title = banner.title?.value;
-          const description = banner.description?.value;
-          const ctaText = banner.cta_text?.value;
-          const ctaLink = banner.cta_link?.value;
+        {subcollections.map((sub) => (
+          <Link
+            key={sub.id}
+            to={`/collections/${parentHandle}/${sub.handle}`}
+            className="snap-start shrink-0 w-[280px] sm:w-[320px] lg:w-[360px] block relative rounded-2xl overflow-hidden group cursor-pointer"
+          >
+            <div className="relative aspect-[3/4]">
+              {sub.image?.url ? (
+                <img
+                  src={sub.image.url}
+                  alt={sub.image.altText || sub.title}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+              ) : (
+                <div className="absolute inset-0 bg-slate-800" />
+              )}
 
-          const Wrapper = ctaLink ? Link : 'div';
-          const wrapperProps = ctaLink
-            ? {to: ctaLink, className: 'snap-start shrink-0 w-[280px] sm:w-[320px] lg:w-[360px] block relative rounded-2xl overflow-hidden group cursor-pointer'}
-            : {className: 'snap-start shrink-0 w-[280px] sm:w-[320px] lg:w-[360px] block relative rounded-2xl overflow-hidden group'};
+              {/* Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent" />
 
-          return (
-            <Wrapper key={banner.id} {...(wrapperProps as any)}>
-              {/* Background Image */}
-              <div className="relative aspect-[3/4]">
-                {imageData?.url ? (
-                  <img
-                    src={imageData.url}
-                    alt={imageData.altText || title || ''}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                ) : (
-                  <div className="absolute inset-0 bg-slate-800" />
+              {/* Content */}
+              <div className="absolute inset-0 p-6 flex flex-col">
+                <h4 className="text-xl font-bold text-white mb-2">
+                  {sub.title}
+                </h4>
+                {sub.description && (
+                  <p className="text-sm text-white/80 line-clamp-2">
+                    {sub.description}
+                  </p>
                 )}
-
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-transparent" />
-
-                {/* Content - positioned at top */}
-                <div className="absolute inset-0 p-6 flex flex-col">
-                  {title && (
-                    <h4 className="text-xl font-bold text-white mb-2">
-                      {title}
-                    </h4>
-                  )}
-                  {description && (
-                    <p className="text-sm text-white/80">
-                      {description}
-                    </p>
-                  )}
-                  {ctaText && (
-                    <span className="mt-auto inline-flex items-center gap-2 text-sm font-medium text-white">
-                      {ctaText}
-                      <ArrowRightIcon className="w-4 h-4" />
-                    </span>
-                  )}
-                </div>
+                <span className="mt-auto inline-flex items-center gap-2 text-sm font-medium text-white">
+                  Ver colección
+                  <ArrowRightIcon className="w-4 h-4" />
+                </span>
               </div>
-            </Wrapper>
-          );
-        })}
+            </div>
+          </Link>
+        ))}
       </div>
 
-      {/* Navigation arrows - only show if more than 1 banner */}
-      {banners.length > 1 && (
+      {/* Navigation arrows */}
+      {subcollections.length > 1 && (
         <>
           <button
             onClick={scrollToPrevSlide}
