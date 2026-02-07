@@ -278,14 +278,14 @@ const ProductCard: FC<ProductCardProps> = ({
           <span className="sr-only">{title}</span>
         </Link>
 
-        <div className="relative flex-shrink-0 overflow-hidden z-1 group p-5">
+        <div className="bg-[#f8f8f8] relative flex-shrink-0 overflow-hidden z-1 group p-5">
           <Link to={variantUrl} className="block">
             <div className="flex aspect-w-1 aspect-h-1 w-full relative">
               {/* Imagen principal */}
               {image && (
                 <Image
                   data={{...image, width: undefined, height: undefined}}
-                  className={`object-contain transition-opacity duration-300 ${secondImage ? 'group-hover:opacity-0' : 'group-hover:opacity-80'}`}
+                  className={`mix-blend-multiply object-contain transition-opacity duration-300 ${secondImage ? 'group-hover:opacity-0' : 'group-hover:opacity-80'}`}
                   sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 40vw"
                   loading={loading}
                 />
@@ -365,7 +365,7 @@ const ProductCard: FC<ProductCardProps> = ({
           <div className="flex-grow mt-4">
             {/* Marca - Logo SVG */}
             {vendor && (
-              <div className="mb-1">
+              <div className="mb-4">
                 <VendorLogoWithFallback 
                   vendor={vendor} 
                   className="h-4 w-auto max-w-[70px] object-contain"
