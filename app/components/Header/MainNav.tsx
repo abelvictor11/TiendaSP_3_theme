@@ -44,6 +44,12 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) =
     >
       <div className="px-8">
         <div className="h-16 sm:h-20 flex justify-between items-center">
+         
+          {/* Logo - Centered on mobile, left on desktop */}
+          <div className="flex items-center justify-center lg:justify-start flex-1 lg:flex-initial">
+            <Logo />
+          </div>
+         
           {/* Menu Button - Mobile opens NavMobile, Desktop opens MegaMenu */}
           <div className="flex items-center">
             {/* Mobile button - opens mobile menu */}
@@ -67,10 +73,7 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) =
             </button>
           </div>
 
-          {/* Logo - Centered on mobile, left on desktop */}
-          <div className="flex items-center justify-center lg:justify-start flex-1 lg:flex-initial">
-            <Logo />
-          </div>
+         
 
           {/* Desktop Search Input - Hidden on mobile */}
           <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
@@ -87,7 +90,7 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks}) =
                   type="search"
                   name="q"
                   placeholder="Buscar productos..."
-                  className="w-full h-11 pl-12 pr-4 border-none bg-[#ededed] text-sm bg-slate-50 dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
+                  className="w-full h-11 pl-12 pr-4 border-none bg-[#ededed] text-sm  dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
                 />
               </div>
             </Form>

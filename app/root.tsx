@@ -149,7 +149,7 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
     variables: {
       featuredCollectionsFirst: 1,
       socialsFirst: 10,
-      headerMenuHandle: 'bicicletas',
+      headerMenuHandle: 'menu-header',
       ultraMenuHandle: 'ultra-menu',
       language,
       country,
