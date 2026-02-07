@@ -331,7 +331,7 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="px-2.5 flex-grow flex flex-col dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+        <div className="px-2.5 pb-4 flex-grow flex flex-col dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
           
           
           {renderColorOptions()}
@@ -362,7 +362,7 @@ const ProductCard: FC<ProductCardProps> = ({
           
 
 
-          <div className="flex-grow mt-1">
+          <div className="flex-grow mt-4">
             {/* Marca - Logo SVG */}
             {vendor && (
               <div className="mb-1">
