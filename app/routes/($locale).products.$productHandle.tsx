@@ -556,7 +556,7 @@ export function ProductForm({
       {/* ---------- VARIANTS AND COLORS LIST ----------  */}
       {productOptions.map((option, optionIndex) => (
         <div key={option.name}>
-          {option.name === 'Color' ? (
+          {option.name.toLowerCase().startsWith('color') ? (
             <ProductColorOption option={option} />
           ) : (
             <ProductOtherOption option={option} />

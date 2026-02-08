@@ -112,9 +112,9 @@ export default function CartRoute() {
         <main className="container py-10 lg:pb-28 lg:pt-20 ">
           <div className="mb-12 sm:mb-16">
             <PageHeader
-              title={'Shopping Cart'}
+              title={'Carrito de compras'}
               hasBreadcrumb={true}
-              breadcrumbText={'Shopping Cart'}
+              breadcrumbText={'Carrito de compras'}
             />
           </div>
 
@@ -166,7 +166,7 @@ function Content({cart: originalCart}: {cart: OptimisticCart | null}) {
         <FeaturedProducts
           className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 lg:gap-x-6 gap-y-8"
           count={4}
-          heading="You may also like"
+          heading="También te puede interesar"
           sortKey="BEST_SELLING"
           headingClassName="text-xl sm:text-2xl font-semibold"
         />
@@ -190,7 +190,7 @@ function CartLineItem({line}: {line: OptimisticCartLine}) {
     return (
       <div className="rounded-full flex items-center justify-center px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
         <CheckIcon className="w-3.5 h-3.5 text-secondary-500" />
-        <span className="ml-1 leading-none">In Stock</span>
+        <span className="ml-1 leading-none">En Stock</span>
       </div>
     );
   };
@@ -302,7 +302,7 @@ function CartSummary({
         </span>
       </div>
       <p className="mt-2 text-sm text-slate-500">
-        Shipping, discounts, will be calculated at checkout.
+        Los gastos de envío y descuentos se calcularán al momento del pago.
       </p>
 
       {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
@@ -313,7 +313,7 @@ function CartSummary({
         aria-disabled={isSkeleton}
       >
         <ButtonPrimary as={'span'} className="w-full">
-          Checkout
+         Pagar
         </ButtonPrimary>
       </a>
       <div className="mt-5 text-sm text-slate-500 flex items-center justify-center">
@@ -345,12 +345,12 @@ function CartSummary({
               strokeLinejoin="round"
             />
           </svg>
-          Learn more{` `}
+          Obtenga más información {` `}
           <Link
             to={'/policies/shipping-policy'}
             className="text-slate-900 dark:text-slate-200 underline font-medium"
           >
-            shipping
+            envíos
           </Link>
           <span>
             {` `}and{` `}
@@ -362,9 +362,9 @@ function CartSummary({
             href="##"
             className="text-slate-900 dark:text-slate-200 underline font-medium"
           >
-            refund
+           reembolsos
           </Link>
-          {` `} infomation
+          {` `} infomación
         </p>
       </div>
     </>

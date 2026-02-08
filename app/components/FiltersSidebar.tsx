@@ -71,8 +71,8 @@ function getColorFromLabel(label: string): string | null {
 
 // Check if filter is a color filter
 function isColorFilter(filter: Filter): boolean {
-  const colorLabels = ['color', 'colors', 'colour', 'colours'];
-  return colorLabels.includes(filter.label.toLowerCase());
+  const label = filter.label.toLowerCase();
+  return label === 'color' || label === 'colors' || label === 'colour' || label === 'colours' || label.startsWith('color ');
 }
 
 // Check if filter is a size filter

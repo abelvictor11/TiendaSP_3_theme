@@ -117,7 +117,7 @@ export default function AvatarDropdown() {
                                 </div>
                                 <div className="ms-4">
                                   <p className="text-sm font-medium ">
-                                    Sign in
+                                   Ingresar
                                   </p>
                                 </div>
                               </Link>
