@@ -163,7 +163,7 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
   className = '',
 }) => {
   const specs = (metafields || [])
-    .filter((m) => m && m.value && m.key !== 'highlights' && m.key !== 'especificaciones' && (m.namespace === 'custom' || m.namespace === 'global'))
+    .filter((m) => m && m.value && m.key !== 'highlights' && m.key !== 'especificaciones' && m.key !== 'condiciones' && (m.namespace === 'custom' || m.namespace === 'global'))
     .map((m) => {
       let displayValue = m.value || '';
       try {
