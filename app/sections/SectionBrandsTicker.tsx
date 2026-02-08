@@ -97,7 +97,17 @@ export function SectionBrandsTicker(props: any) {
       )}
 
       {/* Ticker Container */}
-      <div className="relative w-full">
+      <div className="relative w-full overflow-hidden">
+        {/* Fade left */}
+        <div
+          className="absolute left-0 top-0 bottom-0 w-20 md:w-40 z-10 pointer-events-none"
+          style={{background: `linear-gradient(to right, ${bgColor} 0%, ${bgColor}80 30%, transparent 100%)`}}
+        />
+        {/* Fade right */}
+        <div
+          className="absolute right-0 top-0 bottom-0 w-20 md:w-40 z-10 pointer-events-none"
+          style={{background: `linear-gradient(to left, ${bgColor} 0%, ${bgColor}80 30%, transparent 100%)`}}
+        />
         <div 
           className="flex items-center gap-8 md:gap-12 lg:gap-16 animate-ticker"
           style={{
