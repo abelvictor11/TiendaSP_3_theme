@@ -63,6 +63,7 @@ import ProductDescription from '~/components/ProductDescription';
 import CreditCalculator from '~/components/CreditCalculator';
 import {ComplementaryProducts} from '~/components/ComplementaryProducts';
 import {VendorLogoWithFallback} from '~/components/VendorLogo';
+import BikeSizeGuide from '~/components/BikeSizeGuide';
 
 export const headers = routeHeaders;
 
@@ -432,6 +433,7 @@ export function ProductForm({
   const {open} = useAside();
   const {product} = useLoaderData<typeof loader>();
   const [quantity, setQuantity] = useState(1);
+  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
   const isOutOfStock = !selectedVariant?.availableForSale;
 
@@ -554,15 +556,46 @@ export function ProductForm({
       </div>
 
       {/* ---------- VARIANTS AND COLORS LIST ----------  */}
-      {productOptions.map((option, optionIndex) => (
-        <div key={option.name}>
-          {option.name.toLowerCase().startsWith('color') ? (
-            <ProductColorOption option={option} />
-          ) : (
-            <ProductOtherOption option={option} />
-          )}
-        </div>
-      ))}
+      {productOptions.map((option, optionIndex) => {
+        const isColor = option.name.toLowerCase().startsWith('color');
+        const isSizeOption = /talla|size|tamaño/i.test(option.name);
+        const isBike = isBikeProduct(product);
+
+        return (
+          <div key={option.name}>
+            {isColor ? (
+              <ProductColorOption option={option} />
+            ) : (
+              <>
+                {isSizeOption && isBike && (
+                  <div className="flex items-center justify-between mb-1">
+                    <span />
+                    <button
+                      onClick={() => setSizeGuideOpen(true)}
+                      className="text-sm font-medium text-slate-500 hover:text-black underline underline-offset-2 transition-colors"
+                    >
+                      ¿No sabes tu talla? Guía de tallas
+                    </button>
+                  </div>
+                )}
+                <ProductOtherOption option={option} />
+              </>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Bike Size Guide Modal */}
+      <BikeSizeGuide
+        isOpen={sizeGuideOpen}
+        onClose={() => setSizeGuideOpen(false)}
+        productTitle={product.title}
+        productImage={selectedVariant?.image?.url || product.media?.nodes?.[0]?.previewImage?.url}
+        bikeType={detectBikeType(product)}
+        availableSizes={productOptions
+          .filter((o) => /talla|size|tamaño/i.test(o.name))
+          .flatMap((o) => o.optionValues.map((v) => v.name))}
+      />
 
       {selectedVariant && (
         <div className="grid items-stretch gap-4">
@@ -875,6 +908,41 @@ const ProductReviews = ({product}: {product: ProductFragment}) => {
     </>
   );
 };
+
+// ─── Bike Detection Helpers ──────────────────────────────────────────────────
+
+const BIKE_KEYWORDS = [
+  'bicicleta', 'bici', 'bike', 'bicycle',
+  'mtb', 'gravel', 'ruta', 'road', 'e-bike', 'ebike',
+  'montaña', 'montana', 'urbana', 'plegable', 'fixie',
+  'cicla', 'pedelec',
+];
+
+function isBikeProduct(product: any): boolean {
+  const title = (product?.title || '').toLowerCase();
+  const handle = (product?.handle || '').toLowerCase();
+  const type = (product?.productType || '').toLowerCase();
+  const collectionTitles = (product?.collections?.nodes || [])
+    .map((c: any) => (c.title || '').toLowerCase());
+
+  const allText = [title, handle, type, ...collectionTitles].join(' ');
+  return BIKE_KEYWORDS.some((kw) => allText.includes(kw));
+}
+
+function detectBikeType(product: any): 'road' | 'mtb' | 'gravel' | 'ebike' | 'urban' {
+  const allText = [
+    product?.title || '',
+    product?.handle || '',
+    product?.productType || '',
+    ...(product?.collections?.nodes || []).map((c: any) => c.title || ''),
+  ].join(' ').toLowerCase();
+
+  if (/gravel/.test(allText)) return 'gravel';
+  if (/mtb|monta[ñn]a|mountain|enduro|trail|downhill/.test(allText)) return 'mtb';
+  if (/e-bike|ebike|el[eé]ctric|pedelec/.test(allText)) return 'ebike';
+  if (/urban|ciudad|city|plegable|fixie/.test(allText)) return 'urban';
+  return 'road';
+}
 
 export const PRODUCT_VARIANT_FRAGMENT = `#graphql
   fragment ProductVariant on ProductVariant {
