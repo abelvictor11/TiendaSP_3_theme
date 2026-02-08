@@ -131,7 +131,7 @@ export function ProductGallery({
                     ? 'bg-[#efefef] dark:bg-slate-800 cursor-pointer'
                     : 'bg-slate-50 dark:bg-slate-900 cursor-default',
                   isActive && hasImage
-                    ? 'ring-2 ring-primary-500 ring-offset-2'
+                    ? 'ring-2 ring-black ring-offset-2'
                     : hasImage
                     ? 'hover:ring-2 hover:ring-slate-300 hover:ring-offset-1 opacity-70 hover:opacity-100'
                     : 'opacity-30',
@@ -250,7 +250,7 @@ function ModalImageGallery({
               className={clsx(
                 'relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-white dark:bg-slate-800 transition-all',
                 isActive
-                  ? 'ring-2 ring-primary-500 ring-offset-2'
+                  ? 'ring-2 ring-black ring-offset-2'
                   : 'opacity-60 hover:opacity-100 hover:ring-2 hover:ring-slate-300',
               )}
             >

@@ -24,12 +24,12 @@ export function FeaturedSection({
   return (
     <div className={className}>
       <CollectionSlider
-        heading_bold={'Trending Collections'}
+        heading_bold={'Colecciones de tendencia'}
         collections={featuredCollections?.nodes}
         headingFontClass="text-2xl md:text-3xl font-semibold"
       />
       <SnapSliderProducts
-        heading_bold={'Trending Products'}
+        heading_bold={'Productos de tendencia'}
         products={featuredProducts.nodes}
         cardStyle="1"
         headingFontClass="text-2xl md:text-3xl font-semibold"

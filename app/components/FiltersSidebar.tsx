@@ -156,7 +156,7 @@ export default function FiltersSidebar({
                   className={clsx(
                     'w-12 h-12 rounded-full transition-all',
                     isWhite ? 'border border-slate-300' : '',
-                    isChecked && 'ring-2 ring-offset-2 ring-primary-500',
+                    isChecked && 'ring-2 ring-offset-2 ring-black',
                   )}
                   style={{backgroundColor: color || '#C4C4C4'}}
                 />
@@ -198,7 +198,7 @@ export default function FiltersSidebar({
                         className={clsx(
                           'w-12 h-12 rounded-full transition-all',
                           isWhite ? 'border border-slate-300' : '',
-                          isChecked && 'ring-2 ring-offset-2 ring-primary-500',
+                          isChecked && 'ring-2 ring-offset-2 ring-black',
                         )}
                         style={{backgroundColor: color || '#C4C4C4'}}
                       />

@@ -25,7 +25,7 @@ const Checkbox: FC<CheckboxProps> = ({
         id={id || name}
         name={name}
         type="checkbox"
-        className={`focus:ring-action-primary text-primary-500 rounded border-black hover:border-slate-700 bg-transparent dark:border-slate-700 dark:hover:border-slate-500 dark:checked:bg-primary-500 focus:ring-primary-500 ${sizeClassName}`}
+        className={`focus:ring-action-primary text-primary-500 rounded border-black hover:border-slate-700 bg-transparent dark:border-slate-700 dark:hover:border-slate-500 dark:checked:bg-primary-500 focus:ring-black ${sizeClassName}`}
         {...props}
       />
       {label && (
