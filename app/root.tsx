@@ -468,7 +468,7 @@ const HEADER_QUERY = `#graphql
           value
         }
         items: field(key: "items") {
-          references(first: 3) {
+          references(first: 5) {
             nodes {
               ... on Metaobject {
                 id
@@ -492,6 +492,24 @@ const HEADER_QUERY = `#graphql
                 }
                 border_color: field(key: "border_color") {
                   value
+                }
+                subitems: field(key: "subitems") {
+                  references(first: 10) {
+                    nodes {
+                      ... on Metaobject {
+                        id
+                        label: field(key: "label") {
+                          value
+                        }
+                        link: field(key: "link") {
+                          value
+                        }
+                        svg_icon: field(key: "svg_icon") {
+                          value
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
