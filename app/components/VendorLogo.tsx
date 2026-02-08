@@ -22,10 +22,10 @@ const VendorLogo: FC<VendorLogoProps> = ({
   const baseUrl = storeDomain.startsWith('http') ? storeDomain : `https://${storeDomain}`;
   const logoUrl = `${baseUrl}/cdn/shop/t/73/assets/${vendorSlug}.svg`;
 
-  const vendorFilterUrl = `/collections/all?filter.v_vendor=${encodeURIComponent(vendor)}`;
+  const vendorUrl = `/collections/${vendorSlug}`;
 
   return (
-    <Link to={vendorFilterUrl} className="inline-block hover:opacity-80 transition-opacity">
+    <Link to={vendorUrl} className="inline-block hover:opacity-80 transition-opacity">
       <img
         src={logoUrl}
         alt={vendor}
@@ -56,10 +56,10 @@ export const VendorLogoWithFallback: FC<VendorLogoProps> = ({
   const baseUrl = storeDomain.startsWith('http') ? storeDomain : `https://${storeDomain}`;
   const logoUrl = `${baseUrl}/cdn/shop/t/73/assets/${vendorSlug}.svg`;
 
-  const vendorFilterUrl = `/collections/all?filter.v_vendor=${encodeURIComponent(vendor)}`;
+  const vendorUrl = `/collections/${vendorSlug}`;
 
   return (
-    <Link to={vendorFilterUrl} className="inline-block hover:opacity-80 transition-opacity">
+    <Link to={vendorUrl} className="inline-block hover:opacity-80 transition-opacity">
       <div className="vendor-logo-container">
         <img
           src={logoUrl}
