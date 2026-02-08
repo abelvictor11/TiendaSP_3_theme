@@ -24,22 +24,11 @@ const Logo: React.FC<LogoProps> = ({
       to="/"
       className={`ttnc-logo flex-shrink-0 inline-block text-slate-900 ${className}`}
     >
-      {shop.brand?.logo?.image?.url ? (
-        <Image
-          className={`block max-w-60 max-h-11`}
-          data={shop.brand?.logo?.image}
-          width={shop.brand?.logo?.image.width ?? undefined}
-          height={shop.brand?.logo?.image.height ?? undefined}
-          alt={shop.name + ' logo'}
-          sizes="200px"
-        />
-      ) : (
-        <h1>
-          <span className="text-lg sm:text-xl font-semibold line-clamp-2">
-            {shop.name}
-          </span>
-        </h1>
-      )}
+      <img
+        src="https://cdn.shopify.com/s/files/1/0572/4710/5098/files/Logo_cyclewear_6f22636c-8e2b-49f0-8ca3-2c7e8582bcc7.svg?v=1770484353"
+        alt={shop.name + ' logo'}
+        className="block max-w-60 max-h-11"
+      />
     </Link>
   );
 };
