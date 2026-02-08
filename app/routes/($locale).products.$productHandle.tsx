@@ -494,10 +494,10 @@ export function ProductForm({
 
         {/* Vendor - Logo SVG */}
         {product.vendor && (
-          <div className="mb-2">
+          <div className="mb-4">
             <VendorLogoWithFallback 
               vendor={product.vendor} 
-              className="h-6 w-auto max-w-[100px] object-contain"
+              className="h-8 w-auto max-w-[150px] object-contain"
               fallbackClassName="text-xs font-normal text-black uppercase tracking-wide"
             />
           </div>
