@@ -1,6 +1,7 @@
 import {type FC} from 'react';
 import {useRouteLoaderData} from '@remix-run/react';
 import type {RootLoader} from '~/root';
+import {Link} from '~/components/Link';
 
 interface VendorLogoProps {
   vendor: string;
@@ -21,20 +22,24 @@ const VendorLogo: FC<VendorLogoProps> = ({
   const baseUrl = storeDomain.startsWith('http') ? storeDomain : `https://${storeDomain}`;
   const logoUrl = `${baseUrl}/cdn/shop/t/73/assets/${vendorSlug}.svg`;
 
+  const vendorFilterUrl = `/collections/all?filter.v_vendor=${encodeURIComponent(vendor)}`;
+
   return (
-    <img
-      src={logoUrl}
-      alt={vendor}
-      className={className}
-      onError={(e) => {
-        const target = e.target as HTMLImageElement;
-        target.style.display = 'none';
-        const fallback = target.nextElementSibling as HTMLElement;
-        if (fallback) {
-          fallback.style.display = 'block';
-        }
-      }}
-    />
+    <Link to={vendorFilterUrl} className="inline-block hover:opacity-80 transition-opacity">
+      <img
+        src={logoUrl}
+        alt={vendor}
+        className={className}
+        onError={(e) => {
+          const target = e.target as HTMLImageElement;
+          target.style.display = 'none';
+          const fallback = target.nextElementSibling as HTMLElement;
+          if (fallback) {
+            fallback.style.display = 'block';
+          }
+        }}
+      />
+    </Link>
   );
 };
 
@@ -51,25 +56,29 @@ export const VendorLogoWithFallback: FC<VendorLogoProps> = ({
   const baseUrl = storeDomain.startsWith('http') ? storeDomain : `https://${storeDomain}`;
   const logoUrl = `${baseUrl}/cdn/shop/t/73/assets/${vendorSlug}.svg`;
 
+  const vendorFilterUrl = `/collections/all?filter.v_vendor=${encodeURIComponent(vendor)}`;
+
   return (
-    <div className="vendor-logo-container">
-      <img
-        src={logoUrl}
-        alt={vendor}
-        className={className}
-        onError={(e) => {
-          const target = e.target as HTMLImageElement;
-          target.style.display = 'none';
-          const fallback = target.nextElementSibling as HTMLElement;
-          if (fallback) {
-            fallback.style.display = 'inline';
-          }
-        }}
-      />
-      <span className={fallbackClassName} style={{display: 'none'}}>
-        {vendor}
-      </span>
-    </div>
+    <Link to={vendorFilterUrl} className="inline-block hover:opacity-80 transition-opacity">
+      <div className="vendor-logo-container">
+        <img
+          src={logoUrl}
+          alt={vendor}
+          className={className}
+          onError={(e) => {
+            const target = e.target as HTMLImageElement;
+            target.style.display = 'none';
+            const fallback = target.nextElementSibling as HTMLElement;
+            if (fallback) {
+              fallback.style.display = 'inline';
+            }
+          }}
+        />
+        <span className={fallbackClassName} style={{display: 'none'}}>
+          {vendor}
+        </span>
+      </div>
+    </Link>
   );
 };
 
