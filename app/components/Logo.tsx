@@ -27,7 +27,7 @@ const Logo: React.FC<LogoProps> = ({
       <img
         src="https://cdn.shopify.com/s/files/1/0572/4710/5098/files/Logo_cyclewear_6f22636c-8e2b-49f0-8ca3-2c7e8582bcc7.svg?v=1770484353"
         alt={shop.name + ' logo'}
-        className="block max-w-60 max-h-11"
+        className="block max-w-60 h-[35px]"
       />
     </Link>
   );
