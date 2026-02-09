@@ -106,7 +106,7 @@ export function SectionHero(props: SectionHeroFragment) {
                     href={cta_button?.href?.value || ''}
                     target={cta_button?.target?.value === 'true' ? '_blank' : '_self'}
                     rel={cta_button?.target?.value === 'true' ? 'noopener noreferrer' : undefined}
-                    className="group inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 lg:px-8 lg:py-4 text-sm sm:text-base lg:text-lg font-medium transition-all duration-200 hover:opacity-90"
+                    className="group inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 lg:px-8 lg:py-4 text-sm sm:text-base lg:text-lg font-medium transition-all duration-200 hover:opacity-90"
                     style={{
                       backgroundColor: buttonBgColor,
                       color: buttonTextColor,

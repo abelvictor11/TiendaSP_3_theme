@@ -44,7 +44,7 @@ export function SectionProductCarousel(props: any) {
               <div className="mt-8">
                 <Link
                   to={cta_link.value}
-                  className="inline-flex items-center justify-center px-8 py-3.5 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-[#efefef] rounded-md transition-colors"
+                  className="inline-flex items-center justify-center px-8 py-3.5 text-sm font-medium text-white bg-slate-900 hover:bg-slate-800 dark:bg-white dark:text-slate-900 dark:hover:bg-[#efefef] rounded-xl transition-colors"
                 >
                   {cta_text?.value || 'Shop Now'}
                 </Link>

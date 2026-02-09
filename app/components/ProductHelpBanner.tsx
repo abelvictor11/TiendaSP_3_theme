@@ -73,7 +73,7 @@ const ProductHelpBanner: FC<ProductHelpBannerProps> = ({
               href={ctaLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center px-5 py-2.5 text-xs font-semibold uppercase tracking-wider rounded-full transition-opacity hover:opacity-90"
+              className="inline-flex items-center justify-center px-5 py-2.5 text-xs font-semibold uppercase tracking-wider rounded-xl transition-opacity hover:opacity-90"
               style={{
                 backgroundColor: buttonBackgroundColor,
                 color: buttonTextColor,

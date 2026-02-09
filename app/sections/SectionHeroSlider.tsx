@@ -273,7 +273,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
                 href={item.cta_button.href.value}
                 target={item.cta_button?.target?.value === 'true' ? '_blank' : '_self'}
                 rel={item.cta_button?.target?.value === 'true' ? 'noopener noreferrer' : undefined}
-                className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded border border-current transition-all duration-200 hover:opacity-90"
+                className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded-xl border border-current transition-all duration-200 hover:opacity-90"
                 style={{
                   backgroundColor: buttonBgColor,
                   color: buttonTextColor,
