@@ -145,7 +145,7 @@ export const SECTION_PRODUCT_CAROUSEL_FRAGMENT = `#graphql
           id
           title
           handle
-          productCarouselSection: products(first: 12) {
+          productCarouselSection: products(first: 12, filters: {available: true}) {
             nodes {
               ...CommonProductCard
             }
