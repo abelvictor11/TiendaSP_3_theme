@@ -40,9 +40,9 @@ export default function CollectionBannerCarousel({
           <Link
             key={sub.id}
             to={`/collections/${parentHandle}/${sub.handle}`}
-            className="snap-start shrink-0 w-[280px] sm:w-[320px] lg:w-[360px] block relative rounded-2xl overflow-hidden group cursor-pointer"
+            className="snap-start shrink-0 w-[280px] sm:w-[320px] lg:w-[360px] h-[250px] block relative rounded-2xl overflow-hidden group cursor-pointer"
           >
-            <div className="relative aspect-[3/4]">
+            <div className="relative h-full">
               {sub.image?.url ? (
                 <img
                   src={sub.image.url}
