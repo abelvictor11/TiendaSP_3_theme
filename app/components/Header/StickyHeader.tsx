@@ -1,5 +1,6 @@
 import {type FC, useState, useEffect, useRef} from 'react';
 import {Link} from '../Link';
+import {storeConfig} from '~/config/store';
 import CartBtn from './CartBtn';
 import {MagnifyingGlassIcon} from '../Icons/MyIcons';
 import clsx from 'clsx';
@@ -69,7 +70,7 @@ const StickyHeader: FC<StickyHeaderProps> = ({className = ''}) => {
               to="/"
               className="flex items-center text-lg font-bold text-slate-900 dark:text-white"
             >
-              <span className="text-primary-600">SF</span>
+              <span className="text-primary-600">{storeConfig.stickyLogoText}</span>
             </Link>
 
             {/* Compact Search - Desktop only */}

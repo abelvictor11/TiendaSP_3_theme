@@ -24,7 +24,7 @@ import {
 } from '@shopify/hydrogen';
 import {Layout} from '~/components/Layout';
 import {seoPayload} from '~/lib/seo.server';
-import favicon from '@/assets/favicon.svg';
+import {storeConfig} from '~/config/store';
 import {GenericError} from './components/GenericError';
 import {NotFound} from './components/NotFound';
 import styles from './styles/app.css?url';
@@ -70,7 +70,7 @@ export const links: LinksFunction = () => {
     {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
     {rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' as const},
     {rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap'},
-    {rel: 'icon', type: 'image/svg+xml', href: favicon},
+    {rel: 'icon', href: storeConfig.faviconUrl},
   ];
 };
 
