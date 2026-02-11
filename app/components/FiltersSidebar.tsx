@@ -1,7 +1,6 @@
 import {useLocation, useNavigate, useNavigation, useSearchParams} from '@remix-run/react';
 import type {Filter, ProductFilter} from '@shopify/hydrogen/storefront-api-types';
 import {ChevronDownIcon} from '@heroicons/react/24/outline';
-import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/react';
 import Checkbox from './Checkbox';
 import clsx from 'clsx';
 import {FILTER_URL_PREFIX, filterInputToParams} from './SortFilter';
@@ -101,6 +100,12 @@ export default function FiltersSidebar({
 
   // Track expanded "show more" state for each filter
   const [expandedFilters, setExpandedFilters] = useState<Record<string, boolean>>({});
+  // Track collapsed state for each filter section (all open by default)
+  const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({});
+
+  const toggleSection = (filterId: string) => {
+    setCollapsedSections(prev => ({...prev, [filterId]: !prev[filterId]}));
+  };
 
   // Apply filter immediately when checkbox changes
   const handleFilterChange = (option: any, isChecked: boolean) => {
@@ -369,39 +374,48 @@ export default function FiltersSidebar({
           const isColor = isColorFilter(filter);
           const isSize = isSizeFilter(filter);
 
+          const isCollapsed = collapsedSections[filter.id] || false;
+
           return (
-            <Disclosure key={filter.id} defaultOpen>
-              {({open}) => (
-                <div className="border-b border-neutral-200 dark:border-neutral-700 pb-3">
-                  <DisclosureButton className="flex justify-between items-center w-full py-2 text-left">
-                    <span className="font-medium text-sm capitalize">
-                      {filter.label}
+            <div key={filter.id} className="border-b border-neutral-200 dark:border-neutral-700 pb-3">
+              <button
+                type="button"
+                onClick={() => toggleSection(filter.id)}
+                className="flex justify-between items-center w-full py-2 text-left"
+              >
+                <span className="font-medium text-sm capitalize">
+                  {filter.label}
+                </span>
+                <div className="flex items-center gap-2">
+                  {activeCount > 0 && (
+                    <span className="bg-primary-500 text-white text-xs rounded-full px-2 py-0.5 min-w-[20px] text-center">
+                      {activeCount}
                     </span>
-                    <div className="flex items-center gap-2">
-                      {activeCount > 0 && (
-                        <span className="bg-primary-500 text-white text-xs rounded-full px-2 py-0.5 min-w-[20px] text-center">
-                          {activeCount}
-                        </span>
-                      )}
-                      <ChevronDownIcon
-                        className={clsx(
-                          'w-4 h-4 transition-transform',
-                          open && 'rotate-180',
-                        )}
-                      />
-                    </div>
-                  </DisclosureButton>
-                  
-                  <DisclosurePanel static>
-                    {isColor
-                      ? renderColorFilter(filter, availableOptions, isExpanded)
-                      : isSize
-                        ? renderSizeFilter(filter, availableOptions, isExpanded)
-                        : renderDefaultFilter(availableOptions)}
-                  </DisclosurePanel>
+                  )}
+                  <ChevronDownIcon
+                    className={clsx(
+                      'w-4 h-4 transition-transform duration-200',
+                      !isCollapsed && 'rotate-180',
+                    )}
+                  />
                 </div>
-              )}
-            </Disclosure>
+              </button>
+
+              <div
+                className={clsx(
+                  'grid transition-all duration-200 ease-in-out',
+                  isCollapsed ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]',
+                )}
+              >
+                <div className="overflow-hidden">
+                  {isColor
+                    ? renderColorFilter(filter, availableOptions, isExpanded)
+                    : isSize
+                      ? renderSizeFilter(filter, availableOptions, isExpanded)
+                      : renderDefaultFilter(availableOptions)}
+                </div>
+              </div>
+            </div>
           );
         })}
       </div>
