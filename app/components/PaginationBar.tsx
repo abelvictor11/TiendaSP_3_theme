@@ -1,37 +1,38 @@
 import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/24/outline';
-import clsx from 'clsx';
+import {useSearchParams} from '@remix-run/react';
 
 interface PaginationBarProps {
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-  nextPageUrl: string;
-  previousPageUrl: string;
   totalProducts: number;
   pageSize: number;
-  currentNodesCount: number;
+  currentPage: number;
 }
 
 export function PaginationBar({
-  hasNextPage,
-  hasPreviousPage,
-  nextPageUrl,
-  previousPageUrl,
   totalProducts,
   pageSize,
-  currentNodesCount,
+  currentPage,
 }: PaginationBarProps) {
+  const [searchParams] = useSearchParams();
   const totalPages = Math.max(1, Math.ceil(totalProducts / pageSize));
+  const viewedCount = Math.min(currentPage * pageSize, totalProducts);
 
-  // Estimate current page from currentNodesCount
-  // On first page: nodes = pageSize, on page 2: nodes = pageSize*2, etc.
-  const currentPage = Math.max(1, Math.ceil(currentNodesCount / pageSize));
-  const viewedCount = Math.min(currentNodesCount, totalProducts);
+  // Build URL for a given page, preserving all other search params
+  function getPageUrl(page: number) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (page <= 1) {
+      params.delete('page');
+    } else {
+      params.set('page', String(page));
+    }
+    const qs = params.toString();
+    return qs ? `?${qs}` : '?';
+  }
 
-  // Generate page numbers to display
   const pageNumbers = getPageNumbers(currentPage, totalPages);
+  const hasPreviousPage = currentPage > 1;
+  const hasNextPage = currentPage < totalPages;
 
-  if (totalPages <= 1 && !hasNextPage && !hasPreviousPage) {
-    // Still show the "viewed" text if there are products
+  if (totalPages <= 1) {
     if (totalProducts > 0) {
       return (
         <div className="flex flex-col items-center gap-4 mt-12">
@@ -51,7 +52,7 @@ export function PaginationBar({
         {/* Previous Arrow */}
         {hasPreviousPage ? (
           <a
-            href={previousPageUrl.replace(/%3D$/, '=')}
+            href={getPageUrl(currentPage - 1)}
             className="w-10 h-10 flex items-center justify-center rounded-xl border border-neutral-200 hover:border-neutral-400 transition-colors"
             aria-label="Página anterior"
           >
@@ -78,8 +79,6 @@ export function PaginationBar({
 
           const isActive = page === currentPage;
 
-          // For cursor-based pagination we can only navigate prev/next
-          // Active page is just visual, other pages are non-interactive indicators
           if (isActive) {
             return (
               <span
@@ -92,19 +91,20 @@ export function PaginationBar({
           }
 
           return (
-            <span
+            <a
               key={page}
-              className="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium text-neutral-600"
+              href={getPageUrl(page)}
+              className="w-10 h-10 flex items-center justify-center rounded-xl text-sm font-medium text-neutral-600 hover:bg-neutral-100 transition-colors"
             >
               {page}
-            </span>
+            </a>
           );
         })}
 
         {/* Next Arrow */}
         {hasNextPage ? (
           <a
-            href={nextPageUrl.replace(/%3D$/, '=')}
+            href={getPageUrl(currentPage + 1)}
             className="w-10 h-10 flex items-center justify-center rounded-xl border border-neutral-200 hover:border-neutral-400 transition-colors"
             aria-label="Página siguiente"
           >

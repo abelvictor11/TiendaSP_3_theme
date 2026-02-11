@@ -5,7 +5,7 @@ import {
 } from '@shopify/remix-oxygen';
 import {Await, useLoaderData, Link, useParams} from '@remix-run/react';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
-import {Pagination, Analytics, getSeoMeta} from '@shopify/hydrogen';
+import {Analytics, getSeoMeta} from '@shopify/hydrogen';
 import invariant from 'tiny-invariant';
 import {routeHeaders} from '~/data/cache';
 import {seoPayload} from '~/lib/seo.server';
@@ -45,15 +45,18 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
     handle: 'route-collection',
   });
 
-  const {paginationVariables, filters, sortKey, reverse} =
-    getPaginationAndFiltersFromRequest(request, 24);
+  const PAGE_SIZE = 24;
+  const {filters, sortKey, reverse, page} =
+    getPaginationAndFiltersFromRequest(request, PAGE_SIZE);
+
+  const fetchCount = page * PAGE_SIZE;
 
   // Query the child collection and parent collection (for subcollections bar) in parallel
   const [{collection: childCollection}, {collection: parentCollection}] =
     await Promise.all([
       context.storefront.query(CHILD_COLLECTION_QUERY, {
         variables: {
-          ...paginationVariables,
+          first: fetchCount,
           handle: childHandle,
           filters,
           sortKey,
@@ -82,6 +85,10 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
       (filter: any) => filter.id === 'filter.v.price',
     );
 
+  // Slice products to only the current page
+  const startIndex = (page - 1) * PAGE_SIZE;
+  const slicedNodes = childCollection.products.nodes.slice(startIndex, startIndex + PAGE_SIZE);
+
   // Get subcollections from parent
   const subcollections =
     parentCollection?.subcollections?.references?.nodes || [];
@@ -89,6 +96,9 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   return defer({
     routePromise,
     collection: childCollection,
+    products: slicedNodes,
+    currentPage: page,
+    pageSize: PAGE_SIZE,
     parentCollection,
     subcollections,
     parentHandle: collectionHandle,
@@ -108,6 +118,9 @@ export const meta = ({matches}: MetaArgs<typeof loader>) => {
 export default function ChildCollection() {
   const {
     collection,
+    products,
+    currentPage,
+    pageSize,
     parentCollection,
     subcollections,
     parentHandle,
@@ -116,10 +129,11 @@ export default function ChildCollection() {
     routePromise,
   } = useLoaderData<typeof loader>();
 
-  const noResults = !collection.products.nodes.length;
+  const noResults = !products.length;
 
+  // Get filtered total from the filtered products query
   const availabilityFilter =
-    collection.productsWithDefaultFilter.filters.find(
+    collection.products.filters.find(
       (filter: any) => filter.id === 'filter.v.availability',
     );
   const totalProducts = noResults
@@ -182,9 +196,12 @@ export default function ChildCollection() {
           <main>
             <ChildCollectionContent
               collection={collection}
+              products={products}
+              currentPage={currentPage}
+              pageSize={pageSize}
+              totalProducts={totalProducts}
               defaultPriceFilter={defaultPriceFilter}
               noResults={noResults}
-              totalProducts={totalProducts}
             />
           </main>
         </div>
@@ -219,14 +236,20 @@ export default function ChildCollection() {
 
 function ChildCollectionContent({
   collection,
+  products,
+  currentPage,
+  pageSize,
+  totalProducts,
   defaultPriceFilter,
   noResults,
-  totalProducts,
 }: {
   collection: any;
+  products: any[];
+  currentPage: number;
+  pageSize: number;
+  totalProducts: number;
   defaultPriceFilter: any;
   noResults: boolean;
-  totalProducts: number;
 }) {
   const [params] = useSearchParams();
   const isOnSaleFilter = params.get('sort') === 'on-sale';
@@ -267,6 +290,15 @@ function ChildCollectionContent({
     })
     .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
 
+  // Filter products on sale if on-sale sort is active
+  const displayNodes = isOnSaleFilter
+    ? products.filter((product: any) => {
+        const compareAt = product.compareAtPriceRange?.minVariantPrice?.amount;
+        const price = product.priceRange?.minVariantPrice?.amount;
+        return compareAt && price && Number(compareAt) > Number(price);
+      })
+    : products;
+
   return (
     <div className="flex gap-8">
       {/* Sidebar with Filters */}
@@ -298,51 +330,18 @@ function ChildCollectionContent({
 
         {/* Products Grid */}
         {!noResults ? (
-          <Pagination connection={collection.products}>
-            {({
-              nodes,
-              isLoading,
-              PreviousLink,
-              previousPageUrl,
-              NextLink,
-              nextPageUrl,
-              hasNextPage,
-              hasPreviousPage,
-            }) => {
-              const filteredNodes = isOnSaleFilter
-                ? nodes.filter((product: any) => {
-                    const compareAt =
-                      product.compareAtPriceRange?.minVariantPrice?.amount;
-                    const price =
-                      product.priceRange?.minVariantPrice?.amount;
-                    return (
-                      compareAt &&
-                      price &&
-                      Number(compareAt) > Number(price)
-                    );
-                  })
-                : nodes;
+          <>
+            <ProductsGrid
+              nodes={displayNodes as any}
+              className="mt-0"
+            />
 
-              return (
-                <>
-                  <ProductsGrid
-                    nodes={filteredNodes as any}
-                    className="mt-0"
-                  />
-
-                  <PaginationBar
-                    hasNextPage={hasNextPage}
-                    hasPreviousPage={hasPreviousPage}
-                    nextPageUrl={nextPageUrl}
-                    previousPageUrl={previousPageUrl}
-                    totalProducts={totalProducts}
-                    pageSize={24}
-                    currentNodesCount={nodes.length}
-                  />
-                </>
-              );
-            }}
-          </Pagination>
+            <PaginationBar
+              totalProducts={totalProducts}
+              pageSize={pageSize}
+              currentPage={currentPage}
+            />
+          </>
         ) : (
           <Empty description="No se encontraron productos en esta colección." />
         )}
@@ -359,10 +358,7 @@ const CHILD_COLLECTION_QUERY = `#graphql
     $filters: [ProductFilter!]
     $sortKey: ProductCollectionSortKeys!
     $reverse: Boolean
-    $first: Int
-    $last: Int
-    $startCursor: String
-    $endCursor: String
+    $first: Int!
   ) @inContext(country: $country, language: $language) {
     collection(handle: $handle) {
       id
@@ -398,9 +394,6 @@ const CHILD_COLLECTION_QUERY = `#graphql
       }
       products(
         first: $first,
-        last: $last,
-        before: $startCursor,
-        after: $endCursor,
         filters: $filters,
         sortKey: $sortKey,
         reverse: $reverse
@@ -418,12 +411,6 @@ const CHILD_COLLECTION_QUERY = `#graphql
         }
         nodes {
           ...CommonProductCard
-        }
-        pageInfo {
-          hasPreviousPage
-          hasNextPage
-          endCursor
-          startCursor
         }
       }
     }
