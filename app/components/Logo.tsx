@@ -27,7 +27,7 @@ const Logo: React.FC<LogoProps> = ({
       <img
         src={storeConfig.logoUrl}
         alt={shop.name + ' logo'}
-        className="block max-w-60 max-h-11"
+        className="block max-w-60 h-[35px]"
       />
     </Link>
   );
