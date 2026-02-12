@@ -8,8 +8,8 @@ import {
   MyHelpIcon,
   MyLogoutIcon,
   MyUser2Icon,
-  MyUserIcon,
 } from '../Icons/MyIcons';
+import {UserIcon} from '@heroicons/react/24/outline';
 import {
   Await,
   Form,
@@ -61,7 +61,7 @@ export default function AvatarDropdown() {
     <Suspense
       fallback={
         <Link to={'/account'} className={className}>
-          <MyUserIcon />
+          <UserIcon className="w-5 h-5 sm:w-6 sm:h-6" />
         </Link>
       }
     >
@@ -69,7 +69,7 @@ export default function AvatarDropdown() {
         resolve={isLoggedInPromise}
         errorElement={
           <Link to={'/account'} className={className}>
-            <MyUserIcon />
+            <UserIcon className="w-5 h-5 sm:w-6 sm:h-6" />
           </Link>
         }
       >
@@ -83,7 +83,7 @@ export default function AvatarDropdown() {
                       className={className}
                       onClick={() => setIsClicked(true)}
                     >
-                      <MyUserIcon />
+                      <UserIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                     </Popover.Button>
                     <Transition
                       as={Fragment}
