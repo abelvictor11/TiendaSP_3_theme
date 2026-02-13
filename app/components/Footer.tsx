@@ -65,36 +65,36 @@ const Footer: React.FC<FooterProps> = () => {
       </h2>
 
       <div className="mx-auto max-w-7xl px-6 pb-8 pt-20 sm:pt-24 lg:px-8 lg:pt-28">
-        <div className="xl:grid xl:grid-cols-4 xl:gap-8">
-          {/* Contact Info */}
-          <div className="text-sm space-y-4">
-            <h2 className="font-semibold text-white">Contáctanos</h2>
-            <ul className="mt-5 space-y-4">
-              <li className="flex items-start gap-2">
-                <MapPinIcon className="w-5 h-5 flex-shrink-0 mt-0.5 text-neutral-400" />
-                <span>Cra 43c 68 Sur 12<br />Sabaneta, Antioquia</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <PhoneIcon className="w-5 h-5 flex-shrink-0 text-neutral-400" />
-                <a href="tel:+573146512753" className="hover:text-white transition-colors">+57 314 651 2753</a>
-              </li>
-              <li className="flex items-center gap-2">
-                <EnvelopeIcon className="w-5 h-5 flex-shrink-0 text-neutral-400" />
-                <a href="mailto:info@cyclewear.com.co" className="hover:text-white transition-colors">info@cyclewear.com.co</a>
-              </li>
-            </ul>
-          </div>
-
+        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           {/* Menu columns */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 xl:col-span-2 mt-10 xl:mt-0">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 xl:col-span-2">
             <FooterMenuDataWrap>
               {({footerMenu}) => footerMenu?.items?.map(renderWidgetMenu)}
             </FooterMenuDataWrap>
           </div>
 
-          {/* Newsletter */}
-          <div className="mt-10 xl:mt-0">
+          {/* Newsletter + Contact Info */}
+          <div className="mt-10 xl:mt-0 space-y-8">
             <WidgetAddSubscriberForm />
+
+            {/* Contact Info */}
+            <div className="text-sm space-y-3">
+              <h2 className="font-semibold text-white">Contáctanos</h2>
+              <ul className="space-y-3">
+                <li className="flex items-start gap-2">
+                  <MapPinIcon className="w-5 h-5 flex-shrink-0 mt-0.5 text-neutral-400" />
+                  <span>Cra 43c 68 Sur 12<br />Sabaneta, Antioquia</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <PhoneIcon className="w-5 h-5 flex-shrink-0 text-neutral-400" />
+                  <a href="tel:+573146512753" className="hover:text-white transition-colors">+57 314 651 2753</a>
+                </li>
+                <li className="flex items-center gap-2">
+                  <EnvelopeIcon className="w-5 h-5 flex-shrink-0 text-neutral-400" />
+                  <a href="mailto:info@cyclewear.com.co" className="hover:text-white transition-colors">info@cyclewear.com.co</a>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
