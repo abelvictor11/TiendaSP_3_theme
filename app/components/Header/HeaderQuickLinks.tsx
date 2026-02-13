@@ -33,11 +33,11 @@ export interface HeaderQuickLinksProps {
 
 function processSvg(svgContent: string, color: string): string {
   return svgContent
-    .replace(/fill="[^"]*"/g, `fill="${color}"`)
-    .replace(/stroke="[^"]*"/g, `stroke="${color}"`)
+    .replace(/fill="(?!none)[^"]*"/g, `fill="${color}"`)
+    .replace(/stroke="(?!none)[^"]*"/g, `stroke="${color}"`)
     .replace(/<svg([^>]*)>/g, (match, attrs) => {
       if (!attrs.includes('fill=') && !attrs.includes('stroke=')) {
-        return `<svg${attrs} fill="${color}">`;
+        return `<svg${attrs} fill="none" stroke="${color}">`;
       }
       return match;
     });
