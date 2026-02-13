@@ -5,6 +5,8 @@ import {
   CheckCircleIcon,
   EnvelopeIcon,
   InformationCircleIcon,
+  MapPinIcon,
+  PhoneIcon,
 } from '@heroicons/react/24/outline';
 import {useFetcher, useRouteLoaderData} from '@remix-run/react';
 import Input from './MyInput';
@@ -24,14 +26,14 @@ const Footer: React.FC<FooterProps> = () => {
   const renderWidgetMenu = (menu: ParentEnhancedMenuItem, index: number) => {
     return (
       <div key={index + menu.id} className="text-sm">
-        <h2 className="font-semibold text-neutral-700 dark:text-neutral-200">
+        <h2 className="font-semibold text-white">
           {menu.title}
         </h2>
         <ul className="mt-5 space-y-4">
           {menu.items?.map((item: ChildEnhancedMenuItem, i) => (
             <li
               key={`${i + item.id}`}
-              className="text-neutral-600 hover:text-black "
+              className="text-neutral-400 hover:text-white transition-colors"
             >
               {item.to.startsWith('http') ? (
                 <a
@@ -55,7 +57,7 @@ const Footer: React.FC<FooterProps> = () => {
 
   return (
     <footer
-      className="bg-white dark:bg-neutral-900 border-t border-neutral-900/10 dark:border-transparent"
+      className="bg-black text-neutral-300"
       aria-labelledby="footer-heading"
     >
       <h2 id="footer-heading" className="sr-only">
@@ -63,18 +65,40 @@ const Footer: React.FC<FooterProps> = () => {
       </h2>
 
       <div className="mx-auto max-w-7xl px-6 pb-8 pt-20 sm:pt-24 lg:px-8 lg:pt-28">
-        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 xl:col-span-2">
+        <div className="xl:grid xl:grid-cols-4 xl:gap-8">
+          {/* Contact Info */}
+          <div className="text-sm space-y-4">
+            <h2 className="font-semibold text-white">Contáctanos</h2>
+            <ul className="mt-5 space-y-4">
+              <li className="flex items-start gap-2">
+                <MapPinIcon className="w-5 h-5 flex-shrink-0 mt-0.5 text-neutral-400" />
+                <span>Cra 43c 68 Sur 12<br />Sabaneta, Antioquia</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <PhoneIcon className="w-5 h-5 flex-shrink-0 text-neutral-400" />
+                <a href="tel:+573146512753" className="hover:text-white transition-colors">+57 314 651 2753</a>
+              </li>
+              <li className="flex items-center gap-2">
+                <EnvelopeIcon className="w-5 h-5 flex-shrink-0 text-neutral-400" />
+                <a href="mailto:info@cyclewear.com.co" className="hover:text-white transition-colors">info@cyclewear.com.co</a>
+              </li>
+            </ul>
+          </div>
+
+          {/* Menu columns */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 xl:col-span-2 mt-10 xl:mt-0">
             <FooterMenuDataWrap>
               {({footerMenu}) => footerMenu?.items?.map(renderWidgetMenu)}
             </FooterMenuDataWrap>
           </div>
+
+          {/* Newsletter */}
           <div className="mt-10 xl:mt-0">
             <WidgetAddSubscriberForm />
           </div>
         </div>
 
-        <div className="mt-16 border-t border-gray-900/10 dark:border-neutral-700 pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-20">
+        <div className="mt-16 border-t border-neutral-800 pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-20">
           <div className="flex flex-wrap gap-x-6 gap-y-3 md:order-2">
             <HeaderMenuDataWrap>
               {({headerData}) => (
@@ -93,7 +117,7 @@ const Footer: React.FC<FooterProps> = () => {
               )}
             </HeaderMenuDataWrap>
           </div>
-          <p className="mt-8 text-[13px] leading-5 text-gray-500 md:order-1 md:mt-0">
+          <p className="mt-8 text-[13px] leading-5 text-neutral-500 md:order-1 md:mt-0">
             © {new Date().getFullYear()}
             {shop?.name}, Inc. All rights reserved.
           </p>
@@ -109,19 +133,19 @@ export function WidgetAddSubscriberForm() {
 
   return (
     <div
-      className={`nc-WidgetAddSubscriberForm overflow-hidden rounded-3xl border border-neutral-100 dark:border-neutral-700`}
+      className={`nc-WidgetAddSubscriberForm overflow-hidden rounded-3xl border border-neutral-700`}
     >
       <div
-        className={`nc-WidgetHeading1 flex items-center justify-between p-4 border-b border-neutral-100 `}
+        className={`nc-WidgetHeading1 flex items-center justify-between p-4 border-b border-neutral-700`}
       >
-        <h2 className="flex flex-wrap gap-3 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+        <h2 className="flex flex-wrap gap-3 text-base font-semibold text-white">
           <EnvelopeIcon className="w-6 h-6" />
           <span>Manténgase actualizado</span>
         </h2>
       </div>
 
       <div className="p-4 xl:p-5">
-        <span className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-400">
+        <span className="mt-2 text-sm leading-6 text-neutral-400">
           Suscríbete a nuestro boletín para recibir las últimas actualizaciones y ofertas especiales.
         </span>
         <div className="mt-4">
