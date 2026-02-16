@@ -87,7 +87,7 @@ export function SectionHero(props: SectionHeroFragment) {
             <div className="flex max-w-lg flex-col items-start space-y-5 xl:max-w-2xl xl:space-y-8 ">
               {sub_heading?.value && (
                 <span 
-                  className="font-semibold sm:text-lg md:text-xl"
+                  className="font-normal sm:text-md md:text-lg"
                   style={{color: subheadingColor}}
                 >
                   {sub_heading?.value}
@@ -95,7 +95,7 @@ export function SectionHero(props: SectionHeroFragment) {
               )}
               {heading?.value && (
                 <h2
-                  className="text-3xl font-bold !leading-[115%] sm:text-4xl md:text-5xl xl:text-6xl 2xl:text-7xl"
+                  className="text-3xl font-medium !leading-[115%] sm:text-3xl md:text-4xl xl:text-5xl 2xl:text-6xl"
                   style={{color: headingColor}}
                   dangerouslySetInnerHTML={{__html: heading?.value}}
                 />
