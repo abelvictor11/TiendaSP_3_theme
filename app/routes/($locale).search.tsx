@@ -131,7 +131,16 @@ function parseSearchSuggestions(metaobject: any) {
       const customUrl = node.fields.find((f: any) => f.key === 'url')?.value;
       const sortOrder = node.fields.find((f: any) => f.key === 'sort_order')?.value;
 
-      const href = customUrl || (collectionRef?.handle ? `/collections/${collectionRef.handle}` : null);
+      let href = collectionRef?.handle ? `/collections/${collectionRef.handle}` : null;
+      if (customUrl) {
+        // If it's an absolute URL, extract the path
+        try {
+          const url = new URL(customUrl);
+          href = url.pathname;
+        } catch {
+          href = customUrl;
+        }
+      }
 
       return {
         id: node.id,
@@ -236,7 +245,7 @@ export default function Search() {
           </div>
 
           {/* Search Suggestions - Category Cards */}
-          {parsedSuggestions && parsedSuggestions.suggestions.length > 0 && !searchTerm && (
+          {parsedSuggestions && parsedSuggestions.suggestions.length > 0 && (
             <div className="container pt-10 lg:pt-14">
               <h2 className="text-xl font-semibold mb-6">{parsedSuggestions.title}</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
