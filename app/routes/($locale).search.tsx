@@ -3,7 +3,7 @@ import {
   type MetaArgs,
   type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
-import {Await, Form, useLoaderData, useSearchParams, useLocation} from '@remix-run/react';
+import {Await, Form, Link, useLoaderData, useSearchParams, useLocation} from '@remix-run/react';
 import {Pagination, Analytics, getSeoMeta} from '@shopify/hydrogen';
 import {seoPayload} from '~/lib/seo.server';
 import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
@@ -43,7 +43,7 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
   const {paginationVariables, filters, sortKey, reverse} =
     getPaginationAndFiltersFromRequest(request, 12);
 
-  const [data, dataGetDefaultPriceFilter] = await Promise.all([
+  const [data, dataGetDefaultPriceFilter, searchSuggestionsData] = await Promise.all([
     storefront.query(SEARCH_QUERY, {
       variables: {
         searchTerm,
@@ -62,6 +62,7 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
         language: storefront.i18n.language,
       },
     }),
+    storefront.query(SEARCH_SUGGESTIONS_QUERY),
   ]);
 
   const products = data.search;
@@ -89,6 +90,8 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
     },
   });
 
+  const searchSuggestions = searchSuggestionsData?.metaobject;
+
   return defer({
     routePromise,
     defaultPriceFilter: {
@@ -99,6 +102,7 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
     seo,
     searchTerm,
     products,
+    searchSuggestions,
     // noResultRecommendations: shouldGetRecommendations
     //   ? getFeaturedData(storefront, {pageBy: PAGINATION_SIZE})
     //   : Promise.resolve(null),
@@ -109,11 +113,49 @@ export const meta = ({matches}: MetaArgs<typeof loader>) => {
   return getSeoMeta(...matches.map((match) => (match.data as any).seo));
 };
 
+// Parse search suggestions metaobject into a usable format
+function parseSearchSuggestions(metaobject: any) {
+  if (!metaobject?.fields) return null;
+
+  const titleField = metaobject.fields.find((f: any) => f.key === 'title');
+  const suggestionsField = metaobject.fields.find((f: any) => f.key === 'suggestions');
+
+  const suggestions = suggestionsField?.references?.edges
+    ?.map((edge: any) => {
+      const node = edge.node;
+      if (!node?.fields) return null;
+
+      const label = node.fields.find((f: any) => f.key === 'label')?.value;
+      const imageRef = node.fields.find((f: any) => f.key === 'image')?.reference?.image;
+      const collectionRef = node.fields.find((f: any) => f.key === 'collection')?.reference;
+      const customUrl = node.fields.find((f: any) => f.key === 'url')?.value;
+      const sortOrder = node.fields.find((f: any) => f.key === 'sort_order')?.value;
+
+      const href = customUrl || (collectionRef?.handle ? `/collections/${collectionRef.handle}` : null);
+
+      return {
+        id: node.id,
+        label,
+        image: imageRef,
+        href,
+        sortOrder: sortOrder ? parseInt(sortOrder, 10) : 999,
+      };
+    })
+    .filter(Boolean)
+    .sort((a: any, b: any) => a.sortOrder - b.sortOrder) || [];
+
+  return {
+    title: titleField?.value || 'Explorar por categoría',
+    suggestions,
+  };
+}
+
 export default function Search() {
-  const {searchTerm, data, defaultPriceFilter, routePromise} =
+  const {searchTerm, data, defaultPriceFilter, routePromise, searchSuggestions} =
     useLoaderData<typeof loader>();
   const [params] = useSearchParams();
   const noResults = !data.search.nodes.length;
+  const parsedSuggestions = parseSearchSuggestions(searchSuggestions);
 
   const products = {
     nodes: data.search.nodes.filter((item) => item?.id),
@@ -192,6 +234,42 @@ export default function Search() {
               </Form>
             </header>
           </div>
+
+          {/* Search Suggestions - Category Cards */}
+          {parsedSuggestions && parsedSuggestions.suggestions.length > 0 && !searchTerm && (
+            <div className="container pt-10 lg:pt-14">
+              <h2 className="text-xl font-semibold mb-6">{parsedSuggestions.title}</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {parsedSuggestions.suggestions.map((suggestion: any) => (
+                  <Link
+                    key={suggestion.id}
+                    to={suggestion.href || '#'}
+                    className="group block"
+                  >
+                    <div className="aspect-[4/3] rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800 mb-2">
+                      {suggestion.image?.url ? (
+                        <img
+                          src={suggestion.image.url}
+                          alt={suggestion.image.altText || suggestion.label}
+                          width={suggestion.image.width || 300}
+                          height={suggestion.image.height || 225}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-neutral-400">
+                          <MagnifyingGlassIcon className="w-8 h-8" />
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300 group-hover:text-primary-600 transition-colors">
+                      {suggestion.label}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="container pt-10 lg:pt-14">
             {noResults ? (
@@ -371,6 +449,46 @@ const SEARCH_QUERY_2 = `#graphql
           label
           count
           input
+        }
+      }
+    }
+  }
+` as const;
+
+const SEARCH_SUGGESTIONS_QUERY = `#graphql
+  query SearchSuggestions {
+    metaobject(handle: {handle: "search-suggestions", type: "ciseco--search_suggestions"}) {
+      fields {
+        key
+        value
+        references(first: 20) {
+          edges {
+            node {
+              ... on Metaobject {
+                id
+                handle
+                fields {
+                  key
+                  value
+                  reference {
+                    ... on Collection {
+                      id
+                      handle
+                      title
+                    }
+                    ... on MediaImage {
+                      image {
+                        url
+                        altText
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
