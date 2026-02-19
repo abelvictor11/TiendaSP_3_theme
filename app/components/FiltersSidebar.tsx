@@ -167,6 +167,7 @@ export default function FiltersSidebar({
                 />
                 <span className="text-xs text-center truncate w-full">
                   {option.label.length > 7 ? option.label.slice(0, 7) + '...' : option.label}
+                  {option.count != null && <span className="text-neutral-400"> ({option.count})</span>}
                 </span>
               </button>
             );
@@ -209,6 +210,7 @@ export default function FiltersSidebar({
                       />
                       <span className="text-xs text-center truncate w-full">
                         {option.label.length > 7 ? option.label.slice(0, 7) + '...' : option.label}
+                        {option.count != null && <span className="text-neutral-400"> ({option.count})</span>}
                       </span>
                     </button>
                   );
@@ -255,7 +257,7 @@ export default function FiltersSidebar({
                     : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500',
                 )}
               >
-                {option.label}
+                {option.label}{option.count != null && <span className="text-neutral-400 font-normal"> ({option.count})</span>}
               </button>
             );
           })}
@@ -287,7 +289,7 @@ export default function FiltersSidebar({
                           : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500',
                       )}
                     >
-                      {option.label}
+                      {option.label}{option.count != null && <span className="text-neutral-400 font-normal"> ({option.count})</span>}
                     </button>
                   );
                 })}
@@ -327,7 +329,12 @@ export default function FiltersSidebar({
               <Checkbox
                 data-input={option.input as string}
                 name={option.label}
-                label={option.label}
+                label={
+                  <>
+                    {option.label}
+                    {option.count != null && <span className="text-neutral-400"> ({option.count})</span>}
+                  </>
+                }
                 checked={isChecked}
                 labelClassName=""
                 onChange={(event) => {

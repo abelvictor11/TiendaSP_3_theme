@@ -3,7 +3,7 @@ import {
   type MetaArgs,
   type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
-import {Await, Form, useLoaderData} from '@remix-run/react';
+import {Await, Form, useLoaderData, useSearchParams, useLocation} from '@remix-run/react';
 import {Pagination, Analytics, getSeoMeta} from '@shopify/hydrogen';
 import {seoPayload} from '~/lib/seo.server';
 import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
@@ -11,13 +11,15 @@ import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import {
   type SearchSortKeys,
   type Filter,
+  type ProductFilter,
 } from '@shopify/hydrogen/storefront-api-types';
 import ButtonCircle from '~/components/Button/ButtonCircle';
 import Input from '~/components/MyInput';
 import {ArrowRightIcon} from '@heroicons/react/24/outline';
 import {MagnifyingGlassIcon} from '~/components/Icons/MyIcons';
 import {Empty} from '~/components/Empty';
-import {SortFilter} from '~/components/SortFilter';
+import {SortFilter, FILTER_URL_PREFIX} from '~/components/SortFilter';
+import FiltersSidebar from '~/components/FiltersSidebar';
 import {RouteContent} from '~/sections/RouteContent';
 import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFiltersFromRequest';
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
@@ -110,15 +112,50 @@ export const meta = ({matches}: MetaArgs<typeof loader>) => {
 export default function Search() {
   const {searchTerm, data, defaultPriceFilter, routePromise} =
     useLoaderData<typeof loader>();
+  const [params] = useSearchParams();
   const noResults = !data.search.nodes.length;
-  // const totalProducts = noResults
-  //   ? 0
-  //   : getProductTotalByFilter(data?.search?.productFilters?.[0]?.values as any);
 
   const products = {
     nodes: data.search.nodes.filter((item) => item?.id),
     pageInfo: data.search.pageInfo,
   };
+
+  // Build applied filters from search params (same logic as collection page)
+  const filtersFromSearchParams = [...params.entries()].reduce(
+    (filters, [key, value]) => {
+      if (key.startsWith(FILTER_URL_PREFIX)) {
+        const filterKey = key.substring(FILTER_URL_PREFIX.length);
+        filters.push({
+          [filterKey]: JSON.parse(value),
+        });
+      }
+      return filters;
+    },
+    [] as ProductFilter[],
+  );
+
+  const allFilterValues = (data.search.productFilters as Filter[])?.flatMap(
+    (filter) => filter.values,
+  ) || [];
+  const appliedFilters = filtersFromSearchParams
+    .map((filter) => {
+      const foundValue = allFilterValues?.find((value: any) => {
+        const valueInput = JSON.parse(value.input as string) as ProductFilter;
+        if (valueInput.price && filter.price) {
+          return true;
+        }
+        return JSON.stringify(valueInput) === JSON.stringify(filter);
+      });
+      if (!foundValue) {
+        return null;
+      }
+      return {
+        filter,
+        label: foundValue.label,
+        data: foundValue,
+      };
+    })
+    .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
 
   return (
     <div className={'page-search pb-20 lg:pb-28 xl:pb-32'}>
@@ -156,37 +193,56 @@ export default function Search() {
             </header>
           </div>
 
-          <div className="container pt-20 lg:pt-28">
+          <div className="container pt-10 lg:pt-14">
             {noResults ? (
               <Empty />
             ) : (
-              <div>
-                {/* TABS FILTER */}
-                <SortFilter
-                  filters={data.search.productFilters as Filter[]}
-                  defaultPriceFilter={defaultPriceFilter}
-                  sorts={[
-                    {label: 'Relevance', key: 'relevance'},
-                    {label: 'Price: Low to High', key: 'price-low-high'},
-                    {
-                      label: 'Price: High to Low',
-                      key: 'price-high-low',
-                    },
-                  ]}
-                />
+              <div className="flex gap-8">
+                {/* Sidebar with Filters - Desktop only */}
+                <div className="hidden lg:block lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-32px)] lg:overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 scrollbar-track-transparent">
+                  <FiltersSidebar
+                    filters={data.search.productFilters as Filter[]}
+                    appliedFilters={appliedFilters}
+                    defaultPriceFilter={defaultPriceFilter}
+                  />
+                </div>
 
-                {/* LOOP ITEMS */}
-                <hr className="mt-8 mb-8 lg:mb-12" />
-                <>
+                {/* Main Content */}
+                <div className="flex-1">
+                  {/* Mobile Filters + Sort */}
+                  <div className="lg:hidden mb-8">
+                    <SortFilter
+                      filters={data.search.productFilters as Filter[]}
+                      defaultPriceFilter={defaultPriceFilter}
+                      sorts={[
+                        {label: 'Relevance', key: 'relevance'},
+                        {label: 'Price: Low to High', key: 'price-low-high'},
+                        {label: 'Price: High to Low', key: 'price-high-low'},
+                      ]}
+                    />
+                  </div>
+
+                  {/* Desktop Sort Only */}
+                  <div className="hidden lg:flex justify-end mb-8">
+                    <SortFilter
+                      filters={[]}
+                      defaultPriceFilter={defaultPriceFilter}
+                      sorts={[
+                        {label: 'Relevance', key: 'relevance'},
+                        {label: 'Price: Low to High', key: 'price-low-high'},
+                        {label: 'Price: High to Low', key: 'price-high-low'},
+                      ]}
+                    />
+                  </div>
+
+                  {/* Products Grid */}
                   <Pagination connection={products}>
                     {({
                       nodes,
                       isLoading,
                       PreviousLink,
                       NextLink,
-                      nextPageUrl,
                       hasNextPage,
-                      state,
                       hasPreviousPage,
                     }) => (
                       <>
@@ -211,7 +267,7 @@ export default function Search() {
                       </>
                     )}
                   </Pagination>
-                </>
+                </div>
               </div>
             )}
           </div>
