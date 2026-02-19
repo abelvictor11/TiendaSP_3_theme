@@ -167,7 +167,7 @@ export default function FiltersSidebar({
                 />
                 <span className="text-xs text-center truncate w-full">
                   {option.label.length > 7 ? option.label.slice(0, 7) + '...' : option.label}
-                  {option.count != null && <span className="text-neutral-400"> ({option.count})</span>}
+                  {option.count != null && <span className="text-black text-xs"> ({option.count})</span>}
                 </span>
               </button>
             );
@@ -210,7 +210,7 @@ export default function FiltersSidebar({
                       />
                       <span className="text-xs text-center truncate w-full">
                         {option.label.length > 7 ? option.label.slice(0, 7) + '...' : option.label}
-                        {option.count != null && <span className="text-neutral-400"> ({option.count})</span>}
+                        {option.count != null && <span className="text-black text-xs"> ({option.count})</span>}
                       </span>
                     </button>
                   );
@@ -257,7 +257,7 @@ export default function FiltersSidebar({
                     : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500',
                 )}
               >
-                {option.label}{option.count != null && <span className="text-neutral-400 font-normal"> ({option.count})</span>}
+                {option.label}{option.count != null && <span className="text-black text-xs font-normal"> ({option.count})</span>}
               </button>
             );
           })}
@@ -332,7 +332,7 @@ export default function FiltersSidebar({
                 label={
                   <>
                     {option.label}
-                    {option.count != null && <span className="text-neutral-400"> ({option.count})</span>}
+                    {option.count != null && <span className="text-black text-xs"> ({option.count})</span>}
                   </>
                 }
                 checked={isChecked}
