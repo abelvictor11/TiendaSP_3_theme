@@ -520,6 +520,13 @@ export function ProductForm({
           </div>
         )}
 
+        {/* SKU */}
+        {selectedVariant?.sku && (
+          <p className="text-sm text-slate-500 mt-2">
+            SKU: <span className="text-slate-700 dark:text-slate-300">{selectedVariant.sku}</span>
+          </p>
+        )}
+
         <div className="flex flex-wrap items-center mt-5 gap-4 lg:gap-5">
           <Prices
             contentClass="py-1 px-2 md:py-1.5 md:px-3 text-lg font-semibold"
