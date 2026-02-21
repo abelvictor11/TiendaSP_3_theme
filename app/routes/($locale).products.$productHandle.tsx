@@ -445,7 +445,32 @@ export function ProductForm({
     publishedAt: product.publishedAt,
   });
 
-  const collection = product.collections.nodes[0];
+  // Build breadcrumb hierarchy from product collections
+  const breadcrumbs = (() => {
+    const collections = (product.collections?.nodes || []) as any[];
+    if (collections.length === 0) return [];
+
+    const collectionHandles = new Set(collections.map((c: any) => c.handle));
+
+    // Find a parent that has a coleccion_hija referencing another collection the product belongs to
+    for (const col of collections) {
+      const children = col.coleccion_hija?.references?.nodes || [];
+      for (const child of children) {
+        if (child.handle !== col.handle && collectionHandles.has(child.handle)) {
+          // Found parent -> child relationship
+          const childCol = collections.find((c: any) => c.handle === child.handle);
+          return [
+            {title: col.title.replace(/(<([^>]+)>)/gi, ''), handle: col.handle, href: `/collections/${col.handle}`},
+            {title: (childCol?.title || child.title).replace(/(<([^>]+)>)/gi, ''), handle: child.handle, href: `/collections/${col.handle}/${child.handle}`},
+          ];
+        }
+      }
+    }
+
+    // No hierarchy found, use first collection
+    const first = collections[0];
+    return [{title: first.title.replace(/(<([^>]+)>)/gi, ''), handle: first.handle, href: `/collections/${first.handle}`}];
+  })();
 
   // Parse custom badges from metafield
   // Format: [{"text": "Destacado", "color": "#d4f542", "textColor": "#1a1a2e"}, ...]
@@ -463,7 +488,7 @@ export function ProductForm({
     <>
       {/* ---------- HEADING ----------  */}
       <div>
-        {!!collection && (
+        {breadcrumbs.length > 0 && (
           <nav className="mb-4" aria-label="Breadcrumb">
             <ol className="flex items-center space-x-2">
               <li>
@@ -474,20 +499,24 @@ export function ProductForm({
                   >
                     Inicio
                   </Link>
-                  <SlashIcon className="ml-2 h-5 w-5 flex-shrink-0 text-gray-300 " />
+                  <SlashIcon className="ml-2 h-5 w-5 flex-shrink-0 text-gray-300" />
                 </div>
               </li>
-              <li>
-                <div className="flex items-center text-sm">
-                  <Link
-                    to={'/collections/' + collection.handle}
-                    className="font-medium text-gray-500 hover:text-gray-900"
-                  >
-                    {/* romove html on title */}
-                    {collection.title.replace(/(<([^>]+)>)/gi, '')}
-                  </Link>
-                </div>
-              </li>
+              {breadcrumbs.map((crumb, index) => (
+                <li key={crumb.handle}>
+                  <div className="flex items-center text-sm">
+                    <Link
+                      to={crumb.href}
+                      className="font-medium text-gray-500 hover:text-gray-900"
+                    >
+                      {crumb.title}
+                    </Link>
+                    {index < breadcrumbs.length - 1 && (
+                      <SlashIcon className="ml-2 h-5 w-5 flex-shrink-0 text-gray-300" />
+                    )}
+                  </div>
+                </li>
+              ))}
             </ol>
           </nav>
         )}
@@ -999,11 +1028,22 @@ const PRODUCT_FRAGMENT = `#graphql
       publishedAt
       encodedVariantExistence
       encodedVariantAvailability
-      collections(first: 1) {
+      collections(first: 10) {
         nodes {
           id
           title
           handle
+          coleccion_hija: metafield(namespace: "custom", key: "coleccion_hija") {
+            references(first: 20) {
+              nodes {
+                ... on Collection {
+                  id
+                  handle
+                  title
+                }
+              }
+            }
+          }
         }
       }
       reviews_rating_count: metafield(namespace: "reviews", key:"rating_count") {
