@@ -39,6 +39,10 @@ const DEMO: {label: string; key: SortParam}[] = [
     label: 'Más Recientes',
     key: 'newest',
   },
+  {
+    label: 'Ofertas',
+    key: 'on-sale',
+  },
 ];
 export interface SortMenuProps {
   items?: {

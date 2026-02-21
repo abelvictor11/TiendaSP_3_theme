@@ -232,6 +232,7 @@ function CollectionContent({
   noResults: boolean;
 }) {
   const [params] = useSearchParams();
+  const isOnSaleFilter = params.get('sort') === 'on-sale';
 
   const filtersFromSearchParams = [...params.entries()].reduce(
     (filters, [key, value]) => {
@@ -267,6 +268,15 @@ function CollectionContent({
     })
     .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
 
+  // Filter products on sale if on-sale sort is active
+  const displayNodes = isOnSaleFilter
+    ? products.filter((product: any) => {
+        const compareAt = product.compareAtPriceRange?.minVariantPrice?.amount;
+        const price = product.priceRange?.minVariantPrice?.amount;
+        return compareAt && price && Number(compareAt) > Number(price);
+      })
+    : products;
+
   return (
     <div className="flex gap-8">
       {/* Sidebar with Filters - sticky with independent scroll */}
@@ -299,7 +309,7 @@ function CollectionContent({
         {/* Products Grid */}
         {!noResults ? (
           <>
-            <ProductsGrid nodes={products as any} className="mt-0" />
+            <ProductsGrid nodes={displayNodes as any} className="mt-0" />
             
             <PaginationBar
               totalProducts={totalProducts}
