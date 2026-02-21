@@ -252,7 +252,6 @@ function ChildCollectionContent({
   noResults: boolean;
 }) {
   const [params] = useSearchParams();
-  const isOnSaleFilter = params.get('sort') === 'on-sale';
 
   const filtersFromSearchParams = [...params.entries()].reduce(
     (filters, [key, value]) => {
@@ -290,15 +289,6 @@ function ChildCollectionContent({
     })
     .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
 
-  // Filter products on sale if on-sale sort is active
-  const displayNodes = isOnSaleFilter
-    ? products.filter((product: any) => {
-        const compareAt = product.compareAtPriceRange?.minVariantPrice?.amount;
-        const price = product.priceRange?.minVariantPrice?.amount;
-        return compareAt && price && Number(compareAt) > Number(price);
-      })
-    : products;
-
   return (
     <div className="flex gap-8">
       {/* Sidebar with Filters */}
@@ -332,7 +322,7 @@ function ChildCollectionContent({
         {!noResults ? (
           <>
             <ProductsGrid
-              nodes={displayNodes as any}
+              nodes={products as any}
               className="mt-0"
             />
 

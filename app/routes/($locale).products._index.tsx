@@ -9,6 +9,7 @@ import {getSeoMeta} from '@shopify/hydrogen';
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
 import {SortFilter} from '~/components/SortFilter';
+import type {SortParam} from '~/components/SortMenu';
 import FiltersSidebar from '~/components/FiltersSidebar';
 import {useSearchParams} from '@remix-run/react';
 import type {ProductFilter} from '@shopify/hydrogen/storefront-api-types';
@@ -91,15 +92,28 @@ export default function AllProducts() {
   const {collection, products, currentPage, pageSize, defaultPriceFilter} =
     useLoaderData<typeof loader>();
 
+  const [params] = useSearchParams();
   const noResults = !products.length;
 
-  // Get filtered total from the filtered products query
-  const availabilityFilter = collection.products.filters.find(
+  // Check if any filters are active (URL params starting with "filter.")
+  const hasActiveFilters = [...params.keys()].some((key) => key.startsWith(FILTER_URL_PREFIX));
+
+  // Use the unfiltered default query for consistent total count
+  const defaultAvailabilityFilter = collection.productsWithDefaultFilter.filters.find(
+    (filter: any) => filter.id === 'filter.v.availability',
+  );
+  const totalProductsDefault = getProductTotalByFilter(defaultAvailabilityFilter?.values as any);
+
+  // Get filtered total (changes when filters are applied)
+  const filteredAvailabilityFilter = collection.products.filters.find(
     (filter: Filter) => filter.id === 'filter.v.availability',
   );
-  const totalProducts = noResults
+  const totalProductsFiltered = noResults
     ? 0
-    : getProductTotalByFilter(availabilityFilter?.values as any);
+    : getProductTotalByFilter(filteredAvailabilityFilter?.values as any);
+
+  // Show filtered count when filters are active, otherwise show stable default count
+  const totalProducts = hasActiveFilters ? totalProductsFiltered : totalProductsDefault;
 
   return (
     <div className="nc-PageCollection pb-20 lg:pb-28 xl:pb-32">
@@ -137,6 +151,15 @@ export default function AllProducts() {
   );
 }
 
+// Sort options for /products page - excludes 'Ofertas' since it requires a dedicated collection
+const PRODUCTS_SORT_ITEMS: {label: string; key: SortParam}[] = [
+  {label: 'Destacados', key: 'featured'},
+  {label: 'Precio: Menor a Mayor', key: 'price-low-high'},
+  {label: 'Precio: Mayor a Menor', key: 'price-high-low'},
+  {label: 'Más Vendidos', key: 'best-selling'},
+  {label: 'Más Recientes', key: 'newest'},
+];
+
 function AllProductsContent({
   collection,
   products,
@@ -155,7 +178,6 @@ function AllProductsContent({
   noResults: boolean;
 }) {
   const [params] = useSearchParams();
-  const isOnSaleFilter = params.get('sort') === 'on-sale';
 
   const filtersFromSearchParams = [...params.entries()].reduce(
     (filters, [key, value]) => {
@@ -191,15 +213,6 @@ function AllProductsContent({
     })
     .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
 
-  // Filter products on sale if on-sale sort is active
-  const displayNodes = isOnSaleFilter
-    ? products.filter((product: any) => {
-        const compareAt = product.compareAtPriceRange?.minVariantPrice?.amount;
-        const price = product.priceRange?.minVariantPrice?.amount;
-        return compareAt && price && Number(compareAt) > Number(price);
-      })
-    : products;
-
   return (
     <div className="flex gap-8">
       {/* Sidebar with Filters */}
@@ -218,6 +231,7 @@ function AllProductsContent({
           <SortFilter
             filters={collection.products.filters as Filter[]}
             defaultPriceFilter={defaultPriceFilter}
+            sorts={PRODUCTS_SORT_ITEMS}
           />
         </div>
 
@@ -226,13 +240,14 @@ function AllProductsContent({
           <SortFilter
             filters={[]}
             defaultPriceFilter={defaultPriceFilter}
+            sorts={PRODUCTS_SORT_ITEMS}
           />
         </div>
 
         {/* Products Grid */}
         {!noResults ? (
           <>
-            <ProductsGrid nodes={displayNodes as any} className="mt-0" />
+            <ProductsGrid nodes={products as any} className="mt-0" />
 
             <PaginationBar
               totalProducts={totalProducts}
