@@ -8,6 +8,7 @@ interface Metafield {
 
 interface ProductSpecsProps {
   metafields?: Metafield[];
+  barcode?: string | null;
   className?: string;
 }
 
@@ -160,6 +161,7 @@ function formatKeyToLabel(key: string): string {
 
 const ProductSpecs: FC<ProductSpecsProps> = ({
   metafields = [],
+  barcode,
   className = '',
 }) => {
   const specs = (metafields || [])
@@ -182,7 +184,7 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
 
   const especificaciones = metafields?.find((m) => m?.key === 'especificaciones')?.value;
 
-  if (specs.length === 0 && !especificaciones) return null;
+  if (specs.length === 0 && !especificaciones && !barcode) return null;
 
   return (
     <div className="pt-8">
@@ -191,8 +193,18 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
       </h2>
 
       {/* Specs Grid */}
-      {specs.length > 0 && (
+      {(specs.length > 0 || barcode) && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+          {barcode && (
+            <div className="flex flex-col p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
+                Código de Barras
+              </span>
+              <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                {barcode}
+              </span>
+            </div>
+          )}
           {specs.map((spec, index) => (
             <div
               key={index}

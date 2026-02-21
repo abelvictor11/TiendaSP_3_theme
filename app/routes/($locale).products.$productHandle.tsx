@@ -237,7 +237,7 @@ export default function Product() {
 
               {/* Technical Specifications - Below description on desktop */}
               <div className="mt-10">
-                <ProductSpecs metafields={metafields} />
+                <ProductSpecs metafields={metafields} barcode={selectedVariant?.barcode} />
               </div>
             </div>
           </div>
@@ -347,7 +347,7 @@ export default function Product() {
               <ProductDescription descriptionHtml={descriptionHtml} />
             )}
             <div className="mt-10">
-              <ProductSpecs metafields={metafields} />
+              <ProductSpecs metafields={metafields} barcode={selectedVariant?.barcode} />
             </div>
           </div>
 
@@ -975,6 +975,7 @@ export const PRODUCT_VARIANT_FRAGMENT = `#graphql
       currencyCode
     }
     sku
+    barcode
     title
     unitPrice {
       amount
