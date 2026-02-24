@@ -46,9 +46,10 @@ interface MegamenuConfig {
 interface NavigationBarProps {
   headerMenu?: ParentEnhancedMenuItem[] | null;
   headerData?: HeaderMenuQuery;
+  collectionsWithChildren?: Record<string, any[]>;
 }
 
-export default function NavigationBar({headerMenu, headerData}: NavigationBarProps) {
+export default function NavigationBar({headerMenu, headerData, collectionsWithChildren = {}}: NavigationBarProps) {
   if (!headerMenu || !Array.isArray(headerMenu) || headerMenu.length === 0) {
     return null;
   }
@@ -65,12 +66,18 @@ export default function NavigationBar({headerMenu, headerData}: NavigationBarPro
                 (config: MegamenuConfig) => 
                   config.menu_item_title?.value?.toLowerCase() === item.title.toLowerCase()
               );
+
+              // Extract collection handle from the menu item URL for auto mega menu
+              const collectionHandle = item.to?.match(/\/collections\/([^/?#]+)/)?.[1];
+              const childCollections = collectionHandle ? collectionsWithChildren[collectionHandle] : undefined;
+
               return (
                 <NavItem
                   key={item.id + '-' + index.toString()}
                   menuItem={item}
                   headerData={headerData}
                   megamenuConfig={megamenuConfig}
+                  childCollections={childCollections}
                 />
               );
             })}
@@ -85,15 +92,18 @@ function NavItem({
   menuItem,
   headerData,
   megamenuConfig,
+  childCollections,
 }: {
   menuItem: ParentEnhancedMenuItem;
   headerData?: HeaderMenuQuery;
   megamenuConfig?: MegamenuConfig;
+  childCollections?: any[];
 }) {
   const hasChildren = menuItem.items && menuItem.items.length > 0;
   const hasCustomMegamenu = megamenuConfig?.sections?.references?.nodes?.length;
+  const hasAutoChildren = childCollections && childCollections.length > 0;
 
-  if (!hasChildren && !hasCustomMegamenu) {
+  if (!hasChildren && !hasCustomMegamenu && !hasAutoChildren) {
     return (
       <li>
         {!menuItem.to.startsWith('http') ? (
@@ -180,6 +190,12 @@ function NavItem({
                   <CustomMegamenu 
                     config={megamenuConfig!} 
                     onClose={() => setIsHovered(false)} 
+                  />
+                ) : hasAutoChildren ? (
+                  <AutoMegamenu
+                    menuItem={menuItem}
+                    childCollections={childCollections!}
+                    onClose={() => setIsHovered(false)}
                   />
                 ) : (
                   <DefaultMegamenu 
@@ -357,6 +373,71 @@ function CustomMegamenu({
           </Link>
         </div>
       )}
+    </div>
+  );
+}
+
+function AutoMegamenu({
+  menuItem,
+  childCollections,
+  onClose,
+}: {
+  menuItem: ParentEnhancedMenuItem;
+  childCollections: any[];
+  onClose: () => void;
+}) {
+  const parentHandle = menuItem.to?.match(/\/collections\/([^/?#]+)/)?.[1] || '';
+
+  return (
+    <div>
+      {/* Header with link to parent collection */}
+      <div className="flex items-center justify-between mb-6 pb-3 border-b border-slate-100 dark:border-slate-800">
+        <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400">
+          {menuItem.title}
+        </h3>
+        <Link
+          to={menuItem.to}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-900 dark:text-white hover:text-primary-600 transition-colors"
+          onClick={onClose}
+        >
+          Ver todo
+          <ArrowRightIcon className="w-3.5 h-3.5" />
+        </Link>
+      </div>
+
+      {/* Child collections grid with images */}
+      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        {childCollections.map((child) => (
+          <Link
+            key={child.id}
+            to={`/collections/${parentHandle}/${child.handle}`}
+            className="group block text-center"
+            onClick={onClose}
+          >
+            <div className="aspect-square rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 mb-2">
+              {child.image?.url ? (
+                <img
+                  src={child.image.url}
+                  alt={child.image.altText || child.title}
+                  width={child.image.width || 200}
+                  height={child.image.height || 200}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-neutral-300 dark:text-neutral-600">
+                  <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
+                  </svg>
+                </div>
+              )}
+            </div>
+            <p className="text-sm font-medium text-slate-700 dark:text-neutral-300 group-hover:text-black dark:group-hover:text-white transition-colors line-clamp-2">
+              {child.title}
+            </p>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

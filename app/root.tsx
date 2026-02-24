@@ -149,7 +149,7 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
     variables: {
       featuredCollectionsFirst: 1,
       socialsFirst: 10,
-      headerMenuHandle: 'menu-header',
+      headerMenuHandle: 'main-menu-1',
       ultraMenuHandle: 'ultra-menu',
       language,
       country,
@@ -372,6 +372,36 @@ const HEADER_QUERY = `#graphql
     featuredCollections: collections(first: $featuredCollectionsFirst, sortKey: UPDATED_AT) {
       nodes {
         ...CommonCollectionItem
+      }
+    }
+    menuCollections: collections(first: 50) {
+      nodes {
+        id
+        handle
+        title
+        image {
+          url
+          altText
+          width
+          height
+        }
+        subcollections: metafield(namespace: "custom", key: "coleccion_hija") {
+          references(first: 20) {
+            nodes {
+              ... on Collection {
+                id
+                handle
+                title
+                image {
+                  url
+                  altText
+                  width
+                  height
+                }
+              }
+            }
+          }
+        }
       }
     }
     socials: metaobjects(type: "ciseco--social", first: $socialsFirst) {
