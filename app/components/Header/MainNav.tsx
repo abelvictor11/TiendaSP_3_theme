@@ -150,6 +150,7 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks, se
                 <input
                   type="search"
                   name="q"
+                  autoComplete="off"
                   placeholder="Buscar productos..."
                   className={clsx(
                     "w-full h-11 pl-12 pr-4 bg-[#ededed] text-sm dark:border-slate-700 rounded-md focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100 transition-all",
