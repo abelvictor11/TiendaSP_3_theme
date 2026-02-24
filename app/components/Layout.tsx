@@ -59,7 +59,25 @@ function MyHeader() {
       <div className="nc-Header z-40 relative">
         <HeaderMenuDataWrap>
           {({headerData, headerMenu}) => {
-            const brands = (headerData as any)?.brands?.nodes || [];
+            // Try metaobject brands first, fallback to dynamic vendors from filters
+            const metaobjectBrands = (headerData as any)?.brands?.nodes || [];
+            
+            // Extract vendors from the "all" collection vendor filter
+            const allVendorsFilters = (headerData as any)?.allVendors?.products?.filters || [];
+            const vendorFilter = allVendorsFilters.find((f: any) => f.id === 'filter.p.vendor');
+            const dynamicVendors = (vendorFilter?.values || [])
+              .map((v: any) => ({
+                id: `vendor-${v.label}`,
+                handle: v.label.toLowerCase().replace(/\s+/g, '-'),
+                name: {value: v.label},
+                slug: {value: v.label},
+                count: v.count,
+              }))
+              .sort((a: any, b: any) => a.name.value.localeCompare(b.name.value));
+
+            // Use metaobject brands if available, otherwise use dynamic vendors
+            const brands = metaobjectBrands.length > 0 ? metaobjectBrands : dynamicVendors;
+
             const quickLinksConfig = (headerData as any)?.headerQuickLinks?.nodes?.[0];
             const quickLinks = {
               enabled: quickLinksConfig?.enabled?.value !== 'false',

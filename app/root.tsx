@@ -436,6 +436,19 @@ const HEADER_QUERY = `#graphql
         }
       }
     }
+    allVendors: collection(handle: "all") {
+      products(first: 0) {
+        filters {
+          id
+          label
+          values {
+            label
+            count
+            input
+          }
+        }
+      }
+    }
     topBarMarquee: metaobjects(type: "ciseco--top_bar_marquee", first: 1) {
       nodes {
         id
