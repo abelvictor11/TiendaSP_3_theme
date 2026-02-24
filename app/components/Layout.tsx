@@ -83,9 +83,12 @@ function MyHeader() {
               enabled: quickLinksConfig?.enabled?.value !== 'false',
               items: quickLinksConfig?.items?.references?.nodes || [],
             };
+
+            // Parse search suggestions for header search input
+            const searchSuggestionsRaw = (headerData as any)?.searchSuggestions;
             return (
               <>
-                <MainNav isHome={isHome} brands={brands} quickLinks={quickLinks} />
+                <MainNav isHome={isHome} brands={brands} quickLinks={quickLinks} searchSuggestions={searchSuggestionsRaw} />
                 <NavigationBar 
                   headerMenu={headerMenu?.items} 
                   headerData={headerData}

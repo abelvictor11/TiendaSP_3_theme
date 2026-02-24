@@ -436,6 +436,41 @@ const HEADER_QUERY = `#graphql
         }
       }
     }
+    searchSuggestions: metaobject(handle: {handle: "search-suggestions", type: "ciseco--search_suggestions"}) {
+      fields {
+        key
+        value
+        references(first: 20) {
+          edges {
+            node {
+              ... on Metaobject {
+                id
+                handle
+                fields {
+                  key
+                  value
+                  reference {
+                    ... on Collection {
+                      id
+                      handle
+                      title
+                    }
+                    ... on MediaImage {
+                      image {
+                        url
+                        altText
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
     allVendors: collection(handle: "all") {
       products(first: 0) {
         filters {
