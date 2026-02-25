@@ -1,5 +1,5 @@
 import {type FC} from 'react';
-import LangDropdown from './LangDropdown';
+import HeaderQuickLinks, {type QuickLinkItem} from './HeaderQuickLinks';
 import AvatarDropdown from './AvatarDropdown';
 import Logo from '../Logo';
 import CartBtn from './CartBtn';
@@ -10,12 +10,18 @@ import {Link} from '../Link';
 import {useAside} from '../Aside';
 import {Form, useParams} from '@remix-run/react';
 
+interface QuickLinksConfig {
+  enabled: boolean;
+  items: QuickLinkItem[];
+}
+
 export interface Props {
   className?: string;
   isHome?: boolean;
+  quickLinks?: QuickLinksConfig;
 }
 
-const MainNav: FC<Props> = ({className = '', isHome}) => {
+const MainNav: FC<Props> = ({className = '', isHome, quickLinks}) => {
   const {type: activeType, close, open} = useAside();
   const params = useParams();
 
@@ -68,7 +74,11 @@ const MainNav: FC<Props> = ({className = '', isHome}) => {
 
           {/* Right side actions */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <LangDropdown className="hidden md:block" />
+            <HeaderQuickLinks 
+              className="hidden md:flex" 
+              items={quickLinks?.items} 
+              enabled={quickLinks?.enabled}
+            />
             {/* Mobile search icon - Hidden on desktop */}
             <Link
               to={'/search'}

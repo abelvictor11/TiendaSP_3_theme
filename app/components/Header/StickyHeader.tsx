@@ -70,7 +70,14 @@ const StickyHeader: FC<StickyHeaderProps> = ({className = ''}) => {
               to="/"
               className="flex items-center text-lg font-bold text-slate-900 dark:text-white"
             >
-              <span className="text-primary-600">{storeConfig.stickyLogoText}</span>
+              {'stickyLogoSvg' in storeConfig && storeConfig.stickyLogoSvg ? (
+                <span
+                  className="h-8 w-auto [&>svg]:h-full [&>svg]:w-auto"
+                  dangerouslySetInnerHTML={{__html: storeConfig.stickyLogoSvg}}
+                />
+              ) : (
+                <span className="text-primary-600">{storeConfig.stickyLogoText}</span>
+              )}
             </Link>
 
             {/* Compact Search - Desktop only */}
