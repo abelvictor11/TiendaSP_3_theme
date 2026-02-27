@@ -79,6 +79,10 @@ import {
   SECTION_PRODUCT_CAROUSEL_FRAGMENT,
   SectionProductCarousel,
 } from './SectionProductCarousel';
+import {
+  SECTION_CATEGORY_GROUP_TABS_FRAGMENT,
+  SectionCategoryGroupTabs,
+} from './SectionCategoryGroupTabs';
 import clsx from 'clsx';
 import {SECTION_HERO_FRAGMENT, SectionHero} from './SectionHero';
 import {OKENDO_PRODUCT_STAR_RATING_FRAGMENT} from '@okendo/shopify-hydrogen';
@@ -112,7 +116,8 @@ export type CisecoSectionType =
   | 'section_shop_by_category'
   | 'ciseco--section_banner'
   | 'ciseco--section_product_carousel'
-  | 'ciseco--section_shop_by_brand';
+  | 'ciseco--section_shop_by_brand'
+  | 'ciseco--category_group_tabs';
 
 export function Sections({
   sections,
@@ -256,6 +261,12 @@ export function Sections({
                 <SectionShopByBrand {...section} key={section.id} />
               </WrapSection>
             );
+          case 'ciseco--category_group_tabs':
+            return (
+              <WrapSection key={section.id} index={index} {...args}>
+                <SectionCategoryGroupTabs {...section} key={section.id} />
+              </WrapSection>
+            );
 
           // case 'section_another':
           //   return <AnotherSection />;
@@ -329,6 +340,7 @@ export const SECTIONS_FRAGMENT = `#graphql
             ...SectionBanner
             ...SectionProductCarousel
             ...SectionShopByBrand
+            ...SectionCategoryGroupTabs
           }
         }
       }
@@ -355,6 +367,7 @@ export const SECTIONS_FRAGMENT = `#graphql
   ${SECTION_BANNER_FRAGMENT}
   ${SECTION_PRODUCT_CAROUSEL_FRAGMENT}
   ${SECTION_SHOP_BY_BRAND_FRAGMENT}
+  ${SECTION_CATEGORY_GROUP_TABS_FRAGMENT}
 
   # All common fragments
   ${COMMON_PRODUCT_CARD_FRAGMENT}
