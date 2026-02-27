@@ -14,16 +14,16 @@ export function SectionProductCarousel(
   const {
     heading,
     sub_heading,
-    collection,
-    products: productsField,
+    carouselCollection,
+    carouselProducts,
     background_color,
   } = section;
 
   const bgColor = background_color?.value || 'transparent';
 
   // Products can come from a collection reference or a direct list
-  const collectionProducts = (collection as any)?.products?.nodes || [];
-  const directProducts = productsField?.nodes || [];
+  const collectionProducts = (carouselCollection as any)?.products?.nodes || [];
+  const directProducts = carouselProducts?.nodes || [];
   const productsList = directProducts.length > 0 ? directProducts : collectionProducts;
 
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -80,7 +80,7 @@ export const SECTION_PRODUCT_CAROUSEL_FRAGMENT = `#graphql
       key
       value
     }
-    collection: field(key: "collection") {
+    carouselCollection: field(key: "collection") {
       key
       reference {
         ... on Collection {
@@ -95,9 +95,9 @@ export const SECTION_PRODUCT_CAROUSEL_FRAGMENT = `#graphql
         }
       }
     }
-    products: field(key: "products") {
+    carouselProducts: field(key: "products") {
       key
-      references(first: 12) {
+      references(first: 2) {
         nodes {
           ... on Product {
             ...CommonProductCard

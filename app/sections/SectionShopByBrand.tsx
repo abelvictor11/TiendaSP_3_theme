@@ -12,13 +12,13 @@ export function SectionShopByBrand(props: SectionShopByBrandFragment) {
   const {
     heading,
     sub_heading,
-    collections,
+    brandCollections,
   } = section;
 
   const sliderRef = useRef<HTMLDivElement>(null);
   const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
 
-  const collectionNodes = collections?.nodes || [];
+  const collectionNodes = brandCollections?.nodes || [];
 
   if (!collectionNodes.length) return null;
 
@@ -91,9 +91,9 @@ export const SECTION_SHOP_BY_BRAND_FRAGMENT = `#graphql
       key
       value
     }
-    collections: field(key: "collections") {
+    brandCollections: field(key: "collections") {
       key
-      references(first: 20) {
+      references(first: 10) {
         nodes {
           ... on Collection {
             id
