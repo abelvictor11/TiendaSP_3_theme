@@ -297,7 +297,7 @@ const ProductCard: FC<ProductCardProps> = ({
                   ? 'bg-blue-100 text-blue-700' 
                   : uso_tipo.value.toLowerCase() === 'profesional'
                   ? 'bg-purple-100 text-purple-700'
-                  : 'bg-[#F9F9F9] text-[#2B2A2A]'
+                  : 'bg-[#f9f7f7] text-[#2B2A2A]'
               }`}>
                 {uso_tipo.value}
               </span>
@@ -308,7 +308,7 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="py-5 px-2.5 flex-grow flex flex-col bg-[#F9F9F9] dark:bg-secondary-700" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+        <div className="py-5 px-2.5 flex-grow flex flex-col bg-[#f9f7f7] dark:bg-secondary-700" style={{ fontFamily: 'Montserrat, sans-serif' }}>
           
           
           {renderColorOptions()}
