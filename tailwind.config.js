@@ -24,7 +24,7 @@ export default {
     fontFamily: {
       display: ['var(--font-display)', ...defaultTheme.fontFamily.sans],
       body: ['var(--font-body)', ...defaultTheme.fontFamily.sans],
-      headline: ['F37Bolton', ...defaultTheme.fontFamily.sans],
+      headline: ['Space Grotesk', ...defaultTheme.fontFamily.sans],
     },
     container: {
       center: true,
@@ -105,8 +105,8 @@ export default {
         mobileGallery: 'calc(100vw - 4rem)',
       },
       fontFamily: {
-        sans: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        serif: ['Poppins', 'Palatino', 'ui-serif'],
+        sans: ['Arial', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['Arial', 'Palatino', 'ui-serif'],
       },
       fontSize: {
         display: ['var(--font-size-display)', '1.1'],
