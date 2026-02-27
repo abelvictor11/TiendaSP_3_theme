@@ -113,7 +113,7 @@ export default function Collection() {
             <div className="flex items-center gap-2 py-3 overflow-x-auto hiddenScroll justify-center">
               <Link
                 to={`/collections/${collection.handle}`}
-                className="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-full bg-[#e5f7fd] dark:bg-white dark:text-slate-900"
+                className="flex-shrink-0 px-4 py-2 text-sm font-medium rounded-full bg-[#e5f7fd] dark:bg-white dark:text-secondary-800"
               >
                 All {collection.title}
               </Link>

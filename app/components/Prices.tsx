@@ -44,7 +44,7 @@ const Prices: FC<PricesProps> = ({
     <div className={`${className} pt-2`}>
       <div className={`flex items-center flex-wrap gap-x-2 gap-y-1 ${contentClass}`}>
         {price ? (
-          <span className={hasDiscount ? 'text-red-500 !leading-none font-bold' : 'text-slate-900 dark:text-slate-100 !leading-none font-bold'}>
+          <span className={hasDiscount ? 'text-red-500 !leading-none font-bold' : 'text-secondary-800 dark:text-slate-100 !leading-none font-bold'}>
             {formatPrice(price.amount, withoutTrailingZeros)}
           </span>
         ) : null}

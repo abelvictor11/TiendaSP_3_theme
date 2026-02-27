@@ -47,7 +47,7 @@ export function ProductGallery({
       <div className={clsx('flex flex-col', className)}>
         {/* Main Image - Maintains aspect ratio and fits within container */}
         <div
-          className="relative w-full bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden cursor-zoom-in group flex items-center justify-center min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]"
+          className="relative w-full bg-slate-50 dark:bg-secondary-700 rounded-xl overflow-hidden cursor-zoom-in group flex items-center justify-center min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]"
           onClick={() => openModal(activeIndex)}
           aria-hidden
         >
@@ -107,8 +107,8 @@ export function ProductGallery({
                 className={clsx(
                   'relative aspect-square rounded-lg overflow-hidden transition-all',
                   hasImage
-                    ? 'bg-slate-100 dark:bg-slate-800 cursor-pointer'
-                    : 'bg-slate-50 dark:bg-slate-900 cursor-default',
+                    ? 'bg-slate-100 dark:bg-secondary-700 cursor-pointer'
+                    : 'bg-slate-50 dark:bg-secondary-800 cursor-default',
                   isActive && hasImage
                     ? 'ring-2 ring-primary-500 ring-offset-2'
                     : hasImage
@@ -161,7 +161,7 @@ export function ProductGallery({
             >
               <ButtonClose
                 onClick={closeModal}
-                className="fixed right-4 top-4 z-50 !w-11 !h-11 border bg-white dark:bg-slate-800"
+                className="fixed right-4 top-4 z-50 !w-11 !h-11 border bg-white dark:bg-secondary-700"
                 IconclassName="w-6 h-6"
               />
               
@@ -198,7 +198,7 @@ function ModalImageGallery({
   return (
     <div className="flex flex-col items-center">
       {/* Main modal image */}
-      <div className="w-full bg-white dark:bg-slate-900 rounded-xl overflow-hidden">
+      <div className="w-full bg-white dark:bg-secondary-800 rounded-xl overflow-hidden">
         {activeImage && (
           <Image
             loading="eager"
@@ -227,7 +227,7 @@ function ModalImageGallery({
               type="button"
               onClick={() => onChangeIndex(i)}
               className={clsx(
-                'relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-white dark:bg-slate-800 transition-all',
+                'relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-white dark:bg-secondary-700 transition-all',
                 isActive
                   ? 'ring-2 ring-primary-500 ring-offset-2'
                   : 'opacity-60 hover:opacity-100 hover:ring-2 hover:ring-slate-300',

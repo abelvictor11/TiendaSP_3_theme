@@ -287,7 +287,7 @@ export default function OrderRoute() {
                       </p>
 
                       <div className="flex">
-                        <div className="font-medium text-slate-900 flex">
+                        <div className="font-medium text-secondary-800 flex">
                           <span className="me-2"> Total:</span>
                           <Money data={totalDiscount!} />
                         </div>

@@ -110,7 +110,7 @@ export function SectionHeroSlider(props: SectionHeroSliderFragment) {
                 >
                   <div className="relative h-1 w-full rounded-md bg-white shadow-sm">
                     {isActive && (
-                      <div className="nc-SectionHeroSliderItem__dot absolute inset-0 rounded-md bg-slate-900" />
+                      <div className="nc-SectionHeroSliderItem__dot absolute inset-0 rounded-md bg-secondary-800" />
                     )}
                   </div>
                 </button>

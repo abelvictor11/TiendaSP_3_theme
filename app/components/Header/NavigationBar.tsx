@@ -17,7 +17,7 @@ export default function NavigationBar({headerMenu, headerData}: NavigationBarPro
   }
 
   return (
-    <div className="nc-NavigationBar bg-white dark:bg-slate-900 border-t border-slate-200/70 dark:border-slate-700">
+    <div className="nc-NavigationBar bg-white dark:bg-secondary-800 border-t border-slate-200/70 dark:border-slate-700">
       <div className="container relative">
         <nav className="nc-Navigation flex justify-center items-center py-0">
           <ul className="nc-Navigation hidden lg:flex items-center space-x-1">
@@ -53,7 +53,7 @@ function NavItem({
             to={menuItem.to}
             target={menuItem.target}
             prefetch="intent"
-            className="inline-flex items-center text-sm lg:text-base font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
+            className="inline-flex items-center text-sm lg:text-base font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             {menuItem.title}
           </Link>
@@ -61,7 +61,7 @@ function NavItem({
           <a
             href={menuItem.to}
             target={menuItem.target}
-            className="inline-flex items-center text-sm lg:text-base font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
+            className="inline-flex items-center text-sm lg:text-base font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             {menuItem.title}
           </a>
@@ -99,8 +99,8 @@ function NavItem({
           to={menuItem.to}
           prefetch="intent"
           className={`
-            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-300'}
-            group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
+            ${isHovered ? 'text-secondary-800 dark:text-slate-100 bg-slate-100 dark:bg-secondary-700' : 'text-slate-700 dark:text-slate-300'}
+            group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
           <span>{menuItem.title}</span>
           <ChevronDownIcon
@@ -114,8 +114,8 @@ function NavItem({
           href={menuItem.to}
           target={menuItem.target}
           className={`
-            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-300'}
-            group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
+            ${isHovered ? 'text-secondary-800 dark:text-slate-100 bg-slate-100 dark:bg-secondary-700' : 'text-slate-700 dark:text-slate-300'}
+            group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
           <span>{menuItem.title}</span>
           <ChevronDownIcon
@@ -146,7 +146,7 @@ function NavItem({
                                 to={subItem.to}
                                 target={subItem.target}
                                 prefetch="intent"
-                                className="font-medium text-slate-900 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                                className="font-medium text-secondary-800 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                                 onClick={() => setIsHovered(false)}
                               >
                                 {subItem.title}
@@ -158,7 +158,7 @@ function NavItem({
                                 className="block group"
                                 onClick={() => setIsHovered(false)}
                               >
-                                <p className="font-medium text-slate-900 dark:text-neutral-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                <p className="font-medium text-secondary-800 dark:text-neutral-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                   {subItem.title}
                                 </p>
                               </a>

@@ -26,7 +26,7 @@ export function PageAccoutLayout({
           <div>
             <Link
               to="/account"
-              className="hover:text-slate-900 hover:underline flex items-center text-sm font-medium"
+              className="hover:text-secondary-800 hover:underline flex items-center text-sm font-medium"
             >
               <ArrowLeftIcon className="h-5 w-5 inline-block mr-2" />
               Back to Account

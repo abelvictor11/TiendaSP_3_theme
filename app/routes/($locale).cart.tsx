@@ -348,7 +348,7 @@ function CartSummary({
           Learn more{` `}
           <Link
             to={'/policies/shipping-policy'}
-            className="text-slate-900 dark:text-slate-200 underline font-medium"
+            className="text-secondary-800 dark:text-slate-200 underline font-medium"
           >
             shipping
           </Link>
@@ -360,7 +360,7 @@ function CartSummary({
             target="_blank"
             rel="noopener noreferrer"
             href="##"
-            className="text-slate-900 dark:text-slate-200 underline font-medium"
+            className="text-secondary-800 dark:text-slate-200 underline font-medium"
           >
             refund
           </Link>

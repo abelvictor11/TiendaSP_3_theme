@@ -61,7 +61,7 @@ function Account({customer, heading}: AccountType) {
           <h1 className="text-3xl xl:text-4xl font-semibold">{heading}</h1>
           <span className="block mt-4 text-neutral-500 dark:text-neutral-400 text-base sm:text-lg">
             {!!firstName && (
-              <span className="text-slate-900 dark:text-slate-200 font-semibold">
+              <span className="text-secondary-800 dark:text-slate-200 font-semibold">
                 {`${firstName} ${lastName}`},
               </span>
             )}{' '}

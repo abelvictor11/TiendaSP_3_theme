@@ -68,7 +68,7 @@ const ProductHighlights: FC<ProductHighlightsProps> = ({
           className="flex flex-col items-start text-left p-4 rounded-2xl border-slate-200 dark:border-slate-700 border border-red-100 dark:bg-opacity-90"
         >
           <item.icon className="w-6 h-6 text-black mb-2" />
-          <span className="text-sm block font-semibold text-slate-900">
+          <span className="text-sm block font-semibold text-secondary-800">
             {item.text}
           </span>
         </div>

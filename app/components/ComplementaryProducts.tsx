@@ -28,7 +28,7 @@ export function ComplementaryProducts({
         onClick={() => setIsExpanded(!isExpanded)}
         className="w-full flex items-center justify-between px-5 py-4 bg-white hover:bg-slate-50 transition-colors"
       >
-        <h3 className="font-headline text-lg font-bold text-slate-900">{title}</h3>
+        <h3 className="font-headline text-lg font-bold text-secondary-800">{title}</h3>
         {isExpanded ? (
           <ChevronUpIcon className="w-5 h-5 text-slate-500" />
         ) : (
@@ -78,7 +78,7 @@ function ComplementaryProductItem({product}: {product: CommonProductCardFragment
       {/* Product Info */}
       <div className="flex-1 min-w-0">
         <Link to={`/products/${product.handle}`}>
-          <h4 className="font-medium text-slate-900 truncate hover:text-primary-600 transition-colors">
+          <h4 className="font-medium text-secondary-800 truncate hover:text-primary-600 transition-colors">
             {product.title}
           </h4>
         </Link>
@@ -100,7 +100,7 @@ function ComplementaryProductItem({product}: {product: CommonProductCardFragment
         {/* Price */}
         <div className="mt-2">
           {price && (
-            <span className="font-bold text-slate-900">
+            <span className="font-bold text-secondary-800">
               <Money data={price} />
             </span>
           )}

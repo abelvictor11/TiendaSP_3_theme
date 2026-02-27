@@ -74,12 +74,12 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
           {specs.map((spec, index) => (
             <div
               key={index}
-              className="flex justify-between items-center py-3 px-4 bg-slate-50 dark:bg-slate-800 rounded-lg"
+              className="flex justify-between items-center py-3 px-4 bg-slate-50 dark:bg-secondary-700 rounded-lg"
             >
               <span className="text-sm text-slate-500 dark:text-slate-400">
                 {spec.label}
               </span>
-              <span className="text-sm font-semibold text-slate-900 dark:text-white">
+              <span className="text-sm font-semibold text-secondary-800 dark:text-white">
                 {spec.value}
               </span>
             </div>
@@ -95,7 +95,7 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
               href={fichaTecnicaPdf}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors text-sm font-medium"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-secondary-800 text-white rounded-lg hover:bg-secondary-700 transition-colors text-sm font-medium"
             >
               <ArrowDownTrayIcon className="w-5 h-5" />
               Descargar Ficha Técnica

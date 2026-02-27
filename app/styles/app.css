@@ -60,38 +60,41 @@
 }
 
 :root {
-  --c-primary-50: 254, 242, 242;
-  --c-primary-100: 254, 226, 226;
-  --c-primary-200: 254, 202, 202;
-  --c-primary-300: 252, 165, 165;
-  --c-primary-400: 248, 113, 113;
-  --c-primary-500: 255, 0, 0;
-  --c-primary-600: 220, 38, 38;
-  --c-primary-700: 185, 28, 28;
-  --c-primary-800: 153, 27, 27;
-  --c-primary-900: 127, 29, 29;
+  /* Primary: #FF1627 (Ciclospecial Red) */
+  --c-primary-50: 255, 241, 242;
+  --c-primary-100: 255, 220, 223;
+  --c-primary-200: 255, 186, 191;
+  --c-primary-300: 255, 140, 148;
+  --c-primary-400: 255, 82, 95;
+  --c-primary-500: 255, 22, 39;
+  --c-primary-600: 224, 13, 28;
+  --c-primary-700: 188, 10, 22;
+  --c-primary-800: 153, 12, 22;
+  --c-primary-900: 120, 14, 22;
 
-  --c-secondary-50: 240, 253, 244;
-  --c-secondary-100: 220, 252, 231;
-  --c-secondary-200: 187, 247, 208;
-  --c-secondary-300: 134, 239, 172;
-  --c-secondary-400: 74, 222, 128;
-  --c-secondary-500: 34, 197, 94;
-  --c-secondary-600: 22, 163, 74;
-  --c-secondary-700: 21, 128, 61;
-  --c-secondary-800: 22, 101, 52;
-  --c-secondary-900: 20, 83, 45;
+  /* Secondary: #131210 (Dark / Text) */
+  --c-secondary-50: 233, 223, 221;
+  --c-secondary-100: 219, 210, 208;
+  --c-secondary-200: 199, 200, 197;
+  --c-secondary-300: 158, 158, 155;
+  --c-secondary-400: 108, 108, 105;
+  --c-secondary-500: 68, 68, 65;
+  --c-secondary-600: 45, 44, 42;
+  --c-secondary-700: 30, 29, 27;
+  --c-secondary-800: 19, 18, 16;
+  --c-secondary-900: 0, 0, 0;
 
-  --c-neutral-50: 249, 250, 251;
-  --c-neutral-100: 243, 244, 246;
-  --c-neutral-200: 229, 231, 235;
-  --c-neutral-300: 209, 213, 219;
-  --c-neutral-400: 156, 163, 175;
-  --c-neutral-500: 107, 114, 128;
-  --c-neutral-600: 75, 85, 99;
-  --c-neutral-700: 55, 65, 81;
-  --c-neutral-800: 31, 41, 55;
-  --c-neutral-900: 17, 24, 39;
+  /* Neutrals: #E9DFDD (light) → #C7C8C5 (mid) → #000000 (dark) */
+  --c-neutral-50: 245, 240, 239;
+  --c-neutral-100: 233, 223, 221;
+  --c-neutral-200: 215, 209, 207;
+  --c-neutral-300: 199, 200, 197;
+  --c-neutral-400: 163, 164, 161;
+  --c-neutral-500: 118, 118, 116;
+  --c-neutral-600: 78, 78, 76;
+  --c-neutral-700: 50, 49, 47;
+  --c-neutral-800: 19, 18, 16;
+  --c-neutral-900: 0, 0, 0;
 }
 
 @keyframes fadeInAnimation {

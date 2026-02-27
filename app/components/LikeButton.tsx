@@ -27,7 +27,7 @@ const LikeButton: React.FC<LikeButtonProps> = ({
 
   return (
     <button
-      className={`w-9 h-9 flex items-center justify-center rounded-full bg-white dark:bg-slate-900 text-neutral-700 dark:text-slate-200 nc-shadow-lg ${className}`}
+      className={`w-9 h-9 flex items-center justify-center rounded-full bg-white dark:bg-secondary-800 text-neutral-700 dark:text-slate-200 nc-shadow-lg ${className}`}
       onClick={(e) => {
         if (typeof window === 'undefined') return;
         const likedProducts = JSON.parse(

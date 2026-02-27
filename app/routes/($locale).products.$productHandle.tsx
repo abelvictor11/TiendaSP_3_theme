@@ -582,7 +582,7 @@ export function ProductForm({
             </ButtonSecondary>
           ) : (
             <div className="flex gap-2 sm:gap-3.5 items-stretch">
-              <div className="flex items-center justify-center bg-slate-100/70 dark:bg-slate-800/70 p-2 sm:p-3 rounded-full">
+              <div className="flex items-center justify-center bg-slate-100/70 dark:bg-secondary-700/70 p-2 sm:p-3 rounded-full">
                 <NcInputNumber
                   className=""
                   defaultValue={quantity}
@@ -664,8 +664,8 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
                       : 'text-opacity-20 cursor-not-allowed'
                     : 'cursor-pointer',
                   isActive
-                    ? 'bg-slate-900 border-slate-900 text-slate-100'
-                    : 'border-slate-300 text-slate-900 hover:bg-neutral-50 ',
+                    ? 'bg-secondary-800 border-secondary-800 text-slate-100'
+                    : 'border-slate-300 text-secondary-800 hover:bg-neutral-50 ',
                 )}
               >
                 {!isAvailable && (
@@ -760,7 +760,7 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
                   )}
                 >
                   {/* Image */}
-                  <div className="aspect-square w-full rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 mb-2 flex items-center justify-center">
+                  <div className="aspect-square w-full rounded-md overflow-hidden bg-slate-100 dark:bg-secondary-700 mb-2 flex items-center justify-center">
                     <Image
                       data={{
                         url: imageUrl,
@@ -784,7 +784,7 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
                   </span>
 
                   {!isAvailable && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-slate-900/60 rounded-lg">
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-secondary-800/60 rounded-lg">
                       <span className="text-xs text-slate-500">Agotado</span>
                     </div>
                   )}

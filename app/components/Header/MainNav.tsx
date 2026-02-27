@@ -29,7 +29,7 @@ const MainNav: FC<Props> = ({className = '', isHome, quickLinks}) => {
     <div
       className={clsx(
         className,
-        'nc-MainNav2 relative z-10 bg-white dark:bg-slate-900',
+        'nc-MainNav2 relative z-10 bg-white dark:bg-secondary-800',
       )}
     >
       <div className="px-8">
@@ -37,7 +37,7 @@ const MainNav: FC<Props> = ({className = '', isHome, quickLinks}) => {
           {/* Mobile Menu Button */}
           <div className="flex items-center lg:hidden">
             <button
-              className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none"
+              className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-secondary-700 focus:outline-none"
               onClick={() => open('mobile')}
               type="button"
               aria-label="Open menu"
@@ -66,7 +66,7 @@ const MainNav: FC<Props> = ({className = '', isHome, quickLinks}) => {
                   type="search"
                   name="q"
                   placeholder="Buscar productos..."
-                  className="w-full h-11 pl-12 pr-4 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
+                  className="w-full h-11 pl-12 pr-4 text-sm bg-slate-50 dark:bg-secondary-700 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-secondary-800 dark:text-slate-100"
                 />
               </div>
             </Form>
@@ -82,7 +82,7 @@ const MainNav: FC<Props> = ({className = '', isHome, quickLinks}) => {
             {/* Mobile search icon - Hidden on desktop */}
             <Link
               to={'/search'}
-              className="flex lg:hidden w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none items-center justify-center"
+              className="flex lg:hidden w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-secondary-700 focus:outline-none items-center justify-center"
               aria-label="Search"
             >
               <MagnifyingGlassIcon />

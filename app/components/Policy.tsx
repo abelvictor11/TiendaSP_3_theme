@@ -94,7 +94,7 @@ const Policy: FC<Props> = ({
 
             <div dangerouslySetInnerHTML={{__html: item.svg}}></div>
             <div className="mt-4">
-              <span className="block font-semibold text-slate-900">
+              <span className="block font-semibold text-secondary-800">
                 {item.name}
               </span>
               <div className="text-slate-500 mt-1 text-sm line-clamp-1">

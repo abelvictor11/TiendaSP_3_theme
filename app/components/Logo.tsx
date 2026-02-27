@@ -22,7 +22,7 @@ const Logo: React.FC<LogoProps> = ({
   return (
     <Link
       to="/"
-      className={`ttnc-logo flex-shrink-0 inline-block text-slate-900 ${className}`}
+      className={`ttnc-logo flex-shrink-0 inline-block text-secondary-800 ${className}`}
     >
       <img
         src={storeConfig.logoUrl}

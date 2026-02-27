@@ -34,7 +34,7 @@ const Radio: FC<RadioProps> = ({
         // eslint-disable-next-line jsx-a11y/label-has-associated-control
         <label
           htmlFor={id}
-          className="pl-2.5 sm:pl-3 block text-slate-900 dark:text-slate-100 select-none text-sm xl:text-base"
+          className="pl-2.5 sm:pl-3 block text-secondary-800 dark:text-slate-100 select-none text-sm xl:text-base"
           dangerouslySetInnerHTML={{__html: label}}
         />
       )}

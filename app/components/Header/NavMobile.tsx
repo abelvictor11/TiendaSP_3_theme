@@ -50,10 +50,10 @@ const NavMobile: React.FC<NavMobileProps> = ({onClose}) => {
       <Disclosure
         key={item.id}
         as="li"
-        className="text-slate-900 dark:text-white"
+        className="text-secondary-800 dark:text-white"
       >
         <Link
-          className="flex w-full items-center py-2.5 px-2.5 font-medium uppercase tracking-wide text-sm hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
+          className="flex w-full items-center py-2.5 px-2.5 font-medium uppercase tracking-wide text-sm hover:bg-slate-100 dark:hover:bg-secondary-700 rounded-lg"
           to={item.to}
           target={item.target}
           prefetch="intent"
@@ -127,12 +127,12 @@ const NavMobile: React.FC<NavMobileProps> = ({onClose}) => {
       <Form
         action="/search"
         method="get"
-        className="flex-1 text-slate-900 dark:text-slate-200"
+        className="flex-1 text-secondary-800 dark:text-slate-200"
         onSubmit={() => {
           onClose && onClose();
         }}
       >
-        <div className="bg-slate-50 dark:bg-slate-800 flex space-x-1 p-2 rounded-xl h-full">
+        <div className="bg-slate-50 dark:bg-secondary-700 flex space-x-1 p-2 rounded-xl h-full">
           <input
             name="q"
             defaultValue={searchTerm}

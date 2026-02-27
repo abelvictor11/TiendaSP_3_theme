@@ -40,7 +40,7 @@ const PageHeader: FC<Props> = ({
       >
         <Link
           to={prevbreadcrumb.href}
-          className="hover:text-slate-900 hover:underline"
+          className="hover:text-secondary-800 hover:underline"
         >
           {prevbreadcrumb.title}
         </Link>

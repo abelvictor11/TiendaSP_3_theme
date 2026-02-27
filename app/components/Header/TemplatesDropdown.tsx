@@ -101,7 +101,7 @@ function MenuItem({
           to={item.to}
           target={item.target}
           prefetch="intent"
-          className="font-medium text-slate-900 dark:text-neutral-200"
+          className="font-medium text-secondary-800 dark:text-neutral-200"
           onClick={close}
         >
           {item.title}
@@ -110,7 +110,7 @@ function MenuItem({
         <a
           href={item.to}
           target={item.target}
-          className="font-medium text-slate-900 dark:text-neutral-200"
+          className="font-medium text-secondary-800 dark:text-neutral-200"
           onClick={close}
         >
           {item.title}

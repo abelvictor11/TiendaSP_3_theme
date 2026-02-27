@@ -169,7 +169,7 @@ const ProductCard: FC<ProductCardProps> = ({
             return (
               <Link
                 key={`${index + size}`}
-                className="nc-shadow-lg min-w-10 h-10 flex-shrink-0 px-2 rounded-xl bg-white transition-colors cursor-pointer flex items-center justify-center font-semibold tracking-tight text-sm text-slate-900 hover:bg-slate-50"
+                className="nc-shadow-lg min-w-10 h-10 flex-shrink-0 px-2 rounded-xl bg-white transition-colors cursor-pointer flex items-center justify-center font-semibold tracking-tight text-sm text-secondary-800 hover:bg-slate-50"
                 to={getProductUrlWithSelectedOption({
                   productHandle: product.handle,
                   selectedOptions: [
@@ -189,7 +189,7 @@ const ProductCard: FC<ProductCardProps> = ({
             <Link
               prefetch="intent"
               to={variantUrl}
-              className="nc-shadow-lg min-w-10 h-10 flex-shrink-0 px-2 rounded-xl bg-white transition-colors cursor-pointer flex items-center justify-center font-semibold tracking-tight text-sm text-slate-900 hover:bg-slate-50"
+              className="nc-shadow-lg min-w-10 h-10 flex-shrink-0 px-2 rounded-xl bg-white transition-colors cursor-pointer flex items-center justify-center font-semibold tracking-tight text-sm text-secondary-800 hover:bg-slate-50"
             >
               <span className="-ml-0.5">+{sizes.length - 4}</span>
             </Link>
@@ -231,7 +231,7 @@ const ProductCard: FC<ProductCardProps> = ({
         )}
         {!firstVariant.availableForSale && (
           <ButtonSecondary
-            className="ms-1.5 bg-white hover:!bg-gray-100 hover:text-slate-900 transition-colors shadow-lg"
+            className="ms-1.5 bg-white hover:!bg-gray-100 hover:text-secondary-800 transition-colors shadow-lg"
             fontSize="text-xs"
             sizeClass="py-2 px-4"
             disabled
@@ -308,7 +308,7 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="py-5 px-2.5 flex-grow flex flex-col bg-[#F9F9F9] dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+        <div className="py-5 px-2.5 flex-grow flex flex-col bg-[#F9F9F9] dark:bg-secondary-700" style={{ fontFamily: 'Montserrat, sans-serif' }}>
           
           
           {renderColorOptions()}
