@@ -18,7 +18,7 @@ export default function NavigationBar({headerMenu, headerData}: NavigationBarPro
 
   return (
     <div className="nc-NavigationBar bg-white dark:bg-secondary-800 border-t border-slate-200/70 dark:border-slate-700">
-      <div className="container relative">
+      <div className="container-fluid relative">
         <nav className="nc-Navigation flex justify-center items-center py-0">
           <ul className="nc-Navigation hidden lg:flex items-center space-x-1">
             {headerMenu.map((item, index) => (
@@ -53,7 +53,7 @@ function NavItem({
             to={menuItem.to}
             target={menuItem.target}
             prefetch="intent"
-            className="inline-flex items-center text-sm lg:text-base font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg transition-colors"
+            className="inline-flex items-center text-sm font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             {menuItem.title}
           </Link>
@@ -61,7 +61,7 @@ function NavItem({
           <a
             href={menuItem.to}
             target={menuItem.target}
-            className="inline-flex items-center text-sm lg:text-base font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg transition-colors"
+            className="inline-flex items-center text-sm font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             {menuItem.title}
           </a>
@@ -100,7 +100,7 @@ function NavItem({
           prefetch="intent"
           className={`
             ${isHovered ? 'text-secondary-800 dark:text-slate-100 bg-slate-100 dark:bg-secondary-700' : 'text-slate-700 dark:text-slate-300'}
-            group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
+            group inline-flex items-center text-sm font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
           <span>{menuItem.title}</span>
           <ChevronDownIcon
@@ -115,7 +115,7 @@ function NavItem({
           target={menuItem.target}
           className={`
             ${isHovered ? 'text-secondary-800 dark:text-slate-100 bg-slate-100 dark:bg-secondary-700' : 'text-slate-700 dark:text-slate-300'}
-            group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
+            group inline-flex items-center text-sm font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
           <span>{menuItem.title}</span>
           <ChevronDownIcon
