@@ -169,7 +169,7 @@ const ProductCard: FC<ProductCardProps> = ({
             return (
               <Link
                 key={`${index + size}`}
-                className="nc-shadow-lg min-w-10 h-10 flex-shrink-0 px-2 rounded-xl bg-white transition-colors cursor-pointer flex items-center justify-center font-semibold tracking-tight text-sm text-secondary-800 hover:bg-slate-50"
+                className="nc-shadow-lg min-w-10 h-10 flex-shrink-0 px-2 rounded-xl bg-white transition-colors cursor-pointer flex items-center justify-center font-semibold tracking-tight text-sm text-secondary-800 hover:bg-[#F9F7F7]"
                 to={getProductUrlWithSelectedOption({
                   productHandle: product.handle,
                   selectedOptions: [
@@ -189,7 +189,7 @@ const ProductCard: FC<ProductCardProps> = ({
             <Link
               prefetch="intent"
               to={variantUrl}
-              className="nc-shadow-lg min-w-10 h-10 flex-shrink-0 px-2 rounded-xl bg-white transition-colors cursor-pointer flex items-center justify-center font-semibold tracking-tight text-sm text-secondary-800 hover:bg-slate-50"
+              className="nc-shadow-lg min-w-10 h-10 flex-shrink-0 px-2 rounded-xl bg-white transition-colors cursor-pointer flex items-center justify-center font-semibold tracking-tight text-sm text-secondary-800 hover:bg-[#F9F7F7]"
             >
               <span className="-ml-0.5">+{sizes.length - 4}</span>
             </Link>
@@ -526,7 +526,7 @@ export const ProductCardSkeleton = ({
         `ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] rounded-2xl overflow-hidden ` + className
       }
     >
-      <div className="relative flex-shrink-0 bg-slate-50 border border-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group p-5">
+      <div className="relative flex-shrink-0 bg-[#F9F7F7] border border-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group p-5">
         <div className="flex aspect-w-1 aspect-h-1 w-full group-hover:opacity-80 transition-opacity">
           <ThumbnailSkeleton />
         </div>

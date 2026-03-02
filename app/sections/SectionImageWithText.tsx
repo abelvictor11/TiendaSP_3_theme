@@ -59,7 +59,7 @@ export function SectionImageWithText(props: SectionImageWithTextFragment) {
           style?.value === '2' &&
             'relative flex flex-col lg:flex-row lg:justify-end bg-yellow-50 dark:bg-secondary-700 rounded-2xl sm:rounded-[40px] p-4 pb-0 sm:p-5 sm:pb-0 lg:p-24',
           style?.value === '3' &&
-            'relative flex flex-col lg:flex-row bg-slate-50 dark:bg-secondary-700 rounded-2xl sm:rounded-[40px] p-4 pb-0 sm:p-5 sm:pb-0 lg:p-24',
+            'relative flex flex-col lg:flex-row bg-[#F9F7F7] dark:bg-secondary-700 rounded-2xl sm:rounded-[40px] p-4 pb-0 sm:p-5 sm:pb-0 lg:p-24',
         ])}
         style={{backgroundColor: background_color?.value || undefined}}
       >

@@ -21,12 +21,12 @@ export function ComplementaryProducts({
   if (!products || products.length === 0) return null;
 
   return (
-    <div className={clsx('border border-slate-200 rounded-xl overflow-hidden', className)}>
+    <div className={clsx('border border-[#dacac7] rounded-xl overflow-hidden', className)}>
       {/* Header - Collapsible */}
       <button
         type="button"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between px-5 py-4 bg-white hover:bg-slate-50 transition-colors"
+        className="w-full flex items-center justify-between px-5 py-4 bg-white hover:bg-[#F9F7F7] transition-colors"
       >
         <h3 className="font-headline text-lg font-bold text-secondary-800">{title}</h3>
         {isExpanded ? (
@@ -111,7 +111,7 @@ function ComplementaryProductItem({product}: {product: CommonProductCardFragment
       <div className="flex items-center gap-2 shrink-0">
         <Link
           to={`/products/${product.handle}`}
-          className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-full hover:bg-slate-50 transition-colors"
+          className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-full hover:bg-[#F9F7F7] transition-colors"
         >
           Elegir opciones
         </Link>

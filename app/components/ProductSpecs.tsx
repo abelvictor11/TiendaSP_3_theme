@@ -74,7 +74,7 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
           {specs.map((spec, index) => (
             <div
               key={index}
-              className="flex justify-between items-center py-3 px-4 bg-slate-50 dark:bg-secondary-700 rounded-lg"
+              className="flex justify-between items-center py-3 px-4 bg-[#F9F7F7] dark:bg-secondary-700 rounded-lg"
             >
               <span className="text-sm text-slate-500 dark:text-slate-400">
                 {spec.label}
@@ -106,7 +106,7 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
               href={videoProducto}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors text-sm font-medium"
+              className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-[#F9F7F7] transition-colors text-sm font-medium"
             >
               <PlayCircleIcon className="w-5 h-5" />
               Ver Video del Producto

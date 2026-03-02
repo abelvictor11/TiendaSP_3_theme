@@ -125,7 +125,7 @@ function CartSummary({
         <div className="grid grid-cols-2 gap-2 mt-5">
           <ButtonSecondary
             href="/cart"
-            className="flex-1 border border-slate-200 dark:border-slate-700"
+            className="flex-1 border border-[#dacac7] dark:border-slate-700"
             onClick={onClose}
           >
             Ver carrito

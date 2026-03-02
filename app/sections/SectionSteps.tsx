@@ -23,7 +23,7 @@ export function SectionSteps(props: SectionStepsFragment) {
       <div
         className={
           style?.value === '1'
-            ? 'py-12 lg:py-16 border-t border-b border-slate-200'
+            ? 'py-12 lg:py-16 border-t border-b border-[#dacac7]'
             : ''
         }
       >

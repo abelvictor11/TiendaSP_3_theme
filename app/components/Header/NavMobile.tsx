@@ -132,7 +132,7 @@ const NavMobile: React.FC<NavMobileProps> = ({onClose}) => {
           onClose && onClose();
         }}
       >
-        <div className="bg-slate-50 dark:bg-secondary-700 flex space-x-1 p-2 rounded-xl h-full">
+        <div className="bg-[#F9F7F7] dark:bg-secondary-700 flex space-x-1 p-2 rounded-xl h-full">
           <input
             name="q"
             defaultValue={searchTerm}

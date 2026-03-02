@@ -16,7 +16,7 @@ const Policy: FC<Props> = ({
 }) => {
   const A_FEATURES = [
     {
-      color: 'border-slate-200 dark:border-slate-700 border border-red-100',
+      color: 'border-[#dacac7] dark:border-slate-700 border border-red-100',
       name: 'Política de envíos',
       desc: 'Read our shipping policy to learn more about our shipping rates, delivery times, and shipping options. ',
       svg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -33,7 +33,7 @@ const Policy: FC<Props> = ({
       learnMore: `/policies/${shippingPolicy?.handle}`,
     },
     {
-      color: 'border-slate-200 dark:border-slate-700 border border-red-100',
+      color: 'border-[#dacac7] dark:border-slate-700 border border-red-100',
       name: 'Política de devoluciones',
       desc: 'Read our return policy to learn more about our return process, eligibility, and how to request a return.',
       svg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -50,7 +50,7 @@ const Policy: FC<Props> = ({
       learnMore: `/policies/${refundPolicy?.handle}`,
     },
     {
-      color: 'border-slate-200 dark:border-slate-700 border border-red-100',
+      color: 'border-[#dacac7] dark:border-slate-700 border border-red-100',
       name: 'Cancelación',
       desc: 'Read our cancellation policy to learn more about how to cancel your order, when you can cancel your order, and how to request a cancellation.',
       svg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -64,7 +64,7 @@ const Policy: FC<Props> = ({
       learnMore: `/policies/${subscriptionPolicy?.handle}`,
     },
     {
-      color: 'border-slate-200 dark:border-slate-700 border border-red-100',
+      color: 'border-[#dacac7] dark:border-slate-700 border border-red-100',
       name: 'Política de reembolsos',
       desc: 'Read our refund policy to learn more about our refund process, eligibility, and how to request a refund.',
       svg: `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

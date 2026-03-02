@@ -17,7 +17,7 @@ export default function NavigationBar({headerMenu, headerData}: NavigationBarPro
   }
 
   return (
-    <div className="nc-NavigationBar bg-white dark:bg-secondary-800 border-t border-slate-200/70 dark:border-slate-700">
+    <div className="nc-NavigationBar bg-white dark:bg-secondary-800 border-t border-[#dacac7]/70 dark:border-slate-700">
       <div className="container-fluid relative">
         <nav className="nc-Navigation flex justify-center items-center py-0">
           <ul className="nc-Navigation hidden lg:flex items-center space-x-1">

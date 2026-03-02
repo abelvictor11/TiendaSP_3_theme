@@ -93,7 +93,7 @@ const ProductCardLarge: FC<ProductCardProps> = ({
               <span className="line-clamp-1 capitalize">{featureText}</span>
             </span>
             {featureText && hasReviews && (
-              <span className="h-5 mx-1 sm:mx-2 border-l border-slate-200 dark:border-slate-700" />
+              <span className="h-5 mx-1 sm:mx-2 border-l border-[#dacac7] dark:border-slate-700" />
             )}
 
             <OkendoStarRating
@@ -156,7 +156,7 @@ export const ProductCardLargeSkeleton = ({
             <span className="text-sm ">
               <span className="line-clamp-1 capitalize">The best feature</span>
             </span>
-            <span className="h-5 mx-1 sm:mx-2 border-l border-slate-200 dark:border-slate-700" />
+            <span className="h-5 mx-1 sm:mx-2 border-l border-[#dacac7] dark:border-slate-700" />
 
             <>
               <div className="flex">

@@ -118,7 +118,7 @@ export default function CartRoute() {
             />
           </div>
 
-          <hr className="border-slate-200 dark:border-slate-700 my-10 xl:my-12" />
+          <hr className="border-[#dacac7] dark:border-slate-700 my-10 xl:my-12" />
 
           <Content cart={cart || null} />
         </main>
@@ -144,7 +144,7 @@ function Content({cart: originalCart}: {cart: OptimisticCart | null}) {
               <CartLineItem key={line.id} line={line} />
             ))}
           </div>
-          <div className="border-t lg:border-t-0 lg:border-l border-slate-200 dark:border-slate-700 my-10 lg:my-0 lg:mx-10 xl:mx-16 2xl:mx-20 flex-shrink-0"></div>
+          <div className="border-t lg:border-t-0 lg:border-l border-[#dacac7] dark:border-slate-700 my-10 lg:my-0 lg:mx-10 xl:mx-16 2xl:mx-20 flex-shrink-0"></div>
           <div className="flex-1">
             <div className="sticky top-28">
               <CartSummary
@@ -161,7 +161,7 @@ function Content({cart: originalCart}: {cart: OptimisticCart | null}) {
       <CartEmpty hidden={linesCount} />
 
       <section className="grid gap-8 pt-16 sm:pt-24">
-        <hr className="border-slate-200 dark:border-slate-700 mb-10 xl:mb-12" />
+        <hr className="border-[#dacac7] dark:border-slate-700 mb-10 xl:mb-12" />
 
         <FeaturedProducts
           className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 lg:gap-x-6 gap-y-8"
@@ -188,7 +188,7 @@ function CartLineItem({line}: {line: OptimisticCartLine}) {
 
   const renderStatusInstock = () => {
     return (
-      <div className="rounded-full flex items-center justify-center px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+      <div className="rounded-full flex items-center justify-center px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 border border-[#dacac7] dark:border-slate-700">
         <CheckIcon className="w-3.5 h-3.5 text-secondary-500" />
         <span className="ml-1 leading-none">In Stock</span>
       </div>

@@ -19,7 +19,7 @@ const Prev: FC<PrevProps> = ({
       data-glide-el="controls"
     >
       <button
-        className={`${btnClassName} rounded-full flex items-center justify-center border-2 hover:border-slate-200 dark:hover:border-slate-600 border-transparent `}
+        className={`${btnClassName} rounded-full flex items-center justify-center border-2 hover:border-[#dacac7] dark:hover:border-slate-600 border-transparent `}
         onClick={onClickPrev}
         title="Prev"
         data-glide-dir="<"

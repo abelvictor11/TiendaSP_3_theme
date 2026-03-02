@@ -284,7 +284,7 @@ export default function Product() {
               />
 
               {/*  */}
-              <hr className=" border-slate-200 dark:border-slate-700"></hr>
+              <hr className=" border-[#dacac7] dark:border-slate-700"></hr>
               {/*  */}
 
               {/* Help Banner */}
@@ -396,7 +396,7 @@ export default function Product() {
           {/* Product reviews */}
           <ProductReviews product={product} />
 
-          <hr className="border-slate-200 dark:border-slate-700" />
+          <hr className="border-[#dacac7] dark:border-slate-700" />
 
           {/* OTHER SECTION */}
           <Suspense fallback={<div className="h-32" />}>
@@ -777,7 +777,7 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
                     'relative flex flex-col rounded-lg border-2 p-3 transition-all',
                     isActive 
                       ? 'border-primary-500 bg-primary-50/50' 
-                      : 'border-slate-200 dark:border-slate-700 hover:border-slate-300',
+                      : 'border-[#dacac7] dark:border-slate-700 hover:border-slate-300',
                     !isAvailable && 'opacity-50 cursor-not-allowed',
                   )}
                 >
@@ -903,7 +903,7 @@ const ProductReviews = ({product}: {product: ProductFragment}) => {
 
   return (
     <>
-      <hr className="border-slate-200 dark:border-slate-700" />
+      <hr className="border-[#dacac7] dark:border-slate-700" />
 
       <div className="product-page__reviews scroll-mt-nav" id="reviews">
         {/* HEADING */}

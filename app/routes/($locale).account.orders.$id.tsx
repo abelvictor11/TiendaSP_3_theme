@@ -132,8 +132,8 @@ export default function OrderRoute() {
 
   const renderOrder = () => {
     return (
-      <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden z-0">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-4 sm:p-8 bg-slate-50 dark:bg-slate-500/5">
+      <div className="border border-[#dacac7] dark:border-slate-700 rounded-lg overflow-hidden z-0">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-4 sm:p-8 bg-[#F9F7F7] dark:bg-[#F9F7F7]0/5">
           <div>
             <p className="text-lg font-semibold">Order No. {order.name}</p>
             <div className="text-slate-500 dark:text-black text-sm mt-1.5 sm:mt-2">
@@ -241,7 +241,7 @@ export default function OrderRoute() {
             </ButtonSecondary>
           </div>
         </div>
-        <div className="border-t border-slate-200 dark:border-slate-700 p-4 sm:p-8 divide-y divide-y-slate-200 dark:divide-slate-700">
+        <div className="border-t border-[#dacac7] dark:border-slate-700 p-4 sm:p-8 divide-y divide-y-slate-200 dark:divide-slate-700">
           {lineItems.map(
             ({
               id,
