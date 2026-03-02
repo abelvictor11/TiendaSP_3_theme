@@ -679,7 +679,7 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
                 prefetch="intent"
                 replace
                 className={clsx(
-                  'relative flex items-center justify-center rounded-md border py-3 px-5 sm:px-3 text-sm font-medium uppercase sm:flex-1 cursor-pointer focus:outline-none border-gray-200 ',
+                  'relative flex items-center justify-center rounded-md border py-3 px-5 sm:px-6 text-sm font-medium uppercase min-w-[80px] cursor-pointer focus:outline-none border-gray-200 ',
                   !isAvailable
                     ? isActive
                       ? 'opacity-90 text-opacity-80 cursor-not-allowed'
