@@ -157,7 +157,7 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
   const footerPromise = storefront.query(FOOTER_QUERY, {
     cache: storefront.CacheLong(),
     variables: {
-      footerMenuHandle: 'footer',
+      footerMenuHandle: 'footer-1',
       language,
       country,
     },
