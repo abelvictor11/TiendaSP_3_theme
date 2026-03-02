@@ -604,7 +604,7 @@ export function ProductForm({
             </ButtonSecondary>
           ) : (
             <div className="flex gap-2 sm:gap-3.5 items-stretch">
-              <div className="flex items-center justify-center bg-slate-100/70 dark:bg-secondary-700/70 p-2 sm:p-3 rounded-full">
+              <div className="flex items-center justify-center bg-[#F9F7F7]/70 dark:bg-secondary-700/70 p-2 sm:p-3 rounded-full">
                 <NcInputNumber
                   className=""
                   defaultValue={quantity}
@@ -782,7 +782,7 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
                   )}
                 >
                   {/* Image */}
-                  <div className="aspect-square w-full rounded-md overflow-hidden bg-slate-100 dark:bg-secondary-700 mb-2 flex items-center justify-center">
+                  <div className="aspect-square w-full rounded-md overflow-hidden bg-[#F9F7F7] dark:bg-secondary-700 mb-2 flex items-center justify-center">
                     <Image
                       data={{
                         url: imageUrl,

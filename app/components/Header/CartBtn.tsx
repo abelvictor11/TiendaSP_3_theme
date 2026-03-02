@@ -42,13 +42,13 @@ function Badge({openCart, count}: {count: number; openCart: () => void}) {
     <>
       <button
         onClick={openCart}
-        className="group w-10 h-10 sm:w-12 sm:h-12 hover:bg-slate-100 dark:hover:bg-secondary-700 rounded-full hidden md:inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 relative"
+        className="group w-10 h-10 sm:w-12 sm:h-12 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 rounded-full hidden md:inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 relative"
       >
         {BadgeCounter}
       </button>
       <Link
         to="/cart"
-        className="group w-10 h-10 sm:w-12 sm:h-12 hover:bg-slate-100 dark:hover:bg-secondary-700 rounded-full inline-flex md:hidden items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 relative"
+        className="group w-10 h-10 sm:w-12 sm:h-12 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 rounded-full inline-flex md:hidden items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 relative"
       >
         {BadgeCounter}
       </Link>
@@ -56,7 +56,7 @@ function Badge({openCart, count}: {count: number; openCart: () => void}) {
   ) : (
     <Link
       to="/cart"
-      className="group w-10 h-10 sm:w-12 sm:h-12 hover:bg-slate-100 dark:hover:bg-secondary-700 rounded-full inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 relative"
+      className="group w-10 h-10 sm:w-12 sm:h-12 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 rounded-full inline-flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 relative"
     >
       {BadgeCounter}
     </Link>

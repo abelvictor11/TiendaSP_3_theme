@@ -51,7 +51,7 @@ export function SectionShopByBrand(props: SectionShopByBrandFragment) {
                 to={`/collections/${handle}`}
                 className="snap-start shrink-0 group"
               >
-                <div className="relative w-[180px] sm:w-[220px] lg:w-[260px] aspect-square rounded-2xl overflow-hidden bg-slate-100">
+                <div className="relative w-[180px] sm:w-[220px] lg:w-[260px] aspect-square rounded-2xl overflow-hidden bg-[#F9F7F7]">
                   {imageData ? (
                     <Image
                       data={imageData}

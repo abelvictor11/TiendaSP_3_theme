@@ -541,7 +541,7 @@ export const ProductCardSkeleton = ({
             return (
               <div
                 key={'_' + index.toString()}
-                className={`relative w-4 h-4 rounded-full bg-slate-100 overflow-hidden cursor-pointer`}
+                className={`relative w-4 h-4 rounded-full bg-[#F9F7F7] overflow-hidden cursor-pointer`}
               ></div>
             );
           })}

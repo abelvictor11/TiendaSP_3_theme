@@ -107,7 +107,7 @@ export function ProductGallery({
                 className={clsx(
                   'relative aspect-square rounded-lg overflow-hidden transition-all',
                   hasImage
-                    ? 'bg-slate-100 dark:bg-secondary-700 cursor-pointer'
+                    ? 'bg-[#F9F7F7] dark:bg-secondary-700 cursor-pointer'
                     : 'bg-[#F9F7F7] dark:bg-secondary-800 cursor-default',
                   isActive && hasImage
                     ? 'ring-2 ring-primary-500 ring-offset-2'

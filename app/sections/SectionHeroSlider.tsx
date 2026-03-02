@@ -203,7 +203,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
   const buttonTextColor = (item as any).button_text_color?.value || '#ffffff';
 
   return (
-    <div className="h-[60vh] min-h-[400px] w-full lg:h-[55vh] lg:min-h-[500px] relative overflow-hidden bg-slate-100">
+    <div className="h-[60vh] min-h-[400px] w-full lg:h-[55vh] lg:min-h-[500px] relative overflow-hidden bg-[#F9F7F7]">
       {/* BG - Absolute positioned */}
       <div className="nc-SectionHeroSliderItem__image absolute inset-0 w-full h-full">
         {/* Desktop: Video or Image */}

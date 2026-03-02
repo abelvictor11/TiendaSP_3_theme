@@ -53,7 +53,7 @@ const NavMobile: React.FC<NavMobileProps> = ({onClose}) => {
         className="text-secondary-800 dark:text-white"
       >
         <Link
-          className="flex w-full items-center py-2.5 px-2.5 font-medium uppercase tracking-wide text-sm hover:bg-slate-100 dark:hover:bg-secondary-700 rounded-lg"
+          className="flex w-full items-center py-2.5 px-2.5 font-medium uppercase tracking-wide text-sm hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 rounded-lg"
           to={item.to}
           target={item.target}
           prefetch="intent"

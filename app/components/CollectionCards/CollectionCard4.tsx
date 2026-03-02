@@ -69,7 +69,7 @@ const CollectionCard4: FC<CollectionCard4Props> = ({
           {/* Imagen circular superpuesta opcional (PNG con fondo transparente) */}
           {featuredImage && (
             <div className="flex justify-between items-center">
-              <div className="w-20 h-20 relative rounded-full overflow-hidden bg-slate-100 z-0">
+              <div className="w-20 h-20 relative rounded-full overflow-hidden bg-[#F9F7F7] z-0">
                 <Image
                   data={featuredImage}
                   className="absolute inset-0 w-full h-full object-cover z-0 rounded-full"
@@ -139,7 +139,7 @@ export const CollectionCard4Skeleton: FC<
 
         <div className="absolute inset-5 sm:inset-8 flex flex-col justify-between gap-5 sm:pe-5">
           <div className="flex justify-between items-center">
-            <div className="w-20 h-20 relative rounded-full overflow-hidden bg-slate-100 z-0">
+            <div className="w-20 h-20 relative rounded-full overflow-hidden bg-[#F9F7F7] z-0">
               <ThumbnailSkeletons1 className="w-full h-full rounded-full" />
             </div>
           </div>

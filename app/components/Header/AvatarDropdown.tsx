@@ -56,7 +56,7 @@ export default function AvatarDropdown() {
   //
 
   const className =
-    'w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-secondary-700 focus:outline-none flex items-center justify-center';
+    'w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 focus:outline-none flex items-center justify-center';
   return (
     <Suspense
       fallback={
