@@ -12,8 +12,28 @@ export function SectionBrandsTicker(props: any) {
   const bgColor = background_color?.value || '#ffffff';
   const animationSpeed = speed?.value || '30'; // seconds
 
-  // Parse brands data - comes from references
-  const brandsData = brands?.references?.nodes || [];
+  // Parse brands data - supports both:
+  // 1. list.metaobject_reference (brand_item metaobjects with svg_logo, image_logo, etc.)
+  // 2. list.file_reference (direct MediaImage files)
+  const rawNodes = brands?.references?.nodes || [];
+  
+  // Normalize: detect if nodes are direct MediaImage files or Metaobjects
+  const brandsData = rawNodes.map((node: any, i: number) => {
+    // If it has an image field directly, it's a MediaImage file_reference
+    if (node.image?.url) {
+      return {
+        id: node.id || `brand-${i}`,
+        _isFileRef: true,
+        imageUrl: node.image.url,
+        altText: node.image.altText || `Brand ${i + 1}`,
+      };
+    }
+    // Otherwise it's a metaobject brand_item
+    return {
+      ...node,
+      _isFileRef: false,
+    };
+  });
 
   if (brandsData.length === 0) {
     return null;
@@ -35,6 +55,23 @@ export function SectionBrandsTicker(props: any) {
   }, [brandsData, repeatCount]);
 
   const renderBrandItem = (brand: any, index: number) => {
+    // Handle direct file_reference (MediaImage)
+    if (brand._isFileRef) {
+      return (
+        <div key={`${brand.id}-${index}`} className="flex-shrink-0">
+          <div className="flex-shrink-0 w-32 h-16 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
+            <img
+              src={brand.imageUrl}
+              alt={brand.altText}
+              className="max-w-full max-h-full object-contain"
+              loading="lazy"
+            />
+          </div>
+        </div>
+      );
+    }
+
+    // Handle metaobject brand_item
     const svgContent = brand.svg_logo?.value;
     const imageUrl = brand.image_logo?.reference?.image?.url;
     const brandUrl = brand.url?.value;
@@ -153,6 +190,15 @@ export const SECTION_BRANDS_TICKER_FRAGMENT = `#graphql
     brands: field(key: "brands") {
       references(first: 20) {
         nodes {
+          ... on MediaImage {
+            id
+            image {
+              url
+              altText
+              width
+              height
+            }
+          }
           ... on Metaobject {
             id
             type
