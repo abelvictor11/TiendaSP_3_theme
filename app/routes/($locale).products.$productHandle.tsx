@@ -244,6 +244,26 @@ export default function Product() {
                 />
               </div>
             )}
+
+            {/* Technical Specifications - Below gallery on desktop */}
+            <div className="hidden lg:block mt-10">
+              <ProductSpecs
+                dimensiones={specs_dimensiones?.value}
+                pesoMaxUsuario={specs_peso_max_usuario?.value}
+                tipoResistencia={specs_tipo_resistencia?.value}
+                nivelesResistencia={specs_niveles_resistencia?.value}
+                potenciaMotor={specs_potencia_motor?.value}
+                pesoProducto={specs_peso_producto?.value}
+                garantia={specs_garantia?.value}
+                nivelRuido={specs_nivel_ruido?.value}
+                conectividad={specs_conectividad?.value}
+                certificaciones={specs_certificaciones?.value}
+                plegable={specs_plegable?.value === 'true'}
+                requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
+                fichaTecnicaPdf={specs_ficha_tecnica_pdf?.reference?.url}
+                videoProducto={specs_video_producto?.value}
+              />
+            </div>
           </div>
 
           {/* Right Column - Product Info */}
@@ -353,23 +373,25 @@ export default function Product() {
             </div>
           )}
 
-          {/* Technical Specifications */}
-          <ProductSpecs
-            dimensiones={specs_dimensiones?.value}
-            pesoMaxUsuario={specs_peso_max_usuario?.value}
-            tipoResistencia={specs_tipo_resistencia?.value}
-            nivelesResistencia={specs_niveles_resistencia?.value}
-            potenciaMotor={specs_potencia_motor?.value}
-            pesoProducto={specs_peso_producto?.value}
-            garantia={specs_garantia?.value}
-            nivelRuido={specs_nivel_ruido?.value}
-            conectividad={specs_conectividad?.value}
-            certificaciones={specs_certificaciones?.value}
-            plegable={specs_plegable?.value === 'true'}
-            requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
-            fichaTecnicaPdf={specs_ficha_tecnica_pdf?.reference?.url}
-            videoProducto={specs_video_producto?.value}
-          />
+          {/* Technical Specifications - Mobile only (desktop shows below gallery) */}
+          <div className="lg:hidden">
+            <ProductSpecs
+              dimensiones={specs_dimensiones?.value}
+              pesoMaxUsuario={specs_peso_max_usuario?.value}
+              tipoResistencia={specs_tipo_resistencia?.value}
+              nivelesResistencia={specs_niveles_resistencia?.value}
+              potenciaMotor={specs_potencia_motor?.value}
+              pesoProducto={specs_peso_producto?.value}
+              garantia={specs_garantia?.value}
+              nivelRuido={specs_nivel_ruido?.value}
+              conectividad={specs_conectividad?.value}
+              certificaciones={specs_certificaciones?.value}
+              plegable={specs_plegable?.value === 'true'}
+              requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
+              fichaTecnicaPdf={specs_ficha_tecnica_pdf?.reference?.url}
+              videoProducto={specs_video_producto?.value}
+            />
+          </div>
 
           {/* Product reviews */}
           <ProductReviews product={product} />
