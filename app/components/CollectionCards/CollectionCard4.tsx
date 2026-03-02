@@ -83,7 +83,7 @@ const CollectionCard4: FC<CollectionCard4Props> = ({
           )}
 
           <div className="">
-            <span className="flex items-center mb-2 text-sm text-slate-700">
+            <span className="flex items-center mb-2 text-sm text-[#131210]">
               <FireIcon className="w-4 h-4 me-1.5" />
               {count} products
             </span>
@@ -145,7 +145,7 @@ export const CollectionCard4Skeleton: FC<
           </div>
 
           <div className="">
-            <span className="flex items-center mb-2 text-sm text-slate-700">
+            <span className="flex items-center mb-2 text-sm text-[#131210]">
               <FireIcon className="w-4 h-4 me-1.5" />
               99 products
             </span>

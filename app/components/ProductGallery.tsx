@@ -65,7 +65,7 @@ export function ProductGallery({
 
           {/* Zoom button */}
           <button
-            className="absolute z-10 bottom-4 right-4 w-10 h-10 text-slate-700 dark:text-slate-200 rounded-full border border-[#dacac7] dark:border-slate-600 bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm hover:bg-[#F9F7F7] dark:hover:bg-slate-600 transition-all"
+            className="absolute z-10 bottom-4 right-4 w-10 h-10 text-[#131210] dark:text-slate-200 rounded-full border border-[#dacac7] dark:border-slate-600 bg-white dark:bg-slate-700 flex items-center justify-center shadow-sm hover:bg-[#F9F7F7] dark:hover:bg-slate-600 transition-all"
             type="button"
             onClick={(e) => {
               e.stopPropagation();

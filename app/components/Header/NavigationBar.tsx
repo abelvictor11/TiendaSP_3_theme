@@ -53,7 +53,7 @@ function NavItem({
             to={menuItem.to}
             target={menuItem.target}
             prefetch="intent"
-            className="inline-flex items-center text-sm font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg transition-colors"
+            className="inline-flex items-center text-sm font-medium text-[#131210] dark:text-slate-300 py-4 px-4 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             {menuItem.title}
           </Link>
@@ -61,7 +61,7 @@ function NavItem({
           <a
             href={menuItem.to}
             target={menuItem.target}
-            className="inline-flex items-center text-sm font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg transition-colors"
+            className="inline-flex items-center text-sm font-medium text-[#131210] dark:text-slate-300 py-4 px-4 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             {menuItem.title}
           </a>
@@ -99,7 +99,7 @@ function NavItem({
           to={menuItem.to}
           prefetch="intent"
           className={`
-            ${isHovered ? 'text-secondary-800 dark:text-slate-100 bg-[#F9F7F7] dark:bg-secondary-700' : 'text-slate-700 dark:text-slate-300'}
+            ${isHovered ? 'text-secondary-800 dark:text-slate-100 bg-[#F9F7F7] dark:bg-secondary-700' : 'text-[#131210] dark:text-slate-300'}
             group inline-flex items-center text-sm font-medium py-4 px-4 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
           <span>{menuItem.title}</span>
@@ -114,7 +114,7 @@ function NavItem({
           href={menuItem.to}
           target={menuItem.target}
           className={`
-            ${isHovered ? 'text-secondary-800 dark:text-slate-100 bg-[#F9F7F7] dark:bg-secondary-700' : 'text-slate-700 dark:text-slate-300'}
+            ${isHovered ? 'text-secondary-800 dark:text-slate-100 bg-[#F9F7F7] dark:bg-secondary-700' : 'text-[#131210] dark:text-slate-300'}
             group inline-flex items-center text-sm font-medium py-4 px-4 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 hover:text-secondary-800 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
           <span>{menuItem.title}</span>

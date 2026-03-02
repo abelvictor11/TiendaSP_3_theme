@@ -106,7 +106,7 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
               href={videoProducto}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-300 text-slate-700 rounded-lg hover:bg-[#F9F7F7] transition-colors text-sm font-medium"
+              className="inline-flex items-center gap-2 px-4 py-2.5 border border-slate-300 text-[#131210] rounded-lg hover:bg-[#F9F7F7] transition-colors text-sm font-medium"
             >
               <PlayCircleIcon className="w-5 h-5" />
               Ver Video del Producto

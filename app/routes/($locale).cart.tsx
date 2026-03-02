@@ -188,7 +188,7 @@ function CartLineItem({line}: {line: OptimisticCartLine}) {
 
   const renderStatusInstock = () => {
     return (
-      <div className="rounded-full flex items-center justify-center px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 border border-[#dacac7] dark:border-slate-700">
+      <div className="rounded-full flex items-center justify-center px-2.5 py-1.5 text-xs text-[#131210] dark:text-slate-300 border border-[#dacac7] dark:border-slate-700">
         <CheckIcon className="w-3.5 h-3.5 text-secondary-500" />
         <span className="ml-1 leading-none">In Stock</span>
       </div>

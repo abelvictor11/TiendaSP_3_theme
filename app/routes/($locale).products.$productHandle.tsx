@@ -800,7 +800,7 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
                   {/* Color name */}
                   <span className={clsx(
                     'text-sm font-medium text-center',
-                    isActive ? 'text-primary-600' : 'text-slate-700 dark:text-slate-300'
+                    isActive ? 'text-primary-600' : 'text-[#131210] dark:text-slate-300'
                   )}>
                     {value}
                   </span>

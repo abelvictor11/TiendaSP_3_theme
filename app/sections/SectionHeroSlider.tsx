@@ -121,7 +121,7 @@ export function SectionHeroSlider(props: SectionHeroSliderFragment) {
 
         <button
           type="button"
-          className="absolute inset-y-px end-0 px-10 hidden lg:flex items-center justify-center z-10 text-slate-700"
+          className="absolute inset-y-px end-0 px-10 hidden lg:flex items-center justify-center z-10 text-[#131210]"
           onClick={handleClickNext}
         >
           <svg
@@ -141,7 +141,7 @@ export function SectionHeroSlider(props: SectionHeroSliderFragment) {
         </button>
         <button
           type="button"
-          className="absolute inset-y-px start-0 px-10 hidden lg:flex items-center justify-center z-10 text-slate-700"
+          className="absolute inset-y-px start-0 px-10 hidden lg:flex items-center justify-center z-10 text-[#131210]"
           onClick={handleClickPrev}
         >
           <svg

@@ -34,7 +34,7 @@ const PageHeader: FC<Props> = ({
     }
     return (
       <div
-        className={`block text-xs sm:text-sm font-medium text-slate-700 dark:text-black ${
+        className={`block text-xs sm:text-sm font-medium text-[#131210] dark:text-black ${
           reverseBreadcrumb ? 'mb-3' : 'mt-3 lg:mt-5'
         }`}
       >

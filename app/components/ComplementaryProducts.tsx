@@ -111,7 +111,7 @@ function ComplementaryProductItem({product}: {product: CommonProductCardFragment
       <div className="flex items-center gap-2 shrink-0">
         <Link
           to={`/products/${product.handle}`}
-          className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-slate-700 bg-white border border-slate-300 rounded-full hover:bg-[#F9F7F7] transition-colors"
+          className="hidden sm:inline-flex px-4 py-2 text-sm font-medium text-[#131210] bg-white border border-slate-300 rounded-full hover:bg-[#F9F7F7] transition-colors"
         >
           Elegir opciones
         </Link>

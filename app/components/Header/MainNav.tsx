@@ -37,7 +37,7 @@ const MainNav: FC<Props> = ({className = '', isHome, quickLinks}) => {
           {/* Mobile Menu Button */}
           <div className="flex items-center lg:hidden">
             <button
-              className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 focus:outline-none"
+              className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-[#131210] dark:text-slate-300 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 focus:outline-none"
               onClick={() => open('mobile')}
               type="button"
               aria-label="Open menu"
@@ -82,7 +82,7 @@ const MainNav: FC<Props> = ({className = '', isHome, quickLinks}) => {
             {/* Mobile search icon - Hidden on desktop */}
             <Link
               to={'/search'}
-              className="flex lg:hidden w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 focus:outline-none items-center justify-center"
+              className="flex lg:hidden w-10 h-10 sm:w-12 sm:h-12 rounded-full text-[#131210] dark:text-slate-300 hover:bg-[#F9F7F7] dark:hover:bg-secondary-700 focus:outline-none items-center justify-center"
               aria-label="Search"
             >
               <MagnifyingGlassIcon />

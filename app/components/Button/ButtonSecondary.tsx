@@ -8,7 +8,7 @@ const ButtonSecondary: React.FC<ButtonSecondaryProps> = ({
 }) => {
   return (
     <Button
-      className={`bg-white text-slate-700 hover:bg-gray-100 ${className}`}
+      className={`bg-white text-[#131210] hover:bg-gray-100 ${className}`}
       {...args}
     />
   );

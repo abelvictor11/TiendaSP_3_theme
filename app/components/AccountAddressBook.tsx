@@ -63,7 +63,7 @@ function Address({
         <Badge color="blue">{index}</Badge>
         {defaultAddress && <Badge color="red">Default</Badge>}
       </div>
-      <ul className="flex-1 text-sm text-slate-700 prose prose-slate">
+      <ul className="flex-1 text-sm text-[#131210] prose prose-slate">
         {(address.firstName || address.lastName) && (
           <li>
             {'' +

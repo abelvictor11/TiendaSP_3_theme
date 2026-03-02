@@ -47,7 +47,7 @@ const CollectionCard3: FC<CollectionCard3Props> = ({
             <div className="max-w-xs">
               {!!name && (
                 <span
-                  className={`block mb-2 text-sm text-slate-700`}
+                  className={`block mb-2 text-sm text-[#131210]`}
                   dangerouslySetInnerHTML={{__html: name}}
                 ></span>
               )}
