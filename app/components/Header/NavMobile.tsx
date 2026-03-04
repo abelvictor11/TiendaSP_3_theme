@@ -3,7 +3,8 @@ import {ChevronDownIcon} from '@heroicons/react/24/solid';
 import {type ParentEnhancedMenuItem} from '~/lib/utils';
 import SocialsList from '../SocialsList';
 import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/react';
-import {Form, Link, useRouteLoaderData} from '@remix-run/react';
+import {Link, useRouteLoaderData} from '@remix-run/react';
+import {SearchAutocomplete} from '../SearchAutocomplete';
 import LangDropdown from './LangDropdown';
 import {HeaderMenuDataWrap} from '../Layout';
 import type {RootLoader} from '~/root';
@@ -118,36 +119,13 @@ const NavMobile: React.FC<NavMobileProps> = ({onClose}) => {
   };
 
   const renderSearchForm = () => {
-    if (typeof window === 'undefined') return null;
-
-    const searchParams = new URLSearchParams(window.location.search);
-    const searchTerm = searchParams.get('q')!;
-
     return (
-      <Form
-        action="/search"
-        method="get"
-        className="flex-1 text-slate-900 dark:text-slate-200"
-        onSubmit={() => {
-          onClose && onClose();
-        }}
-      >
-        <div className="bg-slate-50 dark:bg-slate-800 flex space-x-1 p-2 rounded-xl h-full">
-          <input
-            name="q"
-            defaultValue={searchTerm}
-            type="search"
-            placeholder="Type and press enter"
-            className="border-none bg-transparent focus:outline-none focus:ring-0 w-full text-sm "
-          />
-          <button
-            className="flex items-center justify-center px-2"
-            type="submit"
-          >
-            {renderMagnifyingGlassIcon()}
-          </button>
-        </div>
-      </Form>
+      <div className="flex-1 text-slate-900 dark:text-slate-200">
+        <SearchAutocomplete
+          variant="mobile"
+          onSelect={() => onClose?.()}
+        />
+      </div>
     );
   };
 

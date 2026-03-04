@@ -3,7 +3,7 @@ import {
   type MetaArgs,
   type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
-import {Await, Form, Link, useLoaderData, useSearchParams, useLocation, useFetcher} from '@remix-run/react';
+import {Await, Link, useLoaderData, useSearchParams} from '@remix-run/react';
 import {Analytics, getSeoMeta} from '@shopify/hydrogen';
 import {seoPayload} from '~/lib/seo.server';
 import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
@@ -12,8 +12,6 @@ import {
   type Filter,
   type ProductFilter,
 } from '@shopify/hydrogen/storefront-api-types';
-import ButtonCircle from '~/components/Button/ButtonCircle';
-import {ArrowRightIcon} from '@heroicons/react/24/outline';
 import {MagnifyingGlassIcon} from '~/components/Icons/MyIcons';
 import {Empty} from '~/components/Empty';
 import {SortFilter, FILTER_URL_PREFIX} from '~/components/SortFilter';
@@ -24,8 +22,8 @@ import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject
 import {ProductsGrid} from '~/components/ProductsGrid';
 import {PaginationBar} from '~/components/PaginationBar';
 import {getProductTotalByFilter} from '~/utils/getProductTotalByFilter';
-import {Suspense, useState, useRef, useEffect, useCallback} from 'react';
-import {Image} from '@shopify/hydrogen';
+import {SearchAutocomplete} from '~/components/SearchAutocomplete';
+import {Suspense} from 'react';
 
 export async function loader({request, context, params}: LoaderFunctionArgs) {
   const {storefront} = context;
@@ -225,7 +223,7 @@ export default function Search() {
         <div>
           <div className="container">
             <header className="max-w-2xl mx-auto -mt-10 flex flex-col lg:-mt-7">
-              <SearchAutocomplete defaultValue={searchTerm} />
+              <SearchAutocomplete defaultValue={searchTerm} variant="page" />
             </header>
           </div>
 
@@ -343,209 +341,6 @@ export default function Search() {
 
       <Analytics.SearchView data={{searchTerm, searchResults: {nodes: products, pageInfo: {hasNextPage: false, hasPreviousPage: false}}}} />
     </div>
-  );
-}
-
-/**
- * Search Autocomplete Component
- * Fetches predictive search results as the user types
- */
-function SearchAutocomplete({defaultValue}: {defaultValue: string}) {
-  const [query, setQuery] = useState(defaultValue || '');
-  const [isOpen, setIsOpen] = useState(false);
-  const fetcher = useFetcher<any>();
-  const inputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
-
-  const predictiveResults = fetcher.data;
-  const isLoading = fetcher.state === 'loading';
-
-  const fetchPredictiveResults = useCallback(
-    (searchQuery: string) => {
-      if (searchQuery.length < 2) return;
-      fetcher.load(`/api/predictive-search?q=${encodeURIComponent(searchQuery)}`);
-    },
-    [fetcher],
-  );
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setQuery(value);
-
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
-
-    if (value.length >= 2) {
-      setIsOpen(true);
-      debounceRef.current = setTimeout(() => {
-        fetchPredictiveResults(value);
-      }, 300);
-    } else {
-      setIsOpen(false);
-    }
-  };
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
-      ) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const productResults = predictiveResults?.products || [];
-  const collectionResults = predictiveResults?.collections || [];
-  const hasResults = productResults.length > 0 || collectionResults.length > 0;
-
-  return (
-    <Form method="get" className="relative w-full">
-      <label htmlFor="search-input" className="text-slate-500">
-        <span className="sr-only">Buscar productos</span>
-        <input
-          ref={inputRef}
-          className="block w-full border-neutral-200 focus:border-primary-300 focus:ring focus:ring-primary-200 focus:ring-opacity-50 bg-white shadow-lg border-0 dark:border rounded-full pl-14 py-5 pr-5 md:pl-16 text-sm font-normal"
-          id="search-input"
-          type="search"
-          placeholder="Buscar productos, colecciones..."
-          value={query}
-          onChange={handleInputChange}
-          onFocus={() => {
-            if (query.length >= 2 && hasResults) setIsOpen(true);
-          }}
-          name="q"
-          autoComplete="off"
-        />
-        <ButtonCircle
-          className="absolute right-2.5 top-1/2 transform -translate-y-1/2"
-          size=" w-11 h-11"
-          type="submit"
-        >
-          <ArrowRightIcon className="w-5 h-5" />
-        </ButtonCircle>
-        <span className="absolute left-5 top-1/2 transform -translate-y-1/2 text-2xl md:left-6">
-          <MagnifyingGlassIcon className="w-5 h-5" />
-        </span>
-      </label>
-
-      {/* Autocomplete Dropdown */}
-      {isOpen && query.length >= 2 && (
-        <div
-          ref={dropdownRef}
-          className="absolute z-50 top-full mt-2 w-full bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl border border-neutral-200 dark:border-neutral-700 overflow-hidden max-h-[70vh] overflow-y-auto"
-        >
-          {isLoading && !hasResults && (
-            <div className="p-6 text-center text-neutral-500">
-              <div className="animate-pulse">Buscando...</div>
-            </div>
-          )}
-
-          {!isLoading && !hasResults && predictiveResults && (
-            <div className="p-6 text-center text-neutral-500">
-              No se encontraron resultados para &ldquo;{query}&rdquo;
-            </div>
-          )}
-
-          {hasResults && (
-            <div className="divide-y divide-neutral-100 dark:divide-neutral-800">
-              {/* Collections */}
-              {collectionResults.length > 0 && (
-                <div className="p-4">
-                  <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3">
-                    Colecciones
-                  </h3>
-                  <div className="space-y-2">
-                    {collectionResults.map((collection: any) => (
-                      <Link
-                        key={collection.id}
-                        to={`/collections/${collection.handle}`}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {collection.image?.url && (
-                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0">
-                            <img
-                              src={collection.image.url}
-                              alt={collection.title}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
-                        <span className="text-sm font-medium text-neutral-800 dark:text-neutral-200">
-                          {collection.title}
-                        </span>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Products */}
-              {productResults.length > 0 && (
-                <div className="p-4">
-                  <h3 className="text-xs font-semibold text-neutral-400 uppercase tracking-wider mb-3">
-                    Productos
-                  </h3>
-                  <div className="space-y-2">
-                    {productResults.map((product: any) => (
-                      <Link
-                        key={product.id}
-                        to={`/products/${product.handle}`}
-                        className="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
-                        onClick={() => setIsOpen(false)}
-                      >
-                        {product.featuredImage?.url && (
-                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0">
-                            <img
-                              src={`${product.featuredImage.url}&width=96`}
-                              alt={product.title}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-neutral-800 dark:text-neutral-200 truncate">
-                            {product.title}
-                          </p>
-                          {product.priceRange?.minVariantPrice && (
-                            <p className="text-sm text-primary-600 font-semibold">
-                              {new Intl.NumberFormat('es-CO', {
-                                style: 'currency',
-                                currency: product.priceRange.minVariantPrice.currencyCode,
-                                minimumFractionDigits: 0,
-                              }).format(Number(product.priceRange.minVariantPrice.amount))}
-                            </p>
-                          )}
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* View All Link */}
-              <div className="p-3">
-                <button
-                  type="submit"
-                  className="w-full text-center text-sm font-medium text-primary-600 hover:text-primary-700 py-2 rounded-lg hover:bg-primary-50 transition-colors"
-                >
-                  Ver todos los resultados para &ldquo;{query}&rdquo;
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-    </Form>
   );
 }
 
