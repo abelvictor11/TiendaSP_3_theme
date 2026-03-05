@@ -8,16 +8,72 @@ import type {DefaultPriceFilter} from './SortFilter';
 import {useState} from 'react';
 
 // Color map for color swatches
+// Compound/specific names MUST come before simple ones to match correctly
 const COLOR_MAP: Record<string, string> = {
+  // --- Compound / specific colors (matched first due to longer names) ---
+  'azul oscuro': '#001A72',
+  'azul marino': '#001A72',
+  'azul claro': '#87CEEB',
+  'azul cielo': '#87CEEB',
+  'azul electrico': '#0047AB',
+  'azul petroleo': '#004953',
+  'azul royal': '#002366',
+  'azul rey': '#002366',
+  'azul/negro': '#001040',
+  'azul/gris': '#4A6FA5',
+  'azul/amarillo': '#1A5DAB',
+  'azul/plateado': '#3A75C4',
+  'azul/verde': '#007B7F',
+  'azul/blanco': '#4A90D9',
+  'azul/violeta': '#4B0082',
+  'azul/rojo': '#3F0071',
+  'verde oscuro': '#006400',
+  'verde claro': '#90EE90',
+  'verde militar': '#4B5320',
+  'verde limon': '#32CD32',
+  'verde menta': '#98FF98',
+  'verde oliva': '#808000',
+  'rojo oscuro': '#8B0000',
+  'rojo vino': '#722F37',
+  'rojo cereza': '#990000',
+  'gris oscuro': '#404040',
+  'gris claro': '#C0C0C0',
+  'gris plomo': '#6E6E6E',
+  'rosa claro': '#FFB6C1',
+  'rosa fuerte': '#FF1493',
+  'rosa pastel': '#FFD1DC',
+  'blanco/negro': '#E0E0E0',
+  'blanco/azul': '#D0E4FF',
+  'blanco/rojo': '#FFE0E0',
+  'blanco/gris': '#F0F0F0',
+  'blanco/verde': '#E0FFE0',
+  'negro/blanco': '#1A1A1A',
+  'negro/rojo': '#2D0000',
+  'negro/azul': '#000033',
+  'negro/verde': '#003300',
+  'negro/amarillo': '#1A1A00',
+  'marron oscuro': '#3E2723',
+  'marron claro': '#C4A882',
+  'dark blue': '#001A72',
+  'navy blue': '#001A72',
+  'light blue': '#87CEEB',
+  'sky blue': '#87CEEB',
+  'royal blue': '#002366',
+  'dark green': '#006400',
+  'light green': '#90EE90',
+  'dark red': '#8B0000',
+  'dark grey': '#404040',
+  'light grey': '#C0C0C0',
+  'dark gray': '#404040',
+  'light gray': '#C0C0C0',
+  // --- Simple / base colors ---
   negro: '#000000',
   black: '#000000',
   azul: '#0052CC',
   blue: '#0052CC',
-  marrón: '#8B7355',
   marron: '#8B7355',
   brown: '#8B7355',
   cafe: '#8B7355',
-  café: '#8B7355',
   verde: '#00875A',
   green: '#00875A',
   gris: '#6B778C',
@@ -27,10 +83,11 @@ const COLOR_MAP: Record<string, string> = {
   orange: '#FF991F',
   rosa: '#FFCDD2',
   pink: '#FFCDD2',
-  púrpura: '#8B008B',
   purpura: '#8B008B',
   purple: '#8B008B',
   morado: '#8B008B',
+  violeta: '#7B2D8E',
+  violet: '#7B2D8E',
   rojo: '#DE350B',
   red: '#DE350B',
   blanco: '#FFFFFF',
@@ -39,6 +96,8 @@ const COLOR_MAP: Record<string, string> = {
   yellow: '#FFD700',
   neutral: '#C4C4C4',
   beige: '#D4C4A8',
+  crema: '#FFFDD0',
+  cream: '#FFFDD0',
   dorado: '#FFD700',
   gold: '#FFD700',
   plateado: '#C0C0C0',
@@ -53,13 +112,44 @@ const COLOR_MAP: Record<string, string> = {
   aguamarina: '#7FFFD4',
   aqua: '#00FFFF',
   cyan: '#00FFFF',
+  bronce: '#CD7F32',
+  bronze: '#CD7F32',
+  borgoña: '#800020',
+  burgundy: '#800020',
+  cobre: '#B87333',
+  copper: '#B87333',
+  magenta: '#FF00FF',
+  salmon: '#FA8072',
+  lila: '#C8A2C8',
+  lilac: '#C8A2C8',
+  lavanda: '#E6E6FA',
+  lavender: '#E6E6FA',
+  fucsia: '#FF00FF',
+  fuchsia: '#FF00FF',
+  celeste: '#87CEEB',
+  camel: '#C19A6B',
+  arena: '#C2B280',
+  sand: '#C2B280',
+  marfil: '#FFFFF0',
+  ivory: '#FFFFF0',
+  carbon: '#333333',
+  charcoal: '#333333',
+  neon: '#39FF14',
+  fluor: '#CCFF00',
+  multicolor: 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)',
+  multi: 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)',
 };
 
-// Get color from label
+// Get color from label — matches the LONGEST (most specific) color name first
 function getColorFromLabel(label: string): string | null {
-  const normalizedLabel = label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const normalizedLabel = label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\//g, '/');
   
-  for (const [colorName, colorValue] of Object.entries(COLOR_MAP)) {
+  // Sort entries by key length descending so compound names match before simple ones
+  const sortedEntries = Object.entries(COLOR_MAP).sort(
+    (a, b) => b[0].length - a[0].length,
+  );
+
+  for (const [colorName, colorValue] of sortedEntries) {
     const normalizedColorName = colorName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     if (normalizedLabel.includes(normalizedColorName)) {
       return colorValue;
@@ -159,11 +249,11 @@ export default function FiltersSidebar({
               >
                 <div
                   className={clsx(
-                    'w-12 h-12 rounded-full transition-all',
+                    'w-8 h-8 rounded-full transition-all',
                     isWhite ? 'border border-slate-300' : '',
                     isChecked && 'ring-2 ring-offset-2 ring-black',
                   )}
-                  style={{backgroundColor: color || '#C4C4C4'}}
+                  style={{background: color || '#C4C4C4'}}
                 />
                 <span className="text-xs text-center truncate w-full">
                   {option.label.length > 7 ? option.label.slice(0, 7) + '...' : option.label}
@@ -202,11 +292,11 @@ export default function FiltersSidebar({
                     >
                       <div
                         className={clsx(
-                          'w-12 h-12 rounded-full transition-all',
+                          'w-8 h-8 rounded-full transition-all',
                           isWhite ? 'border border-slate-300' : '',
                           isChecked && 'ring-2 ring-offset-2 ring-black',
                         )}
-                        style={{backgroundColor: color || '#C4C4C4'}}
+                        style={{background: color || '#C4C4C4'}}
                       />
                       <span className="text-xs text-center truncate w-full">
                         {option.label.length > 7 ? option.label.slice(0, 7) + '...' : option.label}
