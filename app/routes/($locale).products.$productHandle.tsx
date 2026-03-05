@@ -242,18 +242,6 @@ export default function Product() {
                 storeDomain={storeDomain}
               />
 
-              {/* Highlights - Quick specs icons */}
-              <ProductHighlights
-                highlights={specs_highlights?.value ? JSON.parse(specs_highlights.value) as string[] : undefined}
-                pesoMaxUsuario={specs_peso_max_usuario?.value}
-                plegable={specs_plegable?.value === 'true'}
-                requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
-              />
-
-              {/*  */}
-              <hr className=" border-[#dacac7] dark:border-slate-700"></hr>
-              {/*  */}
-
               {/* Accordions: Descripción, Especificaciones, Equípate al completo */}
               <div className="divide-y divide-[#dacac7] dark:divide-slate-700 border border-[#dacac7] dark:border-slate-700 rounded-xl overflow-hidden">
                 {/* Descripción Accordion */}
