@@ -34,7 +34,7 @@ import {routeHeaders} from '~/data/cache';
 import {MEDIA_FRAGMENT} from '~/data/fragments';
 import Prices from '~/components/Prices';
 import NcInputNumber from '~/components/NcInputNumber';
-import Policy from '~/components/Policy';
+// Policy import removed - policy cards no longer shown on PDP
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import BagIcon from '~/components/BagIcon';
 import {NoSymbolIcon} from '@heroicons/react/24/outline';
@@ -186,7 +186,6 @@ export default function Product() {
     specs_video_producto,
     specs_highlights,
   } = product as any;
-  const {shippingPolicy, refundPolicy, subscriptionPolicy} = shop;
 
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
@@ -232,38 +231,6 @@ export default function Product() {
               />
             </div>
 
-            {/* Product Description - Below images on desktop */}
-            {!!descriptionHtml && (
-              <div className="hidden lg:block mt-10">
-                <h2 className="text-2xl font-semibold">Detalles del producto</h2>
-                <div
-                  className="prose prose-sm sm:prose dark:prose-invert sm:max-w-4xl mt-7"
-                  dangerouslySetInnerHTML={{
-                    __html: descriptionHtml || '',
-                  }}
-                />
-              </div>
-            )}
-
-            {/* Technical Specifications - Below gallery on desktop */}
-            <div className="hidden lg:block mt-10">
-              <ProductSpecs
-                dimensiones={specs_dimensiones?.value}
-                pesoMaxUsuario={specs_peso_max_usuario?.value}
-                tipoResistencia={specs_tipo_resistencia?.value}
-                nivelesResistencia={specs_niveles_resistencia?.value}
-                potenciaMotor={specs_potencia_motor?.value}
-                pesoProducto={specs_peso_producto?.value}
-                garantia={specs_garantia?.value}
-                nivelRuido={specs_nivel_ruido?.value}
-                conectividad={specs_conectividad?.value}
-                certificaciones={specs_certificaciones?.value}
-                plegable={specs_plegable?.value === 'true'}
-                requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
-                fichaTecnicaPdf={specs_ficha_tecnica_pdf?.reference?.url}
-                videoProducto={specs_video_producto?.value}
-              />
-            </div>
           </div>
 
           {/* Right Column - Product Info */}
@@ -287,6 +254,59 @@ export default function Product() {
               <hr className=" border-[#dacac7] dark:border-slate-700"></hr>
               {/*  */}
 
+              {/* Accordions: Descripción, Especificaciones, Equípate al completo */}
+              <div className="divide-y divide-[#dacac7] dark:divide-slate-700 border border-[#dacac7] dark:border-slate-700 rounded-xl overflow-hidden">
+                {/* Descripción Accordion */}
+                {!!descriptionHtml && (
+                  <PdpAccordion title="Descripción">
+                    <div
+                      className="prose prose-sm dark:prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{__html: descriptionHtml}}
+                    />
+                  </PdpAccordion>
+                )}
+
+                {/* Especificaciones Técnicas Accordion */}
+                <PdpAccordion title="Especificaciones Técnicas">
+                  <ProductSpecs
+                    dimensiones={specs_dimensiones?.value}
+                    pesoMaxUsuario={specs_peso_max_usuario?.value}
+                    tipoResistencia={specs_tipo_resistencia?.value}
+                    nivelesResistencia={specs_niveles_resistencia?.value}
+                    potenciaMotor={specs_potencia_motor?.value}
+                    pesoProducto={specs_peso_producto?.value}
+                    garantia={specs_garantia?.value}
+                    nivelRuido={specs_nivel_ruido?.value}
+                    conectividad={specs_conectividad?.value}
+                    certificaciones={specs_certificaciones?.value}
+                    plegable={specs_plegable?.value === 'true'}
+                    requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
+                    fichaTecnicaPdf={specs_ficha_tecnica_pdf?.reference?.url}
+                    videoProducto={specs_video_producto?.value}
+                    hideTitle
+                  />
+                </PdpAccordion>
+
+                {/* Equípate al completo Accordion */}
+                <Suspense fallback={null}>
+                  <Await resolve={recommended}>
+                    {(products) => {
+                      const complementary = products.nodes.slice(0, 4);
+                      if (!complementary.length) return null;
+                      return (
+                        <PdpAccordion title="Equípate al completo">
+                          <ComplementaryProducts
+                            products={complementary}
+                            title="Equípate al completo"
+                            hideHeader
+                          />
+                        </PdpAccordion>
+                      );
+                    }}
+                  </Await>
+                </Suspense>
+              </div>
+
               {/* Help Banner */}
               <Suspense fallback={null}>
                 <Await resolve={helpBannerPromise}>
@@ -309,90 +329,12 @@ export default function Product() {
                   }}
                 </Await>
               </Suspense>
-
-              {/* Complementary Products */}
-              <Suspense fallback={<div className="h-32" />}>
-                <Await resolve={recommended}>
-                  {(products) => (
-                    <ComplementaryProducts
-                      products={products.nodes.slice(0, 4)}
-                      title="Equípate al completo"
-                    />
-                  )}
-                </Await>
-              </Suspense>
-
-              {!!outstanding_features?.value && (
-                <div>
-                  <h2 className="text-sm font-medium text-gray-900">
-                    Características destacadas
-                  </h2>
-                  <div>
-                    <div
-                      className="prose prose-sm mt-4 text-gray-600"
-                      dangerouslySetInnerHTML={{
-                        __html: `<ul role="list"> 
-                    ${(
-                      JSON.parse(
-                        outstanding_features?.value || '[]',
-                      ) as string[]
-                    )
-                      .map((item: string) => `<li>${item}</li>`)
-                      .join('')} 
-                    </ul>`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              )}
-
-              {/* ---------- 6 ----------  */}
-              <div>
-                <Policy
-                  shippingPolicy={shippingPolicy}
-                  refundPolicy={refundPolicy}
-                  subscriptionPolicy={subscriptionPolicy}
-                />
-              </div>
             </div>
           </div>
         </div>
 
         {/* DETAIL AND REVIEW */}
         <div className="mt-12 sm:mt-16 space-y-12 sm:space-y-16">
-          {/* Product description - Mobile only (desktop shows below images) */}
-          {!!descriptionHtml && (
-            <div className="lg:hidden">
-              <h2 className="text-2xl font-semibold">Detalles del producto</h2>
-              <div
-                className="prose prose-sm sm:prose dark:prose-invert sm:max-w-4xl mt-7"
-                dangerouslySetInnerHTML={{
-                  __html: descriptionHtml || '',
-                }}
-              />
-            </div>
-          )}
-
-          {/* Technical Specifications - Mobile only (desktop shows below gallery) */}
-          <div className="lg:hidden">
-            <ProductSpecs
-              dimensiones={specs_dimensiones?.value}
-              pesoMaxUsuario={specs_peso_max_usuario?.value}
-              tipoResistencia={specs_tipo_resistencia?.value}
-              nivelesResistencia={specs_niveles_resistencia?.value}
-              potenciaMotor={specs_potencia_motor?.value}
-              pesoProducto={specs_peso_producto?.value}
-              garantia={specs_garantia?.value}
-              nivelRuido={specs_nivel_ruido?.value}
-              conectividad={specs_conectividad?.value}
-              certificaciones={specs_certificaciones?.value}
-              plegable={specs_plegable?.value === 'true'}
-              requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
-              fichaTecnicaPdf={specs_ficha_tecnica_pdf?.reference?.url}
-              videoProducto={specs_video_producto?.value}
-            />
-          </div>
-
           {/* Product reviews */}
           <ProductReviews product={product} />
 
@@ -889,6 +831,43 @@ function ProductOptionSwatch({
       }}
     >
       {!!image && <img src={image} alt={name} />}
+    </div>
+  );
+}
+
+function PdpAccordion({title, children}: {title: string; children: React.ReactNode}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between px-5 py-4 bg-white hover:bg-[#F9F7F7] transition-colors text-left"
+      >
+        <span className="font-medium text-secondary-800">{title}</span>
+        <svg
+          className={clsx('w-5 h-5 text-slate-500 transition-transform duration-200', isOpen && 'rotate-180')}
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth="1.5"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+      <div
+        className={clsx(
+          'grid transition-all duration-300 ease-in-out',
+          isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="px-5 pb-5">
+            {children}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

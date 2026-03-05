@@ -26,6 +26,7 @@ interface ProductSpecsProps {
   fichaTecnicaPdf?: string;
   videoProducto?: string;
   className?: string;
+  hideTitle?: boolean;
 }
 
 const ProductSpecs: FC<ProductSpecsProps> = ({
@@ -44,6 +45,7 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
   fichaTecnicaPdf,
   videoProducto,
   className = '',
+  hideTitle = false,
 }) => {
   const specs: Spec[] = [
     {label: 'Dimensiones', value: dimensiones},
@@ -64,9 +66,11 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
 
   return (
     <div className={`${className}`}>
-      <h2 className="text-2xl font-bold mb-6" style={{fontFamily: 'Montserrat, sans-serif'}}>
-        Especificaciones Técnicas
-      </h2>
+      {!hideTitle && (
+        <h2 className="text-2xl font-bold mb-6" style={{fontFamily: 'Montserrat, sans-serif'}}>
+          Especificaciones Técnicas
+        </h2>
+      )}
 
       {/* Specs Grid */}
       {specs.length > 0 && (

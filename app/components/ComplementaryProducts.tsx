@@ -9,16 +9,30 @@ interface ComplementaryProductsProps {
   products: CommonProductCardFragment[];
   title?: string;
   className?: string;
+  hideHeader?: boolean;
 }
 
 export function ComplementaryProducts({
   products,
   title = 'Equípate al completo',
   className = '',
+  hideHeader = false,
 }: ComplementaryProductsProps) {
   const [isExpanded, setIsExpanded] = useState(true);
 
   if (!products || products.length === 0) return null;
+
+  if (hideHeader) {
+    return (
+      <div className={clsx('overflow-hidden', className)}>
+        <div className="divide-y divide-slate-200">
+          {products.slice(0, 4).map((product) => (
+            <ComplementaryProductItem key={product.id} product={product} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={clsx('border border-[#dacac7] rounded-xl overflow-hidden', className)}>
