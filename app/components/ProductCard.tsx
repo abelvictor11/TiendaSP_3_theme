@@ -317,10 +317,10 @@ const ProductCard: FC<ProductCardProps> = ({
             {uso_tipo?.value && (
               <span className={`px-2 py-1 text-xs font-medium rounded-md ${
                 uso_tipo.value.toLowerCase() === 'comercial' 
-                  ? 'bg-blue-100 text-blue-700' 
+                  ? 'bg-[#004f9d]/10 text-[#004f9d]' 
                   : uso_tipo.value.toLowerCase() === 'profesional'
-                  ? 'bg-purple-100 text-purple-700'
-                  : 'bg-[#F9F9F9] text-[#2B2A2A]'
+                  ? 'bg-[#000000]/10 text-[#000000]'
+                  : 'bg-[#706f6f]/10 text-[#706f6f]'
               }`}>
                 {uso_tipo.value}
               </span>
@@ -402,7 +402,7 @@ const ProductCard: FC<ProductCardProps> = ({
                   <span className="mx-1.5" style={{ color: '#000000' }}>|</span>
                 )}
                 {hasEnvioGratis && (
-                  <span className="bg-[#28faa5] text-[#213875] font-medium px-2 py-0.5 rounded-md text-xs">Envío Gratis</span>
+                  <span className="bg-[#000000] text-white font-medium px-2 py-0.5 rounded-md text-xs">Envío Gratis</span>
                 )}
               </p>
             )}
