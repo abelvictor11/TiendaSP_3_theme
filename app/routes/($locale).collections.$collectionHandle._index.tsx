@@ -49,13 +49,30 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   const {filters, sortKey, reverse, page} =
     getPaginationAndFiltersFromRequest(request, PAGE_SIZE);
 
-  // Fetch page * PAGE_SIZE products so we can slice to the current page
-  const fetchCount = page * PAGE_SIZE;
+  // For page > 1, we need to get the cursor to start from
+  let afterCursor: string | null = null;
+  if (page > 1) {
+    // Fetch just enough products to get the cursor for the start of the requested page
+    const skipCount = (page - 1) * PAGE_SIZE;
+    const {collection: cursorCollection} = await context.storefront.query(COLLECTION_QUERY, {
+      variables: {
+        first: skipCount,
+        handle: collectionHandle,
+        filters,
+        sortKey,
+        reverse,
+        country: context.storefront.i18n.country,
+        language: context.storefront.i18n.language,
+      },
+    });
+    afterCursor = cursorCollection?.products?.pageInfo?.endCursor || null;
+  }
 
-  // 2. Query the collection details
+  // 2. Query the collection details with the correct cursor
   const {collection} = await context.storefront.query(COLLECTION_QUERY, {
     variables: {
-      first: fetchCount,
+      first: PAGE_SIZE,
+      after: afterCursor,
       handle: collectionHandle,
       filters,
       sortKey,
@@ -69,9 +86,7 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
     throw new Response('collection', {status: 404});
   }
 
-  // Slice products to only the current page
-  const startIndex = (page - 1) * PAGE_SIZE;
-  const slicedNodes = collection.products.nodes.slice(startIndex, startIndex + PAGE_SIZE);
+  const slicedNodes = collection.products.nodes;
 
   const seo = seoPayload.collection({collection, url: request.url});
 
@@ -107,9 +122,7 @@ export default function Collection() {
   const availabilityFilter = collection.products.filters.find(
     (filter: Filter) => filter.id === 'filter.v.availability',
   );
-  const totalProducts = noResults
-    ? 0
-    : getProductTotalByFilter(availabilityFilter?.values as any);
+  const totalProducts = getProductTotalByFilter(availabilityFilter?.values as any);
 
   // Get subcollections from metafield
   const subcollections = collection.subcollections?.references?.nodes || [];
@@ -334,6 +347,7 @@ const COLLECTION_QUERY = `#graphql
     $sortKey: ProductCollectionSortKeys!
     $reverse: Boolean
     $first: Int!
+    $after: String
   ) @inContext(country: $country, language: $language) {
     collection(handle: $handle) {
       id
@@ -387,6 +401,7 @@ const COLLECTION_QUERY = `#graphql
       }
       products(
         first: $first,
+        after: $after,
         filters: $filters,
         sortKey: $sortKey,
         reverse: $reverse
@@ -404,6 +419,12 @@ const COLLECTION_QUERY = `#graphql
         }
         nodes {
           ...CommonProductCard
+        }
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+          endCursor
+          startCursor
         }
       }
     }

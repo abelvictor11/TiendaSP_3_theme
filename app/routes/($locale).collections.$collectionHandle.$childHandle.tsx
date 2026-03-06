@@ -49,14 +49,31 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   const {filters, sortKey, reverse, page} =
     getPaginationAndFiltersFromRequest(request, PAGE_SIZE);
 
-  const fetchCount = page * PAGE_SIZE;
+  // For page > 1, we need to get the cursor to start from
+  let afterCursor: string | null = null;
+  if (page > 1) {
+    const skipCount = (page - 1) * PAGE_SIZE;
+    const {collection: cursorCollection} = await context.storefront.query(CHILD_COLLECTION_QUERY, {
+      variables: {
+        first: skipCount,
+        handle: childHandle,
+        filters,
+        sortKey,
+        reverse,
+        country: context.storefront.i18n.country,
+        language: context.storefront.i18n.language,
+      },
+    });
+    afterCursor = cursorCollection?.products?.pageInfo?.endCursor || null;
+  }
 
   // Query the child collection and parent collection (for subcollections bar) in parallel
   const [{collection: childCollection}, {collection: parentCollection}] =
     await Promise.all([
       context.storefront.query(CHILD_COLLECTION_QUERY, {
         variables: {
-          first: fetchCount,
+          first: PAGE_SIZE,
+          after: afterCursor,
           handle: childHandle,
           filters,
           sortKey,
@@ -85,9 +102,7 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
       (filter: any) => filter.id === 'filter.v.price',
     );
 
-  // Slice products to only the current page
-  const startIndex = (page - 1) * PAGE_SIZE;
-  const slicedNodes = childCollection.products.nodes.slice(startIndex, startIndex + PAGE_SIZE);
+  const slicedNodes = childCollection.products.nodes;
 
   // Get subcollections from parent
   const subcollections =
@@ -136,9 +151,7 @@ export default function ChildCollection() {
     collection.products.filters.find(
       (filter: any) => filter.id === 'filter.v.availability',
     );
-  const totalProducts = noResults
-    ? 0
-    : getProductTotalByFilter(availabilityFilter?.values as any);
+  const totalProducts = getProductTotalByFilter(availabilityFilter?.values as any);
 
   return (
     <div className="nc-PageCollection pb-20 lg:pb-28 xl:pb-32">
@@ -359,6 +372,7 @@ const CHILD_COLLECTION_QUERY = `#graphql
     $sortKey: ProductCollectionSortKeys!
     $reverse: Boolean
     $first: Int!
+    $after: String
   ) @inContext(country: $country, language: $language) {
     collection(handle: $handle) {
       id
@@ -394,6 +408,7 @@ const CHILD_COLLECTION_QUERY = `#graphql
       }
       products(
         first: $first,
+        after: $after,
         filters: $filters,
         sortKey: $sortKey,
         reverse: $reverse
@@ -411,6 +426,12 @@ const CHILD_COLLECTION_QUERY = `#graphql
         }
         nodes {
           ...CommonProductCard
+        }
+        pageInfo {
+          hasNextPage
+          hasPreviousPage
+          endCursor
+          startCursor
         }
       }
     }
