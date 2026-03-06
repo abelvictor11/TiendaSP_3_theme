@@ -238,7 +238,7 @@ function CustomMegamenu({
             <div key={section.id || sectionIdx}>
               {/* Section Title */}
               {section.title?.value && (
-                <h3 className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
+                <h3 className="text-sm font-semibold text-slate-500 dark:text-slate-400 mb-3 pb-2 border-b border-slate-100 dark:border-slate-800">
                   {section.title.value}
                 </h3>
               )}
@@ -255,7 +255,7 @@ function CustomMegamenu({
                     className="group block"
                     onClick={onClose}
                   >
-                    <p className="font-medium text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                    <p className="font-semibold text-slate-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                       {item.title?.value}
                     </p>
                     {item.description?.value && (
@@ -421,7 +421,7 @@ function AutoMegamenu({
                   alt={child.image.altText || child.title}
                   width={child.image.width || 200}
                   height={child.image.height || 200}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="max-h-[80px] object-contain mix-blend-multiply p-[5px] w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />
               ) : (
