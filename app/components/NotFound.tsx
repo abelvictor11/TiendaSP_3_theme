@@ -4,8 +4,8 @@ import {FeaturedSection} from './FeaturedSection';
 import Heading from './Heading/Heading';
 
 export function NotFound({type = 'page'}: {type?: string}) {
-  const heading = `We’ve lost this ${type}`;
-  const description = `We couldn’t find the ${type} you’re looking for. Try checking the URL or heading back to the home page.`;
+  const heading = `No encontramos esta ${type === 'page' ? 'página' : type}`;
+  const description = `No pudimos encontrar lo que buscas. Intenta verificar la URL o vuelve a la página de inicio.`;
 
   return (
     <div className="py-10 lg:py-20">
@@ -15,7 +15,7 @@ export function NotFound({type = 'page'}: {type?: string}) {
         </Heading>
         <ButtonPrimary href={'/'}>
           <HomeIcon className="w-5 h-5 me-2" />
-          <span>Take me to the home page</span>
+          <span>Ir a la página de inicio</span>
         </ButtonPrimary>
         <hr className="mt-20" />
       </div>

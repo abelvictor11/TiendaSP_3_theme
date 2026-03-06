@@ -73,13 +73,13 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
     url: request.url,
     collection: {
       id: 'search',
-      title: 'Search',
+      title: 'Buscar',
       handle: 'search',
-      descriptionHtml: 'Search results',
-      description: 'Search results',
+      descriptionHtml: 'Resultados de búsqueda',
+      description: 'Resultados de búsqueda',
       seo: {
-        title: 'Search',
-        description: `Showing ${products.nodes.length} search results for "${searchTerm}"`,
+        title: 'Buscar',
+        description: `Mostrando ${products.nodes.length} resultados de búsqueda para "${searchTerm}"`,
       },
       metafields: [],
       products,
@@ -130,12 +130,12 @@ export default function Search() {
             <header className="max-w-2xl mx-auto -mt-10 flex flex-col lg:-mt-7">
               <Form method="get" className="relative w-full">
                 <label htmlFor="search-input" className="text-slate-500">
-                  <span className="sr-only">Search all icons</span>
+                  <span className="sr-only">Buscar</span>
                   <Input
                     className="shadow-lg border-0 dark:border"
                     id="search-input"
                     type="search"
-                    placeholder="Type your keywords"
+                    placeholder="Escribe tus palabras clave"
                     sizeClass="pl-14 py-5 pr-5 md:pl-16"
                     rounded="rounded-full"
                     defaultValue={searchTerm}
@@ -166,10 +166,10 @@ export default function Search() {
                   filters={data.search.productFilters as Filter[]}
                   defaultPriceFilter={defaultPriceFilter}
                   sorts={[
-                    {label: 'Relevance', key: 'relevance'},
-                    {label: 'Price: Low to High', key: 'price-low-high'},
+                    {label: 'Relevancia', key: 'relevance'},
+                    {label: 'Precio: Menor a Mayor', key: 'price-low-high'},
                     {
-                      label: 'Price: High to Low',
+                      label: 'Precio: Mayor a Menor',
                       key: 'price-high-low',
                     },
                   ]}
@@ -196,7 +196,7 @@ export default function Search() {
                               loading={isLoading}
                               as={PreviousLink}
                             >
-                              {'Load previous products'}
+                              {'Cargar productos anteriores'}
                             </ButtonPrimary>
                           </div>
                         )}
@@ -220,7 +220,7 @@ export default function Search() {
         {/* 3. Render the route's content sections */}
         <Suspense fallback={<div className="h-32" />}>
           <Await
-            errorElement="There was a problem loading route's content sections"
+            errorElement="Hubo un problema al cargar las secciones de contenido"
             resolve={routePromise}
           >
             {({route}) => (

@@ -111,7 +111,7 @@ function CartAside() {
   const rootData = useRouteLoaderData<RootLoader>('root');
   const {close} = useAside();
   return (
-    <Aside heading="Shopping Cart" openFrom="right" type="cart">
+    <Aside heading="Carrito de compras" openFrom="right" type="cart">
       <Suspense fallback={<CartLoading />}>
         <Await resolve={rootData?.cart}>
           {(cart) => {

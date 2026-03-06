@@ -117,7 +117,7 @@ export default function AvatarDropdown() {
                                 </div>
                                 <div className="ms-4">
                                   <p className="text-sm font-medium ">
-                                    Sign in
+                                    Iniciar sesión
                                   </p>
                                 </div>
                               </Link>
@@ -135,7 +135,7 @@ export default function AvatarDropdown() {
                                 </div>
                                 <div className="ms-4">
                                   <p className="text-sm font-medium ">
-                                    {'My Account'}
+                                    {'Mi cuenta'}
                                   </p>
                                 </div>
                               </Link>
@@ -153,7 +153,7 @@ export default function AvatarDropdown() {
                                 </div>
                                 <div className="ms-4">
                                   <p className="text-sm font-medium ">
-                                    {'Order history'}
+                                    {'Historial de pedidos'}
                                   </p>
                                 </div>
                               </Link>
@@ -170,7 +170,7 @@ export default function AvatarDropdown() {
                               </div>
                               <div className="ms-4">
                                 <p className="text-sm font-medium ">
-                                  {'Wishlists'}
+                                  {'Lista de deseos'}
                                 </p>
                               </div>
                             </Link>
@@ -188,7 +188,7 @@ export default function AvatarDropdown() {
                               </div>
                               <div className="ms-4">
                                 <p className="text-sm font-medium ">
-                                  {'Policies'}
+                                  {'Políticas'}
                                 </p>
                               </div>
                             </Link>
@@ -211,8 +211,8 @@ export default function AvatarDropdown() {
                                   <div className="ms-4">
                                     <p className="text-sm font-medium ">
                                       {state !== 'idle'
-                                        ? 'Loading ... '
-                                        : 'Log out'}
+                                        ? 'Cargando... '
+                                        : 'Cerrar sesión'}
                                     </p>
                                   </div>
                                 </button>

@@ -13,7 +13,7 @@ const Page = () => {
   const outletContext = useOutletContext();
 
   return (
-    <PageAccoutLayout breadcrumbText="Address book">
+    <PageAccoutLayout breadcrumbText="Libro de direcciones">
       {outlet && <Outlet context={outletContext} />}
       <div>
         <AccountAddressBook addresses={addresses} customer={customer} />

@@ -129,7 +129,7 @@ export function SectionImageWithText(props: SectionImageWithTextFragment) {
               <Input
                 required
                 aria-required
-                placeholder="Enter your email"
+                placeholder="Introduce tu correo electrónico"
                 type="email"
                 className="rounded-full"
                 name="new_subscribe_email"
@@ -168,7 +168,7 @@ export function SectionImageWithText(props: SectionImageWithTextFragment) {
                   targetBlank={!!button_1.target?.value}
                   href={button_1.href.value || undefined}
                 >
-                  {button_1?.text?.value || 'Get started'}
+                  {button_1?.text?.value || 'Comenzar'}
                 </ButtonPrimary>
               )}
               {!!button_2?.href && (
@@ -176,7 +176,7 @@ export function SectionImageWithText(props: SectionImageWithTextFragment) {
                   href={button_2.href.value || undefined}
                   className="border border-slate-100 dark:border-slate-700"
                 >
-                  {button_2?.text?.value || 'Learn more'}
+                  {button_2?.text?.value || 'Saber más'}
                 </ButtonSecondary>
               )}
             </div>

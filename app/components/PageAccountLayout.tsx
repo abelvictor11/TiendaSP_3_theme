@@ -18,7 +18,7 @@ export function PageAccoutLayout({
             hasBreadcrumb={true}
             breadcrumbText={breadcrumbText}
             prevbreadcrumb={{
-              title: 'Account',
+              title: 'Cuenta',
               href: '/account',
             }}
           />
@@ -29,7 +29,7 @@ export function PageAccoutLayout({
               className="hover:text-secondary-800 hover:underline flex items-center text-sm font-medium"
             >
               <ArrowLeftIcon className="h-5 w-5 inline-block mr-2" />
-              Back to Account
+              Volver a la cuenta
             </Link>
           </div>
         </div>

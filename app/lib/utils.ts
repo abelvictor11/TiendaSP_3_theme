@@ -231,12 +231,12 @@ export const getInputStyleClasses = (isError?: string | null) => {
 
 export function statusMessage(status: FulfillmentStatus) {
   const translations: Record<FulfillmentStatus, string> = {
-    SUCCESS: 'Success',
-    PENDING: 'Pending',
-    OPEN: 'Open',
-    FAILURE: 'Failure',
+    SUCCESS: 'Completado',
+    PENDING: 'Pendiente',
+    OPEN: 'Abierto',
+    FAILURE: 'Fallido',
     ERROR: 'Error',
-    CANCELLED: 'Cancelled',
+    CANCELLED: 'Cancelado',
   };
   try {
     return translations?.[status];

@@ -109,7 +109,7 @@ export function Aside({
                         onClick={onClose}
                         data-test="close-cart"
                       >
-                        <IconClose aria-label="Close panel" />
+                        <IconClose aria-label="Cerrar panel" />
                       </button>
                     </header>
                     <div className="flex-1 overflow-hidden">{children}</div>

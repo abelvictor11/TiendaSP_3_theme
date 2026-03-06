@@ -30,7 +30,7 @@ const SearchModal: FC<Props> = () => {
         className="relative group"
       >
         <Input
-          placeholder="Search items"
+          placeholder="Buscar productos"
           className="pr-5 md:pr-10 !w-40 md:!w-full group-hover:border-slate-300 !rounded-full"
           sizeClass="h-[40px] ps-4 py-2.5"
           type="search"

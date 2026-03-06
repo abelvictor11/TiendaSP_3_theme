@@ -32,7 +32,7 @@ interface FeaturedProductsProps {
  */
 export function FeaturedProducts({
   count = 4,
-  heading = 'Shop Best Sellers',
+  heading = 'Los más vendidos',
   className = 'grid sm:grid-cols-2 gap-x-5 gap-y-8',
   onClose,
   query,
@@ -101,7 +101,7 @@ function FeatureProductsContent({
   }
 
   if (products?.length === 0) {
-    return <p className="my-2.5">No products found.</p>;
+    return <p className="my-2.5">No se encontraron productos.</p>;
   }
 
   return (

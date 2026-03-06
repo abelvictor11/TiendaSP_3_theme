@@ -205,18 +205,18 @@ export default function EditAddress() {
 
   if (!address && !isNewAddress) {
     return (
-      <ModalWrapper title={isNewAddress ? 'Add address' : 'Edit address'}>
+      <ModalWrapper title={isNewAddress ? 'Agregar dirección' : 'Editar dirección'}>
         {actionData?.formError && (
           <div className="flex items-center justify-center mb-6 bg-red-100 rounded">
             <p className="m-4 text-sm text-red-900">{actionData.formError}</p>
           </div>
         )}
         {addressId}
-        <h3 className="text-xl font-semibold">Address not found.</h3>
+        <h3 className="text-xl font-semibold">Dirección no encontrada.</h3>
         <div className="mt-6">
           <ButtonPrimary href="/account/address" fontSize="text-sm font-medium">
             <ArrowLeftIcon className="h-5 w-5 mr-2" />
-            Go back to address book
+            Volver al libro de direcciones
           </ButtonPrimary>
         </div>
       </ModalWrapper>
@@ -230,9 +230,9 @@ export default function EditAddress() {
   }
 
   return (
-    <ModalWrapper title={isNewAddress ? 'Add address' : 'Edit address'}>
+    <ModalWrapper title={isNewAddress ? 'Agregar dirección' : 'Editar dirección'}>
       <h3 className="text-xl font-semibold">
-        {isNewAddress ? 'Add address' : 'Edit address'}
+        {isNewAddress ? 'Agregar dirección' : 'Editar dirección'}
       </h3>
 
       <div className="mt-6">
@@ -253,7 +253,7 @@ export default function EditAddress() {
                 htmlFor="firstName"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                First name
+                Nombre
               </label>
               <div className="mt-2">
                 <input
@@ -263,7 +263,7 @@ export default function EditAddress() {
                   required
                   type="text"
                   autoComplete="given-name"
-                  aria-label="First name"
+                  aria-label="Nombre"
                   defaultValue={address?.firstName ?? ''}
                 />
               </div>
@@ -274,7 +274,7 @@ export default function EditAddress() {
                 htmlFor="lastName"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Last name
+                Apellido
               </label>
               <div className="mt-2">
                 <input
@@ -284,7 +284,7 @@ export default function EditAddress() {
                   required
                   type="text"
                   autoComplete="family-name"
-                  aria-label="Last name"
+                  aria-label="Apellido"
                   defaultValue={address?.lastName ?? ''}
                 />
               </div>
@@ -295,7 +295,7 @@ export default function EditAddress() {
                 htmlFor="company"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Company
+                Empresa
               </label>
               <div className="mt-2">
                 <input
@@ -304,7 +304,7 @@ export default function EditAddress() {
                   name="company"
                   type="text"
                   autoComplete="organization"
-                  aria-label="Company"
+                  aria-label="Empresa"
                   defaultValue={address?.company ?? ''}
                 />
               </div>
@@ -315,7 +315,7 @@ export default function EditAddress() {
                 htmlFor="address1"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Address line 1*
+                Dirección línea 1*
               </label>
               <div className="mt-2">
                 <input
@@ -325,12 +325,11 @@ export default function EditAddress() {
                   type="text"
                   autoComplete="address-line1"
                   required
-                  aria-label="Address line 1"
+                  aria-label="Dirección línea 1"
                   defaultValue={address?.address1 ?? ''}
                 />
                 <span className="text-xs text-slate-500">
-                  The first line of the address. Typically the street address or
-                  PO Box number.
+                  Primera línea de la dirección. Normalmente la calle y número.
                 </span>
               </div>
             </div>
@@ -340,7 +339,7 @@ export default function EditAddress() {
                 htmlFor="address2"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Address line 2*
+                Dirección línea 2
               </label>
               <div className="mt-2">
                 <input
@@ -349,12 +348,11 @@ export default function EditAddress() {
                   name="address2"
                   type="text"
                   autoComplete="address-line2"
-                  aria-label="Address line 2"
+                  aria-label="Dirección línea 2"
                   defaultValue={address?.address2 ?? ''}
                 />
                 <span className="text-xs text-slate-500">
-                  The second line of the address. Typically the number of the
-                  apartment, suite, or unit.
+                  Segunda línea de la dirección. Normalmente piso, apartamento o unidad.
                 </span>
               </div>
             </div>
@@ -364,7 +362,7 @@ export default function EditAddress() {
                 htmlFor="city"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                City
+                Ciudad
               </label>
               <div className="mt-2">
                 <input
@@ -374,7 +372,7 @@ export default function EditAddress() {
                   type="text"
                   required
                   autoComplete="address-level2"
-                  aria-label="City"
+                  aria-label="Ciudad"
                   defaultValue={address?.city ?? ''}
                 />
               </div>
@@ -385,7 +383,7 @@ export default function EditAddress() {
                 htmlFor="zoneCode"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                State / Province (zoneCode)
+                Estado / Provincia (zoneCode)
               </label>
               <div className="mt-2">
                 <input
@@ -395,7 +393,7 @@ export default function EditAddress() {
                   type="text"
                   autoComplete="address-level1"
                   required
-                  aria-label="State / Province (zoneCode)"
+                  aria-label="Estado / Provincia"
                   defaultValue={address?.zoneCode ?? ''}
                 />
               </div>
@@ -406,7 +404,7 @@ export default function EditAddress() {
                 htmlFor="zip"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Zip / Postal Code
+                Código postal
               </label>
               <div className="mt-2">
                 <input
@@ -416,7 +414,7 @@ export default function EditAddress() {
                   type="text"
                   autoComplete="postal-code"
                   required
-                  aria-label="Zip"
+                  aria-label="Código postal"
                   defaultValue={address?.zip ?? ''}
                 />
               </div>
@@ -427,7 +425,7 @@ export default function EditAddress() {
                 htmlFor="territoryCode"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Country (Territory) Code
+                Código de país (territorio)
               </label>
               <div className="mt-2">
                 <input
@@ -437,7 +435,7 @@ export default function EditAddress() {
                   type="text"
                   autoComplete="country"
                   required
-                  aria-label="Country (Territory) Code"
+                  aria-label="Código de país"
                   defaultValue={address?.territoryCode ?? ''}
                 />
               </div>
@@ -448,7 +446,7 @@ export default function EditAddress() {
                   rel="noreferrer"
                   className="text-slate-500 text-xs hover:underline has-end-icon"
                 >
-                  {`ISO 3166 country codes list `}
+                  {`Lista de códigos de país ISO 3166 `}
                 </a>
               </span>
             </div>
@@ -458,7 +456,7 @@ export default function EditAddress() {
                 htmlFor="phone"
                 className="block text-sm font-medium leading-6 text-gray-900"
               >
-                Phone
+                Teléfono
               </label>
               <div className="mt-2">
                 <input
@@ -467,11 +465,11 @@ export default function EditAddress() {
                   name="phoneNumber"
                   type="tel"
                   autoComplete="tel"
-                  aria-label="Phone"
+                  aria-label="Teléfono"
                   defaultValue={address?.phoneNumber ?? ''}
                 />
                 <span className="text-xs text-slate-500">
-                  Formatted using E.164 standard. For example, +16135551111.
+                  Formato E.164. Por ejemplo, +16135551111.
                 </span>
               </div>
             </div>
@@ -498,10 +496,10 @@ export default function EditAddress() {
                   htmlFor="defaultAddress"
                   className="font-medium text-gray-900"
                 >
-                  Set as default address
+                  Establecer como dirección predeterminada
                 </label>
                 <p className="text-slate-500 text-xs">
-                  This address will be used as your default shipping address.
+                  Esta dirección se usará como tu dirección de envío predeterminada.
                 </p>
               </div>
             </div>
@@ -521,7 +519,7 @@ export default function EditAddress() {
                 loading={state !== 'idle'}
                 onClick={() => {
                   if (
-                    confirm('Are you sure you want to delete this address?')
+                    confirm('¿Estás seguro de que deseas eliminar esta dirección?')
                   ) {
                     const formData = new FormData();
                     formData.append(
@@ -534,7 +532,7 @@ export default function EditAddress() {
                   }
                 }}
               >
-                Delete
+                Eliminar
               </Button>
             )}
 
@@ -546,7 +544,7 @@ export default function EditAddress() {
                 fontSize="text-sm font-medium"
                 type="button"
               >
-                Cancel
+                Cancelar
               </ButtonThird>
               <ButtonPrimary
                 type="submit"
@@ -555,9 +553,9 @@ export default function EditAddress() {
                 fontSize="text-sm font-medium"
               >
                 <span className="hidden sm:inline-block">
-                  {isNewAddress ? 'Add address' : 'Update address'}
+                  {isNewAddress ? 'Agregar dirección' : 'Actualizar dirección'}
                 </span>
-                <span className="inline-block sm:hidden">Save</span>
+                <span className="inline-block sm:hidden">Guardar</span>
               </ButtonPrimary>
             </div>
           </div>

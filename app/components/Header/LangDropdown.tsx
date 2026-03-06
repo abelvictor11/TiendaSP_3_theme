@@ -98,7 +98,7 @@ const LangDropdown: FC<LangDropdownProps> = ({
           );
         }}
         renderContent={(closeModal) => renderLang(closeModal)}
-        modalTitle="Select your country"
+        modalTitle="Selecciona tu país"
       />
     </div>
   );

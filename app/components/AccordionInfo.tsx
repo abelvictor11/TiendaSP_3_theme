@@ -4,44 +4,44 @@ import {type FC} from 'react';
 
 const DEMO_DATA = [
   {
-    name: 'Description',
+    name: 'Descripción',
     content:
-      'Fashion is a form of self-expression and autonomy at a particular period and place and in a specific context, of clothing, footwear, lifestyle, accessories, makeup, hairstyle, and body posture.',
+      'La moda es una forma de autoexpresión y autonomía en un período y lugar determinados, en un contexto específico de ropa, calzado, estilo de vida, accesorios, maquillaje, peinado y postura corporal.',
   },
   {
-    name: 'Fabric + Care',
+    name: 'Tejido + Cuidados',
     content: `<ul class="list-disc list-inside leading-7">
-    <li>Made from a sheer Belgian power micromesh.</li>
+    <li>Fabricado con micromalla de potencia belga transparente.</li>
     <li>
-    74% Polyamide (Nylon) 26% Elastane (Spandex)
+    74% Poliamida (Nylon) 26% Elastano (Spandex)
     </li>
     <li>
-    Adjustable hook & eye closure and straps
+    Cierre y tirantes ajustables
     </li>
     <li>
-    Hand wash in cold water, dry flat
+    Lavar a mano con agua fría, secar en plano
     </li>
   </ul>`,
   },
 
   {
-    name: 'How it Fits',
+    name: 'Cómo queda',
     content:
-      "Use this as a guide. Preference is a huge factor — if you're near the top of a size range and/or prefer more coverage, you may want to size up.",
+      'Usa esto como guía. La preferencia es un factor importante: si estás cerca del límite superior de una talla y/o prefieres más cobertura, puede que quieras elegir una talla más.',
   },
   {
-    name: 'FAQ',
+    name: 'Preguntas frecuentes',
     content: `
     <ul class="list-disc list-inside leading-7">
-    <li>All full-priced, unworn items, with tags attached and in their original packaging are eligible for return or exchange within 30 days of placing your order.</li>
+    <li>Todos los artículos a precio completo, sin usar, con etiquetas y en su embalaje original son elegibles para devolución o cambio dentro de los 30 días posteriores a la compra.</li>
     <li>
-    Please note, packs must be returned in full. We do not accept partial returns of packs.
+    Ten en cuenta que los packs deben devolverse completos. No aceptamos devoluciones parciales de packs.
     </li>
     <li>
-    Want to know our full returns policies? Here you go.
+    ¿Quieres conocer nuestra política de devoluciones completa? Aquí la tienes.
     </li>
     <li>
-    Want more info about shipping, materials or care instructions? Here!
+    ¿Necesitas más información sobre envíos, materiales o instrucciones de cuidado? ¡Aquí!
     </li>
   </ul>
     `,

@@ -100,7 +100,7 @@ export default function News() {
                     {hasPreviousPage && (
                       <div className="flex items-center justify-center my-20">
                         <ButtonPrimary loading={isLoading} as={PreviousLink}>
-                          {'Load previous posts'}
+                          {'Cargar publicaciones anteriores'}
                         </ButtonPrimary>
                       </div>
                     )}

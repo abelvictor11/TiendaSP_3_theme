@@ -43,13 +43,13 @@ export async function loader({
     url: request.url,
     collection: {
       id: 'all-products',
-      title: 'All Products',
+      title: 'Todos los productos',
       handle: 'products',
-      descriptionHtml: 'All the store products',
-      description: 'All the store products',
+      descriptionHtml: 'Todos los productos de la tienda',
+      description: 'Todos los productos de la tienda',
       seo: {
-        title: 'All Products',
-        description: 'All the store products',
+        title: 'Todos los productos',
+        description: 'Todos los productos de la tienda',
       },
       metafields: [],
       products: data.products,
@@ -79,19 +79,19 @@ export default function AllProducts() {
           <div>
             <div className="flex items-center text-sm font-medium gap-2 text-neutral-500 mb-2">
               <FireIcon className="w-5 h-5" />
-              <span className="text-neutral-700 ">All Products</span>
+              <span className="text-neutral-700 ">Todos los productos</span>
             </div>
             <PageHeader
-              title={'All Products'}
+              title={'Todos los productos'}
               hasBreadcrumb={true}
-              breadcrumbText={'All Products'}
+              breadcrumbText={'Todos los productos'}
             />
           </div>
 
           <hr />
 
           {!products?.nodes?.length ? (
-            <Empty description="No products found!" />
+            <Empty description="¡No se encontraron productos!" />
           ) : (
             <Pagination connection={products}>
               {({
@@ -108,7 +108,7 @@ export default function AllProducts() {
                   {hasPreviousPage && (
                     <div className="flex items-center justify-center my-14">
                       <ButtonPrimary loading={isLoading} as={PreviousLink}>
-                        {'Load previous products'}
+                        {'Cargar productos anteriores'}
                       </ButtonPrimary>
                     </div>
                   )}

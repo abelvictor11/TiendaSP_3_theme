@@ -23,9 +23,9 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
 
   const heading = customer
     ? customer.firstName
-      ? `Welcome, ${customer.firstName}.`
-      : `Welcome to your account.`
-    : 'Account Details';
+      ? `Bienvenido, ${customer.firstName}.`
+      : `Bienvenido a tu cuenta.`
+    : 'Detalles de la cuenta';
 
   return defer(
     {

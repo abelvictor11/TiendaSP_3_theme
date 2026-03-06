@@ -65,7 +65,7 @@ export function SectionGridProductsAndFilter(
                   {!!hasPreviousPage && (
                     <div className="flex items-center justify-center mb-12">
                       <ButtonPrimary as={PreviousLink} loading={isLoading}>
-                        {'Load previous'}
+                        {'Cargar anteriores'}
                       </ButtonPrimary>
                     </div>
                   )}

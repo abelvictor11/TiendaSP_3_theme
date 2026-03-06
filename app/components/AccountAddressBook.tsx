@@ -16,12 +16,12 @@ export function AccountAddressBook({
     <>
       <div className="space-y-8">
         {!addresses?.length && (
-          <p className="mb-1">You haven&apos;t saved any addresses yet.</p>
+          <p className="mb-1">Aún no has guardado ninguna dirección.</p>
         )}
         <div className="flex justify -center sm:pb-2.5">
           <ButtonPrimary href="/account/address/add">
             <PlusIcon className="h-5 w-5 mr-2" />
-            <span>Add an Address</span>
+            <span>Agregar dirección</span>
           </ButtonPrimary>
         </div>
 
@@ -61,7 +61,7 @@ function Address({
     <div className="lg:p-8 p-6 airShadown rounded-2xl flex flex-col gap-5">
       <div className="flex gap-2">
         <Badge color="blue">{index}</Badge>
-        {defaultAddress && <Badge color="red">Default</Badge>}
+        {defaultAddress && <Badge color="red">Predeterminada</Badge>}
       </div>
       <ul className="flex-1 text-sm text-[#131210] prose prose-slate">
         {(address.firstName || address.lastName) && (
@@ -81,7 +81,7 @@ function Address({
           className="text-left underline text-sm px-1"
           prefetch="intent"
         >
-          Edit
+          Editar
         </Link>
       </div>
     </div>

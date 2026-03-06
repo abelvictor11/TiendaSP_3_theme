@@ -676,7 +676,7 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
 
   return (
     <div>
-      <div className="text-sm font-medium">Select {option.name}</div>
+      <div className="text-sm font-medium">Seleccionar {option.name}</div>
       
       {/* Large cards with variant images */}
       {hasVariantImages ? (

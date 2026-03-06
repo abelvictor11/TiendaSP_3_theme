@@ -20,11 +20,11 @@ const PageHeader: FC<Props> = ({
   description,
   heading: Heading = 'h1',
   hasBreadcrumb = true,
-  breadcrumbText = 'Shopping Cart',
+  breadcrumbText = 'Carrito de compras',
   reverseBreadcrumb = false,
   className = '',
   prevbreadcrumb = {
-    title: 'Home',
+    title: 'Inicio',
     href: '/',
   },
 }) => {
