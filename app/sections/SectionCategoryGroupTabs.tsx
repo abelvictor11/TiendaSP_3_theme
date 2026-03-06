@@ -65,10 +65,7 @@ export function SectionCategoryGroupTabs(props: any) {
           )}
 
           <div className="absolute bottom-5 left-5 right-5 z-20">
-            <div
-              className=""
-              style={{backgroundColor: contentBgColor}}
-            >
+            <div className="">
               {cardTitle && (
                 <h4
                   className="text-2xl sm:text-3xl lg:text-3xl font-normal mb-3"
