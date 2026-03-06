@@ -172,15 +172,34 @@ function NavItem({
                     {(() => {
                       const collections = headerData?.featuredCollections?.nodes;
                       if (!collections?.length) return null;
-                      // Extract collection handle from menu item URL (e.g. /collections/ropa-de-ciclismo -> ropa-de-ciclismo)
-                      const menuHandle = menuItem.to.replace(/^\/collections\//, '').replace(/\/$/, '');
-                      const matched = collections.find((c) => c.handle === menuHandle);
-                      const collectionToShow = matched || collections[0];
+
+                      // Strategy 1: Extract handle from /collections/{handle} path
+                      const collectionsMatch = menuItem.to.match(/\/collections\/([^/?#]+)/);
+                      let matched = collectionsMatch 
+                        ? collections.find((c) => c.handle === collectionsMatch[1])
+                        : null;
+
+                      // Strategy 2: Try matching the last URL segment as a handle
+                      if (!matched) {
+                        const lastSegment = menuItem.to.replace(/\/$/, '').split('/').pop();
+                        if (lastSegment) {
+                          matched = collections.find((c) => c.handle === lastSegment);
+                        }
+                      }
+
+                      // Strategy 3: Try matching by title (case-insensitive)
+                      if (!matched) {
+                        const menuTitle = menuItem.title.toLowerCase();
+                        matched = collections.find((c) => c.title.toLowerCase() === menuTitle);
+                      }
+
+                      if (!matched) return null;
+
                       return (
                         <div className="hidden xl:block w-[300px]">
                           <CollectionItem
                             onClick={() => setIsHovered(false)}
-                            item={collectionToShow}
+                            item={matched}
                           />
                         </div>
                       );

@@ -23,7 +23,7 @@ export function SectionCategoryGroupTabs(props: any) {
     const backgroundImageUrl = item.background_image?.image?.url;
     const cardTitle = item.title?.value;
     const subtitle = item.subtitle?.value;
-    const ctaText = item.cta_text?.value || 'Shop Now';
+    const ctaText = item.cta_text?.value || 'Comprar ahora';
     const ctaLink = item.cta_link?.value || '#';
     const bgColor = item.background_color?.value || '#e0f2fe';
 
@@ -32,8 +32,6 @@ export function SectionCategoryGroupTabs(props: any) {
     const titleColor = item.title_color?.value || '#ffffff';
     const subtitleColor =
       item.subtitle_color?.value || 'rgba(255, 255, 255, 0.9)';
-    const buttonBgColor = item.button_background_color?.value || '#ffffff';
-    const buttonTextColor = item.button_text_color?.value || '#171717';
 
     return (
       <div key={item.id} className="mySnapItem snap-start shrink-0 px-2">
@@ -90,16 +88,15 @@ export function SectionCategoryGroupTabs(props: any) {
               )}
 
               <div>
-                <Link to={ctaLink}>
-                  <button
-                    className="px-5 py-2.5 sm:px-6 sm:py-3 rounded-full font-medium shadow-xl transition-all hover:shadow-2xl hover:scale-105"
-                    style={{
-                      backgroundColor: buttonBgColor,
-                      color: buttonTextColor,
-                    }}
-                  >
-                    {ctaText}
-                  </button>
+                <Link 
+                  to={ctaLink}
+                  className="inline-flex items-center gap-2 font-medium text-sm transition-all hover:gap-3"
+                  style={{color: titleColor}}
+                >
+                  {ctaText}
+                  <svg className="w-4 h-4" focusable="false" role="presentation" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" viewBox="0 0 16 16" stroke="currentColor" fill="none">
+                    <path d="M2.6665 8H13.3332M13.3332 8L9.33317 4M13.3332 8L9.33317 12" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"></path>
+                  </svg>
                 </Link>
               </div>
             </div>
