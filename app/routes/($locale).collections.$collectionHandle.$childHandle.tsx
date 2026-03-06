@@ -312,6 +312,10 @@ function ChildCollectionContent({
       })
     : products;
 
+  if (noResults) {
+    return <Empty description="No se encontraron productos en esta colección." />;
+  }
+
   return (
     <div className="flex gap-8">
       {/* Sidebar with Filters */}
@@ -342,22 +346,16 @@ function ChildCollectionContent({
         </div>
 
         {/* Products Grid */}
-        {!noResults ? (
-          <>
-            <ProductsGrid
-              nodes={displayNodes as any}
-              className="mt-0"
-            />
+        <ProductsGrid
+          nodes={displayNodes as any}
+          className="mt-0"
+        />
 
-            <PaginationBar
-              totalProducts={totalProducts}
-              pageSize={pageSize}
-              currentPage={currentPage}
-            />
-          </>
-        ) : (
-          <Empty description="No se encontraron productos en esta colección." />
-        )}
+        <PaginationBar
+          totalProducts={totalProducts}
+          pageSize={pageSize}
+          currentPage={currentPage}
+        />
       </div>
     </div>
   );

@@ -290,6 +290,10 @@ function CollectionContent({
       })
     : products;
 
+  if (noResults) {
+    return <Empty />;
+  }
+
   return (
     <div className="flex gap-8">
       {/* Sidebar with Filters - sticky with independent scroll */}
@@ -320,19 +324,13 @@ function CollectionContent({
         </div>
 
         {/* Products Grid */}
-        {!noResults ? (
-          <>
-            <ProductsGrid nodes={displayNodes as any} className="mt-0" />
-            
-            <PaginationBar
-              totalProducts={totalProducts}
-              pageSize={pageSize}
-              currentPage={currentPage}
-            />
-          </>
-        ) : (
-          <Empty />
-        )}
+        <ProductsGrid nodes={displayNodes as any} className="mt-0" />
+        
+        <PaginationBar
+          totalProducts={totalProducts}
+          pageSize={pageSize}
+          currentPage={currentPage}
+        />
       </div>
     </div>
   );
