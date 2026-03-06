@@ -421,7 +421,7 @@ function AutoMegamenu({
                   alt={child.image.altText || child.title}
                   width={child.image.width || 200}
                   height={child.image.height || 200}
-                  className="max-h-[80px] object-contain mix-blend-multiply p-[5px] w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="max-h-[80px] object-contain mix-blend-multiply p-[5px] w-full h-full group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />
               ) : (
