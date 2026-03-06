@@ -66,7 +66,7 @@ export function SectionCategoryGroupTabs(props: any) {
 
           <div className="absolute bottom-5 left-5 right-5 z-20">
             <div
-              className="rounded-2xl p-6 sm:p-8 backdrop-blur-sm"
+              className=""
               style={{backgroundColor: contentBgColor}}
             >
               {cardTitle && (
