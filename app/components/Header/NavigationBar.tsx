@@ -168,15 +168,23 @@ function NavItem({
                       </div>
                     </div>
 
-                    {/* Featured Collection (optional) */}
-                    {headerData?.featuredCollections?.nodes?.[0] && (
-                      <div className="hidden xl:block w-[300px]">
-                        <CollectionItem
-                          onClick={() => setIsHovered(false)}
-                          item={headerData.featuredCollections.nodes[0]}
-                        />
-                      </div>
-                    )}
+                    {/* Featured Collection - matched to this menu item */}
+                    {(() => {
+                      const collections = headerData?.featuredCollections?.nodes;
+                      if (!collections?.length) return null;
+                      // Extract collection handle from menu item URL (e.g. /collections/ropa-de-ciclismo -> ropa-de-ciclismo)
+                      const menuHandle = menuItem.to.replace(/^\/collections\//, '').replace(/\/$/, '');
+                      const matched = collections.find((c) => c.handle === menuHandle);
+                      const collectionToShow = matched || collections[0];
+                      return (
+                        <div className="hidden xl:block w-[300px]">
+                          <CollectionItem
+                            onClick={() => setIsHovered(false)}
+                            item={collectionToShow}
+                          />
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

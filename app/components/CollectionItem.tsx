@@ -23,7 +23,7 @@ interface CollectionItemProps {
 
 const CollectionItem: FC<CollectionItemProps> = ({
   item,
-  button_text = 'Shop now',
+  button_text = 'Comprar ahora',
   onClick,
   className = '',
 }) => {
@@ -31,17 +31,6 @@ const CollectionItem: FC<CollectionItemProps> = ({
 
   const hImage = horizontal_image?.reference?.image;
   const mainImage = image;
-
-  // DEBUG: Ver qué datos llegan de la colección
-  console.log('CollectionItem data:', {
-    title, 
-    horizontal_image, 
-    image,
-    hImage,
-    mainImage,
-    horizontal_image_type: typeof horizontal_image,
-    image_type: typeof image
-  });
 
   return (
     <Link
@@ -78,7 +67,7 @@ const CollectionItem: FC<CollectionItemProps> = ({
         <div>
           <div className="absolute inset-4 lg:inset-8 flex flex-col">
             <div className="max-w-[18rem]">
-              <span className={`block text-sm text-white/90 font-medium`}>Collection</span>
+              <span className={`block text-sm text-white/90 font-medium`}>Colección</span>
               {!!title && (
                 <h2
                   className="text-xl lg:text-2xl text-white font-normal mt-0.5 sm:mt-2"
@@ -92,7 +81,7 @@ const CollectionItem: FC<CollectionItemProps> = ({
                 fontSize="text-sm font-medium"
                 className="nc-shadow-lg bg-white/90 hover:bg-white text-neutral-900 backdrop-blur-sm"
               >
-                {button_text || 'Shop now'}
+                {button_text || 'Comprar ahora'}
               </ButtonSecondary>
             </div>
           </div>
@@ -119,9 +108,9 @@ export const CollectionItemSkeleton = ({
         <div>
           <div className="absolute inset-4 md:inset-8 flex flex-col">
             <div className="max-w-[18rem]">
-              <span className={`block text-sm text-white/90 font-medium`}>Collection</span>
+              <span className={`block text-sm text-white/90 font-medium`}>Colección</span>
               <h2 className="text-xl md:text-2xl text-white font-semibold mt-0.5 sm:mt-2">
-                Skeleton Collection
+                Cargando...
               </h2>
             </div>
             <div className="mt-auto">
@@ -131,7 +120,7 @@ export const CollectionItemSkeleton = ({
                 fontSize="text-sm font-medium"
                 className="nc-shadow-lg bg-white/90 text-neutral-900 backdrop-blur-sm"
               >
-                {'Explore now'}
+                {'Comprar ahora'}
               </ButtonSecondary>
             </div>
           </div>

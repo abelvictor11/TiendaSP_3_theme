@@ -147,7 +147,7 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
   const headerPromise = storefront.query(HEADER_QUERY, {
     cache: storefront.CacheLong(),
     variables: {
-      featuredCollectionsFirst: 1,
+      featuredCollectionsFirst: 20,
       socialsFirst: 10,
       headerMenuHandle: 'main-menu',
       language,
