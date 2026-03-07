@@ -281,6 +281,15 @@ shop-pay-button {
     scrollbar-width: none; /* Firefox */
   }
 
+  /* PDP independent scroll columns - hide scrollbar */
+  .pdp-scroll-col {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    &::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
+    }
+  }
+
   .customScrollBar {
     /* width */
     &::-webkit-scrollbar {

@@ -212,11 +212,11 @@ export default function Product() {
       )}
     >
       <main className="container">
-        <div className="lg:flex">
-          {/* Left Column - Galleries + Description */}
-          <div className="w-full lg:w-[55%]">
+        <div className="lg:flex lg:gap-0 lg:relative">
+          {/* Left Column - Galleries + Description (independent scroll on desktop) */}
+          <div className="w-full lg:w-[55%] lg:sticky lg:top-0 lg:self-start lg:max-h-screen lg:overflow-y-auto pdp-scroll-col">
             {/* Galleries */}
-            <div className="relative">
+            <div className="relative lg:pt-4">
               <ProductGallery
                 media={media.nodes}
                 className="w-full lg:col-span-2 lg:gap-7"
@@ -230,7 +230,7 @@ export default function Product() {
             </div>
 
             {/* Product Description - Below images on desktop with "Ver más..." */}
-            <div className="hidden lg:block mt-10">
+            <div className="hidden lg:block mt-10 pb-8">
               {!!descriptionHtml && (
                 <ProductDescription descriptionHtml={descriptionHtml} />
               )}
@@ -242,9 +242,9 @@ export default function Product() {
             </div>
           </div>
 
-          {/* Right Column - Product Info */}
-          <div className="w-full lg:w-[45%] pt-10 lg:pt-0 lg:pl-7 xl:pl-9 2xl:pl-10">
-            <div className="sticky top-10 grid gap-7 2xl:gap-8">
+          {/* Right Column - Product Info (independent scroll on desktop) */}
+          <div className="w-full lg:w-[45%] pt-10 lg:pt-0 lg:pl-7 xl:pl-9 2xl:pl-10 lg:sticky lg:top-0 lg:self-start lg:max-h-screen lg:overflow-y-auto pdp-scroll-col">
+            <div className="grid gap-7 2xl:gap-8 lg:pt-4 lg:pb-24">
               <ProductForm
                 productOptions={productOptions}
                 selectedVariant={selectedVariant}
@@ -338,6 +338,16 @@ export default function Product() {
             </div>
           </div>
         </div>
+
+        {/* Fixed Add to Cart Bar - Desktop only */}
+        {selectedVariant && selectedVariant.availableForSale && (
+          <FixedAddToCartBar
+            selectedVariant={selectedVariant}
+            onCartOpen={() => {
+              // This is handled inline
+            }}
+          />
+        )}
 
         {/* DETAIL AND REVIEW */}
         <div className="mt-12 sm:mt-16 space-y-12 sm:space-y-16">
@@ -978,6 +988,72 @@ function detectBikeType(product: any): 'road' | 'mtb' | 'gravel' | 'ebike' | 'ur
   if (/e-bike|ebike|el[eé]ctric|pedelec/.test(allText)) return 'ebike';
   if (/urban|ciudad|city|plegable|fixie/.test(allText)) return 'urban';
   return 'road';
+}
+
+// ─── Fixed Add to Cart Bar (Desktop) ────────────────────────────────────────
+
+function FixedAddToCartBar({
+  selectedVariant,
+  onCartOpen,
+}: {
+  selectedVariant: ProductFragment['selectedOrFirstAvailableVariant'];
+  onCartOpen: () => void;
+}) {
+  const {open} = useAside();
+  const {product} = useLoaderData<typeof loader>();
+
+  if (!selectedVariant?.availableForSale) return null;
+
+  return (
+    <div className="hidden lg:block fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+      <div className="container flex items-center justify-between py-3 gap-6">
+        {/* Product info */}
+        <div className="flex items-center gap-4 min-w-0 flex-1">
+          {selectedVariant?.image?.url && (
+            <img
+              src={selectedVariant.image.url}
+              alt={product.title}
+              className="w-12 h-12 object-contain rounded-lg border border-slate-100 flex-shrink-0"
+            />
+          )}
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+              {product.title}
+            </p>
+            <Prices
+              contentClass="text-sm font-bold"
+              price={selectedVariant?.price}
+              compareAtPrice={selectedVariant?.compareAtPrice}
+            />
+          </div>
+        </div>
+
+        {/* Add to Cart */}
+        <div className="flex-shrink-0">
+          <AddToCartButton
+            lines={[
+              {
+                merchandiseId: selectedVariant.id!,
+                quantity: 1,
+                selectedVariant,
+              },
+            ]}
+            className="w-full"
+            data-test="fixed-add-to-cart"
+            onClick={() => open('cart')}
+          >
+            <ButtonPrimary
+              as="span"
+              className="flex items-center justify-center gap-3 px-8 py-3"
+            >
+              <BagIcon className="w-5 h-5 mb-0.5" />
+              <span>Agregar al carrito</span>
+            </ButtonPrimary>
+          </AddToCartButton>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export const PRODUCT_VARIANT_FRAGMENT = `#graphql
