@@ -124,14 +124,14 @@ const CreditCalculator: FC<CreditCalculatorProps> = ({
                     e.stopPropagation();
                     setIsDropdownOpen(!isDropdownOpen);
                   }}
-                  className="flex items-center justify-between gap-2 bg-slate-700 hover:bg-slate-600 rounded-lg px-4 py-2 min-w-[140px] transition-colors"
+                  className="flex items-center justify-between gap-2 bg-white hover:bg-[#e6e6e6] rounded-lg px-4 py-2 min-w-[140px] transition-colors"
                 >
                   <span className="font-semibold">{selectedInstallments} cuotas</span>
                   <ChevronDownIcon className="w-4 h-4" />
                 </button>
                 
                 {isDropdownOpen && (
-                  <div className="absolute right-0 top-full mt-1 bg-slate-700 rounded-lg shadow-xl z-10 min-w-[140px] overflow-hidden">
+                  <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-xl z-10 min-w-[140px] overflow-hidden">
                     {settings.installmentOptions.map((option) => (
                       <button
                         key={option}
