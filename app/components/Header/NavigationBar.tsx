@@ -310,7 +310,7 @@ function CustomMegamenu({
                 <Link
                   key={brand.id || idx}
                   to={brand.link?.value || '#'}
-                  className="flex items-center justify-center px-4 py-3 dark:bg-slate-800 rounded-md hover:bg-[#efefef] dark:hover:bg-slate-700 transition-colors group"
+                  className="border border-slate-300 flex items-center justify-center px-4 py-3 dark:bg-slate-800 rounded-md hover:bg-[#efefef] dark:hover:bg-slate-700 transition-colors group"
                   onClick={onClose}
                 >
                   {logoUrl ? (
