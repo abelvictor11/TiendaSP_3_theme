@@ -83,13 +83,8 @@ const CreditCalculator: FC<CreditCalculatorProps> = ({
         className="w-full flex items-center justify-between p-4 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-primary-100 dark:bg-primary-900 flex items-center justify-center">
-            <svg className="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-            </svg>
-          </div>
           <div className="text-left">
-            <span className="font-semibold text-slate-900 dark:text-white">{settings.title}</span>
+            <h3 className="font-headline text-lg font-bold text-slate-900">{settings.title}</h3>
             <p className="text-sm text-slate-500 dark:text-slate-400">
               Desde <span className="font-semibold text-primary-600 dark:text-primary-400">
                 <Money data={monthlyPayment} />
@@ -112,10 +107,10 @@ const CreditCalculator: FC<CreditCalculatorProps> = ({
       >
         <div className="p-5 space-y-6">
           {/* Calculator card */}
-          <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-5 text-white">
+          <div className="bg-[#f1f1f1] rounded-xl p-5 text-black">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div>
-                <p className="text-xs uppercase tracking-wider text-slate-400 mb-1">{settings.monthlyLabel}</p>
+                <p className="text-xs uppercase tracking-wider text-slate-500 mb-1">{settings.monthlyLabel}</p>
                 <p className="text-3xl sm:text-4xl font-bold">
                   <Money data={monthlyPayment} />
                 </p>
@@ -123,7 +118,7 @@ const CreditCalculator: FC<CreditCalculatorProps> = ({
               
               {/* Installments dropdown */}
               <div className="relative">
-                <p className="text-xs uppercase tracking-wider text-slate-400 mb-1 text-right">{settings.installmentsLabel}</p>
+                <p className="text-xs uppercase tracking-wider text-slate-500 mb-1 text-right">{settings.installmentsLabel}</p>
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
