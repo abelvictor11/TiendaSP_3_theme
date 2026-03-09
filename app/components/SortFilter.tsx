@@ -38,7 +38,9 @@ import {MyPrice2Icon} from './Icons/MyPrice2Icon';
 import ButtonThird from './Button/ButtonThird';
 import ButtonPrimary from './Button/ButtonPrimary';
 import {ChevronDownIcon} from '@heroicons/react/24/outline';
-import SortMenu, {type SortMenuProps} from './SortMenu';
+import SortMenu from './SortMenu';
+import type {SortMenuProps} from './SortMenu';
+import ViewAsToggle from './ViewAsToggle';
 import ButtonClose from './ButtonClose';
 import {MyAdjustmentsIcon} from './Icons/MyAdjustmentsIcon';
 import type {RootLoader} from '~/root';
@@ -172,7 +174,8 @@ export function SortFilter({filters, defaultPriceFilter, sorts}: Props) {
         </div>
       </div>
 
-      <div className="flex">
+      <div className="flex items-center gap-4">
+        <ViewAsToggle />
         <SortMenu items={sorts} />
       </div>
     </div>
