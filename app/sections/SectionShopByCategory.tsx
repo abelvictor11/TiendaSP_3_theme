@@ -65,7 +65,7 @@ export function SectionShopByCategory(props: any) {
         <div className="relative">
           <div
             ref={sliderRef}
-            className="flex gap-4 overflow-x-auto snap-x snap-mandatory hiddenScrollbar pb-4 lg:overflow-x-visible"
+            className="flex gap-4 overflow-x-auto snap-x snap-mandatory hiddenScrollbar pb-4 5xl:overflow-x-visible"
           >
             {categoryNodes.map((category: any, index: number) => {
               // Access reference directly since we're not using parseSection
@@ -81,7 +81,7 @@ export function SectionShopByCategory(props: any) {
                 <Link
                   key={category.id || index}
                   to={link}
-                  className="snap-start shrink-0 lg:shrink lg:flex-1 group"
+                  className="snap-start shrink-0 lg:w-[calc((100%-3.5rem)/4.5)] 5xl:shrink 5xl:flex-1 5xl:w-auto group"
                 >
                   <div className="relative w-[200px] sm:w-[240px] lg:w-full aspect-[3/4] rounded-md overflow-hidden">
                     {/* Background Media (Image or Video) */}

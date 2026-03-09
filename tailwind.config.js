@@ -81,6 +81,7 @@ export default {
         ...defaultTheme.screens,
         '3xl': '1440px',
         '4xl': '1770px',
+        '5xl': '1920px',
         'sm-max': {max: defaultTheme.screens.md},
         'sm-only': {min: defaultTheme.screens.sm, max: defaultTheme.screens.md},
         'md-only': {min: defaultTheme.screens.md, max: defaultTheme.screens.lg},
