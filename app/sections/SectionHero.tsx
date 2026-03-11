@@ -37,51 +37,60 @@ export function SectionHero(props: SectionHeroFragment) {
   const horizontalVideo = (heroItem as any).horizontal_video?.reference?.sources?.[0];
   const verticalVideo = (heroItem as any).vertical_video?.reference?.sources?.[0];
 
-  return (
-    <div className="container px-4">
-      <div className="nc-SectionHero aspect-h-16 aspect-w-10 relative overflow-hidden rounded-2xl bg-[#efefef] sm:aspect-h-4 sm:aspect-w-3 lg:aspect-h-7 lg:aspect-w-16 2xl:aspect-w-16 2xl:aspect-h-7">
-        {/* BG */}
-        <div className="absolute inset-0">
-          {/* Desktop: Video or Image */}
-          {horizontalVideo?.url ? (
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="hidden h-full w-full object-cover lg:block"
-            >
-              <source src={horizontalVideo.url} type={horizontalVideo.mimeType || 'video/mp4'} />
-            </video>
-          ) : horizontal_image?.image && (
-            <Image
-              sizes="110vw"
-              className="hidden h-full w-full object-cover lg:block"
-              data={horizontal_image?.image}
-            />
-          )}
+  // Determine if this hero has text content (heading, sub_heading, or button text)
+  const hasTextContent = !!(heading?.value || sub_heading?.value || cta_button?.text?.value);
+  const linkUrl = cta_button?.href?.value;
+  const linkTarget = cta_button?.target?.value === 'true' ? '_blank' : '_self';
+  const linkRel = cta_button?.target?.value === 'true' ? 'noopener noreferrer' : undefined;
 
-          {/* Mobile: Video or Image */}
-          {verticalVideo?.url ? (
-            <video
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="block h-full w-full object-cover object-bottom lg:hidden"
-            >
-              <source src={verticalVideo.url} type={verticalVideo.mimeType || 'video/mp4'} />
-            </video>
-          ) : vertical_image?.image && (
-            <Image
-              sizes="100vw"
-              className="block h-full w-full object-cover object-bottom lg:hidden"
-              data={vertical_image?.image}
-            />
-          )}
-        </div>
+  // If no text content but has a URL, the entire image becomes clickable
+  const isImageOnlyLink = !hasTextContent && !!linkUrl;
 
-        {/* CONTENT */}
+  const heroContent = (
+    <div className={`nc-SectionHero aspect-h-16 aspect-w-10 relative overflow-hidden rounded-2xl bg-[#efefef] sm:aspect-h-4 sm:aspect-w-3 lg:aspect-h-7 lg:aspect-w-16 2xl:aspect-w-16 2xl:aspect-h-7${isImageOnlyLink ? ' group' : ''}`}>
+      {/* BG */}
+      <div className="absolute inset-0">
+        {/* Desktop: Video or Image */}
+        {horizontalVideo?.url ? (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="hidden h-full w-full object-cover lg:block"
+          >
+            <source src={horizontalVideo.url} type={horizontalVideo.mimeType || 'video/mp4'} />
+          </video>
+        ) : horizontal_image?.image && (
+          <Image
+            sizes="110vw"
+            className={`hidden h-full w-full object-cover lg:block${isImageOnlyLink ? ' transition-transform duration-500 group-hover:scale-105' : ''}`}
+            data={horizontal_image?.image}
+          />
+        )}
+
+        {/* Mobile: Video or Image */}
+        {verticalVideo?.url ? (
+          <video
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="block h-full w-full object-cover object-bottom lg:hidden"
+          >
+            <source src={verticalVideo.url} type={verticalVideo.mimeType || 'video/mp4'} />
+          </video>
+        ) : vertical_image?.image && (
+          <Image
+            sizes="100vw"
+            className={`block h-full w-full object-cover object-bottom lg:hidden${isImageOnlyLink ? ' transition-transform duration-500 group-hover:scale-105' : ''}`}
+            data={vertical_image?.image}
+          />
+        )}
+      </div>
+
+      {/* CONTENT - Only show text overlay if there is text content */}
+      {hasTextContent && (
         <div className="flex py-12 sm:py-14 lg:items-center lg:pb-20">
           <div className="container relative">
             <div className="flex max-w-lg flex-col items-start space-y-5 xl:max-w-2xl xl:space-y-8 ">
@@ -104,8 +113,8 @@ export function SectionHero(props: SectionHeroFragment) {
                 <div className="sm:pt-4">
                   <a
                     href={cta_button?.href?.value || ''}
-                    target={cta_button?.target?.value === 'true' ? '_blank' : '_self'}
-                    rel={cta_button?.target?.value === 'true' ? 'noopener noreferrer' : undefined}
+                    target={linkTarget}
+                    rel={linkRel}
                     className="group inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 lg:px-8 lg:py-4 text-sm sm:text-base lg:text-lg font-medium transition-all duration-200 hover:opacity-90"
                     style={{
                       backgroundColor: buttonBgColor,
@@ -127,7 +136,24 @@ export function SectionHero(props: SectionHeroFragment) {
             </div>
           </div>
         </div>
-      </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="container px-4">
+      {isImageOnlyLink ? (
+        <a
+          href={linkUrl!}
+          target={linkTarget}
+          rel={linkRel}
+          className="block"
+        >
+          {heroContent}
+        </a>
+      ) : (
+        heroContent
+      )}
     </div>
   );
 }

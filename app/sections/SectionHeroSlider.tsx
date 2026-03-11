@@ -202,8 +202,17 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
   const buttonBgColor = (item as any).button_bg_color?.value || '#1e293b';
   const buttonTextColor = (item as any).button_text_color?.value || '#ffffff';
 
-  return (
-    <div className="h-[60vh] min-h-[400px] w-full lg:h-[55vh] lg:min-h-[500px] relative overflow-hidden bg-[#efefef]">
+  // Determine if this hero item has text content
+  const hasTextContent = !!(item.heading?.value || item.sub_heading?.value || item.cta_button?.text?.value);
+  const linkUrl = item.cta_button?.href?.value;
+  const linkTarget = item.cta_button?.target?.value === 'true' ? '_blank' : '_self';
+  const linkRel = item.cta_button?.target?.value === 'true' ? 'noopener noreferrer' : undefined;
+
+  // If no text content but has a URL, the entire slide becomes clickable
+  const isImageOnlyLink = !hasTextContent && !!linkUrl;
+
+  const slideContent = (
+    <div className={`h-[60vh] min-h-[400px] w-full lg:h-[55vh] lg:min-h-[500px] relative overflow-hidden bg-[#efefef]${isImageOnlyLink ? ' group' : ''}`}>
       {/* BG - Absolute positioned */}
       <div className="nc-SectionHeroSliderItem__image absolute inset-0 w-full h-full">
         {/* Desktop: Video or Image */}
@@ -221,7 +230,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
           <Image
             data={item.horizontal_image?.image}
             sizes="110vw"
-            className="hidden h-full w-full object-cover lg:block"
+            className={`hidden h-full w-full object-cover lg:block${isImageOnlyLink ? ' transition-transform duration-500 group-hover:scale-105' : ''}`}
             style={{objectPosition: 'center center'}}
           />
         )}
@@ -241,63 +250,80 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
           <Image
             data={item.vertical_image?.image}
             sizes="100vw"
-            className="block h-full w-full object-cover lg:hidden"
+            className={`block h-full w-full object-cover lg:hidden${isImageOnlyLink ? ' transition-transform duration-500 group-hover:scale-105' : ''}`}
             style={{objectPosition: 'center center'}}
           />
         )}
       </div>
 
-      {/* CONTENT - Above image, vertically centered */}
-      <div className="relative z-10 h-full flex items-center">
-        <div className="container">
-          <div className="nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8">
-            <div className="space-y-3 sm:space-y-4">
-              {!!item.heading?.value && (
-                <h2
-                  className="nc-SectionHeroSliderItem__heading font-headline text-2xl font-normal !leading-[114%] sm:text-3xl md:text-4xl xl:text-5xl 2xl:text-6xl"
-                  style={{color: headingColor}}
-                  dangerouslySetInnerHTML={{__html: item.heading.value}}
-                />
-              )}
-              {!!item.sub_heading?.value && (
-                <span
-                  className="nc-SectionHeroSliderItem__subheading block text-base font-normal md:text-lg"
-                  style={{color: subheadingColor}}
-                  dangerouslySetInnerHTML={{__html: item.sub_heading.value}}
-                />
+      {/* CONTENT - Only show text overlay if there is text content */}
+      {hasTextContent && (
+        <div className="relative z-10 h-full flex items-center">
+          <div className="container">
+            <div className="nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8">
+              <div className="space-y-3 sm:space-y-4">
+                {!!item.heading?.value && (
+                  <h2
+                    className="nc-SectionHeroSliderItem__heading font-headline text-2xl font-normal !leading-[114%] sm:text-3xl md:text-4xl xl:text-5xl 2xl:text-6xl"
+                    style={{color: headingColor}}
+                    dangerouslySetInnerHTML={{__html: item.heading.value}}
+                  />
+                )}
+                {!!item.sub_heading?.value && (
+                  <span
+                    className="nc-SectionHeroSliderItem__subheading block text-base font-normal md:text-lg"
+                    style={{color: subheadingColor}}
+                    dangerouslySetInnerHTML={{__html: item.sub_heading.value}}
+                  />
+                )}
+              </div>
+
+              {!!item.cta_button?.href?.value && (
+                <a
+                  href={item.cta_button.href.value}
+                  target={linkTarget}
+                  rel={linkRel}
+                  className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded-xl border border-current transition-all duration-200 hover:opacity-90"
+                  style={{
+                    backgroundColor: buttonBgColor,
+                    color: buttonTextColor,
+                    borderColor: buttonBgColor,
+                  }}
+                >
+                  <span>{item.cta_button?.text?.value || 'Ver más'}</span>
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    strokeWidth="2" 
+                    stroke="currentColor" 
+                    className="w-5 h-5 transition-transform duration-200 ease-in-out group-hover:translate-x-1"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+                  </svg>
+                </a>
               )}
             </div>
-
-            {!!item.cta_button?.href?.value && (
-              <a
-                href={item.cta_button.href.value}
-                target={item.cta_button?.target?.value === 'true' ? '_blank' : '_self'}
-                rel={item.cta_button?.target?.value === 'true' ? 'noopener noreferrer' : undefined}
-                className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded-xl border border-current transition-all duration-200 hover:opacity-90"
-                style={{
-                  backgroundColor: buttonBgColor,
-                  color: buttonTextColor,
-                  borderColor: buttonBgColor,
-                }}
-              >
-                <span>{item.cta_button?.text?.value || 'Ver más'}</span>
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  strokeWidth="2" 
-                  stroke="currentColor" 
-                  className="w-5 h-5 transition-transform duration-200 ease-in-out group-hover:translate-x-1"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-                </svg>
-              </a>
-            )}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
+
+  if (isImageOnlyLink) {
+    return (
+      <a
+        href={linkUrl!}
+        target={linkTarget}
+        rel={linkRel}
+        className="block"
+      >
+        {slideContent}
+      </a>
+    );
+  }
+
+  return slideContent;
 };
 
 export const HERO_ITEM_FRAGMENT = `#graphql
