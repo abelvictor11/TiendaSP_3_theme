@@ -31,7 +31,7 @@ function root({
 }): SeoConfig {
   return {
     title: shop?.name,
-    titleTemplate: '%s | Hydrogen Demo Store',
+    titleTemplate: '%s | Tienda Fitness',
     description: truncate(shop?.description ?? ''),
     handle: '@shopify',
     url,
@@ -63,9 +63,9 @@ function root({
 
 function home({url}: {url: Request['url']}): SeoConfig {
   return {
-    title: 'Home',
-    titleTemplate: '%s | Hydrogen Demo Store',
-    description: 'The best place to buy snowboarding products',
+    title: 'Equipos de Gimnasio y Máquinas de Ejercicio',
+    titleTemplate: '%s | Tienda Fitness',
+    description: 'Encuentra equipos de gimnasio, máquinas de ejercicio y accesorios fitness de las mejores marcas. Envíos a toda Colombia.',
     url,
     robots: {
       noIndex: false,
@@ -258,7 +258,7 @@ function collection({
     description: truncate(
       collection?.seo?.description ?? collection?.description ?? '',
     ),
-    titleTemplate: '%s | Collection',
+    titleTemplate: '%s | Tienda Fitness',
     url,
     media: {
       type: 'image',
@@ -314,7 +314,7 @@ function listCollections({
 }): SeoConfig {
   return {
     title: 'Collections',
-    titleTemplate: '%s | Collections',
+    titleTemplate: '%s | Tienda Fitness',
     description: 'All hydrogen collections',
     url,
     jsonLd: collectionsJsonLd({collections, url}),
@@ -339,7 +339,7 @@ function article({
   return {
     title: article?.seo?.title ?? article?.title,
     description: truncate(article?.seo?.description ?? ''),
-    titleTemplate: '%s | Journal',
+    titleTemplate: '%s | Tienda Fitness',
     url,
     media: {
       type: 'image',
@@ -374,7 +374,7 @@ function blog({
   return {
     title: blog?.seo?.title,
     description: truncate(blog?.seo?.description || ''),
-    titleTemplate: '%s | Blog',
+    titleTemplate: '%s | Tienda Fitness',
     url,
     jsonLd: {
       '@context': 'https://schema.org',
@@ -396,7 +396,7 @@ function page({
   return {
     description: truncate(page?.seo?.description || ''),
     title: page?.seo?.title ?? page?.title,
-    titleTemplate: '%s | Page',
+    titleTemplate: '%s | Tienda Fitness',
     url,
     jsonLd: {
       '@context': 'https://schema.org',
@@ -416,7 +416,7 @@ function policy({
   return {
     description: truncate(policy?.body ?? ''),
     title: policy?.title,
-    titleTemplate: '%s | Policy',
+    titleTemplate: '%s | Tienda Fitness',
     url,
   };
 }
@@ -441,7 +441,7 @@ function policies({
     });
   return {
     title: 'Policies',
-    titleTemplate: '%s | Policies',
+    titleTemplate: '%s | Tienda Fitness',
     description: 'Hydroge store policies',
     jsonLd: [
       {
