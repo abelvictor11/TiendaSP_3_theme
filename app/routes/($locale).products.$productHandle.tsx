@@ -741,7 +741,7 @@ const ProductFormHighlights = ({metafields}: {metafields?: Metafield[]}) => {
 const DEFAULT_DELIVERY_TIME = 'Entrega estimada de 3 a 7 días hábiles después de confirmado el pago.';
 
 function DeliveryTimeInfo({product}: {product: any}) {
-  const proveedor = product?.proveedor?.reference;
+  const proveedor = product?.proveedor_entrega?.reference;
   const deliveryTime = proveedor?.delivery_time?.value || DEFAULT_DELIVERY_TIME;
   const proveedorName = proveedor?.name?.value;
 
@@ -1176,7 +1176,7 @@ const PRODUCT_FRAGMENT = `#graphql
         namespace
         key
       }
-      proveedor: metafield(namespace: "custom", key: "proveedor") {
+      proveedor_entrega: metafield(namespace: "custom", key: "proveedor_entrega") {
         reference {
           ... on Metaobject {
             handle
