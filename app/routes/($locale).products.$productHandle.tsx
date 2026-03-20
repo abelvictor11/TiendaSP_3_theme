@@ -102,7 +102,7 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
     throw new Error('Expected product handle to be defined');
   }
 
-  const [{shop, product}, creditCalculatorData] = await Promise.all([
+  const [{shop, product}, creditCalculatorData, proveedoresData] = await Promise.all([
     context.storefront.query(PRODUCT_QUERY, {
       variables: {
         handle: productHandle,
@@ -112,6 +112,7 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
       },
     }),
     context.storefront.query(CREDIT_CALCULATOR_QUERY).catch(() => null),
+    context.storefront.query(PROVEEDORES_QUERY).catch(() => null),
   ]);
 
   if (!product?.id) {
@@ -133,6 +134,15 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
     ? parseCreditCalculatorConfig(creditCalculatorData.metaobject)
     : null;
 
+  // Match product vendor with proveedor metaobject entries
+  const proveedores = proveedoresData?.proveedores?.nodes || [];
+  const matchedProveedor = product.vendor
+    ? proveedores.find((p: any) => 
+        p.name?.value?.toLowerCase().trim() === product.vendor.toLowerCase().trim()
+      )
+    : null;
+  const proveedorDeliveryTime = matchedProveedor?.delivery_time?.value || null;
+
   return {
     shop,
     variants,
@@ -141,6 +151,7 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
     storeDomain: shop.primaryDomain.url,
     seo,
     creditCalculatorConfig,
+    proveedorDeliveryTime,
   };
 }
 
@@ -741,9 +752,8 @@ const ProductFormHighlights = ({metafields}: {metafields?: Metafield[]}) => {
 const DEFAULT_DELIVERY_TIME = 'Entrega estimada de 3 a 7 días hábiles después de confirmado el pago.';
 
 function DeliveryTimeInfo({product}: {product: any}) {
-  const proveedor = product?.proveedor_entrega?.reference;
-  const deliveryTime = proveedor?.delivery_time?.value || DEFAULT_DELIVERY_TIME;
-  const proveedorName = proveedor?.name?.value;
+  const {proveedorDeliveryTime} = useLoaderData<typeof loader>();
+  const deliveryTime = proveedorDeliveryTime || DEFAULT_DELIVERY_TIME;
 
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
@@ -760,11 +770,6 @@ function DeliveryTimeInfo({product}: {product: any}) {
           <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5 whitespace-pre-line">
             {deliveryTime}
           </p>
-          {proveedorName && (
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-              Proveedor: {proveedorName}
-            </p>
-          )}
         </div>
       </div>
     </div>
@@ -1176,16 +1181,6 @@ const PRODUCT_FRAGMENT = `#graphql
         namespace
         key
       }
-      proveedor_entrega: metafield(namespace: "custom", key: "proveedor_entrega") {
-        reference {
-          ... on Metaobject {
-            handle
-            type
-            name: field(key: "name") { value }
-            delivery_time: field(key: "delivery_time") { value }
-          }
-        }
-      }
       custom_badges: metafield(namespace: "custom", key:"badges") {
         id
         value
@@ -1444,6 +1439,18 @@ function parseCreditCalculatorConfig(metaobject: any) {
     return null;
   }
 }
+
+const PROVEEDORES_QUERY = `#graphql
+  query proveedores {
+    proveedores: metaobjects(type: "proveedor", first: 50) {
+      nodes {
+        handle
+        name: field(key: "name") { value }
+        delivery_time: field(key: "delivery_time") { value }
+      }
+    }
+  }
+` as const;
 
 const PDP_HELP_BANNER_QUERY = `#graphql
   query pdpHelpBanner {
