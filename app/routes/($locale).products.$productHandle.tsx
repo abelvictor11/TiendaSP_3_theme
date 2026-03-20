@@ -684,8 +684,8 @@ export function ProductForm({
             </div>
           )}
 
-          {/* Store Pickup Availability */}
-          <StorePickupInfo selectedVariant={selectedVariant} />
+          {/* Delivery Time Info */}
+          <DeliveryTimeInfo product={product} />
 
           {/* Highlights below Add to Cart */}
           <ProductFormHighlights metafields={metafields} />
@@ -738,68 +738,35 @@ const ProductFormHighlights = ({metafields}: {metafields?: Metafield[]}) => {
   );
 };
 
-function StorePickupInfo({selectedVariant}: {selectedVariant: ProductFragment['selectedOrFirstAvailableVariant']}) {
-  const storeAvailability = (selectedVariant as any)?.storeAvailability?.nodes;
-  
-  if (!storeAvailability || storeAvailability.length === 0) return null;
+function DeliveryTimeInfo({product}: {product: any}) {
+  const proveedor = product?.proveedor?.reference;
+  const deliveryTime = proveedor?.delivery_time?.value;
+  const proveedorName = proveedor?.name?.value;
 
-  const availableStores = storeAvailability.filter((store: any) => store.available);
-  const unavailableStores = storeAvailability.filter((store: any) => !store.available);
-
-  if (availableStores.length === 0 && unavailableStores.length === 0) return null;
+  if (!deliveryTime) return null;
 
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-      {availableStores.length > 0 && (
-        <div className="divide-y divide-slate-100 dark:divide-slate-700">
-          {availableStores.map((store: any, index: number) => (
-            <div key={index} className="flex items-start gap-3 px-4 py-3">
-              <div className="flex-shrink-0 mt-0.5">
-                <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-green-700 dark:text-green-400">
-                  Disponible para recoger en tienda
-                </p>
-                <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
-                  {store.pickUpTime && (
-                    <span className="font-medium">{store.pickUpTime}</span>
-                  )}
-                </p>
-                <p className="text-xs text-slate-500 dark:text-slate-500 mt-0.5">
-                  {store.location.name}
-                  {store.location.address?.city && ` · ${store.location.address.city}`}
-                </p>
-              </div>
-            </div>
-          ))}
+      <div className="flex items-start gap-3 px-4 py-3">
+        <div className="flex-shrink-0 mt-0.5">
+          <svg className="w-5 h-5 text-[#004f9d]" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+          </svg>
         </div>
-      )}
-
-      {unavailableStores.length > 0 && (
-        <div className="divide-y divide-slate-100 dark:divide-slate-700">
-          {unavailableStores.map((store: any, index: number) => (
-            <div key={index} className="flex items-start gap-3 px-4 py-3 bg-slate-50 dark:bg-slate-800/50">
-              <div className="flex-shrink-0 mt-0.5">
-                <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 21v-7.5a.75.75 0 0 1 .75-.75h3a.75.75 0 0 1 .75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349M3.75 21V9.349m0 0a3.001 3.001 0 0 0 3.75-.615A2.993 2.993 0 0 0 9.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 0 0 2.25 1.016c.896 0 1.7-.393 2.25-1.015a3.001 3.001 0 0 0 3.75.614m-16.5 0a3.004 3.004 0 0 1-.621-4.72l1.189-1.19A1.5 1.5 0 0 1 5.378 3h13.243a1.5 1.5 0 0 1 1.06.44l1.19 1.189a3 3 0 0 1-.621 4.72M6.75 18h3.75a.75.75 0 0 0 .75-.75V13.5a.75.75 0 0 0-.75-.75H6.75a.75.75 0 0 0-.75.75v3.75c0 .414.336.75.75.75Z" />
-                </svg>
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                  No disponible para recoger
-                </p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">
-                  {store.location.name}
-                  {store.location.address?.city && ` · ${store.location.address.city}`}
-                </p>
-              </div>
-            </div>
-          ))}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+            Tiempo de entrega
+          </p>
+          <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5 whitespace-pre-line">
+            {deliveryTime}
+          </p>
+          {proveedorName && (
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+              Proveedor: {proveedorName}
+            </p>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -1159,19 +1126,6 @@ export const PRODUCT_VARIANT_FRAGMENT = `#graphql
       title
       handle
     }
-    storeAvailability(first: 10) {
-      nodes {
-        available
-        pickUpTime
-        location {
-          name
-          address {
-            city
-            country
-          }
-        }
-      }
-    }
   }
 `;
 
@@ -1221,6 +1175,16 @@ const PRODUCT_FRAGMENT = `#graphql
         value
         namespace
         key
+      }
+      proveedor: metafield(namespace: "custom", key: "proveedor") {
+        reference {
+          ... on Metaobject {
+            handle
+            type
+            name: field(key: "name") { value }
+            delivery_time: field(key: "delivery_time") { value }
+          }
+        }
       }
       custom_badges: metafield(namespace: "custom", key:"badges") {
         id
