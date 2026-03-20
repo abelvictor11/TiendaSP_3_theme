@@ -13,11 +13,11 @@
 export const storeConfig = {
   /** Main header logo */
   logoUrl:
-    'https://cdn.shopify.com/s/files/1/0646/1761/1341/files/logo-tienda-fitness_black.svg?v=1753220388',
+    'https://cdn.shopify.com/s/files/1/0646/1761/1341/files/tienda_fitness_logo_main.png?v=1773773934',
 
   /** Favicon URL — can be .svg, .png, or .ico */
   faviconUrl:
-    'https://cdn.shopify.com/s/files/1/0646/1761/1341/files/favicon_2c6a6e00-a71f-413b-b4fd-04b50fc88593.png?v=1753220388',
+    'https://cdn.shopify.com/s/files/1/0646/1761/1341/files/favicon_42028dc7-aefa-464d-baa2-f8f7f7decb3c.png?v=1773773875',
 
   /** Sticky header mini logo — text fallback when no SVG path is available */
   stickyLogoText: 'TF',
