@@ -13,7 +13,7 @@
 export const storeConfig = {
   /** Main header logo */
   logoUrl:
-    'https://cdn.shopify.com/s/files/1/0680/3200/4294/files/ciclospecial.svg?v=1749518126',
+    'https://cdn.shopify.com/s/files/1/0931/1168/1396/files/LOGO_FITSHOP_2.svg?v=1756830247',
 
   /** Favicon URL — can be .svg, .png, or .ico */
   faviconUrl:
