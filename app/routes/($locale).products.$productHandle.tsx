@@ -453,7 +453,7 @@ export function ProductForm({
   metafields?: Metafield[];
 }) {
   const {open} = useAside();
-  const {product} = useLoaderData<typeof loader>();
+  const {product, proveedorDeliveryTime} = useLoaderData<typeof loader>();
   const [quantity, setQuantity] = useState(1);
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
@@ -678,6 +678,9 @@ export function ProductForm({
                       merchandiseId: selectedVariant.id!,
                       quantity,
                       selectedVariant,
+                      attributes: proveedorDeliveryTime
+                        ? [{key: '_deliveryTime', value: proveedorDeliveryTime}]
+                        : [],
                     },
                   ]}
                   className="w-full flex-1"
