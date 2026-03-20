@@ -678,9 +678,7 @@ export function ProductForm({
                       merchandiseId: selectedVariant.id!,
                       quantity,
                       selectedVariant,
-                      attributes: proveedorDeliveryTime
-                        ? [{key: '_deliveryTime', value: proveedorDeliveryTime}]
-                        : [],
+                      attributes: [{key: '_deliveryTime', value: proveedorDeliveryTime || DEFAULT_DELIVERY_TIME}],
                     },
                   ]}
                   className="w-full flex-1"
