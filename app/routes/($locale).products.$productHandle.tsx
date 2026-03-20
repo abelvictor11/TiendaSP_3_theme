@@ -134,11 +134,12 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
     ? parseCreditCalculatorConfig(creditCalculatorData.metaobject)
     : null;
 
-  // Match product vendor with proveedor metaobject entries
+  // Match product proveedor_1 text field with metaobject entries
+  const proveedorName = (product as any).proveedor_1?.value;
   const proveedores = proveedoresData?.proveedores?.nodes || [];
-  const matchedProveedor = product.vendor
+  const matchedProveedor = proveedorName
     ? proveedores.find((p: any) => 
-        p.name?.value?.toLowerCase().trim() === product.vendor.toLowerCase().trim()
+        p.name?.value?.toLowerCase().trim() === proveedorName.toLowerCase().trim()
       )
     : null;
   const proveedorDeliveryTime = matchedProveedor?.delivery_time?.value || null;
@@ -1180,6 +1181,9 @@ const PRODUCT_FRAGMENT = `#graphql
         value
         namespace
         key
+      }
+      proveedor_1: metafield(namespace: "custom", key: "proveedor_1") {
+        value
       }
       custom_badges: metafield(namespace: "custom", key:"badges") {
         id
