@@ -738,12 +738,12 @@ const ProductFormHighlights = ({metafields}: {metafields?: Metafield[]}) => {
   );
 };
 
+const DEFAULT_DELIVERY_TIME = 'Entrega estimada de 3 a 7 días hábiles después de confirmado el pago.';
+
 function DeliveryTimeInfo({product}: {product: any}) {
   const proveedor = product?.proveedor?.reference;
-  const deliveryTime = proveedor?.delivery_time?.value;
+  const deliveryTime = proveedor?.delivery_time?.value || DEFAULT_DELIVERY_TIME;
   const proveedorName = proveedor?.name?.value;
-
-  if (!deliveryTime) return null;
 
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
