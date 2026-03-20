@@ -72,7 +72,7 @@ const StickyHeader: FC<StickyHeaderProps> = ({className = ''}) => {
             >
               {'stickyLogoSvg' in storeConfig && storeConfig.stickyLogoSvg ? (
                 <span
-                  className="h-8 w-auto [&>svg]:h-full [&>svg]:w-auto"
+                  className="h-8 w-auto [&>svg]:h-full [&>svg]:w-auto [&>img]:h-full [&>img]:w-auto"
                   dangerouslySetInnerHTML={{__html: storeConfig.stickyLogoSvg}}
                 />
               ) : (
