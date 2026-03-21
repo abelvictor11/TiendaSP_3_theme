@@ -22,4 +22,20 @@ export const storeConfig = {
   /** Sticky header mini logo — SVG markup or text fallback */
   stickyLogoText: '',
   stickyLogoSvg: `<img src="https://cdn.shopify.com/s/files/1/0931/1168/1396/files/LOGO_FITSHOP_2.svg?v=1756830247" alt="Fit Shop" style="height:32px;" />`,
+
+  /** Sister stores shown in the top bar brand switcher (external links) */
+  sisterStores: [
+    {
+      id: 'tienda',
+      name: 'Tienda N-Fitness',
+      url: 'https://tiendanfitness.com', // TODO: replace with real domain
+      logo: '/brand-logos/tienda-light.svg',
+    },
+    {
+      id: 'ciclospecial',
+      name: 'Ciclospecial',
+      url: 'https://ciclospecial.com', // TODO: replace with real domain
+      logo: '/brand-logos/ciclospecial-light.svg',
+    },
+  ],
 } as const;
