@@ -37,7 +37,7 @@ export const storeConfig = {
     {
       id: 'fitshop',
       name: 'Fitshop',
-      url: 'https://fitshop.com', // TODO: replace with real domain
+      url: 'https://fitshop.com.co/',
       logo: '/brand-logos/fitshop-light.svg',
     },
   ],
