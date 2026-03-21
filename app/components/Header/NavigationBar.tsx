@@ -18,7 +18,7 @@ export default function NavigationBar({headerMenu, headerData}: NavigationBarPro
 
   return (
     <div className="nc-NavigationBar bg-white dark:bg-slate-900 border-t border-slate-200/70 dark:border-slate-700">
-      <div className="container relative">
+      <div className="container-fluid relative">
         <nav className="nc-Navigation flex justify-center items-center py-0">
           <ul className="nc-Navigation hidden lg:flex items-center space-x-1">
             {headerMenu.map((item, index) => (
@@ -53,7 +53,7 @@ function NavItem({
             to={menuItem.to}
             target={menuItem.target}
             prefetch="intent"
-            className="inline-flex items-center text-sm lg:text-base font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
+            className="inline-flex items-center text-sm font-medium text-[#131210] dark:text-slate-300 py-4 px-4 hover:bg-[#F9F7F7] dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             {menuItem.title}
           </Link>
@@ -61,7 +61,7 @@ function NavItem({
           <a
             href={menuItem.to}
             target={menuItem.target}
-            className="inline-flex items-center text-sm lg:text-base font-medium text-slate-700 dark:text-slate-300 py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
+            className="inline-flex items-center text-sm font-medium text-[#131210] dark:text-slate-300 py-4 px-4 hover:bg-[#F9F7F7] dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg transition-colors"
           >
             {menuItem.title}
           </a>
@@ -99,8 +99,8 @@ function NavItem({
           to={menuItem.to}
           prefetch="intent"
           className={`
-            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-300'}
-            group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
+            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-[#F9F7F7] dark:bg-slate-800' : 'text-[#131210] dark:text-slate-300'}
+            group inline-flex items-center text-sm font-medium py-4 px-4 hover:bg-[#F9F7F7] dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
           <span>{menuItem.title}</span>
           <ChevronDownIcon
@@ -114,8 +114,8 @@ function NavItem({
           href={menuItem.to}
           target={menuItem.target}
           className={`
-            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-slate-100 dark:bg-slate-800' : 'text-slate-700 dark:text-slate-300'}
-            group inline-flex items-center text-sm lg:text-base font-medium py-4 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
+            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-[#F9F7F7] dark:bg-slate-800' : 'text-[#131210] dark:text-slate-300'}
+            group inline-flex items-center text-sm font-medium py-4 px-4 hover:bg-[#F9F7F7] dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
           <span>{menuItem.title}</span>
           <ChevronDownIcon
@@ -146,7 +146,7 @@ function NavItem({
                                 to={subItem.to}
                                 target={subItem.target}
                                 prefetch="intent"
-                                className="font-medium text-slate-900 dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                                className="font-medium text-[#131210] dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                                 onClick={() => setIsHovered(false)}
                               >
                                 {subItem.title}
@@ -158,7 +158,7 @@ function NavItem({
                                 className="block group"
                                 onClick={() => setIsHovered(false)}
                               >
-                                <p className="font-medium text-slate-900 dark:text-neutral-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                <p className="font-medium text-[#131210] dark:text-neutral-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                   {subItem.title}
                                 </p>
                               </a>
@@ -168,15 +168,40 @@ function NavItem({
                       </div>
                     </div>
 
-                    {/* Featured Collection (optional) */}
-                    {headerData?.featuredCollections?.nodes?.[0] && (
-                      <div className="hidden xl:block w-[300px]">
-                        <CollectionItem
-                          onClick={() => setIsHovered(false)}
-                          item={headerData.featuredCollections.nodes[0]}
-                        />
-                      </div>
-                    )}
+                    {/* Featured Collection - matched to this menu item */}
+                    {(() => {
+                      const collections = headerData?.featuredCollections?.nodes;
+                      if (!collections?.length) return null;
+                      // Strategy 1: Extract handle from /collections/{handle} path
+                      const collectionsMatch = menuItem.to.match(/\/collections\/([^/?#]+)/);
+                      let matched = collectionsMatch
+                        ? collections.find((c) => c.handle === collectionsMatch[1])
+                        : null;
+
+                      // Strategy 2: Try matching the last URL segment as a handle
+                      if (!matched) {
+                        const lastSegment = menuItem.to.replace(/\/$/, '').split('/').pop();
+                        if (lastSegment) {
+                          matched = collections.find((c) => c.handle === lastSegment);
+                        }
+                      }
+
+                      // Strategy 3: Try matching by title (case-insensitive)
+                      if (!matched) {
+                        const menuTitle = menuItem.title.toLowerCase();
+                        matched = collections.find((c) => c.title.toLowerCase() === menuTitle);
+                      }
+
+                      if (!matched) return null;
+                      return (
+                        <div className="hidden xl:block w-[300px]">
+                          <CollectionItem
+                            onClick={() => setIsHovered(false)}
+                            item={matched}
+                          />
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>

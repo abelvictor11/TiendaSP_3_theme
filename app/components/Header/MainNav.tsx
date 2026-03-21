@@ -1,5 +1,5 @@
 import {type FC} from 'react';
-import LangDropdown from './LangDropdown';
+import HeaderQuickLinks, {type QuickLinkItem} from './HeaderQuickLinks';
 import AvatarDropdown from './AvatarDropdown';
 import Logo from '../Logo';
 import CartBtn from './CartBtn';
@@ -10,12 +10,18 @@ import {Link} from '../Link';
 import {useAside} from '../Aside';
 import {Form, useParams} from '@remix-run/react';
 
+interface QuickLinksConfig {
+  enabled: boolean;
+  items: QuickLinkItem[];
+}
+
 export interface Props {
   className?: string;
   isHome?: boolean;
+  quickLinks?: QuickLinksConfig;
 }
 
-const MainNav: FC<Props> = ({className = '', isHome}) => {
+const MainNav: FC<Props> = ({className = '', isHome, quickLinks}) => {
   const {type: activeType, close, open} = useAside();
   const params = useParams();
 
@@ -31,7 +37,7 @@ const MainNav: FC<Props> = ({className = '', isHome}) => {
           {/* Mobile Menu Button */}
           <div className="flex items-center lg:hidden">
             <button
-              className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none"
+              className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full text-[#131210] dark:text-slate-300 hover:bg-[#F9F7F7] dark:hover:bg-slate-800 focus:outline-none"
               onClick={() => open('mobile')}
               type="button"
               aria-label="Open menu"
@@ -60,7 +66,7 @@ const MainNav: FC<Props> = ({className = '', isHome}) => {
                   type="search"
                   name="q"
                   placeholder="Buscar productos..."
-                  className="w-full h-11 pl-12 pr-4 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
+                  className="w-full h-11 pl-12 pr-4 text-sm bg-[#F9F7F7] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
                 />
               </div>
             </Form>
@@ -68,11 +74,15 @@ const MainNav: FC<Props> = ({className = '', isHome}) => {
 
           {/* Right side actions */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <LangDropdown className="hidden md:block" />
+            <HeaderQuickLinks 
+              className="hidden md:flex"
+              items={quickLinks?.items}
+              enabled={quickLinks?.enabled}
+            />
             {/* Mobile search icon - Hidden on desktop */}
             <Link
               to={'/search'}
-              className="flex lg:hidden w-10 h-10 sm:w-12 sm:h-12 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none items-center justify-center"
+              className="flex lg:hidden w-10 h-10 sm:w-12 sm:h-12 rounded-full text-[#131210] dark:text-slate-300 hover:bg-[#F9F7F7] dark:hover:bg-slate-800 focus:outline-none items-center justify-center"
               aria-label="Search"
             >
               <MagnifyingGlassIcon />

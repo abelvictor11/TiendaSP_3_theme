@@ -24,11 +24,26 @@ const Logo: React.FC<LogoProps> = ({
       to="/"
       className={`ttnc-logo flex-shrink-0 inline-block text-slate-900 ${className}`}
     >
-      <img
-        src={storeConfig.logoUrl}
-        alt={shop.name + ' logo'}
-        className="block max-w-60 h-[35px]"
-      />
+      {'smallLogoUrl' in storeConfig && storeConfig.smallLogoUrl ? (
+        <>
+          <img
+            src={storeConfig.smallLogoUrl}
+            alt={shop.name + ' logo'}
+            className="block lg:hidden max-w-60 h-[35px]"
+          />
+          <img
+            src={storeConfig.logoUrl}
+            alt={shop.name + ' logo'}
+            className="hidden lg:block max-w-60 h-[35px]"
+          />
+        </>
+      ) : (
+        <img
+          src={storeConfig.logoUrl}
+          alt={shop.name + ' logo'}
+          className="block max-w-60 h-[35px]"
+        />
+      )}
     </Link>
   );
 };

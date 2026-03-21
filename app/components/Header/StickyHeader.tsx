@@ -57,7 +57,7 @@ const StickyHeader: FC<StickyHeaderProps> = ({className = ''}) => {
           <div className="h-14 flex justify-between items-center">
             {/* Mobile Menu Button */}
             <button
-              className="flex lg:hidden items-center justify-center w-10 h-10 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800"
+              className="flex lg:hidden items-center justify-center w-10 h-10 rounded-full text-[#131210] dark:text-slate-300 hover:bg-[#F9F7F7] dark:hover:bg-slate-800"
               onClick={() => open('mobile')}
               type="button"
               aria-label="Open menu"
@@ -70,7 +70,20 @@ const StickyHeader: FC<StickyHeaderProps> = ({className = ''}) => {
               to="/"
               className="flex items-center text-lg font-bold text-slate-900 dark:text-white"
             >
-              <span className="text-primary-600">{storeConfig.stickyLogoText}</span>
+              {'smallLogoUrl' in storeConfig && storeConfig.smallLogoUrl ? (
+                <img
+                  src={storeConfig.smallLogoUrl}
+                  alt="Logo"
+                  className="h-8 w-auto"
+                />
+              ) : 'stickyLogoSvg' in storeConfig && storeConfig.stickyLogoSvg ? (
+                <span
+                  className="h-8 w-auto [&>svg]:h-full [&>svg]:w-auto"
+                  dangerouslySetInnerHTML={{__html: storeConfig.stickyLogoSvg as string}}
+                />
+              ) : (
+                <span className="text-primary-600">{storeConfig.stickyLogoText}</span>
+              )}
             </Link>
 
             {/* Compact Search - Desktop only */}
@@ -87,7 +100,7 @@ const StickyHeader: FC<StickyHeaderProps> = ({className = ''}) => {
                   type="search"
                   name="q"
                   placeholder="Buscar..."
-                  className="w-full h-9 pl-9 pr-4 text-sm bg-slate-100 dark:bg-slate-800 border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder:text-slate-400"
+                  className="w-full h-9 pl-9 pr-4 text-sm bg-[#F9F7F7] dark:bg-slate-800 border-0 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 placeholder:text-slate-400"
                 />
               </Form>
             </div>
@@ -97,7 +110,7 @@ const StickyHeader: FC<StickyHeaderProps> = ({className = ''}) => {
               {/* Mobile search */}
               <Link
                 to="/search"
-                className="flex lg:hidden w-10 h-10 rounded-full text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 items-center justify-center"
+                className="flex lg:hidden w-10 h-10 rounded-full text-[#131210] dark:text-slate-300 hover:bg-[#F9F7F7] dark:hover:bg-slate-800 items-center justify-center"
                 aria-label="Search"
               >
                 <MagnifyingGlassIcon className="w-5 h-5" />

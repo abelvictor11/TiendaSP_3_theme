@@ -15,6 +15,10 @@ export const storeConfig = {
   logoUrl:
     'https://cdn.shopify.com/s/files/1/0646/1761/1341/files/tienda_fitness_logo_main.svg?v=1773773848',
 
+  /** Small logo for mobile header and sticky header */
+  smallLogoUrl:
+    'https://cdn.shopify.com/s/files/1/0646/1761/1341/files/logo_tiendan-fitness_small_8d19b9d7-712e-46cb-84db-73315019d3b2.svg?v=1774108358',
+
   /** Favicon URL — can be .svg, .png, or .ico */
   faviconUrl:
     'https://cdn.shopify.com/s/files/1/0646/1761/1341/files/favicon_42028dc7-aefa-464d-baa2-f8f7f7decb3c.png?v=1773773875',
