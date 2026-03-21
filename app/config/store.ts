@@ -25,4 +25,20 @@ export const storeConfig = {
 
   /** Sticky header mini logo — text fallback when no SVG path is available */
   stickyLogoText: 'TF',
+
+  /** Sister stores shown in the top bar brand switcher (external links) */
+  sisterStores: [
+    {
+      id: 'ciclospecial',
+      name: 'Ciclospecial',
+      url: 'https://ciclospecial.com', // TODO: replace with real domain
+      logo: '/brand-logos/ciclospecial-light.svg',
+    },
+    {
+      id: 'fitshop',
+      name: 'Fitshop',
+      url: 'https://fitshop.com', // TODO: replace with real domain
+      logo: '/brand-logos/fitshop-light.svg',
+    },
+  ],
 } as const;

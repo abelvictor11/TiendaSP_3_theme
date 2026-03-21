@@ -17,6 +17,7 @@ import {Cart} from './Cart';
 import type {RootLoader} from '~/root';
 import {Aside, useAside} from './Aside';
 import TopBarMarquee from './TopBarMarquee';
+import BrandSwitcher from './BrandSwitcher';
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -91,15 +92,22 @@ function TopBarMarqueeWrap() {
           const marquee = headerData?.topBarMarquee?.nodes?.[0];
           if (!marquee) return null;
 
+          const bgColor = marquee.background_color?.value || '#1e1b4b';
+
           return (
-            <TopBarMarquee
-              textContent={marquee.text_content?.value || ''}
-              backgroundColor={marquee.background_color?.value || '#1e1b4b'}
-              textColor={marquee.text_color?.value || '#ffffff'}
-              speed={Number(marquee.speed?.value) || 25}
-              separatorIcon={marquee.separator_icon?.value || '🎁'}
-              enabled={marquee.enabled?.value !== 'false'}
-            />
+            <div className="flex items-stretch" style={{backgroundColor: bgColor}}>
+              <div className="flex-1 min-w-0 overflow-hidden">
+                <TopBarMarquee
+                  textContent={marquee.text_content?.value || ''}
+                  backgroundColor="transparent"
+                  textColor={marquee.text_color?.value || '#ffffff'}
+                  speed={Number(marquee.speed?.value) || 25}
+                  separatorIcon={marquee.separator_icon?.value || '🎁'}
+                  enabled={marquee.enabled?.value !== 'false'}
+                />
+              </div>
+              <BrandSwitcher className="hidden md:flex" />
+            </div>
           );
         }}
       </Await>
