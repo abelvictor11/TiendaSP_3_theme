@@ -34,7 +34,7 @@ import {routeHeaders} from '~/data/cache';
 import {MEDIA_FRAGMENT} from '~/data/fragments';
 import Prices from '~/components/Prices';
 import NcInputNumber from '~/components/NcInputNumber';
-import Policy from '~/components/Policy';
+// Policy import removed - policy cards no longer shown on PDP
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import BagIcon from '~/components/BagIcon';
 import {NoSymbolIcon} from '@heroicons/react/24/outline';
@@ -57,7 +57,7 @@ import type {RootLoader} from '~/root';
 import {useAside} from '~/components/Aside';
 import {SlashIcon} from '@heroicons/react/24/solid';
 import ProductHelpBanner from '~/components/ProductHelpBanner';
-import ProductHighlights from '~/components/ProductHighlights';
+// ProductHighlights import removed - replaced by PdpAccordion structure
 import ProductSpecs from '~/components/ProductSpecs';
 import {ComplementaryProducts} from '~/components/ComplementaryProducts';
 
@@ -186,7 +186,6 @@ export default function Product() {
     specs_video_producto,
     specs_highlights,
   } = product as any;
-  const {shippingPolicy, refundPolicy, subscriptionPolicy} = shop;
 
   // Optimistically selects a variant with given available variant information
   const selectedVariant = useOptimisticVariant(
@@ -232,38 +231,6 @@ export default function Product() {
               />
             </div>
 
-            {/* Product Description - Below images on desktop */}
-            {!!descriptionHtml && (
-              <div className="hidden lg:block mt-10">
-                <h2 className="text-2xl font-semibold">Detalles del producto</h2>
-                <div
-                  className="prose prose-sm sm:prose dark:prose-invert sm:max-w-4xl mt-7"
-                  dangerouslySetInnerHTML={{
-                    __html: descriptionHtml || '',
-                  }}
-                />
-              </div>
-            )}
-
-            {/* Technical Specifications - Below gallery on desktop */}
-            <div className="hidden lg:block mt-10">
-              <ProductSpecs
-                dimensiones={specs_dimensiones?.value}
-                pesoMaxUsuario={specs_peso_max_usuario?.value}
-                tipoResistencia={specs_tipo_resistencia?.value}
-                nivelesResistencia={specs_niveles_resistencia?.value}
-                potenciaMotor={specs_potencia_motor?.value}
-                pesoProducto={specs_peso_producto?.value}
-                garantia={specs_garantia?.value}
-                nivelRuido={specs_nivel_ruido?.value}
-                conectividad={specs_conectividad?.value}
-                certificaciones={specs_certificaciones?.value}
-                plegable={specs_plegable?.value === 'true'}
-                requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
-                fichaTecnicaPdf={specs_ficha_tecnica_pdf?.reference?.url}
-                videoProducto={specs_video_producto?.value}
-              />
-            </div>
           </div>
 
           {/* Right Column - Product Info */}
@@ -275,17 +242,58 @@ export default function Product() {
                 storeDomain={storeDomain}
               />
 
-              {/* Highlights - Quick specs icons */}
-              <ProductHighlights
-                highlights={specs_highlights?.value ? JSON.parse(specs_highlights.value) as string[] : undefined}
-                pesoMaxUsuario={specs_peso_max_usuario?.value}
-                plegable={specs_plegable?.value === 'true'}
-                requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
-              />
+              {/* Accordions: Descripción, Especificaciones, Equípate al completo */}
+              <div className="divide-y divide-[#dacac7] dark:divide-slate-700 border border-[#dacac7] dark:border-slate-700 rounded-xl overflow-hidden">
+                {/* Descripción Accordion */}
+                {!!descriptionHtml && (
+                  <PdpAccordion title="Descripción">
+                    <div
+                      className="prose prose-sm dark:prose-invert max-w-none"
+                      dangerouslySetInnerHTML={{__html: descriptionHtml}}
+                    />
+                  </PdpAccordion>
+                )}
 
-              {/*  */}
-              <hr className=" border-slate-200 dark:border-slate-700"></hr>
-              {/*  */}
+                {/* Especificaciones Técnicas Accordion */}
+                <PdpAccordion title="Especificaciones Técnicas">
+                  <ProductSpecs
+                    dimensiones={specs_dimensiones?.value}
+                    pesoMaxUsuario={specs_peso_max_usuario?.value}
+                    tipoResistencia={specs_tipo_resistencia?.value}
+                    nivelesResistencia={specs_niveles_resistencia?.value}
+                    potenciaMotor={specs_potencia_motor?.value}
+                    pesoProducto={specs_peso_producto?.value}
+                    garantia={specs_garantia?.value}
+                    nivelRuido={specs_nivel_ruido?.value}
+                    conectividad={specs_conectividad?.value}
+                    certificaciones={specs_certificaciones?.value}
+                    plegable={specs_plegable?.value === 'true'}
+                    requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
+                    fichaTecnicaPdf={specs_ficha_tecnica_pdf?.reference?.url}
+                    videoProducto={specs_video_producto?.value}
+                    hideTitle
+                  />
+                </PdpAccordion>
+
+                {/* Equípate al completo Accordion */}
+                <Suspense fallback={null}>
+                  <Await resolve={recommended}>
+                    {(products) => {
+                      const complementary = products.nodes.slice(0, 4);
+                      if (!complementary.length) return null;
+                      return (
+                        <PdpAccordion title="Equípate al completo">
+                          <ComplementaryProducts
+                            products={complementary}
+                            title="Equípate al completo"
+                            hideHeader
+                          />
+                        </PdpAccordion>
+                      );
+                    }}
+                  </Await>
+                </Suspense>
+              </div>
 
               {/* Help Banner */}
               <Suspense fallback={null}>
@@ -309,94 +317,16 @@ export default function Product() {
                   }}
                 </Await>
               </Suspense>
-
-              {/* Complementary Products */}
-              <Suspense fallback={<div className="h-32" />}>
-                <Await resolve={recommended}>
-                  {(products) => (
-                    <ComplementaryProducts
-                      products={products.nodes.slice(0, 4)}
-                      title="Equípate al completo"
-                    />
-                  )}
-                </Await>
-              </Suspense>
-
-              {!!outstanding_features?.value && (
-                <div>
-                  <h2 className="text-sm font-medium text-gray-900">
-                    Características destacadas
-                  </h2>
-                  <div>
-                    <div
-                      className="prose prose-sm mt-4 text-gray-600"
-                      dangerouslySetInnerHTML={{
-                        __html: `<ul role="list"> 
-                    ${(
-                      JSON.parse(
-                        outstanding_features?.value || '[]',
-                      ) as string[]
-                    )
-                      .map((item: string) => `<li>${item}</li>`)
-                      .join('')} 
-                    </ul>`,
-                      }}
-                    ></div>
-                  </div>
-                </div>
-              )}
-
-              {/* ---------- 6 ----------  */}
-              <div>
-                <Policy
-                  shippingPolicy={shippingPolicy}
-                  refundPolicy={refundPolicy}
-                  subscriptionPolicy={subscriptionPolicy}
-                />
-              </div>
             </div>
           </div>
         </div>
 
         {/* DETAIL AND REVIEW */}
         <div className="mt-12 sm:mt-16 space-y-12 sm:space-y-16">
-          {/* Product description - Mobile only (desktop shows below images) */}
-          {!!descriptionHtml && (
-            <div className="lg:hidden">
-              <h2 className="text-2xl font-semibold">Detalles del producto</h2>
-              <div
-                className="prose prose-sm sm:prose dark:prose-invert sm:max-w-4xl mt-7"
-                dangerouslySetInnerHTML={{
-                  __html: descriptionHtml || '',
-                }}
-              />
-            </div>
-          )}
-
-          {/* Technical Specifications - Mobile only (desktop shows below gallery) */}
-          <div className="lg:hidden">
-            <ProductSpecs
-              dimensiones={specs_dimensiones?.value}
-              pesoMaxUsuario={specs_peso_max_usuario?.value}
-              tipoResistencia={specs_tipo_resistencia?.value}
-              nivelesResistencia={specs_niveles_resistencia?.value}
-              potenciaMotor={specs_potencia_motor?.value}
-              pesoProducto={specs_peso_producto?.value}
-              garantia={specs_garantia?.value}
-              nivelRuido={specs_nivel_ruido?.value}
-              conectividad={specs_conectividad?.value}
-              certificaciones={specs_certificaciones?.value}
-              plegable={specs_plegable?.value === 'true'}
-              requiereElectricidad={specs_requiere_electricidad?.value === 'true'}
-              fichaTecnicaPdf={specs_ficha_tecnica_pdf?.reference?.url}
-              videoProducto={specs_video_producto?.value}
-            />
-          </div>
-
           {/* Product reviews */}
           <ProductReviews product={product} />
 
-          <hr className="border-slate-200 dark:border-slate-700" />
+          <hr className="border-[#dacac7] dark:border-slate-700" />
 
           {/* OTHER SECTION */}
           <Suspense fallback={<div className="h-32" />}>
@@ -604,7 +534,7 @@ export function ProductForm({
             </ButtonSecondary>
           ) : (
             <div className="flex gap-2 sm:gap-3.5 items-stretch">
-              <div className="flex items-center justify-center bg-slate-100/70 dark:bg-slate-800/70 p-2 sm:p-3 rounded-full">
+              <div className="flex items-center justify-center bg-[#F9F7F7]/70 dark:bg-secondary-700/70 p-2 sm:p-3 rounded-full">
                 <NcInputNumber
                   className=""
                   defaultValue={quantity}
@@ -679,15 +609,15 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
                 prefetch="intent"
                 replace
                 className={clsx(
-                  'relative flex items-center justify-center rounded-md border py-3 px-5 sm:px-3 text-sm font-medium uppercase sm:flex-1 cursor-pointer focus:outline-none border-gray-200 ',
+                  'relative flex items-center justify-center rounded-md border py-3 px-5 sm:px-6 text-sm font-medium uppercase min-w-[80px] cursor-pointer focus:outline-none border-gray-200 ',
                   !isAvailable
                     ? isActive
                       ? 'opacity-90 text-opacity-80 cursor-not-allowed'
                       : 'text-opacity-20 cursor-not-allowed'
                     : 'cursor-pointer',
                   isActive
-                    ? 'bg-slate-900 border-slate-900 text-slate-100'
-                    : 'border-slate-300 text-slate-900 hover:bg-neutral-50 ',
+                    ? 'bg-secondary-800 border-secondary-800 text-slate-100'
+                    : 'border-slate-300 text-secondary-800 hover:bg-neutral-50 ',
                 )}
               >
                 {!isAvailable && (
@@ -746,7 +676,7 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
 
   return (
     <div>
-      <div className="text-sm font-medium">Select {option.name}</div>
+      <div className="text-sm font-medium">Seleccionar {option.name}</div>
       
       {/* Large cards with variant images */}
       {hasVariantImages ? (
@@ -777,12 +707,12 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
                     'relative flex flex-col rounded-lg border-2 p-3 transition-all',
                     isActive 
                       ? 'border-primary-500 bg-primary-50/50' 
-                      : 'border-slate-200 dark:border-slate-700 hover:border-slate-300',
+                      : 'border-[#dacac7] dark:border-slate-700 hover:border-slate-300',
                     !isAvailable && 'opacity-50 cursor-not-allowed',
                   )}
                 >
                   {/* Image */}
-                  <div className="aspect-square w-full rounded-md overflow-hidden bg-slate-100 dark:bg-slate-800 mb-2 flex items-center justify-center">
+                  <div className="aspect-square w-full rounded-md overflow-hidden bg-[#F9F7F7] dark:bg-secondary-700 mb-2 flex items-center justify-center">
                     <Image
                       data={{
                         url: imageUrl,
@@ -800,13 +730,13 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
                   {/* Color name */}
                   <span className={clsx(
                     'text-sm font-medium text-center',
-                    isActive ? 'text-primary-600' : 'text-slate-700 dark:text-slate-300'
+                    isActive ? 'text-primary-600' : 'text-[#131210] dark:text-slate-300'
                   )}>
                     {value}
                   </span>
 
                   {!isAvailable && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-slate-900/60 rounded-lg">
+                    <div className="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-secondary-800/60 rounded-lg">
                       <span className="text-xs text-slate-500">Agotado</span>
                     </div>
                   )}
@@ -893,6 +823,43 @@ function ProductOptionSwatch({
   );
 }
 
+function PdpAccordion({title, children}: {title: string; children: React.ReactNode}) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between px-5 py-4 bg-white hover:bg-[#F9F7F7] transition-colors text-left"
+      >
+        <span className="font-medium text-secondary-800">{title}</span>
+        <svg
+          className={clsx('w-5 h-5 text-slate-500 transition-transform duration-200', isOpen && 'rotate-180')}
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth="1.5"
+          stroke="currentColor"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+        </svg>
+      </button>
+      <div
+        className={clsx(
+          'grid transition-all duration-300 ease-in-out',
+          isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0',
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="px-5 pb-5">
+            {children}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const ProductReviews = ({product}: {product: ProductFragment}) => {
   const rootData = useRouteLoaderData<RootLoader>('root');
   const publicOkendoSubcriberId = rootData?.publicOkendoSubcriberId;
@@ -903,7 +870,7 @@ const ProductReviews = ({product}: {product: ProductFragment}) => {
 
   return (
     <>
-      <hr className="border-slate-200 dark:border-slate-700" />
+      <hr className="border-[#dacac7] dark:border-slate-700" />
 
       <div className="product-page__reviews scroll-mt-nav" id="reviews">
         {/* HEADING */}
