@@ -73,21 +73,41 @@ function QuickLinkButton({item}: {item: QuickLinkItem}) {
     borderStyle: borderColor ? 'solid' : undefined,
   };
 
+  const linkHref = item.link?.value || '#';
+  const isExternal = linkHref.startsWith('http');
+  const linkClassName =
+    'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full hover:opacity-90 transition-opacity';
+  const linkContent = (
+    <>
+      {item.svg_icon?.value && (
+        <span
+          className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full"
+          style={{color: iconColor}}
+          dangerouslySetInnerHTML={{__html: item.svg_icon.value}}
+        />
+      )}
+      {item.label?.value && <span>{item.label.value}</span>}
+    </>
+  );
+
   if (!hasSubitems) {
-    return (
-      <Link
-        to={item.link?.value || '#'}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full hover:opacity-90 transition-opacity"
+    return isExternal ? (
+      <a
+        href={linkHref}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={linkClassName}
         style={buttonStyle}
       >
-        {item.svg_icon?.value && (
-          <span
-            className="w-4 h-4 [&>svg]:w-full [&>svg]:h-full"
-            style={{color: iconColor}}
-            dangerouslySetInnerHTML={{__html: item.svg_icon.value}}
-          />
-        )}
-        {item.label?.value && <span>{item.label.value}</span>}
+        {linkContent}
+      </a>
+    ) : (
+      <Link
+        to={linkHref}
+        className={linkClassName}
+        style={buttonStyle}
+      >
+        {linkContent}
       </Link>
     );
   }
@@ -112,16 +132,32 @@ function QuickLinkButton({item}: {item: QuickLinkItem}) {
 
       {isOpen && (
         <div className="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-neutral-900 rounded-xl shadow-xl border border-neutral-200 dark:border-neutral-700 py-2 z-50">
-          {subitems.map((sub) => (
-            <Link
-              key={sub.id}
-              to={sub.link?.value || '#'}
-              className="block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-              onClick={() => setIsOpen(false)}
-            >
-              {sub.label?.value}
-            </Link>
-          ))}
+          {subitems.map((sub) => {
+            const subHref = sub.link?.value || '#';
+            const subExternal = subHref.startsWith('http');
+            const subClass = "block px-4 py-2 text-sm text-neutral-700 dark:text-neutral-300 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors";
+            return subExternal ? (
+              <a
+                key={sub.id}
+                href={subHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={subClass}
+                onClick={() => setIsOpen(false)}
+              >
+                {sub.label?.value}
+              </a>
+            ) : (
+              <Link
+                key={sub.id}
+                to={subHref}
+                className={subClass}
+                onClick={() => setIsOpen(false)}
+              >
+                {sub.label?.value}
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
