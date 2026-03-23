@@ -5,6 +5,7 @@ import {
   CheckCircleIcon,
   EnvelopeIcon,
   InformationCircleIcon,
+  MapPinIcon,
 } from '@heroicons/react/24/outline';
 import {useFetcher, useRouteLoaderData} from '@remix-run/react';
 import Input from './MyInput';
@@ -69,8 +70,26 @@ const Footer: React.FC<FooterProps> = () => {
               {({footerMenu}) => footerMenu?.items?.map(renderWidgetMenu)}
             </FooterMenuDataWrap>
           </div>
-          <div className="mt-10 xl:mt-0">
+          <div className="mt-10 xl:mt-0 space-y-8">
             <WidgetAddSubscriberForm />
+            {/* Store Locations */}
+            <div className="text-sm">
+              <h2 className="font-semibold text-neutral-700 dark:text-neutral-200 flex items-center gap-2">
+                <MapPinIcon className="w-4 h-4" />
+                Nuestras sedes
+              </h2>
+              <ul className="mt-4 space-y-3">
+                <li className="text-neutral-600">
+                  <span className="font-medium">Medellín:</span> Carrera 43 #30-91
+                </li>
+                <li className="text-neutral-600">
+                  <span className="font-medium">Barranquilla:</span> Carrera 51B #93-25
+                </li>
+                <li className="text-neutral-600">
+                  <span className="font-medium">Llanogrande:</span> Km 4 Vía Rionegro
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 

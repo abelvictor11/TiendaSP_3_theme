@@ -34,6 +34,7 @@ declare global {
     PUBLIC_IMAGE_FORMAT_FOR_PRODUCT_OPTION: string;
     PUBLIC_OKENDO_SUBSCRIBER_ID: string;
     SHOP_ID: string;
+    ADMIN_API_ACCESS_TOKEN: string;
   }
 }
 
