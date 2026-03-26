@@ -10,6 +10,7 @@ import {Bars3Icon} from '@heroicons/react/24/outline';
 import {Link} from '../Link';
 import {useAside} from '../Aside';
 import {SearchAutocomplete} from '../SearchAutocomplete';
+import {storeConfig} from '~/config/store';
 
 interface Brand {
   id: string;
@@ -98,27 +99,29 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks, se
           </div>
          
           {/* Menu Button - Mobile opens NavMobile, Desktop opens MegaMenu */}
-          <div className="flex items-center">
-            {/* Mobile button - opens mobile menu */}
-            <button
-              className="lg:hidden flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-[#efefef] dark:hover:bg-slate-800 focus:outline-none transition-colors"
-              onClick={() => open('mobile')}
-              type="button"
-              aria-label="Open menu"
-            >
-              <Bars3Icon className="w-5 h-5" aria-hidden="true" />
-            </button>
-            {/* Desktop button - opens mega menu */}
-            <button
-              className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-[#efefef] dark:hover:bg-slate-800 focus:outline-none transition-colors"
-              onClick={() => open('desktop-menu')}
-              type="button"
-              aria-label="Open menu"
-            >
-              <Bars3Icon className="w-5 h-5" aria-hidden="true" />
-              <span className="text-sm font-medium">Menú</span>
-            </button>
-          </div>
+          {storeConfig.showMenuButton && (
+            <div className="flex items-center">
+              {/* Mobile button - opens mobile menu */}
+              <button
+                className="lg:hidden flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-[#efefef] dark:hover:bg-slate-800 focus:outline-none transition-colors"
+                onClick={() => open('mobile')}
+                type="button"
+                aria-label="Open menu"
+              >
+                <Bars3Icon className="w-5 h-5" aria-hidden="true" />
+              </button>
+              {/* Desktop button - opens mega menu */}
+              <button
+                className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-[#efefef] dark:hover:bg-slate-800 focus:outline-none transition-colors"
+                onClick={() => open('desktop-menu')}
+                type="button"
+                aria-label="Open menu"
+              >
+                <Bars3Icon className="w-5 h-5" aria-hidden="true" />
+                <span className="text-sm font-medium">Menú</span>
+              </button>
+            </div>
+          )}
 
           {/* Desktop Search Input with Autocomplete - Hidden on mobile */}
           <div className="hidden lg:flex flex-1 max-w-2xl mx-8">

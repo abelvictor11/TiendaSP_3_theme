@@ -24,4 +24,7 @@ export const storeConfig = {
 
   /** SVG viewBox for the sticky header logo */
   stickyLogoViewBox: '0 0 473.321 127.556',
+
+  /** Show/hide the sidebar menu button next to the logo in the header */
+  showMenuButton: true,
 } as const;
