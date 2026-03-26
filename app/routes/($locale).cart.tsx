@@ -112,9 +112,9 @@ export default function CartRoute() {
         <main className="container py-10 lg:pb-28 lg:pt-20 ">
           <div className="mb-12 sm:mb-16">
             <PageHeader
-              title={'Shopping Cart'}
+              title={'Carrito de compras'}
               hasBreadcrumb={true}
-              breadcrumbText={'Shopping Cart'}
+              breadcrumbText={'Carrito de compras'}
             />
           </div>
 
@@ -166,7 +166,7 @@ function Content({cart: originalCart}: {cart: OptimisticCart | null}) {
         <FeaturedProducts
           className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 lg:gap-x-6 gap-y-8"
           count={4}
-          heading="You may also like"
+          heading="También te puede interesar"
           sortKey="BEST_SELLING"
           headingClassName="text-xl sm:text-2xl font-semibold"
         />
@@ -190,7 +190,7 @@ function CartLineItem({line}: {line: OptimisticCartLine}) {
     return (
       <div className="rounded-full flex items-center justify-center px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
         <CheckIcon className="w-3.5 h-3.5 text-secondary-500" />
-        <span className="ml-1 leading-none">In Stock</span>
+        <span className="ml-1 leading-none">En stock</span>
       </div>
     );
   };
@@ -302,7 +302,7 @@ function CartSummary({
         </span>
       </div>
       <p className="mt-2 text-sm text-slate-500">
-        Shipping, discounts, will be calculated at checkout.
+        Envío y descuentos se calcularán en el checkout.
       </p>
 
       {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
@@ -313,7 +313,7 @@ function CartSummary({
         aria-disabled={isSkeleton}
       >
         <ButtonPrimary as={'span'} className="w-full">
-          Checkout
+          Finalizar compra
         </ButtonPrimary>
       </a>
       <div className="mt-5 text-sm text-slate-500 flex items-center justify-center">
@@ -345,15 +345,15 @@ function CartSummary({
               strokeLinejoin="round"
             />
           </svg>
-          Learn more{` `}
+          Conoce más sobre{` `}
           <Link
             to={'/policies/shipping-policy'}
             className="text-slate-900 dark:text-slate-200 underline font-medium"
           >
-            shipping
+            envíos
           </Link>
           <span>
-            {` `}and{` `}
+            {` `}y{` `}
           </span>
           <Link
             to="/policies/refund-policy"
@@ -362,9 +362,8 @@ function CartSummary({
             href="##"
             className="text-slate-900 dark:text-slate-200 underline font-medium"
           >
-            refund
+            devoluciones
           </Link>
-          {` `} infomation
         </p>
       </div>
     </>
@@ -400,13 +399,13 @@ function CartLineQuantityAdjust({line}: {line: OptimisticCartLine}) {
   return (
     <>
       <label htmlFor={`quantity-${lineId}`} className="sr-only">
-        Quantity, {quantity}
+        Cantidad, {quantity}
       </label>
       <div className="flex items-center border rounded-lg">
         <UpdateCartButton lines={[{id: lineId, quantity: prevQuantity}]}>
           <button
             name="decrease-quantity"
-            aria-label="Decrease quantity"
+            aria-label="Disminuir cantidad"
             className="w-8 h-8 sm:w-10 sm:h-10 transition text-primary/50 hover:text-primary disabled:text-primary/10"
             value={prevQuantity}
             disabled={quantity <= 1}
@@ -424,7 +423,7 @@ function CartLineQuantityAdjust({line}: {line: OptimisticCartLine}) {
             className="w-8 h-8 sm:w-10 sm:h-10 transition text-primary/50 hover:text-primary"
             name="increase-quantity"
             value={nextQuantity}
-            aria-label="Increase quantity"
+            aria-label="Aumentar cantidad"
           >
             <span>&#43;</span>
           </button>
@@ -440,13 +439,12 @@ export function CartEmpty({hidden = false}: {hidden: boolean}) {
       <div className={clsx('py-6')} hidden={hidden}>
         <section className="grid gap-6">
           <p>
-            Looks like you haven&rsquo;t added anything yet, let&rsquo;s get you
-            started!
+            Parece que no has agregado nada todavía. ¡Comencemos!
           </p>
           <div>
             <ButtonPrimary href="/">
               <ArrowLeftIcon className="w-4 h-4 me-2" />
-              <span>Continue shopping</span>
+              <span>Seguir comprando</span>
             </ButtonPrimary>
           </div>
         </section>

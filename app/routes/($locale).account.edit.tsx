@@ -105,7 +105,7 @@ export default function AccountDetailsEdit() {
   const {state} = useNavigation();
 
   return (
-    <PageAccoutLayout breadcrumbText="Update your profile">
+    <PageAccoutLayout breadcrumbText="Actualizar perfil">
       <Form method="post">
         {actionData?.formError && (
           <div className="flex items-center justify-center mb-6 bg-red-100 rounded">
@@ -118,7 +118,7 @@ export default function AccountDetailsEdit() {
               htmlFor="firstName"
               className="block text-sm font-medium leading-6 text-gray-900"
             >
-              First name
+              Nombre
             </label>
             <div className="mt-2">
               <input
@@ -127,8 +127,8 @@ export default function AccountDetailsEdit() {
                 name="firstName"
                 type="text"
                 autoComplete="given-name"
-                placeholder="First name"
-                aria-label="First name"
+                placeholder="Nombre"
+                aria-label="Nombre"
                 defaultValue={customer.firstName ?? ''}
               />
             </div>
@@ -139,7 +139,7 @@ export default function AccountDetailsEdit() {
               htmlFor="lastName"
               className="block text-sm font-medium leading-6 text-gray-900"
             >
-              Last name
+              Apellido
             </label>
             <div className="mt-2">
               <input
@@ -148,8 +148,8 @@ export default function AccountDetailsEdit() {
                 name="lastName"
                 type="text"
                 autoComplete="family-name"
-                placeholder="Last name"
-                aria-label="Last name"
+                placeholder="Apellido"
+                aria-label="Apellido"
                 defaultValue={customer.lastName ?? ''}
               />
             </div>
@@ -160,7 +160,7 @@ export default function AccountDetailsEdit() {
               htmlFor="email"
               className="block text-sm font-medium leading-6 text-gray-900"
             >
-              Email address
+              Correo electrónico
             </label>
             <div className="mt-2">
               <input
@@ -179,7 +179,7 @@ export default function AccountDetailsEdit() {
               htmlFor="phone"
               className="block text-sm font-medium leading-6 text-gray-900"
             >
-              Phone number
+              Teléfono
             </label>
             <div className="mt-2">
               <input
@@ -200,7 +200,7 @@ export default function AccountDetailsEdit() {
             disabled={state !== 'idle'}
             loading={state !== 'idle'}
           >
-            {'Update profile'}
+            {'Actualizar perfil'}
           </ButtonPrimary>
         </div>
       </Form>

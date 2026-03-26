@@ -47,13 +47,13 @@ export function OrderCard({order}: {order: OrderCardFragment}) {
             <Link to={url} prefetch="intent" className="focus:outline-none">
               <span className="absolute inset-0" aria-hidden="true" />
               {lineItems.length > 1
-                ? `${lineItems[0].title} +${lineItems.length - 1} more`
+                ? `${lineItems[0].title} +${lineItems.length - 1} más`
                 : lineItems[0].title}
             </Link>
           </h3>
           <div className="mt-2 text-sm text-gray-500">
             <div className="">
-              <span>Order No. {order.number}</span>
+              <span>Pedido No. {order.number}</span>
               {` / `}
               <span>{new Date(order.processedAt).toDateString()}</span>
             </div>
@@ -61,7 +61,7 @@ export function OrderCard({order}: {order: OrderCardFragment}) {
             <div className="flex flex-wrap gap-y-2.5">
               {fulfillmentStatus && (
                 <>
-                  <div className="sr-only">Fulfillment Status</div>
+                  <div className="sr-only">Estado de envío</div>
                   <div className="mt-5">
                     <span
                       className={clsx(
@@ -89,11 +89,11 @@ export function OrderCard({order}: {order: OrderCardFragment}) {
               {financialStatus && (
                 <>
                   <div className="sr-only">
-                    The financial status of the order.
+                    Estado financiero del pedido.
                   </div>
                   <div
                     className="mt-5"
-                    title="The financial status of the order."
+                    title="Estado financiero del pedido."
                   >
                     <span className="mx-2">/</span>
                     <span

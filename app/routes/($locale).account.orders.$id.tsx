@@ -135,7 +135,7 @@ export default function OrderRoute() {
       <div className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden z-0">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center p-4 sm:p-8 bg-slate-50 dark:bg-slate-500/5">
           <div>
-            <p className="text-lg font-semibold">Order No. {order.name}</p>
+            <p className="text-lg font-semibold">Pedido No. {order.name}</p>
             <div className="text-slate-500 dark:text-black text-sm mt-1.5 sm:mt-2">
               <div className="flex items-center flex-wrap gap-y-2">
                 {fulfillmentStatus && (
@@ -159,11 +159,11 @@ export default function OrderRoute() {
                 {financialStatus && (
                   <>
                     <div className="sr-only">
-                      The financial status of the order.
+                      Estado financiero del pedido.
                     </div>
                     <div
                       className=""
-                      title="The financial status of the order."
+                      title="Estado financiero del pedido."
                     >
                       <span className="mx-2">/</span>
                       <span
@@ -209,7 +209,7 @@ export default function OrderRoute() {
                     disabled={fetcher.state !== 'idle'}
                     onClick={() => openAside('cart')}
                   >
-                    Buy again
+                    Comprar de nuevo
                   </ButtonPrimary>
                 </>
               )}
@@ -223,7 +223,7 @@ export default function OrderRoute() {
                 targetBlank={false}
                 as={'a'}
               >
-                Pay now
+                Pagar ahora
               </ButtonPrimary>
             )}
 
@@ -236,7 +236,7 @@ export default function OrderRoute() {
               targetBlank={false}
               as={'a'}
             >
-              Manage
+              Gestionar
               <ArrowUpRightIcon className="h-4 w-4 ml-1" />
             </ButtonSecondary>
           </div>
@@ -281,7 +281,7 @@ export default function OrderRoute() {
                     </div>
                     <div className="flex flex-1 items-end justify-between text-sm">
                       <p className="text-gray-500 dark:text-black flex items-center">
-                        <span className="hidden sm:inline-block">Qty</span>
+                        <span className="hidden sm:inline-block">Cant</span>
                         <span className="inline-block sm:hidden">x</span>
                         <span className="ml-2">{quantity}</span>
                       </p>
@@ -305,7 +305,7 @@ export default function OrderRoute() {
             {((discountValue && discountValue.amount) ||
               discountPercentage) && (
               <div className="flex justify-between sm:block">
-                <dt className="font-medium text-gray-900">Discounts</dt>
+                <dt className="font-medium text-gray-900">Descuentos</dt>
                 <dd className="sm:mt-1">
                   {discountPercentage ? (
                     <span className="text-sm">-{discountPercentage}% OFF</span>
@@ -324,14 +324,14 @@ export default function OrderRoute() {
             </div>
 
             <div className="flex justify-between pt-6 sm:block sm:pt-0">
-              <dt className="font-medium text-gray-900">Tax</dt>
+              <dt className="font-medium text-gray-900">Impuestos</dt>
               <dd className="sm:mt-1">
                 <Money data={order.totalTax!} />
               </dd>
             </div>
 
             <div className="flex justify-between pt-6 font-medium text-gray-900 sm:block sm:pt-0">
-              <dt>Total amount</dt>
+              <dt>Total</dt>
               <dd className="sm:mt-1">
                 <Money data={order.totalPrice!} />
               </dd>
@@ -344,7 +344,7 @@ export default function OrderRoute() {
 
   return (
     <div>
-      <PageAccoutLayout breadcrumbText="Order detail">
+      <PageAccoutLayout breadcrumbText="Detalle del pedido">
         {renderOrder()}
       </PageAccoutLayout>
     </div>

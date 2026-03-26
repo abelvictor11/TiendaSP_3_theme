@@ -116,12 +116,12 @@ export default function Article() {
               <Avatar
                 containerClassName="flex-shrink-0"
                 sizeClass="w-8 h-8 sm:h-11 sm:w-11 "
-                userName={author?.name || 'Guest'}
+                userName={author?.name || 'Invitado'}
               />
               <div className="ml-3">
                 <div className="flex items-center">
                   <div className="block font-semibold">
-                    {author?.name || 'Guest'}
+                    {author?.name || 'Invitado'}
                   </div>
                 </div>
                 <div className="text-xs mt-[6px]">
@@ -131,7 +131,7 @@ export default function Article() {
                   </span>
                   <span className="mx-2 font-semibold">·</span>
                   <span className="text-neutral-700 dark:text-neutral-300">
-                    {readingTime} min read
+                    {readingTime} min de lectura
                   </span>
                 </div>
               </div>
@@ -168,7 +168,7 @@ export default function Article() {
             <div className="flex justify-center mt-10 sm:mt-20">
               <ButtonSecondary href="/news">
                 <ArrowLeftIcon className="w-5 h-5 inline-block mr-4" />
-                Back to News
+                Volver a Noticias
               </ButtonSecondary>
             </div>
           </div>
@@ -196,7 +196,7 @@ export default function Article() {
                       className="mb-10 lg:mb-12"
                       fontClass="text-2xl md:text-3xl font-semibold"
                     >
-                      Related Articles
+                      Artículos relacionados
                     </Heading>
                     <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
                       {articles.map(({node: post}) => (

@@ -15,7 +15,7 @@ const Page = () => {
   const orders = flattenConnection(customer.orders);
 
   return (
-    <PageAccoutLayout breadcrumbText="Order history">
+    <PageAccoutLayout breadcrumbText="Historial de pedidos">
       <div>
         <div className="grid w-full gap-4 md:gap-8">
           {orders?.length ? <Orders orders={orders} /> : <EmptyOrders />}
@@ -32,10 +32,10 @@ type OrderCardsProps = {
 function EmptyOrders() {
   return (
     <div>
-      <p className="">You haven&apos;t placed any orders yet.</p>
+      <p className="">Aún no has realizado ningún pedido.</p>
       <div className="mt-5">
         <ButtonPrimary href={usePrefixPathWithLocale('/')}>
-          Start Shopping
+          Empezar a comprar
         </ButtonPrimary>
       </div>
     </div>

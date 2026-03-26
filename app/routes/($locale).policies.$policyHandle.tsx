@@ -63,7 +63,7 @@ export default function Policies() {
               className="inline-block justify-self-start text-sm font-medium hover:underline mt-3 lg:mt-5"
               to={'/policies'}
             >
-              &larr; Back to Policies
+              &larr; Volver a Políticas
             </Link>
           </div>
         </div>

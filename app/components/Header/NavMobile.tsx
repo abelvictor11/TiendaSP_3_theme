@@ -137,7 +137,7 @@ const NavMobile: React.FC<NavMobileProps> = ({onClose}) => {
             name="q"
             defaultValue={searchTerm}
             type="search"
-            placeholder="Type and press enter"
+            placeholder="Escribe y presiona enter"
             className="border-none bg-transparent focus:outline-none focus:ring-0 w-full text-sm "
           />
           <button

@@ -10,29 +10,29 @@ const Page = () => {
     data.customer as CustomerDetailsFragment;
 
   return (
-    <PageAccoutLayout breadcrumbText="Personal info">
+    <PageAccoutLayout breadcrumbText="Información personal">
       <div>
         <div className="mt-6 border-t border-gray-100">
           <dl className="divide-y divide-gray-100">
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt className="text-sm font-medium leading-6 text-gray-900">
-                First name
+                Nombre
               </dt>
               <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                {firstName || 'Add name'}
+                {firstName || 'Agregar nombre'}
               </dd>
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt className="text-sm font-medium leading-6 text-gray-900">
-                Last name
+                Apellido
               </dt>
               <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                {lastName || 'Add name'}
+                {lastName || 'Agregar apellido'}
               </dd>
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt className="text-sm font-medium leading-6 text-gray-900">
-                Phone number
+                Teléfono
               </dt>
               <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                 {phoneNumber?.phoneNumber ?? 'N/A'}
@@ -40,7 +40,7 @@ const Page = () => {
             </div>
             <div className="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
               <dt className="text-sm font-medium leading-6 text-gray-900">
-                Email address
+                Correo electrónico
               </dt>
               <dd className="mt-1 text-sm leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                 {emailAddress?.emailAddress ?? 'N/A'}
@@ -56,7 +56,7 @@ const Page = () => {
         <div className="flex">
           <ButtonPrimary href="/account/edit">
             <PencilIcon className="w-4 h-4 me-2" />
-            Edit personal info
+            Editar información personal
           </ButtonPrimary>
         </div>
       </div>

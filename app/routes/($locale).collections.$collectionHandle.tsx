@@ -163,7 +163,7 @@ export default function Collection() {
       {/* 3. Render the route's content sections */}
       <Suspense fallback={<div className="h-32" />}>
         <Await
-          errorElement="There was a problem loading route's content sections"
+          errorElement="Hubo un problema al cargar el contenido de la página"
           resolve={routePromise}
         >
           {({route}) => (

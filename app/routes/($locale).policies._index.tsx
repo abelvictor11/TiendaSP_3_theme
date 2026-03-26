@@ -48,9 +48,9 @@ export default function Policies() {
   return (
     <div className="container py-16 lg:pb-28 lg:pt-20">
       <PageHeader
-        title={'Policies'}
+        title={'Políticas'}
         hasBreadcrumb={true}
-        breadcrumbText={'Policies'}
+        breadcrumbText={'Políticas'}
       />
 
       <div className="grid gap-7 mt-12 lg:mt-16">

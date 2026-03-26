@@ -331,7 +331,7 @@ export default function Product() {
           {/* OTHER SECTION */}
           <Suspense fallback={<div className="h-32" />}>
             <Await
-              errorElement="There was a problem loading related products"
+              errorElement="Hubo un problema al cargar productos relacionados"
               resolve={recommended}
             >
               {(products) => (
@@ -352,7 +352,7 @@ export default function Product() {
       {/* 3. Render the route's content sections */}
       <Suspense fallback={<div className="h-32" />}>
         <Await
-          errorElement="There was a problem loading route's content sections"
+          errorElement="Hubo un problema al cargar el contenido de la página"
           resolve={routePromise}
         >
           {({route}) => (

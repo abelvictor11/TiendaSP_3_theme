@@ -77,7 +77,7 @@ export default function Wishlists() {
 
     if (!products?.length) {
       return (
-        <Empty description="You have not added any products to your wishlist yet." />
+        <Empty description="Aún no has agregado productos a tu lista de deseos." />
       );
     }
 
@@ -100,13 +100,13 @@ export default function Wishlists() {
             <div className="flex items-center text-sm font-medium gap-2 text-neutral-500 mb-2">
               <FireIcon className="w-5 h-5" />
               <span className="text-neutral-700 ">
-                {queryIds?.length || 0} Saved
+                {queryIds?.length || 0} Guardados
               </span>
             </div>
             <PageHeader
-              title={'Wishlists'}
+              title={'Lista de deseos'}
               hasBreadcrumb={true}
-              breadcrumbText={'Wishlists'}
+              breadcrumbText={'Lista de deseos'}
             />
           </div>
 

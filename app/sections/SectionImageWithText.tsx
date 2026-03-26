@@ -129,7 +129,7 @@ export function SectionImageWithText(props: SectionImageWithTextFragment) {
               <Input
                 required
                 aria-required
-                placeholder="Enter your email"
+                placeholder="Ingresa tu correo electrónico"
                 type="email"
                 className="rounded-full"
                 name="new_subscribe_email"
@@ -157,7 +157,7 @@ export function SectionImageWithText(props: SectionImageWithTextFragment) {
             customerCreate?.customer?.id && (
               <div className="text-green-500 flex gap-2 mt-1 ml-1">
                 <CheckCircleIcon className="w-4 h-4" />
-                <i className="text-xs">Thank you for subscribing!</i>
+                <i className="text-xs">¡Gracias por suscribirte!</i>
               </div>
             )}
 

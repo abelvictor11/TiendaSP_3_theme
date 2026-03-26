@@ -39,7 +39,7 @@ export function ProductGallery({
   const activeMedia = media[activeIndex];
   const activeImage =
     activeMedia?.__typename === 'MediaImage'
-      ? {...activeMedia.image, altText: activeMedia.alt || 'Product image'}
+      ? {...activeMedia.image, altText: activeMedia.alt || 'Imagen del producto'}
       : null;
 
   return (
@@ -92,7 +92,7 @@ export function ProductGallery({
             const med = media[i];
             const image =
               med?.__typename === 'MediaImage'
-                ? {...med.image, altText: med.alt || 'Product image'}
+                ? {...med.image, altText: med.alt || 'Imagen del producto'}
                 : null;
 
             const isActive = i === activeIndex;
@@ -192,7 +192,7 @@ function ModalImageGallery({
   const activeMedia = media[indexActive];
   const activeImage =
     activeMedia?.__typename === 'MediaImage'
-      ? {...activeMedia.image, altText: activeMedia.alt || 'Product image'}
+      ? {...activeMedia.image, altText: activeMedia.alt || 'Imagen del producto'}
       : null;
 
   return (
@@ -214,7 +214,7 @@ function ModalImageGallery({
         {media.map((med, i) => {
           const image =
             med.__typename === 'MediaImage'
-              ? {...med.image, altText: med.alt || 'Product image'}
+              ? {...med.image, altText: med.alt || 'Imagen del producto'}
               : null;
 
           if (!image) return null;

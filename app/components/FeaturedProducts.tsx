@@ -101,7 +101,7 @@ function FeatureProductsContent({
   }
 
   if (products?.length === 0) {
-    return <p className="my-2.5">No products found.</p>;
+    return <p className="my-2.5">No se encontraron productos.</p>;
   }
 
   return (

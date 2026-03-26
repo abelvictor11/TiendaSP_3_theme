@@ -35,7 +35,7 @@ export function Modal({
                 to={cancelLink}
                 className="p-4 -m-4 transition text-primary hover:text-primary/50"
               >
-                <IconClose aria-label="Close panel" />
+                <IconClose aria-label="Cerrar panel" />
               </Link>
             </div>
             {children}

@@ -3,8 +3,8 @@ import ButtonPrimary from './Button/ButtonPrimary';
 
 export function GenericError({
   error,
-  heading = "Something's wrong here.",
-  description = 'We found an error while loading this page.',
+  heading = 'Algo salió mal.',
+  description = 'Encontramos un error al cargar esta página.',
 }: {
   error?: {message: string; stack?: string};
   heading?: string;
@@ -42,7 +42,7 @@ export function GenericError({
           )}
           <ButtonPrimary href={'/'}>
             <HomeIcon className="h-5 w-5 mr-2" />
-            Take me to the home page
+            Ir a la página principal
           </ButtonPrimary>
         </div>
       </div>

@@ -134,7 +134,7 @@ export function SortFilter({filters, defaultPriceFilter, sorts}: Props) {
         const max = input.price?.max
           ? parseAsCurrency(input.price.max, locale)
           : '';
-        const label = min && max ? `${min} - ${max}` : 'Price';
+        const label = min && max ? `${min} - ${max}` : 'Precio';
 
         return {
           filter,
@@ -386,14 +386,14 @@ export function FiltersDrawer({
                             }}
                             sizeClass="!px-2 !py-2"
                           >
-                            Clear
+                            Limpiar
                           </ButtonThird>
                           <ButtonPrimary
                             type="submit"
                             sizeClass="px-4 py-2 sm:px-5"
                             loading={LOADING}
                           >
-                            Apply
+                            Aplicar
                           </ButtonPrimary>
                         </div>
                       </form>
@@ -484,7 +484,7 @@ function TabsPriceRage({
                   <div className="">
                     <h5 className="font-medium">{filter.label}</h5>
                     <div className="text-xs mt-1 ">
-                      The highest price is {initMaxWithCurrency}
+                      El precio más alto es {initMaxWithCurrency}
                     </div>
                   </div>
 
@@ -518,7 +518,7 @@ function TabsPriceRage({
                           htmlFor="minPrice"
                           className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
                         >
-                          Min price
+                          Precio mín
                         </label>
                         <div className="mt-1 relative rounded-md">
                           <span className="absolute inset-y-0 start-3.5 flex items-center pointer-events-none text-neutral-700 sm:text-sm">
@@ -542,7 +542,7 @@ function TabsPriceRage({
                           htmlFor="maxPrice"
                           className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
                         >
-                          Max price
+                          Precio máx
                         </label>
                         <div className="mt-1 relative rounded-md">
                           <span className="absolute inset-y-0 start-3.5 flex items-center pointer-events-none text-neutral-700 sm:text-sm">
@@ -573,7 +573,7 @@ function TabsPriceRage({
                     }}
                     sizeClass="!px-2 !py-2"
                   >
-                    Reset
+                    Restablecer
                   </ButtonThird>
                   <ButtonPrimary
                     type="submit"
@@ -591,7 +591,7 @@ function TabsPriceRage({
                       });
                     }}
                   >
-                    Apply
+                    Aplicar
                   </ButtonPrimary>
                 </div>
               </div>
@@ -660,7 +660,7 @@ function TabsPriceRageOnMoreFilterModal({
               htmlFor="minPrice"
               className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
             >
-              Min price
+              Precio mín
             </label>
             <div className="mt-1 relative rounded-md">
               <span className="absolute inset-y-0 start-3.5 flex items-center pointer-events-none text-neutral-700 sm:text-sm">
@@ -685,7 +685,7 @@ function TabsPriceRageOnMoreFilterModal({
               htmlFor="maxPrice"
               className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
             >
-              Max price
+              Precio máx
             </label>
             <div className="mt-1 relative rounded-md">
               <span className="absolute inset-y-0 start-3.5 flex items-center pointer-events-none text-neutral-700 sm:text-sm">
@@ -768,7 +768,7 @@ function TabMoreFilterOnMobile({
         onKeyDown={openModalMoreFilter}
       >
         <MyAdjustmentsIcon />
-        <span>Filters</span>
+        <span>Filtros</span>
         <CountActived isActive={hasFiltered} count={count} />
       </button>
 
@@ -861,7 +861,7 @@ function TabMoreFilterOnMobile({
                     as="h3"
                     className="text-lg font-medium leading-6 text-gray-900"
                   >
-                    Products filters
+                    Filtros de productos
                   </Dialog.Title>
                   <span className="absolute start-5 top-1/2 -translate-y-1/2">
                     <ButtonClose onClick={closeModalMoreFilter} />
@@ -894,7 +894,7 @@ function TabMoreFilterOnMobile({
                               {filter.label}
                             </h3>
                             <span className="block text-sm mt-2 text-neutral-700">
-                              The highest price is {initMaxWithCurrency}
+                              El precio más alto es {initMaxWithCurrency}
                             </span>
                             <div className="mt-7 relative">
                               <TabsPriceRageOnMoreFilterModal
@@ -1003,7 +1003,7 @@ function TabMoreFilterOnMobile({
                     sizeClass="px-4 py-2.5 sm:px-4"
                     type="button"
                   >
-                    Clear all
+                    Limpiar todo
                   </ButtonThird>
                   <ButtonPrimary
                     onClick={closeModalMoreFilter}
@@ -1011,7 +1011,7 @@ function TabMoreFilterOnMobile({
                     loading={LOADING}
                     type="submit"
                   >
-                    Apply
+                    Aplicar
                   </ButtonPrimary>
                 </div>
               </form>

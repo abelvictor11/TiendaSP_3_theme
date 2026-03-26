@@ -112,7 +112,7 @@ export function SectionShopByCategory(props: SectionShopByCategoryFragment) {
             <button
               onClick={scrollToNextSlide}
               className="p-2 rounded-full border border-neutral-300 hover:border-neutral-900 transition-colors"
-              aria-label="Next"
+              aria-label="Siguiente"
             >
               <ArrowRightIcon className="w-4 h-4" />
             </button>

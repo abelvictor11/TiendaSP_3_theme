@@ -111,7 +111,7 @@ const StickyHeader: FC<StickyHeaderProps> = ({className = ''}) => {
               <Link
                 to="/search"
                 className="flex lg:hidden w-10 h-10 rounded-full text-[#131210] dark:text-slate-300 hover:bg-[#F9F7F7] dark:hover:bg-slate-800 items-center justify-center"
-                aria-label="Search"
+                aria-label="Buscar"
               >
                 <MagnifyingGlassIcon className="w-5 h-5" />
               </Link>

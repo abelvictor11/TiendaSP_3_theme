@@ -21,7 +21,7 @@ const ButtonClose: React.FC<ButtonCloseProps> = ({
       }
       onClick={onClick}
     >
-      <span className="sr-only">Close</span>
+      <span className="sr-only">Cerrar</span>
       <XMarkIcon className={IconclassName} />
     </button>
   );

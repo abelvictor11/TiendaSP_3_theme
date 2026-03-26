@@ -11,20 +11,20 @@ import {useAccoutRootLoaderData} from '~/lib/account-data';
 
 const actions = [
   {
-    title: 'Personal info',
-    description: 'Provide and update your personal information ',
+    title: 'Información personal',
+    description: 'Consulta y actualiza tu información personal ',
     href: '/account/personal-info',
     icon: IdentificationIcon,
   },
   {
-    title: 'Order History',
-    description: 'View your order history and track your orders ',
+    title: 'Historial de pedidos',
+    description: 'Consulta tu historial de pedidos y haz seguimiento ',
     href: '/account/order-history',
     icon: ClipboardDocumentCheckIcon,
   },
   {
-    title: 'Address Book',
-    description: 'Manage your addresses and default shipping address',
+    title: 'Libro de direcciones',
+    description: 'Administra tus direcciones y dirección de envío predeterminada',
     href: '/account/address',
     icon: MapIcon,
   },

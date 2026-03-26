@@ -42,9 +42,9 @@ export default function Stores() {
       <div className="container">
         {/* HEADING */}
         <PageHeader
-          title={'All Stores'}
+          title={'Todas las tiendas'}
           hasBreadcrumb={true}
-          breadcrumbText={'All Stores'}
+          breadcrumbText={'Todas las tiendas'}
         />
       </div>
 

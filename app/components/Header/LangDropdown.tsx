@@ -87,7 +87,7 @@ const LangDropdown: FC<LangDropdownProps> = ({
               onClick={openModal}
             >
               <GlobeAltIcon className="w-[18px] h-[18px] opacity-80" />
-              <span className="ms-2 ">Language</span>
+              <span className="ms-2 ">Idioma</span>
               <ChevronDownIcon
                 className={
                   'text-opacity-70 ms-1 h-4 w-4  group-hover:text-opacity-80 transition ease-in-out duration-150'
@@ -98,7 +98,7 @@ const LangDropdown: FC<LangDropdownProps> = ({
           );
         }}
         renderContent={(closeModal) => renderLang(closeModal)}
-        modalTitle="Select your country"
+        modalTitle="Selecciona tu país"
       />
     </div>
   );
