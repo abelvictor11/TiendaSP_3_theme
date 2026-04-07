@@ -43,8 +43,8 @@ export function getSortValuesFromParam(sortParam: SortParam | null): {
       };
     default:
       return {
-        sortKey: 'MANUAL',
-        reverse: false,
+        sortKey: 'CREATED',
+        reverse: true,
       };
   }
 }

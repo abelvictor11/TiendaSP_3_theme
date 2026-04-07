@@ -22,6 +22,10 @@ export type SortParam =
   | 'on-sale';
 
 const DEMO: {label: string; key: SortParam}[] = [
+  {
+    label: 'Más Recientes',
+    key: 'newest',
+  },
   {label: 'Destacados', key: 'featured'},
   {
     label: 'Precio: Menor a Mayor',
