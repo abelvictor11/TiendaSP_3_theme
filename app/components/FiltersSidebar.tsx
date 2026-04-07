@@ -89,7 +89,7 @@ export default function FiltersSidebar({
                     </div>
                   </DisclosureButton>
                   
-                  <DisclosurePanel className="pt-2" static>
+                  <DisclosurePanel className="pt-2">
                     <div className="space-y-2">
                       {filter.values?.map((option, index) => {
                         const isChecked = appliedFilters.some(
