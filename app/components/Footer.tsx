@@ -89,7 +89,7 @@ const Footer: React.FC<FooterProps> = () => {
                   <span className="font-medium">Llanogrande:</span> Km 4 Vía Rionegro
                 </li>
                 <li className="text-neutral-600">
-                  <span className="font-medium">Palmagrande:</span> Cr 38 # 18 - 101 Moll palmagrande local 121
+                  <span className="font-medium">Palmas:</span> Cr 38 # 18 - 101 Mall palmagrande local 121
                 </li>
               </ul>
             </div>
