@@ -40,7 +40,7 @@ export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
 
   return (
     <div
-      className="ProductCardShowcase relative flex flex-col h-full rounded-2xl overflow-hidden shadow-xl backdrop-blur-md"
+      className="ProductCardShowcase relative flex flex-col h-full rounded-2xl overflow-hidden shadow-xl backdrop-blur-md min-h-[350px] sm:min-h-0"
       style={{backgroundColor: `${cardBackgroundColor}cc`}} // cc = 80% opacity
     >
       <Link to={variantUrl} className="absolute inset-0 z-0" prefetch="viewport">
@@ -48,7 +48,7 @@ export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
       </Link>
 
       {/* Image Container */}
-      <div className="relative aspect-square p-8">
+      <div className="relative aspect-[4/3] sm:aspect-square p-4 sm:p-8">
         {image && (
           <Image
             data={{...image, width: undefined, height: undefined}}
