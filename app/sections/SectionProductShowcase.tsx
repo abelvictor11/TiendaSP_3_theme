@@ -148,6 +148,8 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
                 <ProductCardShowcase
                   key={product.id}
                   product={product}
+                  cardBackgroundColor={cardBg}
+                  cardTextColor={cardTxt}
                 />
               ))}
             </div>
@@ -207,6 +209,8 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
               <div className="h-[400px]">
                 <ProductCardShowcase
                   product={product}
+                  cardBackgroundColor={cardBg}
+                  cardTextColor={cardTxt}
                 />
               </div>
             </div>

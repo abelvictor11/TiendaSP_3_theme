@@ -14,7 +14,7 @@ export interface ProductCardShowcaseProps {
 export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
   product,
   cardBackgroundColor = '#ffffff',
-  cardTextColor = '#FFFFFF',
+  cardTextColor = '#000000',
 }) => {
   const {
     id,
