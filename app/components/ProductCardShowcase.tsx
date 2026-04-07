@@ -48,7 +48,7 @@ export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
       </Link>
 
       {/* Image Container */}
-      <div className="relative aspect-[4/3] sm:aspect-square p-4 sm:p-8">
+      <div className="relative aspect-[16/10] sm:aspect-square p-3 sm:p-8">
         {image && (
           <Image
             data={{...image, width: undefined, height: undefined}}
