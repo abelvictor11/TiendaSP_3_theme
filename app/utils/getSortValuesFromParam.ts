@@ -43,7 +43,7 @@ export function getSortValuesFromParam(sortParam: SortParam | null): {
       };
     default:
       return {
-        sortKey: 'RELEVANCE',
+        sortKey: 'MANUAL',
         reverse: false,
       };
   }
