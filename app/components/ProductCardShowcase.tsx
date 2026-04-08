@@ -48,7 +48,7 @@ export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
       </Link>
 
       {/* Image Container */}
-      <div className="relative aspect-[16/10] sm:aspect-square p-3 sm:p-8">
+      <div className="relative aspect-[2/1] sm:aspect-square p-2 sm:p-8">
         {image && (
           <Image
             data={{...image, width: undefined, height: undefined}}
@@ -60,7 +60,7 @@ export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
       </div>
 
       {/* Content */}
-      <div className="p-4 flex-grow flex flex-col" style={{fontFamily: 'Montserrat, sans-serif'}}>
+      <div className="p-3 sm:p-4 flex-grow flex flex-col" style={{fontFamily: 'Montserrat, sans-serif'}}>
         {/* Vendor */}
         {vendor && (
           <span className="text-xs font-medium uppercase tracking-wide mb-1" style={{color: cardTextColor, opacity: 0.7}}>
@@ -70,7 +70,7 @@ export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
 
         {/* Title */}
         <h5
-          className="text-base font-semibold mb-2 line-clamp-2"
+          className="text-sm sm:text-base font-semibold mb-1 sm:mb-2 line-clamp-2"
           style={{lineHeight: '1.3', color: cardTextColor}}
         >
           {title}
