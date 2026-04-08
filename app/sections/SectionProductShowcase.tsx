@@ -206,7 +206,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           {/* Product Slides */}
           {productsToShow.map((product: any) => (
             <div key={product.id} className="flex-shrink-0 w-full snap-center px-4">
-              <div className="h-[400px]">
+              <div className="h-[480px] lg:h-[400px]">
                 <ProductCardShowcase
                   product={product}
                   cardBackgroundColor={cardBg}
