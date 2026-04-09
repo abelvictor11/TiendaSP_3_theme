@@ -304,7 +304,6 @@ const SEARCH_QUERY_2 = `#graphql
       first: 0,
       types: PRODUCT,
       query: $searchTerm,
-      productFilters: {},
     ) {
       productFilters {
         id
