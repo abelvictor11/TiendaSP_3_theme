@@ -108,7 +108,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           {/* Left Content Card */}
           <div className="col-span-5">
             <div
-              className="rounded-xl p-8 lg:p-10 h-full shadow-2xl backdrop-blur-md"
+              className={`rounded-xl p-8 lg:p-10 h-full shadow-2xl ${contentBg !== 'transparent' ? 'backdrop-blur-md' : ''}`}
               style={{backgroundColor: contentBg}}
             >
               {heading?.value && (
@@ -170,7 +170,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           {/* Content Slide */}
           <div className="flex-shrink-0 w-full snap-center px-4">
             <div
-              className="rounded-xl p-6 shadow-2xl backdrop-blur-md h-[400px] flex flex-col justify-center"
+              className={`rounded-xl p-6 shadow-2xl ${contentBg !== 'transparent' ? 'backdrop-blur-md' : ''} h-[400px] flex flex-col justify-center`}
               style={{backgroundColor: contentBg}}
             >
               {heading?.value && (
