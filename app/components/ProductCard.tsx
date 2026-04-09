@@ -111,7 +111,7 @@ const ProductCard: FC<ProductCardProps> = ({
               to={getProductUrlWithSelectedOption({
                 productHandle: product.handle,
                 selectedOptions: [
-                  ...(firstVariant.selectedOptions ?? []),
+                  ...(firstVariant?.selectedOptions ?? []),
                   {
                     name: 'Color',
                     value: color,
@@ -173,7 +173,7 @@ const ProductCard: FC<ProductCardProps> = ({
                 to={getProductUrlWithSelectedOption({
                   productHandle: product.handle,
                   selectedOptions: [
-                    ...(firstVariant.selectedOptions ?? []),
+                    ...(firstVariant?.selectedOptions ?? []),
                     {
                       name: 'Size',
                       value: size,
@@ -200,7 +200,7 @@ const ProductCard: FC<ProductCardProps> = ({
   };
 
   const renderGroupButtons = () => {
-    if (!quickAddToCart) {
+    if (!quickAddToCart || !firstVariant) {
       return null;
     }
     return (
@@ -322,7 +322,7 @@ const ProductCard: FC<ProductCardProps> = ({
                   to={getProductUrlWithSelectedOption({
                     productHandle: product.handle,
                     selectedOptions: [
-                      ...(firstVariant.selectedOptions ?? []),
+                      ...(firstVariant?.selectedOptions ?? []),
                       { name: optWeight.name, value: weight },
                     ],
                   })}
