@@ -41,14 +41,19 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
   const {paginationVariables, filters, sortKey, reverse} =
     getPaginationAndFiltersFromRequest(request, 12);
 
+  // SearchSortKeys solo acepta PRICE y RELEVANCE — mapear cualquier otro valor
+  const searchSortKey: SearchSortKeys =
+    sortKey === 'PRICE' ? 'PRICE' : 'RELEVANCE';
+  const searchReverse = sortKey === 'PRICE' ? reverse : false;
+
   const [data, dataGetDefaultPriceFilter] = await Promise.all([
     storefront.query(SEARCH_QUERY, {
       variables: {
         searchTerm,
         ...paginationVariables,
         filters,
-        sortKey: sortKey as SearchSortKeys,
-        reverse,
+        sortKey: searchSortKey,
+        reverse: searchReverse,
         country: storefront.i18n.country,
         language: storefront.i18n.language,
       },
