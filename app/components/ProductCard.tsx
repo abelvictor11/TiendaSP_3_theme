@@ -76,9 +76,9 @@ const ProductCard: FC<ProductCardProps> = ({
 
   const firstVariant = variants?.nodes?.[0];
 
-  const optColor = options.find((option) => option.name === 'Color');
-  const optSizes = options.find((option) => option.name === 'Size');
-  const optWeight = options.find((option) => option.name === 'Peso' || option.name === 'Weight');
+  const optColor = options?.find((option) => option.name === 'Color');
+  const optSizes = options?.find((option) => option.name === 'Size');
+  const optWeight = options?.find((option) => option.name === 'Peso' || option.name === 'Weight');
   const isSale =
     Number(product.compareAtPriceRange?.minVariantPrice?.amount || 0) >
     Number(product.priceRange.minVariantPrice.amount);
@@ -86,7 +86,7 @@ const ProductCard: FC<ProductCardProps> = ({
   const {open} = useAside();
   const variantUrl = useVariantUrl(
     product.handle,
-    firstVariant.selectedOptions,
+    firstVariant?.selectedOptions ?? [],
   );
   const {getImageWithCdnUrlByName} =
     useGetPublicStoreCdnStaticUrlFromRootLoaderData();
@@ -111,7 +111,7 @@ const ProductCard: FC<ProductCardProps> = ({
               to={getProductUrlWithSelectedOption({
                 productHandle: product.handle,
                 selectedOptions: [
-                  ...(firstVariant.selectedOptions ?? []),
+                  ...(firstVariant?.selectedOptions ?? []),
                   {
                     name: 'Color',
                     value: color,
@@ -173,7 +173,7 @@ const ProductCard: FC<ProductCardProps> = ({
                 to={getProductUrlWithSelectedOption({
                   productHandle: product.handle,
                   selectedOptions: [
-                    ...(firstVariant.selectedOptions ?? []),
+                    ...(firstVariant?.selectedOptions ?? []),
                     {
                       name: 'Size',
                       value: size,
@@ -200,7 +200,7 @@ const ProductCard: FC<ProductCardProps> = ({
   };
 
   const renderGroupButtons = () => {
-    if (!quickAddToCart) {
+    if (!quickAddToCart || !firstVariant) {
       return null;
     }
     return (
@@ -322,7 +322,7 @@ const ProductCard: FC<ProductCardProps> = ({
                   to={getProductUrlWithSelectedOption({
                     productHandle: product.handle,
                     selectedOptions: [
-                      ...(firstVariant.selectedOptions ?? []),
+                      ...(firstVariant?.selectedOptions ?? []),
                       { name: optWeight.name, value: weight },
                     ],
                   })}
