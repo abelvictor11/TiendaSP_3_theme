@@ -1037,10 +1037,50 @@ const PRODUCT_FRAGMENT = `#graphql
         value
       }
       pdp_enhanced_feature_icons: metafield(namespace: "pdp_enhanced", key: "feature_icons") {
-        value
+        references(first: 10) {
+          nodes {
+            ... on Metaobject {
+              id
+              fields {
+                key
+                value
+                reference {
+                  ... on MediaImage {
+                    image {
+                      url
+                      altText
+                      width
+                      height
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
       pdp_enhanced_detail_cards: metafield(namespace: "pdp_enhanced", key: "detail_cards") {
-        value
+        references(first: 10) {
+          nodes {
+            ... on Metaobject {
+              id
+              fields {
+                key
+                value
+                reference {
+                  ... on MediaImage {
+                    image {
+                      url
+                      altText
+                      width
+                      height
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
       pdp_enhanced_applications: metafield(namespace: "pdp_enhanced", key: "applications") {
         value
@@ -1061,7 +1101,27 @@ const PRODUCT_FRAGMENT = `#graphql
         }
       }
       pdp_enhanced_warranty_badges: metafield(namespace: "pdp_enhanced", key: "warranty_badges") {
-        value
+        references(first: 10) {
+          nodes {
+            ... on Metaobject {
+              id
+              fields {
+                key
+                value
+                reference {
+                  ... on MediaImage {
+                    image {
+                      url
+                      altText
+                      width
+                      height
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       }
       options {
         name

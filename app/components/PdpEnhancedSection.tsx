@@ -5,12 +5,12 @@ import {CheckIcon} from '@heroicons/react/24/solid';
 
 // ─── Types ───────────────────────────────────────────────────
 interface FeatureIcon {
-  icon_svg: string;
+  icon_image?: { url: string; altText?: string; width?: number; height?: number };
   title: string;
 }
 
 interface DetailCard {
-  image_url: string;
+  image?: { url: string; altText?: string; width?: number; height?: number };
   title: string;
   description: string;
 }
@@ -19,7 +19,7 @@ interface WarrantyBadge {
   title: string;
   subtitle: string;
   description: string;
-  icon_svg?: string;
+  icon_image?: { url: string; altText?: string; width?: number; height?: number };
 }
 
 export interface PdpEnhancedData {
@@ -34,12 +34,28 @@ export interface PdpEnhancedData {
   dimensionsImageUrl?: string;
 }
 
-// ─── Parser ──────────────────────────────────────────────────
-function parseJson(field: any, fallback: any): any {
+// ─── Helper Functions ──────────────────────────────────────
+function parseMetaobjectRefs(field: any): any[] {
+  if (!field?.references?.nodes) return [];
+  return field.references.nodes.map((node: any) => {
+    const fields: Record<string, any> = {};
+    node.fields?.forEach((f: any) => {
+      fields[f.key] = f.value;
+      if (f.key === 'icon_image' || f.key === 'image') {
+        fields[f.key] = f.reference?.image;
+      }
+    });
+    return { ...fields, id: node.id };
+  });
+}
+
+function parseStringList(field: any): string[] {
+  if (!field?.value) return [];
   try {
-    return field?.value ? JSON.parse(field.value) : fallback;
+    const parsed = JSON.parse(field.value) as string[];
+    return Array.isArray(parsed) ? parsed : [field.value];
   } catch {
-    return fallback;
+    return [field.value];
   }
 }
 
@@ -51,11 +67,11 @@ export function parsePdpEnhancedData(product: any): PdpEnhancedData | null {
     enabled: true,
     subtitle: product.pdp_enhanced_subtitle?.value || '',
     heroDescription: product.pdp_enhanced_hero_description?.value || '',
-    featureIcons: parseJson(product.pdp_enhanced_feature_icons, []),
-    detailCards: parseJson(product.pdp_enhanced_detail_cards, []),
-    applications: parseJson(product.pdp_enhanced_applications, []),
-    includesList: parseJson(product.pdp_enhanced_includes_list, []),
-    warrantyBadges: parseJson(product.pdp_enhanced_warranty_badges, []),
+    featureIcons: parseMetaobjectRefs(product.pdp_enhanced_feature_icons),
+    detailCards: parseMetaobjectRefs(product.pdp_enhanced_detail_cards),
+    applications: parseStringList(product.pdp_enhanced_applications),
+    includesList: parseStringList(product.pdp_enhanced_includes_list),
+    warrantyBadges: parseMetaobjectRefs(product.pdp_enhanced_warranty_badges),
     dimensionsImageUrl: product.pdp_enhanced_dimensions_image?.reference?.image?.url,
   };
 
@@ -111,10 +127,11 @@ function FeatureIconsBar({icons}: {icons: FeatureIcon[]}) {
       >
         {icons.map((icon, i) => (
           <div key={i} className="flex flex-col items-center text-center gap-3">
-            {icon.icon_svg && (
-              <div
-                className="w-12 h-12 flex items-center justify-center text-slate-700 dark:text-slate-200 [&>svg]:w-full [&>svg]:h-full"
-                dangerouslySetInnerHTML={{__html: icon.icon_svg}}
+            {icon.icon_image?.url && (
+              <img
+                src={icon.icon_image.url}
+                alt={icon.title}
+                className="w-12 h-12 object-contain"
               />
             )}
             <span className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-slate-800 dark:text-slate-200 leading-tight">
@@ -156,12 +173,14 @@ function DetailCardsSection({cards}: {cards: DetailCard[]}) {
           >
             <div className="border-2 border-red-600 rounded-2xl overflow-hidden h-full bg-white dark:bg-slate-800 shadow-sm hover:shadow-md transition-shadow">
               <div className="aspect-[4/3] overflow-hidden bg-slate-100 dark:bg-slate-700">
-                <img
-                  src={card.image_url}
-                  alt={card.title}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
+                {card.image?.url && (
+                  <img
+                    src={card.image.url}
+                    alt={card.title}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                )}
               </div>
               <div className="p-4 sm:p-5">
                 <h4 className="font-semibold text-sm sm:text-base uppercase tracking-wide mb-2 text-slate-900 dark:text-white">
@@ -264,10 +283,11 @@ function WarrantySection({badges}: {badges: WarrantyBadge[]}) {
             key={i}
             className="flex flex-col items-center text-center gap-2"
           >
-            {badge.icon_svg && (
-              <div
-                className="w-10 h-10 text-white [&>svg]:w-full [&>svg]:h-full"
-                dangerouslySetInnerHTML={{__html: badge.icon_svg}}
+            {badge.icon_image?.url && (
+              <img
+                src={badge.icon_image.url}
+                alt={badge.title}
+                className="w-10 h-10 object-contain"
               />
             )}
             <div>
