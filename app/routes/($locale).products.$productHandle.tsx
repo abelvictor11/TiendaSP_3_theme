@@ -60,6 +60,7 @@ import ProductHelpBanner from '~/components/ProductHelpBanner';
 // ProductHighlights import removed - replaced by PdpAccordion structure
 import ProductSpecs from '~/components/ProductSpecs';
 import {ComplementaryProducts} from '~/components/ComplementaryProducts';
+import {PdpEnhancedSection, parsePdpEnhancedData} from '~/components/PdpEnhancedSection';
 
 export const headers = routeHeaders;
 
@@ -208,6 +209,9 @@ export default function Product() {
     ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
     : 0;
 
+  // Enhanced PDP data (per-product, activated via metafields)
+  const enhancedData = parsePdpEnhancedData(product);
+
   return (
     <div
       className={clsx(
@@ -320,6 +324,9 @@ export default function Product() {
             </div>
           </div>
         </div>
+
+        {/* Enhanced PDP sections (per-product, activated via metafields) */}
+        {enhancedData && <PdpEnhancedSection data={enhancedData} />}
 
         {/* DETAIL AND REVIEW */}
         <div className="mt-12 sm:mt-16 space-y-12 sm:space-y-16">
@@ -1017,6 +1024,43 @@ const PRODUCT_FRAGMENT = `#graphql
         value
       }
       specs_highlights: metafield(namespace: "specs", key:"highlights") {
+        value
+      }
+      # Enhanced PDP (per-product)
+      pdp_enhanced_enabled: metafield(namespace: "pdp_enhanced", key: "enabled") {
+        value
+      }
+      pdp_enhanced_subtitle: metafield(namespace: "pdp_enhanced", key: "subtitle") {
+        value
+      }
+      pdp_enhanced_hero_description: metafield(namespace: "pdp_enhanced", key: "hero_description") {
+        value
+      }
+      pdp_enhanced_feature_icons: metafield(namespace: "pdp_enhanced", key: "feature_icons") {
+        value
+      }
+      pdp_enhanced_detail_cards: metafield(namespace: "pdp_enhanced", key: "detail_cards") {
+        value
+      }
+      pdp_enhanced_applications: metafield(namespace: "pdp_enhanced", key: "applications") {
+        value
+      }
+      pdp_enhanced_includes_list: metafield(namespace: "pdp_enhanced", key: "includes_list") {
+        value
+      }
+      pdp_enhanced_dimensions_image: metafield(namespace: "pdp_enhanced", key: "dimensions_image") {
+        reference {
+          ... on MediaImage {
+            image {
+              url
+              altText
+              width
+              height
+            }
+          }
+        }
+      }
+      pdp_enhanced_warranty_badges: metafield(namespace: "pdp_enhanced", key: "warranty_badges") {
         value
       }
       options {
