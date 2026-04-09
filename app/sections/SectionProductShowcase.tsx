@@ -44,7 +44,8 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   }
 
   const bgImage = (background_image as any)?.image?.url;
-  const contentBg = content_background_color?.value || '#ffffff';
+  const contentBgRaw = content_background_color?.value || '';
+  const contentBg = contentBgRaw ? `${contentBgRaw}cc` : 'transparent';
   const txtColor = text_color?.value || '#000000';
   const cardBg = card_background_color?.value || '#ffffff';
   const cardTxt = card_text_color?.value || '#000000';
@@ -108,7 +109,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           <div className="col-span-5">
             <div
               className="rounded-xl p-8 lg:p-10 h-full shadow-2xl backdrop-blur-md"
-              style={{backgroundColor: `${contentBg}cc`}}
+              style={{backgroundColor: contentBg}}
             >
               {heading?.value && (
                 <h2
@@ -170,7 +171,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           <div className="flex-shrink-0 w-full snap-center px-4">
             <div
               className="rounded-xl p-6 shadow-2xl backdrop-blur-md h-[400px] flex flex-col justify-center"
-              style={{backgroundColor: `${contentBg}cc`}}
+              style={{backgroundColor: contentBg}}
             >
               {heading?.value && (
                 <h2
