@@ -33,7 +33,7 @@ function root({
     title: shop?.name,
     titleTemplate: '%s | Tienda Fitness',
     description: truncate(shop?.description ?? ''),
-    handle: '@shopify',
+    handle: '@sportfitness_co',
     url,
     robots: {
       noIndex: false,
@@ -45,11 +45,10 @@ function root({
       name: shop.name,
       logo: shop.brand?.logo?.image?.url,
       sameAs: [
-        'https://twitter.com/shopify',
-        'https://facebook.com/shopify',
-        'https://instagram.com/shopify',
-        'https://youtube.com/shopify',
-        'https://tiktok.com/@shopify',
+        'https://www.facebook.com/sportfitnesscolombia',
+        'https://www.instagram.com/sportfitness_co',
+        'https://www.youtube.com/@sportfitnesscolombia',
+        'https://www.tiktok.com/@sportfitness_co',
       ],
       url,
       potentialAction: {

@@ -97,9 +97,14 @@ export default async function handleRequest(
       'https://api.raygun.com',
       'https://www.google.com',
       'https://www.gstatic.com',
-
-      // your ngrok domain if you're using ngrok for development
-      'wss://refined-starfish-verbally.ngrok-free.app:*',
+      // Google Analytics / GTM
+      'https://www.google-analytics.com',
+      'https://www.googletagmanager.com',
+      'https://analytics.google.com',
+      'https://region1.google-analytics.com',
+      // Meta Pixel
+      'https://www.facebook.com',
+      'https://connect.facebook.net',
     ],
     frameSrc: ['https://www.google.com', 'https://www.gstatic.com'],
   });
