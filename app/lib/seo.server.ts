@@ -39,19 +39,27 @@ function root({
       noIndex: false,
       noFollow: false,
     },
-    jsonLd: {
-      '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: shop.name,
-      logo: shop.brand?.logo?.image?.url,
-      sameAs: [],
-      url,
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: `${url}search?q={search_term}`,
-        query: "required name='search_term'",
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: shop.name,
+        logo: shop.brand?.logo?.image?.url,
+        sameAs: [],
+        url,
       },
-    },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: shop.name,
+        url,
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: `${url}search?q={search_term}`,
+          'query-input': 'required name=search_term',
+        },
+      },
+    ],
   };
 }
 
