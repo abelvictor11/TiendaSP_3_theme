@@ -17,7 +17,7 @@ export default async function handleRequest(
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,
     },
     scriptSrc: [
-      'self',
+      "'self'",
       'https://cdn.shopify.com',
       'https://shopify.com',
       'https://www.google-analytics.com',
@@ -30,14 +30,12 @@ export default async function handleRequest(
       'https://api.okendo.io',
       'https://www.google.com',
       'https://www.gstatic.com',
-
-      // your ngrok domain if you're using ngrok for development
-      'https://refined-starfish-verbally.ngrok-free.app:*',
     ],
     defaultSrc: [
       "'self'",
       'localhost:*',
       'https://cdn.shopify.com',
+      'https://shopify.com',
       'https://www.google.com',
       'https://www.gstatic.com',
       'https://d3hw6dc1ow8pp2.cloudfront.net',
@@ -75,7 +73,6 @@ export default async function handleRequest(
       'https://cdn-static.okendo.io',
       'https://surveys.okendo.io',
     ],
-
     fontSrc: [
       "'self'",
       'https://fonts.gstatic.com',
@@ -91,22 +88,40 @@ export default async function handleRequest(
       'localhost:*',
       'ws://localhost:*',
       'ws://127.0.0.1:*',
+      // Shopify (consent tracking API + web pixels)
+      'https://cdn.shopify.com',
+      'https://shopify.com',
+      // Okendo
       'https://api.okendo.io',
       'https://cdn-static.okendo.io',
       'https://surveys.okendo.io',
+      // Error tracking
       'https://api.raygun.com',
-      'https://www.google.com',
-      'https://www.gstatic.com',
       // Google Analytics / GTM
       'https://www.google-analytics.com',
       'https://www.googletagmanager.com',
       'https://analytics.google.com',
       'https://region1.google-analytics.com',
+      'https://www.google.com',
+      'https://www.gstatic.com',
       // Meta Pixel
       'https://www.facebook.com',
       'https://connect.facebook.net',
+      // TikTok Pixel
+      'https://analytics.tiktok.com',
+      'https://business-api.tiktok.com',
+      // Klaviyo
+      'https://a.klaviyo.com',
+      'https://static.klaviyo.com',
     ],
-    frameSrc: ['https://www.google.com', 'https://www.gstatic.com'],
+    // Web pixels de Shopify corren en iframes sandbox - necesitan estos dominios
+    frameSrc: [
+      'https://www.google.com',
+      'https://www.gstatic.com',
+      'https://cdn.shopify.com',
+      'https://shopify.com',
+      'https://*.shopifysvc.com',
+    ],
   });
 
   const body = await renderToReadableStream(
