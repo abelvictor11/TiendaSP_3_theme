@@ -39,24 +39,32 @@ function root({
       noIndex: false,
       noFollow: false,
     },
-    jsonLd: {
-      '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: shop.name,
-      logo: shop.brand?.logo?.image?.url,
-      sameAs: [
-        'https://www.instagram.com/tiendafitness.co/',
-        'https://www.facebook.com/profile.php?id=61581462937015',
-        'https://www.youtube.com/channel/UCNel96H1em3ZaArATLx9VFg',
-        'https://www.tiktok.com/@tiendafitness.co',
-      ],
-      url,
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: `${url}search?q={search_term}`,
-        query: "required name='search_term'",
+    jsonLd: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: shop.name,
+        logo: shop.brand?.logo?.image?.url,
+        sameAs: [
+          'https://www.instagram.com/tiendafitness.co/',
+          'https://www.facebook.com/profile.php?id=61581462937015',
+          'https://www.youtube.com/channel/UCNel96H1em3ZaArATLx9VFg',
+          'https://www.tiktok.com/@tiendafitness.co',
+        ],
+        url,
       },
-    },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: shop.name,
+        url,
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: `${url}search?q={search_term}`,
+          'query-input': 'required name=search_term',
+        },
+      },
+    ],
   };
 }
 
