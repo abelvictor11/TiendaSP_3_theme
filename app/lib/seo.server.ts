@@ -29,6 +29,8 @@ function root({
   shop: ShopFragment;
   url: Request['url'];
 }): SeoConfig {
+  const origin = new URL(url).origin;
+  const siteUrl = `${origin}/`;
   return {
     title: shop?.name,
     titleTemplate: '%s | Fitshop',
@@ -46,16 +48,16 @@ function root({
         name: shop.name,
         logo: shop.brand?.logo?.image?.url,
         sameAs: [],
-        url,
+        url: siteUrl,
       },
       {
         '@context': 'https://schema.org',
         '@type': 'WebSite',
         name: shop.name,
-        url,
+        url: siteUrl,
         potentialAction: {
           '@type': 'SearchAction',
-          target: `${url}search?q={search_term}`,
+          target: `${siteUrl}search?q={search_term}`,
           'query-input': 'required name=search_term',
         },
       },
@@ -144,6 +146,7 @@ function productJsonLd({
           '@type': 'ListItem',
           position: 2,
           name: product.title,
+          item: url,
         },
       ],
     },
@@ -209,7 +212,7 @@ function collectionJsonLd({
       return {
         '@type': 'ListItem',
         position: index + 1,
-        url: `/products/${product.handle}`,
+        url: `${siteUrl.origin}/products/${product.handle}`,
       };
     });
 
@@ -222,12 +225,13 @@ function collectionJsonLd({
           '@type': 'ListItem',
           position: 1,
           name: 'Collections',
-          item: `${siteUrl.host}/collections`,
+          item: `${siteUrl.origin}/collections`,
         },
         {
           '@type': 'ListItem',
           position: 2,
           name: collection.title,
+          item: `${siteUrl.origin}/collections/${collection.handle}`,
         },
       ],
     },
@@ -239,7 +243,7 @@ function collectionJsonLd({
         collection?.seo?.description ?? collection?.description ?? '',
       ),
       image: collection?.image?.url,
-      url: `/collections/${collection.handle}`,
+      url: `${siteUrl.origin}/collections/${collection.handle}`,
       mainEntity: {
         '@type': 'ItemList',
         itemListElement,
@@ -284,12 +288,13 @@ function collectionsJsonLd({
   url: Request['url'];
   collections: CollectionListRequiredFields;
 }): SeoConfig['jsonLd'] {
+  const origin = new URL(url).origin;
   const itemListElement: CollectionPage['mainEntity'] = collections.nodes.map(
     (collection, index) => {
       return {
         '@type': 'ListItem',
         position: index + 1,
-        url: `/collections/${collection.handle}`,
+        url: `${origin}/collections/${collection.handle}`,
       };
     },
   );
