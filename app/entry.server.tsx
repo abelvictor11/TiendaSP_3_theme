@@ -17,7 +17,7 @@ export default async function handleRequest(
       storeDomain: context.env.PUBLIC_STORE_DOMAIN,
     },
     scriptSrc: [
-      'self',
+      "'self'",
       'https://cdn.shopify.com',
       'https://shopify.com',
       'https://www.google-analytics.com',
@@ -98,10 +98,34 @@ export default async function handleRequest(
       'https://www.google.com',
       'https://www.gstatic.com',
 
+      // Shopify (consent tracking API + web pixels)
+      'https://cdn.shopify.com',
+      'https://shopify.com',
+      // Google Analytics / GTM
+      'https://www.google-analytics.com',
+      'https://www.googletagmanager.com',
+      'https://analytics.google.com',
+      'https://region1.google-analytics.com',
+      // Meta Pixel
+      'https://www.facebook.com',
+      'https://connect.facebook.net',
+      // TikTok Pixel
+      'https://analytics.tiktok.com',
+      'https://business-api.tiktok.com',
+      // Klaviyo
+      'https://a.klaviyo.com',
+      'https://static.klaviyo.com',
+
       // your ngrok domain if you're using ngrok for development
       'wss://refined-starfish-verbally.ngrok-free.app:*',
     ],
-    frameSrc: ['https://www.google.com', 'https://www.gstatic.com'],
+    frameSrc: [
+      'https://www.google.com',
+      'https://www.gstatic.com',
+      'https://cdn.shopify.com',
+      'https://shopify.com',
+      'https://*.shopifysvc.com',
+    ],
   });
 
   const body = await renderToReadableStream(

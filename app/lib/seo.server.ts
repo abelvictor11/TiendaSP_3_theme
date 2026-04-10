@@ -33,7 +33,7 @@ function root({
     title: shop?.name,
     titleTemplate: '%s | Ciclospecial',
     description: truncate(shop?.description ?? ''),
-    handle: '@shopify',
+    handle: '@ciclospecial',
     url,
     robots: {
       noIndex: false,
@@ -44,13 +44,7 @@ function root({
       '@type': 'Organization',
       name: shop.name,
       logo: shop.brand?.logo?.image?.url,
-      sameAs: [
-        'https://twitter.com/shopify',
-        'https://facebook.com/shopify',
-        'https://instagram.com/shopify',
-        'https://youtube.com/shopify',
-        'https://tiktok.com/@shopify',
-      ],
+      sameAs: [],
       url,
       potentialAction: {
         '@type': 'SearchAction',
