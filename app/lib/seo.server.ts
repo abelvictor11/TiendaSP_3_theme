@@ -29,42 +29,29 @@ function root({
   shop: ShopFragment;
   url: Request['url'];
 }): SeoConfig {
+  const origin = new URL(url).origin;
+  const siteUrl = `${origin}/`;
   return {
     title: shop?.name,
-    titleTemplate: '%s | Hydrogen Demo Store',
+    titleTemplate: '%s | Cyclewear',
     description: truncate(shop?.description ?? ''),
-    handle: '@shopify',
+    handle: '@cyclewear',
     url,
     robots: {
       noIndex: false,
       noFollow: false,
     },
-    jsonLd: {
-      '@context': 'https://schema.org',
-      '@type': 'Organization',
-      name: shop.name,
-      logo: shop.brand?.logo?.image?.url,
-      sameAs: [
-        'https://twitter.com/shopify',
-        'https://facebook.com/shopify',
-        'https://instagram.com/shopify',
-        'https://youtube.com/shopify',
-        'https://tiktok.com/@shopify',
-      ],
-      url,
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: `${url}search?q={search_term}`,
-        query: "required name='search_term'",
-      },
-    },
+    jsonLd: [
+      { '@context': 'https://schema.org', '@type': 'Organization', name: shop.name, logo: shop.brand?.logo?.image?.url, sameAs: [], url: siteUrl },
+      { '@context': 'https://schema.org', '@type': 'WebSite', name: shop.name, url: siteUrl, potentialAction: { '@type': 'SearchAction', target: `${siteUrl}search?q={search_term}`, 'query-input': 'required name=search_term' } },
+    ],
   };
 }
 
 function home({url}: {url: Request['url']}): SeoConfig {
   return {
     title: 'Home',
-    titleTemplate: '%s | Hydrogen Demo Store',
+    titleTemplate: '%s | Cyclewear',
     description: 'The best place to buy snowboarding products',
     url,
     robots: {
@@ -142,6 +129,7 @@ function productJsonLd({
           '@type': 'ListItem',
           position: 2,
           name: product.title,
+          item: url,
         },
       ],
     },
@@ -207,7 +195,7 @@ function collectionJsonLd({
       return {
         '@type': 'ListItem',
         position: index + 1,
-        url: `/products/${product.handle}`,
+        url: `${siteUrl.origin}/products/${product.handle}`,
       };
     });
 
@@ -220,12 +208,13 @@ function collectionJsonLd({
           '@type': 'ListItem',
           position: 1,
           name: 'Collections',
-          item: `${siteUrl.host}/collections`,
+          item: `${siteUrl.origin}/collections`,
         },
         {
           '@type': 'ListItem',
           position: 2,
           name: collection.title,
+          item: url,
         },
       ],
     },
@@ -237,7 +226,7 @@ function collectionJsonLd({
         collection?.seo?.description ?? collection?.description ?? '',
       ),
       image: collection?.image?.url,
-      url: `/collections/${collection.handle}`,
+      url: `${siteUrl.origin}/collections/${collection.handle}`,
       mainEntity: {
         '@type': 'ItemList',
         itemListElement,
@@ -282,12 +271,13 @@ function collectionsJsonLd({
   url: Request['url'];
   collections: CollectionListRequiredFields;
 }): SeoConfig['jsonLd'] {
+  const origin = new URL(url).origin;
   const itemListElement: CollectionPage['mainEntity'] = collections.nodes.map(
     (collection, index) => {
       return {
         '@type': 'ListItem',
         position: index + 1,
-        url: `/collections/${collection.handle}`,
+        url: `${origin}/collections/${collection.handle}`,
       };
     },
   );

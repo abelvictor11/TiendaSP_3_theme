@@ -124,7 +124,7 @@ export default function CartRoute() {
         </main>
       </div>
 
-      <Analytics.CartView />
+      <Analytics.CartView data={{cart}} />
     </>
   );
 }

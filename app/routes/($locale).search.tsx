@@ -43,6 +43,10 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
   const {filters, sortKey, reverse, page} =
     getPaginationAndFiltersFromRequest(request, PAGE_SIZE);
 
+  const searchSortKey: SearchSortKeys =
+    sortKey === 'PRICE' ? 'PRICE' : 'RELEVANCE';
+  const searchReverse = sortKey === 'PRICE' ? reverse : false;
+
   // Fetch page * PAGE_SIZE products so we can slice to the current page
   const fetchCount = page * PAGE_SIZE;
 
@@ -52,8 +56,8 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
         searchTerm,
         first: fetchCount,
         filters,
-        sortKey: sortKey as SearchSortKeys,
-        reverse,
+        sortKey: searchSortKey,
+        reverse: searchReverse,
         country: storefront.i18n.country,
         language: storefront.i18n.language,
       },
@@ -395,7 +399,6 @@ const SEARCH_QUERY_2 = `#graphql
       first: 0,
       types: PRODUCT,
       query: $searchTerm,
-      productFilters: {},
     ) {
       productFilters {
         id

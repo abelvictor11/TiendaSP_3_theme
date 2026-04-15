@@ -21,7 +21,7 @@ export default async function handleRequest(
       storeDomain,
     },
     scriptSrc: [
-      'self',
+      "'self'",
       'https://cdn.shopify.com',
       'https://shopify.com',
       'https://www.google-analytics.com',
@@ -116,11 +116,23 @@ export default async function handleRequest(
       'https://api.raygun.com',
       'https://www.google.com',
       'https://www.gstatic.com',
+      'https://cdn.shopify.com',
+      'https://shopify.com',
+      'https://www.google-analytics.com',
+      'https://www.googletagmanager.com',
+      'https://analytics.google.com',
+      'https://region1.google-analytics.com',
+      'https://www.facebook.com',
+      'https://connect.facebook.net',
+      'https://analytics.tiktok.com',
+      'https://business-api.tiktok.com',
+      'https://a.klaviyo.com',
+      'https://static.klaviyo.com',
 
       // your ngrok domain if you're using ngrok for development
       'wss://refined-starfish-verbally.ngrok-free.app:*',
     ],
-    frameSrc: ['https://www.google.com', 'https://www.gstatic.com'],
+    frameSrc: ['https://www.google.com', 'https://www.gstatic.com', 'https://cdn.shopify.com', 'https://shopify.com', 'https://*.shopifysvc.com'],
   });
 
   const body = await renderToReadableStream(

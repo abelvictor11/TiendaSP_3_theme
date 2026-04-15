@@ -77,9 +77,9 @@ const ProductCard: FC<ProductCardProps> = ({
 
   const firstVariant = variants?.nodes?.[0];
 
-  const optColor = options.find((option) => option.name === 'Color');
-  const optSizes = options.find((option) => option.name === 'Size');
-  const optWeight = options.find((option) => option.name === 'Peso' || option.name === 'Weight');
+  const optColor = options?.find((option) => option.name === 'Color');
+  const optSizes = options?.find((option) => option.name === 'Size');
+  const optWeight = options?.find((option) => option.name === 'Peso' || option.name === 'Weight');
   const isSale =
     Number(product.compareAtPriceRange?.minVariantPrice?.amount || 0) >
     Number(product.priceRange.minVariantPrice.amount);
@@ -87,7 +87,7 @@ const ProductCard: FC<ProductCardProps> = ({
   const {open} = useAside();
   const variantUrl = useVariantUrl(
     product.handle,
-    firstVariant.selectedOptions,
+    firstVariant?.selectedOptions ?? [],
   );
   const {getImageWithCdnUrlByName, getColorHexByName} =
     useGetPublicStoreCdnStaticUrlFromRootLoaderData();
@@ -222,7 +222,7 @@ const ProductCard: FC<ProductCardProps> = ({
   };
 
   const renderGroupButtons = () => {
-    if (!quickAddToCart) {
+    if (!quickAddToCart || !firstVariant) {
       return null;
     }
     return (
