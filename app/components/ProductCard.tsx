@@ -366,10 +366,10 @@ const ProductCard: FC<ProductCardProps> = ({
             {/* Marca - Logo SVG */}
             {vendor && (
               <div className="mb-4">
-                <VendorLogoWithFallback 
-                  vendor={vendor} 
-                  className="h-4 w-auto max-w-[70px] object-contain"
-                  fallbackClassName="text-[10px] font-medium uppercase tracking-wide text-black"
+                <VendorLogoWithFallback
+                  vendor={vendor}
+                  className="h-6 w-auto max-w-[100px] object-contain"
+                  fallbackClassName="text-xs font-medium uppercase tracking-wide text-black"
                 />
               </div>
             )}

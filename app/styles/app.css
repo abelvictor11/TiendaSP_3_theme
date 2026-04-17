@@ -630,3 +630,8 @@ a[target='_blank'].has-end-icon::after {
   content: '\2197';
   margin-left: 2px;
 }
+
+/* Cyclewear: ocultar barra de subcolecciones en header */
+div#subcollections-bar {
+  display: none;
+}
