@@ -23,6 +23,7 @@ import {
   getShopAnalytics,
 } from '@shopify/hydrogen';
 import {Layout} from '~/components/Layout';
+import {CustomAnalytics} from '~/components/CustomAnalytics';
 import {seoPayload} from '~/lib/seo.server';
 import {storeConfig} from '~/config/store';
 import {GenericError} from './components/GenericError';
@@ -217,6 +218,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
               shop={data.shop}
               consent={data.consent}
             >
+              <CustomAnalytics />
               <Layout
                 key={`${locale.language}-${locale.country}`}
                 layout={data.layout}
