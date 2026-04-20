@@ -152,6 +152,7 @@ function Content({cart: originalCart}: {cart: OptimisticCart | null}) {
                 discountCodes={cart.discountCodes}
                 checkoutUrl={cart.checkoutUrl}
                 isSkeleton={!cartHasItems}
+                lines={currentLines}
               />
             </div>
           </div>
@@ -290,6 +291,7 @@ function CartSummary({
   discountCodes,
   onClose,
   isSkeleton,
+  lines,
 }: {
   children?: React.ReactNode;
   cost?: CartCost;
@@ -297,7 +299,56 @@ function CartSummary({
   checkoutUrl?: string;
   onClose?: () => void;
   isSkeleton?: boolean;
+  lines?: any[];
 }) {
+  const handleInitiateCheckout = () => {
+    if (typeof window === 'undefined') return;
+    const currency = (cost as any)?.totalAmount?.currencyCode ?? 'COP';
+    const value = parseFloat((cost as any)?.totalAmount?.amount ?? '0');
+    const items = (lines ?? []).map((line: any) => ({
+      item_id: line?.merchandise?.id,
+      item_name: line?.merchandise?.product?.title,
+      item_variant: line?.merchandise?.title,
+      price: parseFloat(line?.cost?.totalAmount?.amount ?? '0'),
+      quantity: line?.quantity,
+    }));
+    const contentIds = items.map((i) => i.item_id).filter(Boolean);
+    // Event ID estable para deduplicación con CAPI server-side
+    const eventId = `client_checkout_${Date.now()}`;
+
+    // Meta Pixel
+    const w = window as any;
+    if (w.fbq) {
+      w.fbq(
+        'track',
+        'InitiateCheckout',
+        {
+          content_ids: contentIds,
+          content_type: 'product',
+          value,
+          currency,
+          num_items: items.length,
+        },
+        {eventID: eventId},
+      );
+    }
+    // GA4
+    if (w.gtag) {
+      w.gtag('event', 'begin_checkout', {
+        currency,
+        value,
+        items,
+        event_id: eventId,
+      });
+    }
+    // GTM dataLayer
+    w.dataLayer = w.dataLayer ?? [];
+    w.dataLayer.push({ecommerce: null});
+    w.dataLayer.push({
+      event: 'begin_checkout',
+      ecommerce: {currency, value, items, event_id: eventId},
+    });
+  };
   return (
     <>
       <div className="flex justify-between">
@@ -321,6 +372,7 @@ function CartSummary({
         href={isSkeleton ? undefined : checkoutUrl}
         target="_self"
         aria-disabled={isSkeleton}
+        onClick={isSkeleton ? undefined : handleInitiateCheckout}
       >
         <ButtonPrimary as={'span'} className="w-full">
          Pagar
