@@ -1,27 +1,31 @@
 /**
- * GtmLoader — Inyecta GTM y GA4 en el cliente vía useEffect.
+ * GtmLoader — Inicializa GTM, GA4 y Meta Pixel en el main window vía useEffect.
  *
- * Usamos (window as any) para evitar conflictos de tipo con la declaración
- * de Window en CustomAnalytics.tsx (dataLayer: Record<string,unknown>[] vs any[]).
- * Un conflicto de tipos en global declarations causa error de build en Oxygen.
+ * Por qué useEffect + createElement en vez de <script nonce> en SSR:
+ *   Scripts con nonce en el <head> de React pueden ser bloqueados por CSP
+ *   o eliminados durante la hidratación. Scripts cargados con createElement
+ *   son siempre evaluados por el browser y detectados por Tag Assistant.
+ *
+ * No declara tipos globales de Window para evitar conflictos con
+ *   CustomAnalytics.tsx. Usa (window as any) en su lugar.
  */
 import {useEffect} from 'react';
 
 export function GtmLoader({
   gtmId,
   gaMeasurementId,
+  metaPixelId,
 }: {
   gtmId?: string | null;
   gaMeasurementId?: string | null;
+  metaPixelId?: string | null;
 }) {
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const w = window as any;
 
-    // 1. Inicializar dataLayer
+    // ── 1. dataLayer + función gtag estándar ──────────────────────────────
     w.dataLayer = w.dataLayer ?? [];
-
-    // 2. Definir gtag como función estándar (usa arguments — requerido por GA4)
     if (!w.gtag) {
       w.gtag = function () {
         // eslint-disable-next-line prefer-rest-params
@@ -29,7 +33,7 @@ export function GtmLoader({
       };
     }
 
-    // 3. Cargar contenedor GTM
+    // ── 2. GTM container ──────────────────────────────────────────────────
     if (gtmId && !document.querySelector(`script[data-gtm-id="${gtmId}"]`)) {
       w.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
       const s = document.createElement('script');
@@ -39,8 +43,7 @@ export function GtmLoader({
       document.head.appendChild(s);
     }
 
-    // 4. Cargar gtag.js de GA4 directamente
-    //    Garantiza window.gtag en el main window para que CustomAnalytics funcione.
+    // ── 3. GA4 gtag.js ────────────────────────────────────────────────────
     if (
       gaMeasurementId &&
       !document.querySelector(`script[data-ga-id="${gaMeasurementId}"]`)
@@ -54,6 +57,33 @@ export function GtmLoader({
         w.gtag('config', gaMeasurementId);
       };
       document.head.appendChild(s);
+    }
+
+    // ── 4. Meta Pixel (fbq) ───────────────────────────────────────────────
+    // Inicializa fbq en el main window para que CustomAnalytics pueda usarlo.
+    // Sin esto, window.fbq solo existe dentro del iframe sandbox de Shopify.
+    if (metaPixelId && !w.fbq) {
+      // Cargar fbevents.js
+      const fbScript = document.createElement('script');
+      fbScript.async = true;
+      fbScript.src = 'https://connect.facebook.net/en_US/fbevents.js';
+      document.head.appendChild(fbScript);
+
+      // Definir fbq queue antes de que cargue el script
+      w.fbq = function () {
+        // eslint-disable-next-line prefer-rest-params
+        w.fbq.callMethod
+          ? w.fbq.callMethod.apply(w.fbq, arguments)
+          : w.fbq.queue.push(arguments);
+      };
+      w._fbq = w.fbq;
+      w.fbq.push = w.fbq;
+      w.fbq.loaded = true;
+      w.fbq.version = '2.0';
+      w.fbq.queue = [];
+
+      w.fbq('init', metaPixelId);
+      w.fbq('track', 'PageView');
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
