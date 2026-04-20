@@ -34,6 +34,16 @@ declare global {
     PUBLIC_IMAGE_FORMAT_FOR_PRODUCT_OPTION: string;
     PUBLIC_OKENDO_SUBSCRIBER_ID: string;
     SHOP_ID: string;
+    ADMIN_API_ACCESS_TOKEN?: string;
+    // Tracking / Analytics
+    PUBLIC_GTM_ID?: string;
+    PUBLIC_GA_MEASUREMENT_ID?: string;
+    PUBLIC_META_PIXEL_ID?: string;
+    // Server-side tracking (Meta CAPI / GA4 Measurement Protocol)
+    META_CAPI_ACCESS_TOKEN?: string;
+    META_TEST_EVENT_CODE?: string;
+    GA4_API_SECRET?: string;
+    SHOPIFY_WEBHOOK_SECRET?: string;
   }
 }
 

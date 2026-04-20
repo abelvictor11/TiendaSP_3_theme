@@ -24,6 +24,7 @@ import {
 } from '@shopify/hydrogen';
 import {Layout} from '~/components/Layout';
 import {CustomAnalytics} from '~/components/CustomAnalytics';
+import {GtmLoader} from '~/components/GtmLoader';
 import {seoPayload} from '~/lib/seo.server';
 import {storeConfig} from '~/config/store';
 import {GenericError} from './components/GenericError';
@@ -96,6 +97,9 @@ export async function loader(args: LoaderFunctionArgs) {
     publicImageFormatForProductOption:
       env.PUBLIC_IMAGE_FORMAT_FOR_PRODUCT_OPTION,
     publicOkendoSubcriberId: env.PUBLIC_OKENDO_SUBSCRIBER_ID,
+    publicGtmId: env.PUBLIC_GTM_ID ?? '',
+    publicGaMeasurementId: env.PUBLIC_GA_MEASUREMENT_ID ?? '',
+    publicMetaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
     /**********   EXAMPLE UPDATE END   ************/
   });
 }
@@ -185,6 +189,9 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>('root');
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
+  const gtmId = data?.publicGtmId as string | null | undefined;
+  const gaMeasurementId = data?.publicGaMeasurementId as string | null | undefined;
+  const metaPixelId = data?.publicMetaPixelId as string | null | undefined;
 
   return (
     <html lang={locale.language}>
@@ -209,6 +216,12 @@ function MainLayout({children}: {children?: React.ReactNode}) {
       <body className="bg-white">
         {data ? (
           <>
+            {/* ── Inyecta GTM, GA4 y Meta Pixel en el cliente (evita problemas de nonce/CSP en SSR) ── */}
+            <GtmLoader
+              gtmId={gtmId}
+              gaMeasurementId={gaMeasurementId}
+              metaPixelId={metaPixelId}
+            />
             <OkendoProvider
               nonce={nonce}
               okendoProviderData={data.okendoProviderData}
