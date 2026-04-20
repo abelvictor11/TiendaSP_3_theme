@@ -96,6 +96,8 @@ export async function loader(args: LoaderFunctionArgs) {
     publicImageFormatForProductOption:
       env.PUBLIC_IMAGE_FORMAT_FOR_PRODUCT_OPTION,
     publicOkendoSubcriberId: env.PUBLIC_OKENDO_SUBSCRIBER_ID,
+    publicGtmId: (env as any).PUBLIC_GTM_ID ?? null,
+    publicGaMeasurementId: (env as any).PUBLIC_GA_MEASUREMENT_ID ?? 'G-WJNFGXGM06',
     /**********   EXAMPLE UPDATE END   ************/
   });
 }
@@ -184,6 +186,8 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>('root');
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
+  const gtmId = data?.publicGtmId as string | null | undefined;
+  const gaMeasurementId = data?.publicGaMeasurementId as string | null | undefined;
 
   return (
     <html lang={locale.language}>
@@ -203,8 +207,51 @@ function MainLayout({children}: {children?: React.ReactNode}) {
 
         <Meta />
         <Links />
+
+        {/* ── Google Tag Manager ── */}
+        {gtmId ? (
+          <script
+            nonce={nonce}
+            dangerouslySetInnerHTML={{
+              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${gtmId}');`,
+            }}
+          />
+        ) : null}
+
+        {/* ── Google Analytics 4 (direct — fires in main window so CustomAnalytics works) ── */}
+        {gaMeasurementId ? (
+          <>
+            <script
+              nonce={nonce}
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+            />
+            <script
+              nonce={nonce}
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaMeasurementId}',{send_page_view:false});`,
+              }}
+            />
+          </>
+        ) : null}
       </head>
       <body className="bg-white">
+        {/* ── GTM noscript fallback ── */}
+        {gtmId ? (
+          <noscript>
+            <iframe
+              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+              height="0"
+              width="0"
+              style={{display: 'none', visibility: 'hidden'}}
+              title="gtm"
+            />
+          </noscript>
+        ) : null}
         {data ? (
           <>
             <OkendoProvider
