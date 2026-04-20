@@ -96,7 +96,7 @@ export async function loader(args: LoaderFunctionArgs) {
     publicImageFormatForProductOption:
       env.PUBLIC_IMAGE_FORMAT_FOR_PRODUCT_OPTION,
     publicOkendoSubcriberId: env.PUBLIC_OKENDO_SUBSCRIBER_ID,
-    publicGtmId: (env as any).PUBLIC_GTM_ID ?? null,
+    publicGtmId: (env as any).PUBLIC_GTM_ID ?? 'GTM-KGWW5XVJ',
     publicGaMeasurementId: (env as any).PUBLIC_GA_MEASUREMENT_ID ?? 'G-WJNFGXGM06',
     /**********   EXAMPLE UPDATE END   ************/
   });
