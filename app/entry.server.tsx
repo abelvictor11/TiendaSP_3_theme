@@ -124,6 +124,7 @@ export default async function handleRequest(
       'https://cdn.shopify.com',
       'https://shopify.com',
       'https://*.shopifysvc.com',
+      'https://www.googletagmanager.com',
     ],
   });
 
