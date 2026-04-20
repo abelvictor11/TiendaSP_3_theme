@@ -24,6 +24,7 @@ import {
 } from '@shopify/hydrogen';
 import {Layout} from '~/components/Layout';
 import {CustomAnalytics} from '~/components/CustomAnalytics';
+import {GtmLoader} from '~/components/GtmLoader';
 import {seoPayload} from '~/lib/seo.server';
 import {storeConfig} from '~/config/store';
 import {GenericError} from './components/GenericError';
@@ -207,53 +208,12 @@ function MainLayout({children}: {children?: React.ReactNode}) {
 
         <Meta />
         <Links />
-
-        {/* ── Google Tag Manager ── */}
-        {gtmId ? (
-          <script
-            nonce={nonce}
-            dangerouslySetInnerHTML={{
-              __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-})(window,document,'script','dataLayer','${gtmId}');`,
-            }}
-          />
-        ) : null}
-
-        {/* ── Google Analytics 4 (direct — fires in main window so CustomAnalytics works) ── */}
-        {gaMeasurementId ? (
-          <>
-            <script
-              nonce={nonce}
-              async
-              src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
-            />
-            <script
-              nonce={nonce}
-              dangerouslySetInnerHTML={{
-                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaMeasurementId}');`,
-              }}
-            />
-          </>
-        ) : null}
       </head>
       <body className="bg-white">
-        {/* ── GTM noscript fallback ── */}
-        {gtmId ? (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-              height="0"
-              width="0"
-              style={{display: 'none', visibility: 'hidden'}}
-              title="gtm"
-            />
-          </noscript>
-        ) : null}
         {data ? (
           <>
+            {/* ── Inyecta GTM y GA4 en el cliente (evita problemas de nonce/CSP en SSR) ── */}
+            <GtmLoader gtmId={gtmId} gaMeasurementId={gaMeasurementId} />
             <OkendoProvider
               nonce={nonce}
               okendoProviderData={data.okendoProviderData}
