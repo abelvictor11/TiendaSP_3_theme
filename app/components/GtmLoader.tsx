@@ -1,48 +1,41 @@
 /**
- * GtmLoader — Inyecta GTM y GA4 en el cliente vía useEffect.
+ * GtmLoader — Inicializa GTM, GA4 y Meta Pixel en el main window vía useEffect.
  *
- * Por qué useEffect en vez de <script> en SSR:
- *  - Los scripts con nonce en el <head> de React pueden ser bloqueados
- *    por la CSP o eliminados durante la hidratación.
- *  - Los scripts cargados via createElement son siempre evaluados por el
- *    browser y detectados correctamente por Tag Assistant.
- *  - Los dominios de GTM/GA4 ya están en script-src de la CSP.
+ * Por qué useEffect + createElement en vez de <script nonce> en SSR:
+ *   Scripts con nonce en el <head> de React pueden ser bloqueados por CSP
+ *   o eliminados durante la hidratación. Scripts cargados con createElement
+ *   son siempre evaluados por el browser y detectados por Tag Assistant.
+ *
+ * No declara tipos globales de Window para evitar conflictos con
+ *   CustomAnalytics.tsx. Usa (window as any) en su lugar.
  */
 import {useEffect} from 'react';
-
-declare global {
-  interface Window {
-    dataLayer?: any[];
-    gtag?: (...args: any[]) => void;
-  }
-}
 
 export function GtmLoader({
   gtmId,
   gaMeasurementId,
+  metaPixelId,
 }: {
   gtmId?: string | null;
   gaMeasurementId?: string | null;
+  metaPixelId?: string | null;
 }) {
   useEffect(() => {
-    // 1. Inicializar dataLayer y la función gtag estándar
-    window.dataLayer = window.dataLayer ?? [];
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const w = window as any;
 
-    if (!window.gtag) {
-      // Debe ser function (no arrow) para poder usar `arguments`
-      // eslint-disable-next-line prefer-rest-params
-      window.gtag = function gtag() {
+    // ── 1. dataLayer + función gtag estándar ──────────────────────────────
+    w.dataLayer = w.dataLayer ?? [];
+    if (!w.gtag) {
+      w.gtag = function () {
         // eslint-disable-next-line prefer-rest-params
-        window.dataLayer!.push(arguments);
+        w.dataLayer.push(arguments);
       };
     }
 
-    // 2. Cargar contenedor GTM
+    // ── 2. GTM container ──────────────────────────────────────────────────
     if (gtmId && !document.querySelector(`script[data-gtm-id="${gtmId}"]`)) {
-      window.dataLayer.push({
-        'gtm.start': new Date().getTime(),
-        event: 'gtm.js',
-      });
+      w.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
       const s = document.createElement('script');
       s.async = true;
       s.setAttribute('data-gtm-id', gtmId);
@@ -50,9 +43,7 @@ export function GtmLoader({
       document.head.appendChild(s);
     }
 
-    // 3. Cargar gtag.js de GA4 directamente
-    //    Esto asegura que window.gtag funcione para los eventos de CustomAnalytics
-    //    incluso antes de que GTM termine de cargar su propio tag de GA4.
+    // ── 3. GA4 gtag.js ────────────────────────────────────────────────────
     if (
       gaMeasurementId &&
       !document.querySelector(`script[data-ga-id="${gaMeasurementId}"]`)
@@ -61,13 +52,40 @@ export function GtmLoader({
       s.async = true;
       s.setAttribute('data-ga-id', gaMeasurementId);
       s.src = `https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`;
-      document.head.appendChild(s);
       s.onload = () => {
-        window.gtag!('js', new Date());
-        window.gtag!('config', gaMeasurementId);
+        w.gtag('js', new Date());
+        w.gtag('config', gaMeasurementId);
       };
+      document.head.appendChild(s);
     }
-  }, []); // Solo al montar — los IDs son constantes
+
+    // ── 4. Meta Pixel (fbq) ───────────────────────────────────────────────
+    // Inicializa fbq en el main window para que CustomAnalytics pueda usarlo.
+    // Sin esto, window.fbq solo existe dentro del iframe sandbox de Shopify.
+    if (metaPixelId && !w.fbq) {
+      // Cargar fbevents.js
+      const fbScript = document.createElement('script');
+      fbScript.async = true;
+      fbScript.src = 'https://connect.facebook.net/en_US/fbevents.js';
+      document.head.appendChild(fbScript);
+
+      // Definir fbq queue antes de que cargue el script
+      w.fbq = function () {
+        // eslint-disable-next-line prefer-rest-params
+        w.fbq.callMethod
+          ? w.fbq.callMethod.apply(w.fbq, arguments)
+          : w.fbq.queue.push(arguments);
+      };
+      w._fbq = w.fbq;
+      w.fbq.push = w.fbq;
+      w.fbq.loaded = true;
+      w.fbq.version = '2.0';
+      w.fbq.queue = [];
+
+      w.fbq('init', metaPixelId);
+      w.fbq('track', 'PageView');
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return null;
 }
