@@ -22,6 +22,11 @@ export default async function handleRequest(
       'https://shopify.com',
       'https://www.google-analytics.com',
       'https://www.googletagmanager.com',
+      // Meta Pixel (fbevents.js)
+      'https://connect.facebook.net',
+      'https://www.facebook.com',
+      // TikTok Pixel
+      'https://analytics.tiktok.com',
       ...(process.env.NODE_ENV !== 'production' ? ['http://localhost:*'] : []),
       'https://d3hw6dc1ow8pp2.cloudfront.net',
       'https://dov7r31oq5dkj.cloudfront.net',
@@ -55,6 +60,17 @@ export default async function handleRequest(
       'https://dov7r31oq5dkj.cloudfront.net',
       'https://cdn-static.okendo.io',
       'https://surveys.okendo.io',
+      // Meta Pixel tracking beacons
+      'https://www.facebook.com',
+      'https://connect.facebook.net',
+      // Google Analytics / Ads beacons
+      'https://www.google-analytics.com',
+      'https://www.googletagmanager.com',
+      'https://www.google.com',
+      'https://region1.google-analytics.com',
+      'https://googleads.g.doubleclick.net',
+      // TikTok
+      'https://analytics.tiktok.com',
     ],
     mediaSrc: [
       "'self'",

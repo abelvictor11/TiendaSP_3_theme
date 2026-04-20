@@ -97,8 +97,9 @@ export async function loader(args: LoaderFunctionArgs) {
     publicImageFormatForProductOption:
       env.PUBLIC_IMAGE_FORMAT_FOR_PRODUCT_OPTION,
     publicOkendoSubcriberId: env.PUBLIC_OKENDO_SUBSCRIBER_ID,
-    publicGtmId: (env as any).PUBLIC_GTM_ID ?? 'GTM-KNGTLWDD',
-    publicGaMeasurementId: (env as any).PUBLIC_GA_MEASUREMENT_ID ?? 'G-3KXN1RL4D5',
+    publicGtmId: env.PUBLIC_GTM_ID ?? 'GTM-KNGTLWDD',
+    publicGaMeasurementId: env.PUBLIC_GA_MEASUREMENT_ID ?? 'G-3KXN1RL4D5',
+    publicMetaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
     /**********   EXAMPLE UPDATE END   ************/
   });
 }
@@ -189,6 +190,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
   const gtmId = data?.publicGtmId as string | null | undefined;
   const gaMeasurementId = data?.publicGaMeasurementId as string | null | undefined;
+  const metaPixelId = data?.publicMetaPixelId as string | null | undefined;
 
   return (
     <html lang={locale.language}>
@@ -213,7 +215,11 @@ function MainLayout({children}: {children?: React.ReactNode}) {
         {data ? (
           <>
             {/* ── Inyecta GTM y GA4 en el cliente (evita problemas de nonce/CSP en SSR) ── */}
-            <GtmLoader gtmId={gtmId} gaMeasurementId={gaMeasurementId} />
+            <GtmLoader
+              gtmId={gtmId}
+              gaMeasurementId={gaMeasurementId}
+              metaPixelId={metaPixelId}
+            />
             <OkendoProvider
               nonce={nonce}
               okendoProviderData={data.okendoProviderData}
