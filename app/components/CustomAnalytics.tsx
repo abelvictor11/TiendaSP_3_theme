@@ -24,6 +24,7 @@ import type {
   SearchViewPayload,
 } from '@shopify/hydrogen';
 import {useEffect} from 'react';
+import {captureFbclid} from '~/lib/fbCookies';
 
 // ── Tipos globales para fbq (Meta Pixel) y gtag (Google Analytics) ──────────
 declare global {
@@ -31,6 +32,11 @@ declare global {
     fbq?: (...args: unknown[]) => void;
     gtag?: (...args: unknown[]) => void;
     dataLayer?: Record<string, unknown>[];
+    ttq?: {
+      page?: () => void;
+      track?: (event: string, data?: Record<string, unknown>) => void;
+      identify?: (data: Record<string, unknown>) => void;
+    } & Record<string, unknown>;
   }
 }
 
@@ -52,21 +58,40 @@ function gtagEvent(event: string, data?: Record<string, unknown>) {
   window.gtag('event', event, data);
 }
 
+function ttqEvent(event: string, data?: Record<string, unknown>) {
+  if (typeof window === 'undefined') return;
+  const ttq = window.ttq;
+  if (ttq && typeof ttq.track === 'function') {
+    ttq.track(event, data ?? {});
+  }
+}
+
 // ── Componente ───────────────────────────────────────────────────────────────
 
 export function CustomAnalytics() {
   const {subscribe} = useAnalytics();
 
   useEffect(() => {
+    // Captura fbclid inmediatamente (solo una vez al montar)
+    captureFbclid();
+
     // ── PAGE VIEW ─────────────────────────────────────────────────────────
     const unsubPage = subscribe(
       AnalyticsEvent.PAGE_VIEWED,
       (payload: PageViewPayload) => {
+        // Por si el usuario navega a una URL con ?fbclid= sin recargar
+        captureFbclid();
+
         // Meta Pixel: PageView en cada navegación SPA
         fbqEvent('PageView');
 
         // GA4: page_view en cada navegación SPA
         gtagEvent('page_view', {page_location: payload.url});
+
+        // TikTok Pixel
+        if (typeof window !== 'undefined' && window.ttq?.page) {
+          window.ttq.page();
+        }
 
         // GTM dataLayer
         pushDataLayer('page_view', {page_location: payload.url});
@@ -89,6 +114,21 @@ export function CustomAnalytics() {
           content_name: product.title,
           content_type: 'product',
           content_category: product.productType ?? '',
+          value: price,
+          currency,
+        });
+
+        // TikTok Pixel
+        ttqEvent('ViewContent', {
+          contents: [
+            {
+              content_id: product.id,
+              content_name: product.title,
+              price,
+              quantity: 1,
+            },
+          ],
+          content_type: 'product',
           value: price,
           currency,
         });
@@ -136,6 +176,21 @@ export function CustomAnalytics() {
           value: price,
           currency,
           num_items: line.quantity,
+        });
+
+        // TikTok Pixel
+        ttqEvent('AddToCart', {
+          contents: [
+            {
+              content_id: merchandise?.id,
+              content_name: productData?.title,
+              price: price / (line.quantity || 1),
+              quantity: line.quantity,
+            },
+          ],
+          content_type: 'product',
+          value: price,
+          currency,
         });
 
         // GA4
@@ -187,6 +242,9 @@ export function CustomAnalytics() {
 
         // GA4
         gtagEvent('search', {search_term: term});
+
+        // TikTok Pixel
+        ttqEvent('Search', {query: term});
 
         // GTM dataLayer
         pushDataLayer('search', {search_term: term});

@@ -15,10 +15,12 @@ export function GtmLoader({
   gtmId,
   gaMeasurementId,
   metaPixelId,
+  tiktokPixelId,
 }: {
   gtmId?: string | null;
   gaMeasurementId?: string | null;
   metaPixelId?: string | null;
+  tiktokPixelId?: string | null;
 }) {
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -84,6 +86,61 @@ export function GtmLoader({
 
       w.fbq('init', metaPixelId);
       w.fbq('track', 'PageView');
+    }
+
+    // ── 5. TikTok Pixel (ttq) ─────────────────────────────────────────────
+    if (tiktokPixelId && !w.ttq) {
+      // Snippet oficial de TikTok, adaptado: el código original usa
+      // eval y manipula document.head directamente. Lo reemplazamos por
+      // createElement para cumplir con CSP estricto.
+      const ttq: any = (w.TiktokAnalyticsObject = 'ttq');
+      w.ttq = [];
+      const methods = [
+        'page',
+        'track',
+        'identify',
+        'instances',
+        'debug',
+        'on',
+        'off',
+        'once',
+        'ready',
+        'alias',
+        'group',
+        'enableCookie',
+        'disableCookie',
+      ];
+      const tt: any = w.ttq;
+      tt.setAndDefer = (obj: any, method: string) => {
+        obj[method] = function () {
+          // eslint-disable-next-line prefer-rest-params
+          obj.push([method].concat(Array.prototype.slice.call(arguments, 0)));
+        };
+      };
+      for (const method of methods) tt.setAndDefer(tt, method);
+      tt.instance = function (id: string) {
+        const inst = tt._i[id] || [];
+        for (const method of methods) tt.setAndDefer(inst, method);
+        return inst;
+      };
+      tt.load = function (id: string, opts?: any) {
+        const url = 'https://analytics.tiktok.com/i18n/pixel/events.js';
+        tt._i = tt._i || {};
+        tt._i[id] = [];
+        tt._i[id]._u = url;
+        tt._t = tt._t || {};
+        tt._t[id] = +new Date();
+        tt._o = tt._o || {};
+        tt._o[id] = opts || {};
+        const s = document.createElement('script');
+        s.type = 'text/javascript';
+        s.async = true;
+        s.src = url + '?sdkid=' + id + '&lib=ttq';
+        document.head.appendChild(s);
+      };
+
+      tt.load(tiktokPixelId);
+      tt.page();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
