@@ -100,6 +100,7 @@ export async function loader(args: LoaderFunctionArgs) {
     publicGtmId: env.PUBLIC_GTM_ID ?? '',
     publicGaMeasurementId: env.PUBLIC_GA_MEASUREMENT_ID ?? '',
     publicMetaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
+    publicTiktokPixelId: env.PUBLIC_TIKTOK_PIXEL_ID ?? '',
     /**********   EXAMPLE UPDATE END   ************/
   });
 }
@@ -192,6 +193,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   const gtmId = data?.publicGtmId as string | null | undefined;
   const gaMeasurementId = data?.publicGaMeasurementId as string | null | undefined;
   const metaPixelId = data?.publicMetaPixelId as string | null | undefined;
+  const tiktokPixelId = data?.publicTiktokPixelId as string | null | undefined;
 
   return (
     <html lang={locale.language}>
@@ -221,6 +223,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
               gtmId={gtmId}
               gaMeasurementId={gaMeasurementId}
               metaPixelId={metaPixelId}
+              tiktokPixelId={tiktokPixelId}
             />
             <OkendoProvider
               nonce={nonce}

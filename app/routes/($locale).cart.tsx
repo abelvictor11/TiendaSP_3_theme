@@ -17,6 +17,7 @@ import {
   type OptimisticCart,
 } from '@shopify/hydrogen';
 import {isLocalPath} from '~/lib/utils';
+import {getFbCookies} from '~/lib/fbCookies';
 import {Link} from '~/components/Link';
 import {FeaturedProducts} from '~/components/FeaturedProducts';
 import {ArrowLeftIcon, CheckIcon} from '@heroicons/react/24/outline';
@@ -69,6 +70,9 @@ export async function action({request, context}: ActionFunctionArgs) {
       result = await cart.updateBuyerIdentity({
         ...inputs.buyerIdentity,
       });
+      break;
+    case CartForm.ACTIONS.AttributesUpdateInput:
+      result = await cart.updateAttributes(inputs.attributes);
       break;
     default:
       invariant(false, `${action} cart action is not defined`);
@@ -301,7 +305,7 @@ function CartSummary({
   isSkeleton?: boolean;
   lines?: any[];
 }) {
-  const handleInitiateCheckout = () => {
+  const handleInitiateCheckout = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if (typeof window === 'undefined') return;
     const currency = (cost as any)?.totalAmount?.currencyCode ?? 'COP';
     const value = parseFloat((cost as any)?.totalAmount?.amount ?? '0');
@@ -341,6 +345,21 @@ function CartSummary({
         event_id: eventId,
       });
     }
+    // TikTok Pixel
+    if (w.ttq && typeof w.ttq.track === 'function') {
+      w.ttq.track('InitiateCheckout', {
+        contents: items.map((i) => ({
+          content_id: i.item_id,
+          content_name: i.item_name,
+          price: i.price,
+          quantity: i.quantity,
+        })),
+        content_type: 'product',
+        value,
+        currency,
+        event_id: eventId,
+      });
+    }
     // GTM dataLayer
     w.dataLayer = w.dataLayer ?? [];
     w.dataLayer.push({ecommerce: null});
@@ -348,6 +367,35 @@ function CartSummary({
       event: 'begin_checkout',
       ecommerce: {currency, value, items, event_id: eventId},
     });
+
+    // ── Persistir fbp/fbc + user_agent como cart attributes para CAPI ─────
+    // El checkout está en dominio distinto, las cookies no cruzan. Los cart
+    // attributes quedan en la orden y son leídos por /webhooks/meta-capi.
+    const fb = getFbCookies();
+    const attributes: Array<{key: string; value: string}> = [];
+    if (fb.fbp) attributes.push({key: '_fbp', value: fb.fbp});
+    if (fb.fbc) attributes.push({key: '_fbc', value: fb.fbc});
+    if (navigator?.userAgent) {
+      attributes.push({key: '_client_user_agent', value: navigator.userAgent});
+    }
+    attributes.push({key: '_client_event_id', value: eventId});
+
+    if (attributes.length > 0 && checkoutUrl) {
+      // Preventimos el redirect inmediato, guardamos attributes, y luego vamos.
+      e.preventDefault();
+      const form = new FormData();
+      form.set(
+        '[CartForm]',
+        JSON.stringify({action: 'AttributesUpdateInput', inputs: {attributes}}),
+      );
+      fetch('/cart', {method: 'POST', body: form, keepalive: true})
+        .catch(() => {
+          // Si falla, no bloqueamos la compra
+        })
+        .finally(() => {
+          window.location.href = checkoutUrl;
+        });
+    }
   };
   return (
     <>

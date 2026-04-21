@@ -67,14 +67,27 @@ type UserData = {
   fbp?: string;
 };
 
+function getAttr(data: Record<string, any>, key: string): string | undefined {
+  // Shopify webhook: note_attributes es un array [{name, value}]
+  const attrs = data.note_attributes ?? data.attributes ?? [];
+  const found = attrs.find?.((a: any) => a?.name === key || a?.key === key);
+  return found?.value;
+}
+
 async function buildUserData(
   data: Record<string, any>,
   req: Request,
 ): Promise<UserData> {
   const user: UserData = {
     client_ip_address:
-      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? undefined,
-    client_user_agent: req.headers.get('user-agent') ?? undefined,
+      data.client_details?.browser_ip ??
+      req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ??
+      undefined,
+    client_user_agent:
+      getAttr(data, '_client_user_agent') ??
+      data.client_details?.user_agent ??
+      req.headers.get('user-agent') ??
+      undefined,
   };
   if (data.email) user.em = [await sha256(String(data.email))];
   if (data.phone) user.ph = [await sha256(String(data.phone))];
@@ -82,6 +95,13 @@ async function buildUserData(
     user.em = [await sha256(String(data.customer.email))];
   if (data.customer?.phone && !user.ph)
     user.ph = [await sha256(String(data.customer.phone))];
+
+  // fbp/fbc persistidos como cart attributes antes del checkout
+  const fbp = getAttr(data, '_fbp');
+  const fbc = getAttr(data, '_fbc');
+  if (fbp) user.fbp = fbp;
+  if (fbc) user.fbc = fbc;
+
   return user;
 }
 
@@ -146,7 +166,8 @@ export async function action({request, context}: ActionFunctionArgs) {
     }
     case 'checkouts/create': {
       eventName = 'InitiateCheckout';
-      eventId = `shopify_checkout_${data.id}`;
+      // Prefiere event_id del cliente (guardado como cart attribute) para dedup
+      eventId = getAttr(data, '_client_event_id') ?? `shopify_checkout_${data.id}`;
       customData.value = parseFloat(data.total_price ?? '0');
       customData.content_ids = (data.line_items ?? []).map((l: any) =>
         String(l.product_id),
