@@ -39,6 +39,7 @@ import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import BagIcon from '~/components/BagIcon';
 import {NoSymbolIcon} from '@heroicons/react/24/outline';
 import {getProductStatus, ProductBadge} from '~/components/ProductCard';
+import ShippingBadge from '~/components/ShippingBadge';
 import {useGetPublicStoreCdnStaticUrlFromRootLoaderData} from '~/hooks/useGetPublicStoreCdnStaticUrlFromRootLoaderData';
 import ButtonSecondary from '~/components/Button/ButtonSecondary';
 import LikeButton from '~/components/LikeButton';
@@ -429,6 +430,9 @@ export function ProductForm({
     }
   })();
 
+  // Shipping badge (metaobject reference) — ej. "Llega en 24 horas"
+  const shippingBadgeMetaobject = (product as any)?.shipping_badge?.reference;
+
   return (
     <>
       {/* ---------- HEADING ----------  */}
@@ -517,6 +521,11 @@ export function ProductForm({
                 ))}
               </div>
             </>
+          )}
+
+          {/* Shipping Badge (metaobject: ej. "Llega en 24 horas") */}
+          {shippingBadgeMetaobject && (
+            <ShippingBadge metaobject={shippingBadgeMetaobject} size="md" />
           )}
         </div>
       </div>
@@ -975,6 +984,19 @@ const PRODUCT_FRAGMENT = `#graphql
         value
         namespace
         key
+      }
+      # Badge de envío (metaobject reference)
+      shipping_badge: metafield(namespace: "custom", key: "shipping_badge") {
+        reference {
+          ... on Metaobject {
+            type
+            label: field(key: "label") { value }
+            icon_emoji: field(key: "icon_emoji") { value }
+            background_color: field(key: "background_color") { value }
+            text_color: field(key: "text_color") { value }
+            priority: field(key: "priority") { value }
+          }
+        }
       }
       # Especificaciones técnicas
       specs_dimensiones: metafield(namespace: "specs", key:"dimensiones") {

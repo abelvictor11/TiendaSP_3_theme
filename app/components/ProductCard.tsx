@@ -2,6 +2,7 @@ import {type FC} from 'react';
 import Prices from './Prices';
 import {StarIcon} from '@heroicons/react/24/solid';
 import ProductStatus from './ProductStatus';
+import ShippingBadge from './ShippingBadge';
 import {Image} from '@shopify/hydrogen';
 import {Link} from './Link';
 import {type CommonProductCardFragment} from 'storefrontapi.generated';
@@ -55,6 +56,8 @@ const ProductCard: FC<ProductCardProps> = ({
     material,
     envio_gratis,
   } = product;
+
+  const shippingBadgeMetaobject = (product as any)?.shipping_badge?.reference;
 
   // Segunda imagen para hover (producto en uso/contexto)
   const secondImage = images?.edges?.[1]?.node;
@@ -301,6 +304,10 @@ const ProductCard: FC<ProductCardProps> = ({
               }`}>
                 {uso_tipo.value}
               </span>
+            )}
+            {/* Shipping Badge (metaobject: ej. "Llega en 24 horas") */}
+            {shippingBadgeMetaobject && (
+              <ShippingBadge metaobject={shippingBadgeMetaobject} size="sm" />
             )}
           </div>
           {renderWishlistButton()}

@@ -638,3 +638,12 @@ a[target='_blank'].has-end-icon::after {
   content: '\2197';
   margin-left: 2px;
 }
+
+/* ShippingBadge: pulse sutil para emoji */
+@keyframes shippingBadgePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.75; transform: scale(1.08); }
+}
+.animate-pulse-soft {
+  animation: shippingBadgePulse 2.4s ease-in-out infinite;
+}

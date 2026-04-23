@@ -186,6 +186,19 @@ export const COMMON_PRODUCT_CARD_FRAGMENT = `#graphql
     envio_gratis: metafield(namespace: "custom", key: "envio_gratis") {
       value
     }
+    # Badge de envío (metaobject reference)
+    shipping_badge: metafield(namespace: "custom", key: "shipping_badge") {
+      reference {
+        ... on Metaobject {
+          type
+          label: field(key: "label") { value }
+          icon_emoji: field(key: "icon_emoji") { value }
+          background_color: field(key: "background_color") { value }
+          text_color: field(key: "text_color") { value }
+          priority: field(key: "priority") { value }
+        }
+      }
+    }
   } 
 `;
 //
