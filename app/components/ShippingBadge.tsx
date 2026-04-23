@@ -59,9 +59,9 @@ const ShippingBadge: FC<ShippingBadgeProps> = ({
 
   const sizeClasses =
     size === 'md'
-      ? 'gap-1.5 px-3 py-1.5 text-xs'
-      : 'gap-1 px-2 py-0.5 text-[10px]';
-  const emojiSize = size === 'md' ? 'text-sm' : 'text-[11px]';
+      ? 'gap-1.5 px-2.5 py-1 text-xs'
+      : 'gap-1 px-2.5 py-1 text-xs';
+  const emojiSize = size === 'md' ? 'text-sm' : 'text-xs';
 
   return (
     <span
