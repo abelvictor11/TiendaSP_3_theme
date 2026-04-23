@@ -473,6 +473,13 @@ export function ProductForm({
           </p>
         )}
 
+        {/* Shipping Badge (metaobject: ej. "Llega en 24 horas") — encima del H1 */}
+        {shippingBadgeMetaobject && (
+          <div className="mb-2">
+            <ShippingBadge metaobject={shippingBadgeMetaobject} size="md" />
+          </div>
+        )}
+
         <h1
           className="text-2xl sm:text-3xl font-semibold"
           title={product.title}
@@ -523,10 +530,6 @@ export function ProductForm({
             </>
           )}
 
-          {/* Shipping Badge (metaobject: ej. "Llega en 24 horas") */}
-          {shippingBadgeMetaobject && (
-            <ShippingBadge metaobject={shippingBadgeMetaobject} size="md" />
-          )}
         </div>
       </div>
 
