@@ -12,9 +12,6 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
     featured_collection?: any;
   }>(props);
 
-  // Debug: Ver todos los campos disponibles
-  console.log('SectionProductTestimonial - All section fields:', section);
-
   const {
     brand_title,
     quote_text,
@@ -37,16 +34,10 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
   let products: any[] = [];
   const collection = (featured_collection as any);
   
-  console.log('SectionProductTestimonial - featured_collection:', featured_collection);
-  console.log('SectionProductTestimonial - collection:', collection);
-  
   // Get products from the actual collection (no demo products - they break ProductCard)
   if (collection && collection.products) {
     products = collection.products?.nodes?.slice(0, 5) || [];
   }
-  
-  console.log('SectionProductTestimonial - products:', products);
-  console.log('SectionProductTestimonial - products length:', products.length);
   
   const sliderRef = useRef<HTMLDivElement>(null);
   const {scrollToNextSlide, scrollToPrevSlide} = useSnapSlider({sliderRef});
@@ -164,8 +155,6 @@ export function SectionProductTestimonial(props: SectionProductTestimonialFragme
                 className="relative flex gap-4 snap-x snap-mandatory overflow-x-auto"
               >
                 {products.slice(0, 5).map((product: any, index: number) => {
-                  console.log(`Rendering product ${index}:`, product);
-                  
                   return (
                     <div
                       key={product.id}

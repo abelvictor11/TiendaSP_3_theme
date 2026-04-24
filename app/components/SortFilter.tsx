@@ -45,14 +45,7 @@ import ButtonClose from './ButtonClose';
 import {MyAdjustmentsIcon} from './Icons/MyAdjustmentsIcon';
 import type {RootLoader} from '~/root';
 
-const Slider = lazy(() => delayForDemo(import('rc-slider')));
-
-// Add a fixed delay so you can see the loading state
-function delayForDemo(promise: Promise<any>) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, 100);
-  }).then(() => promise);
-}
+const Slider = lazy(() => import('rc-slider'));
 
 export type MyProductFilter =
   | (Pick<Filter, 'id' | 'label' | 'type'> & {
