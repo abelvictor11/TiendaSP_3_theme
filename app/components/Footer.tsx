@@ -121,6 +121,26 @@ const Footer: React.FC<FooterProps> = () => {
           </p>
         </div>
       </div>
+
+      {/* Footer bottom — Certificaciones y sellos de confianza */}
+      <div className="border-t border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8 py-6 flex flex-wrap items-center justify-center gap-6">
+          <a
+            href="https://www.sic.gov.co"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block transition-opacity hover:opacity-80"
+            aria-label="Vigilado Superintendencia de Industria y Comercio"
+          >
+            <img
+              src="https://cdn.shopify.com/s/files/1/0646/1761/1341/files/sic-1.webp?v=1776991272"
+              alt="Vigilado SIC"
+              className="h-14 w-auto object-contain"
+              loading="lazy"
+            />
+          </a>
+        </div>
+      </div>
     </footer>
   );
 };
