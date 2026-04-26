@@ -117,19 +117,19 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks, se
             </div>
           </div>
          
-          {/* Menu Button - Mobile opens NavMobile, Desktop opens MegaMenu */}
-          {storeConfig.showMenuButton && (
-            <div className="flex items-center">
-              {/* Mobile button - opens mobile menu */}
-              <button
-                className="lg:hidden flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-[#efefef] dark:hover:bg-slate-800 focus:outline-none transition-colors"
-                onClick={() => open('mobile')}
-                type="button"
-                aria-label="Open menu"
-              >
-                <Bars3Icon className="w-5 h-5" aria-hidden="true" />
-              </button>
-              {/* Desktop button - opens mega menu */}
+          {/* Menu Button - Mobile always visible, Desktop controlled by showMenuButton */}
+          <div className="flex items-center">
+            {/* Mobile hamburger — always visible on small screens */}
+            <button
+              className="lg:hidden flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-[#efefef] dark:hover:bg-slate-800 focus:outline-none transition-colors"
+              onClick={() => open('mobile')}
+              type="button"
+              aria-label="Abrir menú"
+            >
+              <Bars3Icon className="w-5 h-5" aria-hidden="true" />
+            </button>
+            {/* Desktop "Menú" text button — controlled by showMenuButton */}
+            {storeConfig.showMenuButton && (
               <button
                 className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg text-slate-900 dark:text-slate-100 hover:bg-[#efefef] dark:hover:bg-slate-800 focus:outline-none transition-colors"
                 onClick={() => open('desktop-menu')}
@@ -139,8 +139,8 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks, se
                 <Bars3Icon className="w-5 h-5" aria-hidden="true" />
                 <span className="text-sm font-medium">Menú</span>
               </button>
-            </div>
-          )}
+            )}
+          </div>
 
           {/* Desktop Search Input with Autocomplete - Hidden on mobile */}
           <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
