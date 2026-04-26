@@ -48,11 +48,17 @@ function root({
   };
 }
 
-function home({url}: {url: Request['url']}): SeoConfig {
+function home({
+  shop,
+  url,
+}: {
+  shop?: {name?: string | null; description?: string | null};
+  url: Request['url'];
+}): SeoConfig {
   return {
-    title: 'Home',
+    title: shop?.name ?? 'Home',
     titleTemplate: '%s | Cyclewear',
-    description: 'The best place to buy snowboarding products',
+    description: truncate(shop?.description ?? ''),
     url,
     robots: {
       noIndex: false,
@@ -61,7 +67,7 @@ function home({url}: {url: Request['url']}): SeoConfig {
     jsonLd: {
       '@context': 'https://schema.org',
       '@type': 'WebPage',
-      name: 'Home page',
+      name: shop?.name ?? 'Home page',
     },
   };
 }

@@ -71,7 +71,7 @@ async function loadCriticalData({
   return {
     shop,
     route,
-    seo: seoPayload.home({url: request.url}),
+    seo: seoPayload.home({shop, url: request.url}),
   };
 }
 

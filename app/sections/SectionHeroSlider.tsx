@@ -185,6 +185,25 @@ export function SectionHeroSlider(props: SectionHeroSliderFragment) {
   );
 }
 
+// Maps a "vertical-horizontal" position string to Tailwind flex classes
+function getPositionClasses(position: string): {
+  flex: string;
+  text: string;
+} {
+  const map: Record<string, {flex: string; text: string}> = {
+    'top-left':      {flex: 'items-start justify-start',  text: 'text-left'},
+    'top-center':    {flex: 'items-start justify-center', text: 'text-center'},
+    'top-right':     {flex: 'items-start justify-end',    text: 'text-right'},
+    'center-left':   {flex: 'items-center justify-start', text: 'text-left'},
+    'center-center': {flex: 'items-center justify-center',text: 'text-center'},
+    'center-right':  {flex: 'items-center justify-end',   text: 'text-right'},
+    'bottom-left':   {flex: 'items-end justify-start',    text: 'text-left'},
+    'bottom-center': {flex: 'items-end justify-center',   text: 'text-center'},
+    'bottom-right':  {flex: 'items-end justify-end',      text: 'text-right'},
+  };
+  return map[position] ?? map['center-left'];
+}
+
 const SectionItem = ({section}: {section: HeroItemFragment}) => {
   const item = parseSection<
     HeroItemFragment,
@@ -201,6 +220,10 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
   const subheadingColor = (item as any).subheading_color?.value || '#475569';
   const buttonBgColor = (item as any).button_bg_color?.value || '#1e293b';
   const buttonTextColor = (item as any).button_text_color?.value || '#ffffff';
+
+  // Content block position (default: center-left)
+  const rawPosition = (item as any).content_position?.value || 'center-left';
+  const positionClasses = getPositionClasses(rawPosition);
 
   // Determine if this hero item has text content
   const hasTextContent = !!(item.heading?.value || item.sub_heading?.value || item.cta_button?.text?.value);
@@ -258,9 +281,9 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
 
       {/* CONTENT - Only show text overlay if there is text content */}
       {hasTextContent && (
-        <div className="relative z-10 h-full flex items-center">
+        <div className={`relative z-10 h-full flex pb-8 pt-8 ${positionClasses.flex}`}>
           <div className="container">
-            <div className="nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8">
+            <div className={`nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8 ${positionClasses.text}`}>
               <div className="space-y-3 sm:space-y-4">
                 {!!item.heading?.value && (
                   <h2
@@ -279,29 +302,31 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
               </div>
 
               {!!item.cta_button?.href?.value && (
-                <a
-                  href={item.cta_button.href.value}
-                  target={linkTarget}
-                  rel={linkRel}
-                  className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded-xl border border-current transition-all duration-200 hover:opacity-90"
-                  style={{
-                    backgroundColor: buttonBgColor,
-                    color: buttonTextColor,
-                    borderColor: buttonBgColor,
-                  }}
-                >
-                  <span>{item.cta_button?.text?.value || 'Ver más'}</span>
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    fill="none" 
-                    viewBox="0 0 24 24" 
-                    strokeWidth="2" 
-                    stroke="currentColor" 
-                    className="w-5 h-5 transition-transform duration-200 ease-in-out group-hover:translate-x-1"
+                <div className={positionClasses.text === 'text-left' ? 'flex justify-start' : positionClasses.text === 'text-right' ? 'flex justify-end' : 'flex justify-center'}>
+                  <a
+                    href={item.cta_button.href.value}
+                    target={linkTarget}
+                    rel={linkRel}
+                    className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded-xl border border-current transition-all duration-200 hover:opacity-90"
+                    style={{
+                      backgroundColor: buttonBgColor,
+                      color: buttonTextColor,
+                      borderColor: buttonBgColor,
+                    }}
                   >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-                  </svg>
-                </a>
+                    <span>{item.cta_button?.text?.value || 'Ver más'}</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                      className="w-5 h-5 ml-2 transition-transform duration-200 ease-in-out group-hover:translate-x-1"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+                    </svg>
+                  </a>
+                </div>
               )}
             </div>
           </div>
@@ -392,6 +417,9 @@ export const HERO_ITEM_FRAGMENT = `#graphql
         value
       }
       button_text_color: field(key: "button_text_color") {
+        value
+      }
+      content_position: field(key: "content_position") {
         value
       }
   }

@@ -93,9 +93,28 @@ const MainNav: FC<Props> = ({className = '', isHome, brands = [], quickLinks, se
       <div className="px-8">
         <div className="h-16 sm:h-20 flex justify-between items-center">
          
-          {/* Logo - Centered on mobile, left on desktop */}
+          {/* Logo - mini SVG on mobile, full logo on desktop */}
           <div className="flex items-center justify-center lg:justify-start flex-1 lg:flex-initial">
-            <Logo />
+            {/* Mobile: compact SVG icon (same as sticky header) */}
+            <Link
+              to="/"
+              className="block lg:hidden text-slate-900 dark:text-white"
+              aria-label="Inicio"
+            >
+              <svg
+                version="1.1"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlnsXlink="http://www.w3.org/1999/xlink"
+                viewBox={storeConfig.stickyLogoViewBox}
+                xmlSpace="preserve"
+                className="h-7 w-auto fill-current"
+                dangerouslySetInnerHTML={{__html: storeConfig.stickyLogoSvg}}
+              />
+            </Link>
+            {/* Desktop: full brand logo */}
+            <div className="hidden lg:block">
+              <Logo />
+            </div>
           </div>
          
           {/* Menu Button - Mobile opens NavMobile, Desktop opens MegaMenu */}
