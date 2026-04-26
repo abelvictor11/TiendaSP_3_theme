@@ -146,7 +146,7 @@ export function SortFilter({filters, defaultPriceFilter, sorts}: Props) {
     .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
 
   return (
-    <div className="flex justify-between flex-1 gap-x-16 gap-y-3">
+    <div className="flex justify-between flex-1 gap-x-4 lg:gap-x-16 gap-y-3">
       <div className="flex flex-1 lg:gap-x-4">
         {/* FOR DESKTOP */}
         <div className="hidden lg:flex flex-1 flex-wrap gap-4">

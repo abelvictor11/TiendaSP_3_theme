@@ -154,7 +154,7 @@ export default function ChildCollection() {
   const totalProducts = getProductTotalByFilter(availabilityFilter?.values as any);
 
   return (
-    <div className="nc-PageCollection pb-20 lg:pb-28 xl:pb-32">
+    <div className="nc-PageCollection pb-20 lg:pb-28 xl:pb-32 overflow-x-clip">
       {/* Subcollections Bar */}
       {subcollections.length > 0 && (
         <div
@@ -328,7 +328,7 @@ function ChildCollectionContent({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         {/* Mobile Filters + Sort */}
         <div className="lg:hidden mb-8">
           <SortFilter

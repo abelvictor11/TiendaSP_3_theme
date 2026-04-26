@@ -129,7 +129,7 @@ export default function Collection() {
   const parentHandle = collection.handle;
 
   return (
-    <div className="nc-PageCollection pb-20 lg:pb-28 xl:pb-32">
+    <div className="nc-PageCollection pb-20 lg:pb-28 xl:pb-32 overflow-x-clip">
       {/* Subcollections Bar */}
       {subcollections.length > 0 && (
         <div id="subcollections-bar" className="nc-SubcollectionsBar border-b border-t border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900">
@@ -306,7 +306,7 @@ function CollectionContent({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1">
+      <div className="flex-1 min-w-0">
         {/* Mobile Filters + Sort */}
         <div className="lg:hidden mb-8">
           <SortFilter
