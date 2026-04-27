@@ -4,7 +4,7 @@ import {
   type MetaArgs,
   type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
-import {useLoaderData, Await, useRouteLoaderData} from '@remix-run/react';
+import {useLoaderData, Await, useRouteLoaderData, isRouteErrorResponse, useRouteError, Link as RemixLink} from '@remix-run/react';
 import {
   type VariantOption,
   Image,
@@ -183,6 +183,58 @@ function loadDeferredData(args: LoaderFunctionArgs) {
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
   return getSeoMeta(...matches.map((match) => (match.data as any).seo));
 };
+
+/**
+ * ErrorBoundary — captures any uncaught error in the loader OR component tree
+ * for this route. Without this, a runtime error blanks the page and Remix
+ * bubbles up to the root error boundary, which gives users a frozen-looking
+ * experience when navigating client-side.
+ *
+ * Covers three cases:
+ *  - 404 (product not found)
+ *  - Other Response errors (5xx, etc.)
+ *  - Uncaught JS errors during render (e.g. ReferenceError in a component)
+ */
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isResponseError = isRouteErrorResponse(error);
+  const is404 = isResponseError && error.status === 404;
+
+  // Log non-404 errors for observability
+  if (!is404 && typeof window !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.error('[PDP ErrorBoundary]', error);
+  }
+
+  return (
+    <div className="container py-20 lg:py-28 text-center">
+      <div className="max-w-md mx-auto">
+        <h1 className="text-3xl sm:text-4xl font-semibold mb-4">
+          {is404 ? 'Producto no encontrado' : 'Algo salió mal'}
+        </h1>
+        <p className="text-neutral-500 dark:text-neutral-400 mb-8">
+          {is404
+            ? 'Este producto ya no está disponible o la dirección es incorrecta.'
+            : 'No pudimos cargar este producto. Por favor intenta nuevamente o vuelve al inicio.'}
+        </p>
+        <div className="flex items-center justify-center gap-3">
+          <RemixLink
+            to="/"
+            className="inline-flex items-center px-5 py-3 rounded-full bg-slate-900 text-white text-sm font-medium hover:bg-slate-700 transition-colors"
+          >
+            Volver al inicio
+          </RemixLink>
+          <RemixLink
+            to="/collections"
+            className="inline-flex items-center px-5 py-3 rounded-full border border-slate-300 text-slate-900 text-sm font-medium hover:bg-slate-50 transition-colors dark:text-white dark:border-slate-600 dark:hover:bg-slate-800"
+          >
+            Ver productos
+          </RemixLink>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Product() {
   const {product, shop, recommended, variants, routePromise, storeDomain, helpBannerPromise, creditCalculatorConfig} =
