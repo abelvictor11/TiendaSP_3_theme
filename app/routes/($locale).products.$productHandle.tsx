@@ -585,6 +585,11 @@ export function ProductForm({
             compareAtPrice={selectedVariant?.compareAtPrice}
           />
 
+          {/* Out of stock badge */}
+          {isOutOfStock && (
+            <ProductBadge status={status} />
+          )}
+
           {/* Custom Badges */}
           {customBadges.length > 0 && (
             <>
