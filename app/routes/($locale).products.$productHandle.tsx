@@ -1,4 +1,4 @@
-import {Suspense, useState} from 'react';
+import {Suspense, useState, useRef, useEffect} from 'react';
 import {
   defer,
   type MetaArgs,
@@ -37,7 +37,7 @@ import NcInputNumber from '~/components/NcInputNumber';
 import Policy from '~/components/Policy';
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import BagIcon from '~/components/BagIcon';
-import {NoSymbolIcon} from '@heroicons/react/24/outline';
+import {NoSymbolIcon, ChevronDownIcon} from '@heroicons/react/24/outline';
 import {getProductStatus, ProductBadge} from '~/components/ProductCard';
 import {useGetPublicStoreCdnStaticUrlFromRootLoaderData} from '~/hooks/useGetPublicStoreCdnStaticUrlFromRootLoaderData';
 import ButtonSecondary from '~/components/Button/ButtonSecondary';
@@ -226,7 +226,17 @@ export default function Product() {
       <main className="container">
         <div className="lg:flex lg:gap-0 lg:relative">
           {/* Left Column - Galleries + Description (independent scroll on desktop) */}
-          <div className="w-full lg:w-[55%] lg:sticky lg:top-0 lg:self-start lg:max-h-screen lg:overflow-y-auto pdp-scroll-col">
+          <div className="w-full lg:w-[55%] lg:sticky lg:top-0 lg:self-start relative">
+            {/* Scroll indicator: gradient + bouncing chevron, only on desktop */}
+            <div
+              aria-hidden="true"
+              className={`hidden lg:block absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-white to-transparent pointer-events-none z-20 transition-opacity duration-500 ${showScrollHint ? 'opacity-100' : 'opacity-0'}`}
+            >
+              <div className="absolute bottom-3 inset-x-0 flex justify-center">
+                <ChevronDownIcon className="w-5 h-5 text-slate-400 animate-bounce" />
+              </div>
+            </div>
+          <div ref={scrollColRef} className="lg:max-h-screen lg:overflow-y-auto pdp-scroll-col">
             {/* Galleries */}
             <div className="relative lg:pt-4">
               <ProductGallery
@@ -258,7 +268,8 @@ export default function Product() {
                 <ProductSpecs metafields={metafields} barcode={selectedVariant?.barcode} />
               </div>
             </div>
-          </div>
+          </div>{/* closes inner scroll div */}
+          </div>{/* closes outer sticky div */}
 
           {/* Right Column - Product Info (independent scroll on desktop) */}
           <div className="w-full lg:w-[45%] pt-10 lg:pt-0 lg:pl-7 xl:pl-9 2xl:pl-10 lg:sticky lg:top-0 lg:self-start lg:max-h-screen lg:overflow-y-auto pdp-scroll-col">
@@ -464,6 +475,22 @@ export function ProductForm({
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
   const isOutOfStock = !selectedVariant?.availableForSale;
+
+  // Scroll indicator for left column
+  const scrollColRef = useRef<HTMLDivElement>(null);
+  const [showScrollHint, setShowScrollHint] = useState(true);
+  useEffect(() => {
+    const el = scrollColRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      if (el.scrollTop > 40) setShowScrollHint(false);
+      else setShowScrollHint(true);
+    };
+    el.addEventListener('scroll', onScroll, {passive: true});
+    // Hide immediately if content doesn't overflow
+    if (el.scrollHeight <= el.clientHeight) setShowScrollHint(false);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
 
   const status = getProductStatus({
     availableForSale: !!selectedVariant?.availableForSale,
