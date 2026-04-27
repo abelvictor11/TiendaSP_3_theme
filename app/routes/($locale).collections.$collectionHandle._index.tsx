@@ -85,11 +85,11 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
 
   let slicedNodes: any[] = [];
   let pageFilters: any[] = baseCollection.products.filters;
+  let stockFirstTotal: number | null = null;
 
   if (useStockFirst) {
     const result = await fetchProductsStockFirst({
       storefront: context.storefront,
-      query: COLLECTION_QUERY,
       handle: collectionHandle,
       page,
       pageSize: PAGE_SIZE,
@@ -98,10 +98,13 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
       reverse,
       country: context.storefront.i18n.country,
       language: context.storefront.i18n.language,
-      availabilityFacet,
     });
     slicedNodes = result.nodes;
     if (result.filters.length) pageFilters = result.filters;
+    // Use the deduplicated total from the meta query (correct, accounts for
+    // mixed-availability products). Fall back to facet sum if the collection
+    // exceeded the 250-product cap.
+    stockFirstTotal = result.truncated ? null : result.total;
   } else {
     // Original cursor-based pagination path (used when user already filtered
     // by availability or when there's no availability facet).
@@ -160,12 +163,12 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
     (filter: Filter) => filter.id === 'filter.v.price',
   );
 
-  // Compute the true total (accounts for an applied availability filter,
-  // since Shopify's facet still shows would-be counts for the unselected value).
-  const totalProducts = getTotalProductsForAppliedFilters(
-    filters,
-    availabilityFacet,
-  );
+  // Prefer the deduplicated stock-first total when available; otherwise
+  // compute from the availability facet (handles applied availability filter
+  // and the >250 truncation case).
+  const totalProducts =
+    stockFirstTotal ??
+    getTotalProductsForAppliedFilters(filters, availabilityFacet);
 
   return defer({
     routePromise,

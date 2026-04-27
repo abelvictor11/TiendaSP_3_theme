@@ -92,11 +92,11 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
 
   let pageNodes: any[] = [];
   let pageFilters: any[] = baseChildCollection.products.filters;
+  let stockFirstTotal: number | null = null;
 
   if (useStockFirst) {
     const result = await fetchProductsStockFirst({
       storefront: context.storefront,
-      query: CHILD_COLLECTION_QUERY,
       handle: childHandle,
       page,
       pageSize: PAGE_SIZE,
@@ -105,10 +105,10 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
       reverse,
       country: context.storefront.i18n.country,
       language: context.storefront.i18n.language,
-      availabilityFacet,
     });
     pageNodes = result.nodes;
     if (result.filters.length) pageFilters = result.filters;
+    stockFirstTotal = result.truncated ? null : result.total;
   } else {
     let afterCursor: string | null = null;
     if (page > 1) {
@@ -173,10 +173,9 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   const subcollections =
     parentCollection?.subcollections?.references?.nodes || [];
 
-  const totalProducts = getTotalProductsForAppliedFilters(
-    filters,
-    availabilityFacet,
-  );
+  const totalProducts =
+    stockFirstTotal ??
+    getTotalProductsForAppliedFilters(filters, availabilityFacet);
 
   return defer({
     routePromise,

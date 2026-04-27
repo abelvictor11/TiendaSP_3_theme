@@ -5,28 +5,40 @@
  * "Push out-of-stock products to the end" setting for collection queries —
  * that setting only applies to search/predictive search results.
  *
- * To deliver the same UX for collections, we run two parallel queries
- * (in-stock first, out-of-stock second) and stitch them together while
- * preserving page-based pagination.
+ * To deliver the same UX for collections, we:
+ *   1. Run a lightweight query that returns just `id` and `availableForSale`
+ *      for all matching products in the collection (up to 250).
+ *   2. Reorder the ID list so in-stock products come first.
+ *   3. Slice the ordered list for the requested page.
+ *   4. Fetch full product data for that page's IDs via `nodes(ids: ...)`.
+ *
+ * Why not use `available:true` / `available:false` filters for stitching?
+ * Because product-level availability filters operate per-variant: a product
+ * with one in-stock size and one out-of-stock size matches BOTH filters,
+ * causing duplicates and miscounts. The product-level `availableForSale`
+ * field is the single source of truth, so we use it client-side.
  *
  * Behavior:
  * - When the user already applied an availability filter (`available:true`
- *   or `available:false`), we skip the stitching and just respect the filter.
- * - When sort is anything other than the default ("featured" / no sort param),
- *   we still apply stock-first because the user usually expects in-stock
- *   results to appear before sold-out ones regardless of sort. Disable this
- *   by passing `applyOnDefaultSortOnly: true`.
- *
- * Returns the same shape that the existing loaders use: a `nodes` array
- * for the current page plus the filters from one of the queries.
+ *   or `available:false`), we skip stock-first stitching and respect the
+ *   filter (caller decides this via `hasAvailabilityFilter`).
+ * - When the collection has more than 250 matching products, the order
+ *   for products beyond #250 is whatever Shopify returns (we still
+ *   preserve in-stock-first within the first 250 — adequate for any
+ *   reasonable browse-and-paginate UX).
  */
 import type {ProductFilter} from '@shopify/hydrogen/storefront-api-types';
+import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
 
-interface FetchPageArgs {
+const STOREFRONT_MAX_NODES = 250;
+
+interface FetchArgs {
   storefront: {
-    query: (query: string, options: {variables: Record<string, unknown>}) => Promise<any>;
+    query: (
+      query: string,
+      options: {variables: Record<string, unknown>},
+    ) => Promise<any>;
   };
-  query: string;
   handle: string;
   page: number;
   pageSize: number;
@@ -40,93 +52,35 @@ interface FetchPageArgs {
 interface PagedResult {
   nodes: any[];
   filters: any[];
+  total: number;
   totalInStock: number;
   totalOutOfStock: number;
+  /** True if the collection had more than 250 matching products; total may under-count. */
+  truncated: boolean;
 }
 
 /**
  * Detect whether the user has explicitly filtered by availability.
- * If so, we skip the stock-first stitching.
+ * If so, the caller should skip stock-first stitching.
  */
 export function hasAvailabilityFilter(filters: ProductFilter[]): boolean {
   return filters.some((f) => 'available' in (f as Record<string, unknown>));
 }
 
 /**
- * Fetch a single page of products from a collection with a specific
- * availability filter, using cursor-based pagination internally.
+ * Sum the counts in the availability facet. Used by the caller as a
+ * fallback total when stock-first stitching is bypassed.
  */
-async function fetchSingleAvailabilitySlice(
-  args: FetchPageArgs & {available: boolean; sliceOffset: number; sliceSize: number},
-): Promise<{nodes: any[]; filters: any[]}> {
-  const {
-    storefront,
-    query,
-    handle,
-    sliceOffset,
-    sliceSize,
-    sortKey,
-    reverse,
-    country,
-    language,
-  } = args;
-
-  // Combine user filters with the availability filter
-  const combinedFilters: ProductFilter[] = [
-    ...args.filters.filter((f) => !('available' in (f as Record<string, unknown>))),
-    {available: args.available} as ProductFilter,
-  ];
-
-  // Get the cursor at sliceOffset (skip that many products)
-  let afterCursor: string | null = null;
-  if (sliceOffset > 0) {
-    const {collection: cursorCollection} = await storefront.query(query, {
-      variables: {
-        first: sliceOffset,
-        handle,
-        filters: combinedFilters,
-        sortKey,
-        reverse,
-        country,
-        language,
-      },
-    });
-    afterCursor = cursorCollection?.products?.pageInfo?.endCursor || null;
-    // If there's no cursor, the collection has fewer products than sliceOffset
-    if (!afterCursor) return {nodes: [], filters: []};
-  }
-
-  const {collection} = await storefront.query(query, {
-    variables: {
-      first: sliceSize,
-      after: afterCursor,
-      handle,
-      filters: combinedFilters,
-      sortKey,
-      reverse,
-      country,
-      language,
-    },
-  });
-
-  return {
-    nodes: collection?.products?.nodes ?? [],
-    filters: collection?.products?.filters ?? [],
-  };
+function sumAvailabilityFacet(facet: any): number {
+  if (!facet?.values?.length) return 0;
+  return facet.values.reduce(
+    (acc: number, v: any) => acc + (v.count ?? 0),
+    0,
+  );
 }
 
-/**
- * Get a count of products matching a filter by reading the filter facet.
- * Cheaper than counting nodes — Shopify returns the count for free in the
- * filter facet values. We use the `availability` filter facet specifically.
- */
-export function getCountFromAvailabilityFacet(
-  filters: any[],
-  available: boolean,
-): number {
-  const facet = filters.find((f: any) => f.id === 'filter.v.availability');
-  if (!facet) return 0;
-  // Shopify uses values like {label: 'En existencia', count: 20, input: '{"available":true}'}
+function getCountFromAvailabilityFacet(facet: any, available: boolean): number {
+  if (!facet?.values?.length) return 0;
   const target = facet.values.find((v: any) => {
     try {
       const input = JSON.parse(v.input) as {available?: boolean};
@@ -139,114 +93,172 @@ export function getCountFromAvailabilityFacet(
 }
 
 /**
- * Compute the true total product count for the current filter set,
- * accounting for an applied availability filter.
- *
- * Why: Shopify's availability facet shows the would-be count for each
- * value (so users can toggle), even when one of them is already applied.
- * Summing both values therefore over-counts when the user has filtered
- * by availability — we should only count the value that's actually applied.
+ * Compute the true total for the current filter set when an availability
+ * filter is applied. Shopify's facet counts both values regardless (so the
+ * user can toggle), so summing over-counts when one is already selected.
  */
 export function getTotalProductsForAppliedFilters(
   filters: ProductFilter[],
   availabilityFacet: any,
 ): number {
-  if (!availabilityFacet?.values?.length) return 0;
-  const appliedAvailability = filters.find(
+  if (!availabilityFacet) return 0;
+  const applied = filters.find(
     (f) => 'available' in (f as Record<string, unknown>),
   ) as {available?: boolean} | undefined;
-  if (appliedAvailability && typeof appliedAvailability.available === 'boolean') {
-    return getCountFromAvailabilityFacet(
-      [availabilityFacet],
-      appliedAvailability.available,
-    );
+  if (applied && typeof applied.available === 'boolean') {
+    return getCountFromAvailabilityFacet(availabilityFacet, applied.available);
   }
-  return availabilityFacet.values.reduce(
-    (acc: number, v: any) => acc + (v.count ?? 0),
-    0,
-  );
+  return sumAvailabilityFacet(availabilityFacet);
 }
 
 /**
- * Main entry point. Fetches the requested page with in-stock products first,
- * then out-of-stock, treating the union as a single ordered list.
+ * Lightweight query: just IDs + availableForSale for ordering.
+ * Also returns filters so the caller can render facets without a separate
+ * trip to the API.
+ */
+const COLLECTION_PRODUCT_STOCK_META_QUERY = `#graphql
+  query CollectionProductStockMeta(
+    $handle: String!
+    $country: CountryCode
+    $language: LanguageCode
+    $filters: [ProductFilter!]
+    $sortKey: ProductCollectionSortKeys!
+    $reverse: Boolean
+    $first: Int!
+  ) @inContext(country: $country, language: $language) {
+    collection(handle: $handle) {
+      products(
+        first: $first,
+        filters: $filters,
+        sortKey: $sortKey,
+        reverse: $reverse
+      ) {
+        nodes {
+          id
+          availableForSale
+        }
+        filters {
+          id
+          label
+          type
+          values {
+            id
+            label
+            count
+            input
+          }
+        }
+        pageInfo {
+          hasNextPage
+        }
+      }
+    }
+  }
+` as const;
+
+/**
+ * Fetch full product cards for a specific list of IDs while preserving
+ * the order we pass in.
+ */
+const PRODUCTS_BY_IDS_QUERY = `#graphql
+  query ProductsByIds(
+    $ids: [ID!]!
+    $country: CountryCode
+    $language: LanguageCode
+  ) @inContext(country: $country, language: $language) {
+    nodes(ids: $ids) {
+      ... on Product {
+        ...CommonProductCard
+      }
+    }
+  }
+  ${COMMON_PRODUCT_CARD_FRAGMENT}
+` as const;
+
+/**
+ * Main entry point. Returns the requested page with in-stock products
+ * globally first, then out-of-stock — with no duplicates.
  */
 export async function fetchProductsStockFirst(
-  args: FetchPageArgs & {
-    /** The pre-fetched availability facet from the unfiltered query */
-    availabilityFacet: any;
-  },
+  args: FetchArgs,
 ): Promise<PagedResult> {
-  const {page, pageSize, availabilityFacet} = args;
+  const {
+    storefront,
+    handle,
+    page,
+    pageSize,
+    filters,
+    sortKey,
+    reverse,
+    country,
+    language,
+  } = args;
 
-  const totalInStock = getCountFromAvailabilityFacet([availabilityFacet], true);
-  const totalOutOfStock = getCountFromAvailabilityFacet(
-    [availabilityFacet],
-    false,
+  // 1. Pull the lightweight ID list with availableForSale flags.
+  const {collection} = await storefront.query(
+    COLLECTION_PRODUCT_STOCK_META_QUERY,
+    {
+      variables: {
+        handle,
+        filters,
+        sortKey,
+        reverse,
+        country,
+        language,
+        first: STOREFRONT_MAX_NODES,
+      },
+    },
   );
 
+  if (!collection) {
+    return {
+      nodes: [],
+      filters: [],
+      total: 0,
+      totalInStock: 0,
+      totalOutOfStock: 0,
+      truncated: false,
+    };
+  }
+
+  const meta = (collection.products?.nodes ?? []) as Array<{
+    id: string;
+    availableForSale: boolean;
+  }>;
+
+  // 2. Partition into in-stock / out-of-stock while preserving relative order.
+  const inStockIds: string[] = [];
+  const outOfStockIds: string[] = [];
+  for (const p of meta) {
+    if (p.availableForSale) inStockIds.push(p.id);
+    else outOfStockIds.push(p.id);
+  }
+  const orderedIds = [...inStockIds, ...outOfStockIds];
+
+  // 3. Slice the ordered list for the current page.
   const startIndex = (page - 1) * pageSize;
-  const endIndex = startIndex + pageSize;
+  const pageIds = orderedIds.slice(startIndex, startIndex + pageSize);
 
-  // Case 1: This page is fully within the in-stock range
-  if (endIndex <= totalInStock) {
-    const result = await fetchSingleAvailabilitySlice({
-      ...args,
-      available: true,
-      sliceOffset: startIndex,
-      sliceSize: pageSize,
-    });
-    return {
-      nodes: result.nodes,
-      filters: result.filters,
-      totalInStock,
-      totalOutOfStock,
-    };
-  }
-
-  // Case 2: This page is fully within the out-of-stock range
-  if (startIndex >= totalInStock) {
-    const result = await fetchSingleAvailabilitySlice({
-      ...args,
-      available: false,
-      sliceOffset: startIndex - totalInStock,
-      sliceSize: pageSize,
-    });
-    return {
-      nodes: result.nodes,
-      filters: result.filters,
-      totalInStock,
-      totalOutOfStock,
-    };
-  }
-
-  // Case 3: Page straddles the boundary — fetch the tail of in-stock and
-  // the head of out-of-stock in parallel, then concatenate.
-  const inStockNeeded = totalInStock - startIndex;
-  const outOfStockNeeded = pageSize - inStockNeeded;
-
-  const [inStockResult, outOfStockResult] = await Promise.all([
-    fetchSingleAvailabilitySlice({
-      ...args,
-      available: true,
-      sliceOffset: startIndex,
-      sliceSize: inStockNeeded,
-    }),
-    fetchSingleAvailabilitySlice({
-      ...args,
-      available: false,
-      sliceOffset: 0,
-      sliceSize: outOfStockNeeded,
-    }),
-  ]);
-
-  return {
-    nodes: [...inStockResult.nodes, ...outOfStockResult.nodes],
-    // Use whichever result has filters (in-stock query for facet labels)
-    filters: inStockResult.filters.length
-      ? inStockResult.filters
-      : outOfStockResult.filters,
-    totalInStock,
-    totalOutOfStock,
+  const baseResult = {
+    filters: collection.products?.filters ?? [],
+    total: orderedIds.length,
+    totalInStock: inStockIds.length,
+    totalOutOfStock: outOfStockIds.length,
+    truncated: collection.products?.pageInfo?.hasNextPage ?? false,
   };
+
+  if (pageIds.length === 0) {
+    return {nodes: [], ...baseResult};
+  }
+
+  // 4. Fetch full product cards for the page's IDs.
+  const {nodes} = await storefront.query(PRODUCTS_BY_IDS_QUERY, {
+    variables: {ids: pageIds, country, language},
+  });
+
+  // `nodes(ids:)` preserves the order we passed in. Filter null entries
+  // (in case an ID was unpublished between the two queries).
+  const pageNodes = (nodes as any[]).filter(Boolean);
+
+  return {nodes: pageNodes, ...baseResult};
 }
