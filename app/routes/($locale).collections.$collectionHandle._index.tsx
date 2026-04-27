@@ -24,6 +24,10 @@ import {Empty} from '~/components/Empty';
 import {FireIcon} from '@heroicons/react/24/outline';
 import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFiltersFromRequest';
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
+import {
+  fetchProductsStockFirst,
+  hasAvailabilityFilter,
+} from '~/utils/fetchProductsStockFirst';
 import {ProductsGrid} from '~/components/ProductsGrid';
 import clsx from 'clsx';
 import {Suspense} from 'react';
@@ -49,14 +53,13 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   const {filters, sortKey, reverse, page} =
     getPaginationAndFiltersFromRequest(request, PAGE_SIZE);
 
-  // For page > 1, we need to get the cursor to start from
-  let afterCursor: string | null = null;
-  if (page > 1) {
-    // Fetch just enough products to get the cursor for the start of the requested page
-    const skipCount = (page - 1) * PAGE_SIZE;
-    const {collection: cursorCollection} = await context.storefront.query(COLLECTION_QUERY, {
+  // First, fetch collection metadata with a tiny products slice so we can read
+  // the availability facet and decide whether to apply stock-first stitching.
+  const {collection: baseCollection} = await context.storefront.query(
+    COLLECTION_QUERY,
+    {
       variables: {
-        first: skipCount,
+        first: 1,
         handle: collectionHandle,
         filters,
         sortKey,
@@ -64,29 +67,91 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
         country: context.storefront.i18n.country,
         language: context.storefront.i18n.language,
       },
-    });
-    afterCursor = cursorCollection?.products?.pageInfo?.endCursor || null;
+    },
+  );
+
+  if (!baseCollection) {
+    throw new Response('collection', {status: 404});
   }
 
-  // 2. Query the collection details with the correct cursor
-  const {collection} = await context.storefront.query(COLLECTION_QUERY, {
-    variables: {
-      first: PAGE_SIZE,
-      after: afterCursor,
+  const availabilityFacet = baseCollection.products.filters.find(
+    (f: Filter) => f.id === 'filter.v.availability',
+  );
+  const useStockFirst =
+    !hasAvailabilityFilter(filters) &&
+    availabilityFacet &&
+    availabilityFacet.values?.length > 0;
+
+  let slicedNodes: any[] = [];
+  let pageFilters: any[] = baseCollection.products.filters;
+
+  if (useStockFirst) {
+    const result = await fetchProductsStockFirst({
+      storefront: context.storefront,
+      query: COLLECTION_QUERY,
       handle: collectionHandle,
+      page,
+      pageSize: PAGE_SIZE,
       filters,
       sortKey,
       reverse,
       country: context.storefront.i18n.country,
       language: context.storefront.i18n.language,
-    },
-  });
-
-  if (!collection) {
-    throw new Response('collection', {status: 404});
+      availabilityFacet,
+    });
+    slicedNodes = result.nodes;
+    if (result.filters.length) pageFilters = result.filters;
+  } else {
+    // Original cursor-based pagination path (used when user already filtered
+    // by availability or when there's no availability facet).
+    let afterCursor: string | null = null;
+    if (page > 1) {
+      const skipCount = (page - 1) * PAGE_SIZE;
+      const {collection: cursorCollection} =
+        await context.storefront.query(COLLECTION_QUERY, {
+          variables: {
+            first: skipCount,
+            handle: collectionHandle,
+            filters,
+            sortKey,
+            reverse,
+            country: context.storefront.i18n.country,
+            language: context.storefront.i18n.language,
+          },
+        });
+      afterCursor =
+        cursorCollection?.products?.pageInfo?.endCursor || null;
+    }
+    const {collection: pagedCollection} = await context.storefront.query(
+      COLLECTION_QUERY,
+      {
+        variables: {
+          first: PAGE_SIZE,
+          after: afterCursor,
+          handle: collectionHandle,
+          filters,
+          sortKey,
+          reverse,
+          country: context.storefront.i18n.country,
+          language: context.storefront.i18n.language,
+        },
+      },
+    );
+    slicedNodes = pagedCollection?.products?.nodes ?? [];
+    if (pagedCollection?.products?.filters?.length) {
+      pageFilters = pagedCollection.products.filters;
+    }
   }
 
-  const slicedNodes = collection.products.nodes;
+  // Reconstruct a collection-shaped object so downstream code is unchanged.
+  const collection = {
+    ...baseCollection,
+    products: {
+      ...baseCollection.products,
+      nodes: slicedNodes,
+      filters: pageFilters,
+    },
+  };
 
   const seo = seoPayload.collection({collection, url: request.url});
 

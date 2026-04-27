@@ -24,6 +24,10 @@ import {Empty} from '~/components/Empty';
 import {FireIcon} from '@heroicons/react/24/outline';
 import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFiltersFromRequest';
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
+import {
+  fetchProductsStockFirst,
+  hasAvailabilityFilter,
+} from '~/utils/fetchProductsStockFirst';
 import {ProductsGrid} from '~/components/ProductsGrid';
 import clsx from 'clsx';
 import {Suspense} from 'react';
@@ -49,31 +53,13 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   const {filters, sortKey, reverse, page} =
     getPaginationAndFiltersFromRequest(request, PAGE_SIZE);
 
-  // For page > 1, we need to get the cursor to start from
-  let afterCursor: string | null = null;
-  if (page > 1) {
-    const skipCount = (page - 1) * PAGE_SIZE;
-    const {collection: cursorCollection} = await context.storefront.query(CHILD_COLLECTION_QUERY, {
-      variables: {
-        first: skipCount,
-        handle: childHandle,
-        filters,
-        sortKey,
-        reverse,
-        country: context.storefront.i18n.country,
-        language: context.storefront.i18n.language,
-      },
-    });
-    afterCursor = cursorCollection?.products?.pageInfo?.endCursor || null;
-  }
-
-  // Query the child collection and parent collection (for subcollections bar) in parallel
-  const [{collection: childCollection}, {collection: parentCollection}] =
+  // First fetch child collection metadata (with a tiny products slice to read
+  // the availability facet) and parent collection in parallel.
+  const [{collection: baseChildCollection}, {collection: parentCollection}] =
     await Promise.all([
       context.storefront.query(CHILD_COLLECTION_QUERY, {
         variables: {
-          first: PAGE_SIZE,
-          after: afterCursor,
+          first: 1,
           handle: childHandle,
           filters,
           sortKey,
@@ -91,9 +77,87 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
       }),
     ]);
 
-  if (!childCollection) {
+  if (!baseChildCollection) {
     throw new Response('collection', {status: 404});
   }
+
+  const availabilityFacet = baseChildCollection.products.filters.find(
+    (f: Filter) => f.id === 'filter.v.availability',
+  );
+  const useStockFirst =
+    !hasAvailabilityFilter(filters) &&
+    availabilityFacet &&
+    availabilityFacet.values?.length > 0;
+
+  let pageNodes: any[] = [];
+  let pageFilters: any[] = baseChildCollection.products.filters;
+
+  if (useStockFirst) {
+    const result = await fetchProductsStockFirst({
+      storefront: context.storefront,
+      query: CHILD_COLLECTION_QUERY,
+      handle: childHandle,
+      page,
+      pageSize: PAGE_SIZE,
+      filters,
+      sortKey,
+      reverse,
+      country: context.storefront.i18n.country,
+      language: context.storefront.i18n.language,
+      availabilityFacet,
+    });
+    pageNodes = result.nodes;
+    if (result.filters.length) pageFilters = result.filters;
+  } else {
+    let afterCursor: string | null = null;
+    if (page > 1) {
+      const skipCount = (page - 1) * PAGE_SIZE;
+      const {collection: cursorCollection} = await context.storefront.query(
+        CHILD_COLLECTION_QUERY,
+        {
+          variables: {
+            first: skipCount,
+            handle: childHandle,
+            filters,
+            sortKey,
+            reverse,
+            country: context.storefront.i18n.country,
+            language: context.storefront.i18n.language,
+          },
+        },
+      );
+      afterCursor =
+        cursorCollection?.products?.pageInfo?.endCursor || null;
+    }
+    const {collection: pagedChild} = await context.storefront.query(
+      CHILD_COLLECTION_QUERY,
+      {
+        variables: {
+          first: PAGE_SIZE,
+          after: afterCursor,
+          handle: childHandle,
+          filters,
+          sortKey,
+          reverse,
+          country: context.storefront.i18n.country,
+          language: context.storefront.i18n.language,
+        },
+      },
+    );
+    pageNodes = pagedChild?.products?.nodes ?? [];
+    if (pagedChild?.products?.filters?.length) {
+      pageFilters = pagedChild.products.filters;
+    }
+  }
+
+  const childCollection = {
+    ...baseChildCollection,
+    products: {
+      ...baseChildCollection.products,
+      nodes: pageNodes,
+      filters: pageFilters,
+    },
+  };
 
   const seo = seoPayload.collection({collection: childCollection, url: request.url});
 
