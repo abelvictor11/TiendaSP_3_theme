@@ -213,9 +213,33 @@ export default function Product() {
   // Calculate discount percentage
   const price = parseFloat(selectedVariant?.price?.amount || '0');
   const compareAtPrice = parseFloat(selectedVariant?.compareAtPrice?.amount || '0');
-  const discountPercentage = compareAtPrice > price 
+  const discountPercentage = compareAtPrice > price
     ? Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
     : 0;
+
+  // Out-of-stock badge
+  const isOutOfStock = !selectedVariant?.availableForSale;
+  const status = getProductStatus({
+    availableForSale: !!selectedVariant?.availableForSale,
+    compareAtPriceRangeMinVariantPrice:
+      selectedVariant?.compareAtPrice || undefined,
+    priceRangeMinVariantPrice: selectedVariant?.price,
+    publishedAt: product.publishedAt,
+  });
+
+  // Scroll indicator for left column (desktop)
+  const scrollColRef = useRef<HTMLDivElement>(null);
+  const [showScrollHint, setShowScrollHint] = useState(true);
+  useEffect(() => {
+    const el = scrollColRef.current;
+    if (!el) return;
+    const onScroll = () => {
+      setShowScrollHint(el.scrollTop <= 40);
+    };
+    el.addEventListener('scroll', onScroll, {passive: true});
+    if (el.scrollHeight <= el.clientHeight) setShowScrollHint(false);
+    return () => el.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <div
@@ -475,30 +499,6 @@ export function ProductForm({
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
   const isOutOfStock = !selectedVariant?.availableForSale;
-
-  // Scroll indicator for left column
-  const scrollColRef = useRef<HTMLDivElement>(null);
-  const [showScrollHint, setShowScrollHint] = useState(true);
-  useEffect(() => {
-    const el = scrollColRef.current;
-    if (!el) return;
-    const onScroll = () => {
-      if (el.scrollTop > 40) setShowScrollHint(false);
-      else setShowScrollHint(true);
-    };
-    el.addEventListener('scroll', onScroll, {passive: true});
-    // Hide immediately if content doesn't overflow
-    if (el.scrollHeight <= el.clientHeight) setShowScrollHint(false);
-    return () => el.removeEventListener('scroll', onScroll);
-  }, []);
-
-  const status = getProductStatus({
-    availableForSale: !!selectedVariant?.availableForSale,
-    compareAtPriceRangeMinVariantPrice:
-      selectedVariant?.compareAtPrice || undefined,
-    priceRangeMinVariantPrice: selectedVariant?.price,
-    publishedAt: product.publishedAt,
-  });
 
   // Build breadcrumb hierarchy from product collections
   const breadcrumbs = (() => {

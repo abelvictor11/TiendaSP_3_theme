@@ -22,6 +22,8 @@ export default async function handleRequest(
     },
     scriptSrc: [
       "'self'",
+      // strict-dynamic allows GTM-injected inline scripts to run when loaded by a nonced script
+      "'strict-dynamic'",
       'https://cdn.shopify.com',
       'https://shopify.com',
       'https://www.google-analytics.com',
@@ -31,6 +33,8 @@ export default async function handleRequest(
       'https://www.facebook.com',
       // TikTok Pixel
       'https://analytics.tiktok.com',
+      // Zendesk Widget
+      'https://static.zdassets.com',
       ...(process.env.NODE_ENV !== 'production' ? ['http://localhost:*'] : []),
       'https://d3hw6dc1ow8pp2.cloudfront.net',
       'https://dov7r31oq5dkj.cloudfront.net',
@@ -141,6 +145,11 @@ export default async function handleRequest(
       'https://business-api.tiktok.com',
       'https://a.klaviyo.com',
       'https://static.klaviyo.com',
+      // Zendesk Widget
+      'https://ekr.zdassets.com',
+      'https://static.zdassets.com',
+      'https://*.zopim.com',
+      'wss://*.zopim.com',
 
       // your ngrok domain if you're using ngrok for development
       'wss://refined-starfish-verbally.ngrok-free.app:*',

@@ -194,7 +194,7 @@ const ProductSpecs: FC<ProductSpecsProps> = ({
 
       {/* Specs Grid */}
       {(specs.length > 0 || barcode) && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 mb-6">
           {barcode && (
             <div className="flex flex-col p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50">
               <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-1">
