@@ -102,20 +102,36 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
     throw new Error('Expected product handle to be defined');
   }
 
-  const [{shop, product}, creditCalculatorData, proveedoresData] = await Promise.all([
-    context.storefront.query(PRODUCT_QUERY, {
-      variables: {
-        handle: productHandle,
-        selectedOptions,
-        country: context.storefront.i18n.country,
-        language: context.storefront.i18n.language,
-      },
-    }),
+  // We catch errors from PRODUCT_QUERY and treat them as "not found" so we
+  // surface a proper 404 — that's what triggers `storefrontRedirect` in
+  // server.ts, which then honors any URL redirect configured in Shopify
+  // Admin (e.g. an old product handle pointing to the renamed product).
+  // Without this catch, a network/GraphQL hiccup turns into a 500 and the
+  // redirect never runs.
+  const [productResult, creditCalculatorData, proveedoresData] = await Promise.all([
+    context.storefront
+      .query(PRODUCT_QUERY, {
+        variables: {
+          handle: productHandle,
+          selectedOptions,
+          country: context.storefront.i18n.country,
+          language: context.storefront.i18n.language,
+        },
+      })
+      .catch((error: unknown) => {
+        // eslint-disable-next-line no-console
+        console.error('[PDP] PRODUCT_QUERY failed for handle', productHandle, error);
+        return {shop: null, product: null} as any;
+      }),
     context.storefront.query(CREDIT_CALCULATOR_QUERY).catch(() => null),
     context.storefront.query(PROVEEDORES_QUERY).catch(() => null),
   ]);
 
+  const {shop, product} = productResult;
+
   if (!product?.id) {
+    // 404 → server.ts will call storefrontRedirect, which checks Shopify
+    // Admin's URL Redirects table and forwards the visitor if a match exists.
     throw new Response('product', {status: 404});
   }
 

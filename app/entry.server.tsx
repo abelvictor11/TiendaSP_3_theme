@@ -167,7 +167,13 @@ export default async function handleRequest(
       onError(error) {
         // eslint-disable-next-line no-console
         console.error(error);
-        responseStatusCode = 500;
+        // Don't downgrade an intentional 4xx (like a loader-thrown 404)
+        // to 500 just because rendering the error boundary hit a snag.
+        // Preserving 404 here is critical so server.ts can run
+        // `storefrontRedirect` against Shopify's URL redirect table.
+        if (responseStatusCode < 400) {
+          responseStatusCode = 500;
+        }
       },
     },
   );
