@@ -26,6 +26,7 @@ import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFilter
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
 import {
   fetchProductsStockFirst,
+  getTotalProductsForAppliedFilters,
   hasAvailabilityFilter,
 } from '~/utils/fetchProductsStockFirst';
 import {ProductsGrid} from '~/components/ProductsGrid';
@@ -159,12 +160,20 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
     (filter: Filter) => filter.id === 'filter.v.price',
   );
 
+  // Compute the true total (accounts for an applied availability filter,
+  // since Shopify's facet still shows would-be counts for the unselected value).
+  const totalProducts = getTotalProductsForAppliedFilters(
+    filters,
+    availabilityFacet,
+  );
+
   return defer({
     routePromise,
     collection,
     products: slicedNodes,
     currentPage: page,
     pageSize: PAGE_SIZE,
+    totalProducts,
     defaultPriceFilter: {
       value: defaultPriceFilter?.values[0] ?? null,
       locale,
@@ -178,16 +187,10 @@ export const meta = ({matches}: MetaArgs<typeof loader>) => {
 };
 
 export default function Collection() {
-  const {collection, products, currentPage, pageSize, defaultPriceFilter, routePromise} =
+  const {collection, products, currentPage, pageSize, totalProducts, defaultPriceFilter, routePromise} =
     useLoaderData<typeof loader>();
 
   const noResults = !products.length;
-
-  // Get filtered total from the filtered products query (updates when filters are applied)
-  const availabilityFilter = collection.products.filters.find(
-    (filter: Filter) => filter.id === 'filter.v.availability',
-  );
-  const totalProducts = getProductTotalByFilter(availabilityFilter?.values as any);
 
   // Get subcollections from metafield
   const subcollections = collection.subcollections?.references?.nodes || [];

@@ -120,7 +120,7 @@ async function fetchSingleAvailabilitySlice(
  * Cheaper than counting nodes — Shopify returns the count for free in the
  * filter facet values. We use the `availability` filter facet specifically.
  */
-function getCountFromAvailabilityFacet(
+export function getCountFromAvailabilityFacet(
   filters: any[],
   available: boolean,
 ): number {
@@ -136,6 +136,35 @@ function getCountFromAvailabilityFacet(
     }
   });
   return target?.count ?? 0;
+}
+
+/**
+ * Compute the true total product count for the current filter set,
+ * accounting for an applied availability filter.
+ *
+ * Why: Shopify's availability facet shows the would-be count for each
+ * value (so users can toggle), even when one of them is already applied.
+ * Summing both values therefore over-counts when the user has filtered
+ * by availability — we should only count the value that's actually applied.
+ */
+export function getTotalProductsForAppliedFilters(
+  filters: ProductFilter[],
+  availabilityFacet: any,
+): number {
+  if (!availabilityFacet?.values?.length) return 0;
+  const appliedAvailability = filters.find(
+    (f) => 'available' in (f as Record<string, unknown>),
+  ) as {available?: boolean} | undefined;
+  if (appliedAvailability && typeof appliedAvailability.available === 'boolean') {
+    return getCountFromAvailabilityFacet(
+      [availabilityFacet],
+      appliedAvailability.available,
+    );
+  }
+  return availabilityFacet.values.reduce(
+    (acc: number, v: any) => acc + (v.count ?? 0),
+    0,
+  );
 }
 
 /**

@@ -26,6 +26,7 @@ import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFilter
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
 import {
   fetchProductsStockFirst,
+  getTotalProductsForAppliedFilters,
   hasAvailabilityFilter,
 } from '~/utils/fetchProductsStockFirst';
 import {ProductsGrid} from '~/components/ProductsGrid';
@@ -172,12 +173,18 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   const subcollections =
     parentCollection?.subcollections?.references?.nodes || [];
 
+  const totalProducts = getTotalProductsForAppliedFilters(
+    filters,
+    availabilityFacet,
+  );
+
   return defer({
     routePromise,
     collection: childCollection,
     products: slicedNodes,
     currentPage: page,
     pageSize: PAGE_SIZE,
+    totalProducts,
     parentCollection,
     subcollections,
     parentHandle: collectionHandle,
@@ -200,6 +207,7 @@ export default function ChildCollection() {
     products,
     currentPage,
     pageSize,
+    totalProducts,
     parentCollection,
     subcollections,
     parentHandle,
@@ -209,13 +217,6 @@ export default function ChildCollection() {
   } = useLoaderData<typeof loader>();
 
   const noResults = !products.length;
-
-  // Get filtered total from the filtered products query
-  const availabilityFilter =
-    collection.products.filters.find(
-      (filter: any) => filter.id === 'filter.v.availability',
-    );
-  const totalProducts = getProductTotalByFilter(availabilityFilter?.values as any);
 
   return (
     <div className="nc-PageCollection pb-20 lg:pb-28 xl:pb-32 overflow-x-clip">
