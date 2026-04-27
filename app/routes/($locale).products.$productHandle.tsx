@@ -239,6 +239,12 @@ export default function Product() {
                 id={id}
                 className="absolute top-3 end-3 z-10 !w-10 !h-10"
               />
+              {/* Out of stock badge — top-left corner over the image */}
+              {isOutOfStock && (
+                <div className="absolute top-3 start-3 z-10">
+                  <ProductBadge status={status} />
+                </div>
+              )}
             </div>
 
             {/* Product Description - Below images on desktop with "Ver más..." */}
@@ -584,11 +590,6 @@ export function ProductForm({
             price={selectedVariant?.price}
             compareAtPrice={selectedVariant?.compareAtPrice}
           />
-
-          {/* Out of stock badge */}
-          {isOutOfStock && (
-            <ProductBadge status={status} />
-          )}
 
           {/* Custom Badges */}
           {customBadges.length > 0 && (
