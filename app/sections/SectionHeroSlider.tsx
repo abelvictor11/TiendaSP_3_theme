@@ -185,21 +185,28 @@ export function SectionHeroSlider(props: SectionHeroSliderFragment) {
   );
 }
 
-// Maps a "vertical-horizontal" position string to Tailwind flex classes
+// Maps a "vertical-horizontal" position string to Tailwind classes.
+// `flex`  → applied to the outer flex wrapper (vertical alignment of the
+//           text block within the slide).
+// `text`  → text-align for the heading/subheading.
+// `mx`    → horizontal margin on the inner max-w-3xl block; needed because
+//           that block sits inside `.container` and won't be centered by the
+//           outer flex's justify-* alone.
 function getPositionClasses(position: string): {
   flex: string;
   text: string;
+  mx: string;
 } {
-  const map: Record<string, {flex: string; text: string}> = {
-    'top-left':      {flex: 'items-start justify-start',  text: 'text-left'},
-    'top-center':    {flex: 'items-start justify-center', text: 'text-center'},
-    'top-right':     {flex: 'items-start justify-end',    text: 'text-right'},
-    'center-left':   {flex: 'items-center justify-start', text: 'text-left'},
-    'center-center': {flex: 'items-center justify-center',text: 'text-center'},
-    'center-right':  {flex: 'items-center justify-end',   text: 'text-right'},
-    'bottom-left':   {flex: 'items-end justify-start',    text: 'text-left'},
-    'bottom-center': {flex: 'items-end justify-center',   text: 'text-center'},
-    'bottom-right':  {flex: 'items-end justify-end',      text: 'text-right'},
+  const map: Record<string, {flex: string; text: string; mx: string}> = {
+    'top-left':      {flex: 'items-start justify-start',  text: 'text-left',   mx: 'mr-auto'},
+    'top-center':    {flex: 'items-start justify-center', text: 'text-center', mx: 'mx-auto'},
+    'top-right':     {flex: 'items-start justify-end',    text: 'text-right',  mx: 'ml-auto'},
+    'center-left':   {flex: 'items-center justify-start', text: 'text-left',   mx: 'mr-auto'},
+    'center-center': {flex: 'items-center justify-center',text: 'text-center', mx: 'mx-auto'},
+    'center-right':  {flex: 'items-center justify-end',   text: 'text-right',  mx: 'ml-auto'},
+    'bottom-left':   {flex: 'items-end justify-start',    text: 'text-left',   mx: 'mr-auto'},
+    'bottom-center': {flex: 'items-end justify-center',   text: 'text-center', mx: 'mx-auto'},
+    'bottom-right':  {flex: 'items-end justify-end',      text: 'text-right',  mx: 'ml-auto'},
   };
   return map[position] ?? map['center-left'];
 }
@@ -288,7 +295,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
       {hasTextContent && (
         <div className={`relative z-10 h-full flex ${verticalPaddingClass} ${positionClasses.flex}`}>
           <div className="container">
-            <div className={`nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8 ${positionClasses.text}`}>
+            <div className={`nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8 ${positionClasses.mx} ${positionClasses.text}`}>
               <div className="space-y-3 sm:space-y-4">
                 {!!item.heading?.value && (
                   <h2
