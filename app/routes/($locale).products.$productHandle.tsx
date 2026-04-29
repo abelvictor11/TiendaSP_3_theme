@@ -102,27 +102,15 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
     throw new Error('Expected product handle to be defined');
   }
 
-  // We catch errors from PRODUCT_QUERY and treat them as "not found" so we
-  // surface a proper 404 — that's what triggers `storefrontRedirect` in
-  // server.ts, which then honors any URL redirect configured in Shopify
-  // Admin (e.g. an old product handle pointing to the renamed product).
-  // Without this catch, a network/GraphQL hiccup turns into a 500 and the
-  // redirect never runs.
   const [productResult, creditCalculatorData, proveedoresData] = await Promise.all([
-    context.storefront
-      .query(PRODUCT_QUERY, {
-        variables: {
-          handle: productHandle,
-          selectedOptions,
-          country: context.storefront.i18n.country,
-          language: context.storefront.i18n.language,
-        },
-      })
-      .catch((error: unknown) => {
-        // eslint-disable-next-line no-console
-        console.error('[PDP] PRODUCT_QUERY failed for handle', productHandle, error);
-        return {shop: null, product: null} as any;
-      }),
+    context.storefront.query(PRODUCT_QUERY, {
+      variables: {
+        handle: productHandle,
+        selectedOptions,
+        country: context.storefront.i18n.country,
+        language: context.storefront.i18n.language,
+      },
+    }),
     context.storefront.query(CREDIT_CALCULATOR_QUERY).catch(() => null),
     context.storefront.query(PROVEEDORES_QUERY).catch(() => null),
   ]);
@@ -177,18 +165,30 @@ function loadDeferredData(args: LoaderFunctionArgs) {
   const {productHandle} = params;
   invariant(productHandle, 'Missing productHandle param, check route filename');
 
-  // 3. Query the route metaobject
+  // Deferred promises must never reject — if they do, Remix bubbles the
+  // rejection past the route's ErrorBoundary into the root, masking a
+  // critical-loader 404 (or any thrown Response) as a 500. That breaks
+  // server.ts → storefrontRedirect for renamed product handles.
   const routePromise = getLoaderRouteFromMetaobject({
     params,
     context,
     request,
     handle: 'route-product',
+  }).catch((error: unknown) => {
+    // eslint-disable-next-line no-console
+    console.error('[PDP] routePromise failed', error);
+    return null;
   });
 
-  // Query PDP Help Banner
-  const helpBannerPromise = context.storefront.query(PDP_HELP_BANNER_QUERY, {
-    cache: context.storefront.CacheLong(),
-  });
+  const helpBannerPromise = context.storefront
+    .query(PDP_HELP_BANNER_QUERY, {
+      cache: context.storefront.CacheLong(),
+    })
+    .catch((error: unknown) => {
+      // eslint-disable-next-line no-console
+      console.error('[PDP] helpBannerPromise failed', error);
+      return null;
+    });
 
   return {
     routePromise,
@@ -514,12 +514,14 @@ export default function Product() {
           errorElement="There was a problem loading route's content sections"
           resolve={routePromise}
         >
-          {({route}) => (
+          {(data) => (
             <>
-              <RouteContent
-                route={route}
-                className="space-y-12 sm:space-y-16"
-              />
+              {data?.route ? (
+                <RouteContent
+                  route={data.route}
+                  className="space-y-12 sm:space-y-16"
+                />
+              ) : null}
             </>
           )}
         </Await>

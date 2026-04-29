@@ -97,13 +97,7 @@ export default {
         response.headers.set('Set-Cookie', await session.commit());
       }
 
-      // Check Shopify Admin's URL redirect table on any non-2xx response.
-      // If a redirect exists for this path, honor it; otherwise
-      // `storefrontRedirect` passes the original response through unchanged.
-      // We include 5xx (not just 404) because a loader bug can mask a
-      // genuinely-redirected URL behind a 500, which would otherwise hide
-      // the redirect from real users.
-      if (response.status >= 400) {
+      if (response.status === 404) {
         return storefrontRedirect({request, response, storefront});
       }
 

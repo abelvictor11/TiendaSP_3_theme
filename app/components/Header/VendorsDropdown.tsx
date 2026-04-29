@@ -140,7 +140,7 @@ const VendorsDropdown: FC<VendorsDropdownProps> = ({
               className={`text-black group h-10 sm:h-12 px-3 py-1.5 inline-flex items-center text-sm text-gray-800 dark:text-neutral-200 font-medium hover:text-opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75`}
               onClick={openModal}
             >
-              <BuildingStorefrontIcon className="w-5 h-5 sm:w-6 sm:h-6 opacity-80" />
+              <BuildingStorefrontIcon className="w-6 h-6" />
               <span className="ms-2">Marcas</span>
               <ChevronDownIcon
                 className={

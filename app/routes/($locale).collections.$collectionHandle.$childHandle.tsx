@@ -25,10 +25,9 @@ import {FireIcon} from '@heroicons/react/24/outline';
 import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFiltersFromRequest';
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
 import {
-  fetchProductsStockFirst,
-  getTotalProductsForAppliedFilters,
-  hasAvailabilityFilter,
-} from '~/utils/fetchProductsStockFirst';
+  COLLECTION_PAGE_SIZE,
+  loadCollectionPage,
+} from '~/utils/loadCollectionPage';
 import {ProductsGrid} from '~/components/ProductsGrid';
 import clsx from 'clsx';
 import {Suspense} from 'react';
@@ -50,139 +49,57 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
     handle: 'route-collection',
   });
 
-  const PAGE_SIZE = 24;
   const {filters, sortKey, reverse, page} =
-    getPaginationAndFiltersFromRequest(request, PAGE_SIZE);
+    getPaginationAndFiltersFromRequest(request, COLLECTION_PAGE_SIZE);
 
-  // First fetch child collection metadata (with a tiny products slice to read
-  // the availability facet) and parent collection in parallel.
-  const [{collection: baseChildCollection}, {collection: parentCollection}] =
-    await Promise.all([
-      context.storefront.query(CHILD_COLLECTION_QUERY, {
-        variables: {
-          first: 1,
-          handle: childHandle,
-          filters,
-          sortKey,
-          reverse,
-          country: context.storefront.i18n.country,
-          language: context.storefront.i18n.language,
-        },
-      }),
-      context.storefront.query(PARENT_COLLECTION_QUERY, {
-        variables: {
-          handle: collectionHandle,
-          country: context.storefront.i18n.country,
-          language: context.storefront.i18n.language,
-        },
-      }),
-    ]);
-
-  if (!baseChildCollection) {
-    throw new Response('collection', {status: 404});
-  }
-
-  const availabilityFacet = baseChildCollection.products.filters.find(
-    (f: Filter) => f.id === 'filter.v.availability',
-  );
-  const useStockFirst =
-    !hasAvailabilityFilter(filters) &&
-    availabilityFacet &&
-    availabilityFacet.values?.length > 0;
-
-  let pageNodes: any[] = [];
-  let pageFilters: any[] = baseChildCollection.products.filters;
-  let stockFirstTotal: number | null = null;
-
-  if (useStockFirst) {
-    const result = await fetchProductsStockFirst({
+  // Fetch child page (with stock-first stitching) and parent collection
+  // (for the subcollections nav bar) in parallel.
+  const [pageResult, {collection: parentCollection}] = await Promise.all([
+    loadCollectionPage({
       storefront: context.storefront,
       handle: childHandle,
-      page,
-      pageSize: PAGE_SIZE,
+      collectionQuery: CHILD_COLLECTION_QUERY,
       filters,
       sortKey,
       reverse,
-      country: context.storefront.i18n.country,
-      language: context.storefront.i18n.language,
-    });
-    pageNodes = result.nodes;
-    if (result.filters.length) pageFilters = result.filters;
-    stockFirstTotal = result.truncated ? null : result.total;
-  } else {
-    let afterCursor: string | null = null;
-    if (page > 1) {
-      const skipCount = (page - 1) * PAGE_SIZE;
-      const {collection: cursorCollection} = await context.storefront.query(
-        CHILD_COLLECTION_QUERY,
-        {
-          variables: {
-            first: skipCount,
-            handle: childHandle,
-            filters,
-            sortKey,
-            reverse,
-            country: context.storefront.i18n.country,
-            language: context.storefront.i18n.language,
-          },
-        },
-      );
-      afterCursor =
-        cursorCollection?.products?.pageInfo?.endCursor || null;
-    }
-    const {collection: pagedChild} = await context.storefront.query(
-      CHILD_COLLECTION_QUERY,
-      {
-        variables: {
-          first: PAGE_SIZE,
-          after: afterCursor,
-          handle: childHandle,
-          filters,
-          sortKey,
-          reverse,
-          country: context.storefront.i18n.country,
-          language: context.storefront.i18n.language,
-        },
+      page,
+    }),
+    context.storefront.query(PARENT_COLLECTION_QUERY, {
+      variables: {
+        handle: collectionHandle,
+        country: context.storefront.i18n.country,
+        language: context.storefront.i18n.language,
       },
-    );
-    pageNodes = pagedChild?.products?.nodes ?? [];
-    if (pagedChild?.products?.filters?.length) {
-      pageFilters = pagedChild.products.filters;
-    }
-  }
+    }),
+  ]);
 
-  const childCollection = {
-    ...baseChildCollection,
-    products: {
-      ...baseChildCollection.products,
-      nodes: pageNodes,
-      filters: pageFilters,
-    },
-  };
+  const {
+    collection: childCollection,
+    products,
+    totalProducts,
+    currentPage,
+    pageSize,
+  } = pageResult;
 
-  const seo = seoPayload.collection({collection: childCollection, url: request.url});
+  const seo = seoPayload.collection({
+    collection: childCollection,
+    url: request.url,
+  });
 
   const defaultPriceFilter =
     childCollection.productsWithDefaultFilter.filters.find(
       (filter: any) => filter.id === 'filter.v.price',
     );
 
-  const slicedNodes = childCollection.products.nodes;
-
-  // Get subcollections from parent
   const subcollections =
     parentCollection?.subcollections?.references?.nodes || [];
-
-  const totalProducts =
-    stockFirstTotal ??
-    getTotalProductsForAppliedFilters(filters, availabilityFacet);
 
   return defer({
     routePromise,
     collection: childCollection,
-    products: slicedNodes,
-    currentPage: page,
-    pageSize: PAGE_SIZE,
+    products,
+    currentPage,
+    pageSize,
     totalProducts,
     parentCollection,
     subcollections,

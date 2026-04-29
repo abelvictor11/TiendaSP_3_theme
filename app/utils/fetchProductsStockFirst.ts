@@ -27,18 +27,17 @@
  *   preserve in-stock-first within the first 250 — adequate for any
  *   reasonable browse-and-paginate UX).
  */
-import type {ProductFilter} from '@shopify/hydrogen/storefront-api-types';
+import type {
+  Filter,
+  ProductFilter,
+} from '@shopify/hydrogen/storefront-api-types';
+import type {Storefront} from '@shopify/hydrogen';
 import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
 
 const STOREFRONT_MAX_NODES = 250;
 
 interface FetchArgs {
-  storefront: {
-    query: (
-      query: string,
-      options: {variables: Record<string, unknown>},
-    ) => Promise<any>;
-  };
+  storefront: Storefront;
   handle: string;
   page: number;
   pageSize: number;
@@ -49,9 +48,17 @@ interface FetchArgs {
   language: string;
 }
 
+/** A single product card as returned by COMMON_PRODUCT_CARD_FRAGMENT. */
+type ProductCard = Record<string, unknown> & {id: string};
+
+interface StockMeta {
+  id: string;
+  availableForSale: boolean;
+}
+
 interface PagedResult {
-  nodes: any[];
-  filters: any[];
+  nodes: ProductCard[];
+  filters: Filter[];
   total: number;
   totalInStock: number;
   totalOutOfStock: number;
@@ -71,19 +78,21 @@ export function hasAvailabilityFilter(filters: ProductFilter[]): boolean {
  * Sum the counts in the availability facet. Used by the caller as a
  * fallback total when stock-first stitching is bypassed.
  */
-function sumAvailabilityFacet(facet: any): number {
+type AvailabilityFacet = Filter | undefined | null;
+
+function sumAvailabilityFacet(facet: AvailabilityFacet): number {
   if (!facet?.values?.length) return 0;
-  return facet.values.reduce(
-    (acc: number, v: any) => acc + (v.count ?? 0),
-    0,
-  );
+  return facet.values.reduce((acc, v) => acc + (v.count ?? 0), 0);
 }
 
-function getCountFromAvailabilityFacet(facet: any, available: boolean): number {
+function getCountFromAvailabilityFacet(
+  facet: AvailabilityFacet,
+  available: boolean,
+): number {
   if (!facet?.values?.length) return 0;
-  const target = facet.values.find((v: any) => {
+  const target = facet.values.find((v) => {
     try {
-      const input = JSON.parse(v.input) as {available?: boolean};
+      const input = JSON.parse(v.input as string) as {available?: boolean};
       return input.available === available;
     } catch {
       return false;
@@ -99,7 +108,7 @@ function getCountFromAvailabilityFacet(facet: any, available: boolean): number {
  */
 export function getTotalProductsForAppliedFilters(
   filters: ProductFilter[],
-  availabilityFacet: any,
+  availabilityFacet: AvailabilityFacet,
 ): number {
   if (!availabilityFacet) return 0;
   const applied = filters.find(
@@ -195,6 +204,8 @@ export async function fetchProductsStockFirst(
   } = args;
 
   // 1. Pull the lightweight ID list with availableForSale flags.
+  // CacheShort: stock state changes often, so we don't want a long TTL,
+  // but a few seconds of edge cache helps absorb pagination clicks.
   const {collection} = await storefront.query(
     COLLECTION_PRODUCT_STOCK_META_QUERY,
     {
@@ -207,6 +218,7 @@ export async function fetchProductsStockFirst(
         language,
         first: STOREFRONT_MAX_NODES,
       },
+      cache: storefront.CacheShort(),
     },
   );
 
@@ -221,10 +233,7 @@ export async function fetchProductsStockFirst(
     };
   }
 
-  const meta = (collection.products?.nodes ?? []) as Array<{
-    id: string;
-    availableForSale: boolean;
-  }>;
+  const meta = (collection.products?.nodes ?? []) as StockMeta[];
 
   // 2. Partition into in-stock / out-of-stock while preserving relative order.
   const inStockIds: string[] = [];
@@ -254,11 +263,14 @@ export async function fetchProductsStockFirst(
   // 4. Fetch full product cards for the page's IDs.
   const {nodes} = await storefront.query(PRODUCTS_BY_IDS_QUERY, {
     variables: {ids: pageIds, country, language},
+    cache: storefront.CacheShort(),
   });
 
   // `nodes(ids:)` preserves the order we passed in. Filter null entries
   // (in case an ID was unpublished between the two queries).
-  const pageNodes = (nodes as any[]).filter(Boolean);
+  const pageNodes = (nodes as Array<ProductCard | null>).filter(
+    (n): n is ProductCard => Boolean(n),
+  );
 
   return {nodes: pageNodes, ...baseResult};
 }

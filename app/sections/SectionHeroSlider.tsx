@@ -224,6 +224,11 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
   // Content block position (default: center-left)
   const rawPosition = (item as any).content_position?.value || 'center-left';
   const positionClasses = getPositionClasses(rawPosition);
+  // Reserve room for the dot indicators (which sit at bottom-4) when the
+  // content is anchored to the bottom edge — otherwise the CTA overlaps
+  // the dots instead of sitting above them.
+  const isBottomAligned = rawPosition.startsWith('bottom-');
+  const verticalPaddingClass = isBottomAligned ? 'pt-8 pb-20' : 'pb-8 pt-8';
 
   // Determine if this hero item has text content
   const hasTextContent = !!(item.heading?.value || item.sub_heading?.value || item.cta_button?.text?.value);
@@ -281,7 +286,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
 
       {/* CONTENT - Only show text overlay if there is text content */}
       {hasTextContent && (
-        <div className={`relative z-10 h-full flex pb-8 pt-8 ${positionClasses.flex}`}>
+        <div className={`relative z-10 h-full flex ${verticalPaddingClass} ${positionClasses.flex}`}>
           <div className="container">
             <div className={`nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8 ${positionClasses.text}`}>
               <div className="space-y-3 sm:space-y-4">

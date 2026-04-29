@@ -25,10 +25,9 @@ import {FireIcon} from '@heroicons/react/24/outline';
 import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFiltersFromRequest';
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
 import {
-  fetchProductsStockFirst,
-  getTotalProductsForAppliedFilters,
-  hasAvailabilityFilter,
-} from '~/utils/fetchProductsStockFirst';
+  COLLECTION_PAGE_SIZE,
+  loadCollectionPage,
+} from '~/utils/loadCollectionPage';
 import {ProductsGrid} from '~/components/ProductsGrid';
 import clsx from 'clsx';
 import {Suspense} from 'react';
@@ -50,112 +49,19 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
     handle: 'route-collection',
   });
 
-  const PAGE_SIZE = 24;
   const {filters, sortKey, reverse, page} =
-    getPaginationAndFiltersFromRequest(request, PAGE_SIZE);
+    getPaginationAndFiltersFromRequest(request, COLLECTION_PAGE_SIZE);
 
-  // First, fetch collection metadata with a tiny products slice so we can read
-  // the availability facet and decide whether to apply stock-first stitching.
-  const {collection: baseCollection} = await context.storefront.query(
-    COLLECTION_QUERY,
-    {
-      variables: {
-        first: 1,
-        handle: collectionHandle,
-        filters,
-        sortKey,
-        reverse,
-        country: context.storefront.i18n.country,
-        language: context.storefront.i18n.language,
-      },
-    },
-  );
-
-  if (!baseCollection) {
-    throw new Response('collection', {status: 404});
-  }
-
-  const availabilityFacet = baseCollection.products.filters.find(
-    (f: Filter) => f.id === 'filter.v.availability',
-  );
-  const useStockFirst =
-    !hasAvailabilityFilter(filters) &&
-    availabilityFacet &&
-    availabilityFacet.values?.length > 0;
-
-  let slicedNodes: any[] = [];
-  let pageFilters: any[] = baseCollection.products.filters;
-  let stockFirstTotal: number | null = null;
-
-  if (useStockFirst) {
-    const result = await fetchProductsStockFirst({
+  const {collection, products, totalProducts, currentPage, pageSize} =
+    await loadCollectionPage({
       storefront: context.storefront,
       handle: collectionHandle,
-      page,
-      pageSize: PAGE_SIZE,
+      collectionQuery: COLLECTION_QUERY,
       filters,
       sortKey,
       reverse,
-      country: context.storefront.i18n.country,
-      language: context.storefront.i18n.language,
+      page,
     });
-    slicedNodes = result.nodes;
-    if (result.filters.length) pageFilters = result.filters;
-    // Use the deduplicated total from the meta query (correct, accounts for
-    // mixed-availability products). Fall back to facet sum if the collection
-    // exceeded the 250-product cap.
-    stockFirstTotal = result.truncated ? null : result.total;
-  } else {
-    // Original cursor-based pagination path (used when user already filtered
-    // by availability or when there's no availability facet).
-    let afterCursor: string | null = null;
-    if (page > 1) {
-      const skipCount = (page - 1) * PAGE_SIZE;
-      const {collection: cursorCollection} =
-        await context.storefront.query(COLLECTION_QUERY, {
-          variables: {
-            first: skipCount,
-            handle: collectionHandle,
-            filters,
-            sortKey,
-            reverse,
-            country: context.storefront.i18n.country,
-            language: context.storefront.i18n.language,
-          },
-        });
-      afterCursor =
-        cursorCollection?.products?.pageInfo?.endCursor || null;
-    }
-    const {collection: pagedCollection} = await context.storefront.query(
-      COLLECTION_QUERY,
-      {
-        variables: {
-          first: PAGE_SIZE,
-          after: afterCursor,
-          handle: collectionHandle,
-          filters,
-          sortKey,
-          reverse,
-          country: context.storefront.i18n.country,
-          language: context.storefront.i18n.language,
-        },
-      },
-    );
-    slicedNodes = pagedCollection?.products?.nodes ?? [];
-    if (pagedCollection?.products?.filters?.length) {
-      pageFilters = pagedCollection.products.filters;
-    }
-  }
-
-  // Reconstruct a collection-shaped object so downstream code is unchanged.
-  const collection = {
-    ...baseCollection,
-    products: {
-      ...baseCollection.products,
-      nodes: slicedNodes,
-      filters: pageFilters,
-    },
-  };
 
   const seo = seoPayload.collection({collection, url: request.url});
 
@@ -163,19 +69,12 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
     (filter: Filter) => filter.id === 'filter.v.price',
   );
 
-  // Prefer the deduplicated stock-first total when available; otherwise
-  // compute from the availability facet (handles applied availability filter
-  // and the >250 truncation case).
-  const totalProducts =
-    stockFirstTotal ??
-    getTotalProductsForAppliedFilters(filters, availabilityFacet);
-
   return defer({
     routePromise,
     collection,
-    products: slicedNodes,
-    currentPage: page,
-    pageSize: PAGE_SIZE,
+    products,
+    currentPage,
+    pageSize,
     totalProducts,
     defaultPriceFilter: {
       value: defaultPriceFilter?.values[0] ?? null,
