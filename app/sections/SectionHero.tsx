@@ -7,6 +7,25 @@ import type {
 } from 'storefrontapi.generated';
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
 
+function getPositionClasses(position: string): {
+  flex: string;
+  text: string;
+  mx: string;
+} {
+  const map: Record<string, {flex: string; text: string; mx: string}> = {
+    'top-left':      {flex: 'items-start justify-start',   text: 'text-left',   mx: 'mr-auto'},
+    'top-center':    {flex: 'items-start justify-center',  text: 'text-center', mx: 'mx-auto'},
+    'top-right':     {flex: 'items-start justify-end',     text: 'text-right',  mx: 'ml-auto'},
+    'center-left':   {flex: 'items-center justify-start',  text: 'text-left',   mx: 'mr-auto'},
+    'center-center': {flex: 'items-center justify-center', text: 'text-center', mx: 'mx-auto'},
+    'center-right':  {flex: 'items-center justify-end',    text: 'text-right',  mx: 'ml-auto'},
+    'bottom-left':   {flex: 'items-end justify-start',     text: 'text-left',   mx: 'mr-auto'},
+    'bottom-center': {flex: 'items-end justify-center',    text: 'text-center', mx: 'mx-auto'},
+    'bottom-right':  {flex: 'items-end justify-end',       text: 'text-right',  mx: 'ml-auto'},
+  };
+  return map[position] ?? map['center-left'];
+}
+
 export function SectionHero(props: SectionHeroFragment) {
   const heroItem = props.hero_item?.reference
     ? parseSection<
@@ -32,6 +51,18 @@ export function SectionHero(props: SectionHeroFragment) {
   const subheadingColor = (heroItem as any).subheading_color?.value || '#171717';
   const buttonBgColor = (heroItem as any).button_bg_color?.value || '#171717';
   const buttonTextColor = (heroItem as any).button_text_color?.value || '#ffffff';
+
+  // Content block position (default: center-left)
+  const rawPosition = (heroItem as any).content_position?.value || 'center-left';
+  const positionClasses = getPositionClasses(rawPosition);
+  const isBottomAligned = rawPosition.startsWith('bottom-');
+  const verticalPaddingClass = isBottomAligned ? 'pt-8 pb-16' : 'py-12 sm:py-14';
+  const buttonJustify =
+    positionClasses.text === 'text-right'
+      ? 'flex justify-end'
+      : positionClasses.text === 'text-center'
+        ? 'flex justify-center'
+        : 'flex justify-start';
 
   // Get video sources
   const horizontalVideo = (heroItem as any).horizontal_video?.reference?.sources?.[0];
@@ -82,9 +113,9 @@ export function SectionHero(props: SectionHeroFragment) {
         </div>
 
         {/* CONTENT */}
-        <div className="flex py-12 sm:py-14 lg:items-center lg:pb-20">
+        <div className={`relative z-10 h-full flex ${verticalPaddingClass} ${positionClasses.flex}`}>
           <div className="container relative">
-            <div className="flex max-w-lg flex-col items-start space-y-5 xl:max-w-2xl xl:space-y-8 ">
+            <div className={`flex flex-col max-w-lg space-y-5 xl:max-w-2xl xl:space-y-8 ${positionClasses.mx} ${positionClasses.text}`}>
               {sub_heading?.value && (
                 <span 
                   className="font-semibold sm:text-lg md:text-xl"
@@ -101,7 +132,7 @@ export function SectionHero(props: SectionHeroFragment) {
                 />
               )}
               {!!cta_button?.href?.value && (
-                <div className="sm:pt-4">
+                <div className={`sm:pt-4 ${buttonJustify}`}>
                   <a
                     href={cta_button?.href?.value || ''}
                     target={cta_button?.target?.value === 'true' ? '_blank' : '_self'}

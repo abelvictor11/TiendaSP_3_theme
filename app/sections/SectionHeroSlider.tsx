@@ -368,6 +368,9 @@ export const HERO_ITEM_FRAGMENT = `#graphql
       button_text_color: field(key: "button_text_color") {
         value
       }
+      content_position: field(key: "content_position") {
+        value
+      }
   }
 `;
 
