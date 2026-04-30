@@ -161,6 +161,27 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
       country,
     },
   });
+
+  // After menu loads, fetch ONLY the collections referenced in menu items by handle
+  const menuCollectionsPromise = headerPromise.then(async (headerData: any) => {
+    const handles = new Set<string>();
+    for (const item of headerData?.headerMenu?.items || []) {
+      const m = item.url?.match(/\/collections\/([^/?#]+)/);
+      if (m) handles.add(m[1]);
+      for (const child of item.items || []) {
+        const cm = child.url?.match(/\/collections\/([^/?#]+)/);
+        if (cm) handles.add(cm[1]);
+      }
+    }
+    if (handles.size === 0) return {nodes: []};
+    const queryStr = [...handles].map((h) => `handle:${h}`).join(' OR ');
+    const result = await storefront.query(MENU_COLLECTIONS_QUERY, {
+      cache: storefront.CacheLong(),
+      variables: {query: queryStr, first: handles.size + 5, language, country},
+    });
+    return result?.collections || {nodes: []};
+  });
+
   const footerPromise = storefront.query(FOOTER_QUERY, {
     cache: storefront.CacheLong(),
     variables: {
@@ -176,6 +197,7 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
     cart: cart.get(),
     headerPromise,
     footerPromise,
+    menuCollectionsPromise,
   };
 }
 
@@ -390,36 +412,6 @@ const HEADER_QUERY = `#graphql
     featuredCollections: collections(first: $featuredCollectionsFirst, sortKey: UPDATED_AT) {
       nodes {
         ...CommonCollectionItem
-      }
-    }
-    menuCollections: collections(first: 50) {
-      nodes {
-        id
-        handle
-        title
-        image {
-          url
-          altText
-          width
-          height
-        }
-        subcollections: metafield(namespace: "custom", key: "coleccion_hija") {
-          references(first: 20) {
-            nodes {
-              ... on Collection {
-                id
-                handle
-                title
-                image {
-                  url
-                  altText
-                  width
-                  height
-                }
-              }
-            }
-          }
-        }
       }
     }
     socials: metaobjects(type: "ciseco--social", first: $socialsFirst) {
@@ -728,6 +720,46 @@ const HEADER_QUERY = `#graphql
   }
   ${MENU_FRAGMENT}
   ${COMMON_COLLECTION_ITEM_FRAGMENT}
+` as const;
+
+const MENU_COLLECTIONS_QUERY = `#graphql
+  query MenuCollections(
+    $query: String!
+    $first: Int!
+    $language: LanguageCode
+    $country: CountryCode
+  ) @inContext(language: $language, country: $country) {
+    collections(first: $first, query: $query) {
+      nodes {
+        id
+        handle
+        title
+        image {
+          url
+          altText
+          width
+          height
+        }
+        subcollections: metafield(namespace: "custom", key: "coleccion_hija") {
+          references(first: 20) {
+            nodes {
+              ... on Collection {
+                id
+                handle
+                title
+                image {
+                  url
+                  altText
+                  width
+                  height
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 ` as const;
 
 async function getLayoutData({storefront, env}: AppLoadContext) {

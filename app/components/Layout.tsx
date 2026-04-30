@@ -48,6 +48,8 @@ export function Layout({children, layout}: LayoutProps) {
 
 function MyHeader() {
   const isHome = useIsHomePath();
+  const rootData = useRouteLoaderData<RootLoader>('root');
+  const menuCollectionsPromise = rootData?.menuCollectionsPromise;
 
   return (
     <>
@@ -87,27 +89,39 @@ function MyHeader() {
             // Parse search suggestions for header search input
             const searchSuggestionsRaw = (headerData as any)?.searchSuggestions;
 
-            // Build map of collection handle -> child collections for auto mega menu
-            const menuCollectionsNodes = (headerData as any)?.menuCollections?.nodes || [];
-            const collectionsWithChildren: Record<string, any[]> = {};
-            for (const col of menuCollectionsNodes) {
-              const children = col.subcollections?.references?.nodes || [];
-              if (children.length > 0) {
-                collectionsWithChildren[col.handle] = children.map((child: any) => ({
-                  ...child,
-                  parentHandle: col.handle,
-                }));
-              }
-            }
-
             return (
               <>
                 <MainNav isHome={isHome} brands={brands} quickLinks={quickLinks} searchSuggestions={searchSuggestionsRaw} />
-                <NavigationBar 
-                  headerMenu={headerMenu?.items} 
-                  headerData={headerData}
-                  collectionsWithChildren={collectionsWithChildren}
-                />
+                <Suspense fallback={
+                  <NavigationBar
+                    headerMenu={headerMenu?.items}
+                    headerData={headerData}
+                    collectionsWithChildren={{}}
+                  />
+                }>
+                  <Await resolve={menuCollectionsPromise}>
+                    {(menuCollectionsData: any) => {
+                      const nodes = menuCollectionsData?.nodes || [];
+                      const cwc: Record<string, any[]> = {};
+                      for (const col of nodes) {
+                        const children = col.subcollections?.references?.nodes || [];
+                        if (children.length > 0) {
+                          cwc[col.handle] = children.map((child: any) => ({
+                            ...child,
+                            parentHandle: col.handle,
+                          }));
+                        }
+                      }
+                      return (
+                        <NavigationBar
+                          headerMenu={headerMenu?.items}
+                          headerData={headerData}
+                          collectionsWithChildren={cwc}
+                        />
+                      );
+                    }}
+                  </Await>
+                </Suspense>
               </>
             );
           }}
