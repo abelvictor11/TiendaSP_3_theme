@@ -108,7 +108,7 @@ export function ProductGallery({
         </div>
 
         {/* Thumbnails - Grid of 9 */}
-        <div className="grid grid-cols-9 gap-2 mt-4">
+        <div className="grid grid-cols-9 gap-2 mt-4 pl-4">
           {Array.from({length: 9}).map((_, i) => {
             const med = media[i];
             const image =

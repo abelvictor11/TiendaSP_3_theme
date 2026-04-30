@@ -41,7 +41,7 @@ export function SectionBrandsTicker(props: any) {
     const brandName = brand.name?.value || `Brand ${index}`;
 
     const BrandContent = () => (
-      <div className="flex-shrink-0 w-32 h-16 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
+      <div className="flex-shrink-0 w-32 h-16 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity rounded-md bg-[rgb(237,237,237,0.5)]">
         {svgContent ? (
           <div 
             className="w-full h-full flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
@@ -109,7 +109,7 @@ export function SectionBrandsTicker(props: any) {
           style={{background: `linear-gradient(to left, ${bgColor} 0%, ${bgColor}80 30%, transparent 100%)`}}
         />
         <div 
-          className="flex items-center gap-8 md:gap-12 lg:gap-16 animate-ticker"
+          className="flex items-center gap-4 animate-ticker"
           style={{
             animationDuration: `${adjustedDuration}s`,
           }}
