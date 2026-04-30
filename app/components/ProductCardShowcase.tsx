@@ -43,7 +43,7 @@ export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
       className="ProductCardShowcase relative flex flex-col h-full rounded-2xl overflow-hidden shadow-xl backdrop-blur-md"
       style={{backgroundColor: `${cardBackgroundColor}cc`}} // cc = 80% opacity
     >
-      <Link to={variantUrl} className="absolute inset-0 z-0" prefetch="viewport">
+      <Link to={variantUrl} className="absolute inset-0 z-0" prefetch="intent">
         <span className="sr-only">{title}</span>
       </Link>
 
