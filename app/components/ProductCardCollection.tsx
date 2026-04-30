@@ -30,7 +30,7 @@ const ProductCardCollection: FC<ProductCardCollectionProps> = ({
     <Link
       to={`/products/${handle}`}
       className={clsx(`block w-full`, className)}
-      prefetch="viewport"
+      prefetch="intent"
     >
       <div className="relative w-full aspect-w-16 aspect-h-12 sm:aspect-h-9 rounded-2xl overflow-hidden bg-slate-100 group">
         {/* Background image */}

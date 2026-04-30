@@ -254,7 +254,7 @@ const ProductCard: FC<ProductCardProps> = ({
       <div
         className={`ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] hover:border-[#1a1a1a] rounded-2xl overflow-hidden ${className}`}
       >
-        <Link to={variantUrl} className="absolute inset-0" prefetch="viewport">
+        <Link to={variantUrl} className="absolute inset-0" prefetch="intent">
           <span className="sr-only">{title}</span>
         </Link>
 

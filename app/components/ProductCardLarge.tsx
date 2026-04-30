@@ -115,7 +115,7 @@ const ProductCardLarge: FC<ProductCardProps> = ({
       <Link
         to={'/products/' + handle}
         className="absolute inset-0"
-        prefetch="viewport"
+        prefetch="intent"
       >
         <span className="sr-only">{title}</span>
       </Link>

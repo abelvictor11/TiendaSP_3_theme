@@ -38,9 +38,7 @@ const TopBarMarquee: FC<TopBarMarqueeProps> = ({
     >
       <div
         className="flex animate-marquee"
-        style={{
-          animationDuration: `${speed}s`,
-        }}
+        style={{animationDuration: `${speed}s`}}
       >
         <div
           className="flex items-center text-sm font-medium uppercase tracking-wider"
@@ -48,7 +46,6 @@ const TopBarMarquee: FC<TopBarMarqueeProps> = ({
         >
           {repeatedContent}
         </div>
-        {/* Duplicate for seamless loop */}
         <div
           className="flex items-center text-sm font-medium uppercase tracking-wider"
           style={{color: textColor}}
@@ -56,21 +53,6 @@ const TopBarMarquee: FC<TopBarMarqueeProps> = ({
           {repeatedContent}
         </div>
       </div>
-
-      {/* CSS Animation */}
-      <style>{`
-        @keyframes marquee {
-          0% {
-            transform: translateX(0);
-          }
-          100% {
-            transform: translateX(-50%);
-          }
-        }
-        .animate-marquee {
-          animation: marquee linear infinite;
-        }
-      `}</style>
     </div>
   );
 };
