@@ -8,13 +8,14 @@ import {
   MapPinIcon,
   PhoneIcon,
 } from '@heroicons/react/24/outline';
-import {useFetcher, useRouteLoaderData} from '@remix-run/react';
+import {Await, useFetcher, useRouteLoaderData} from '@remix-run/react';
+import {Suspense} from 'react';
 import Input from './MyInput';
 import ButtonCircle from './Button/ButtonCircle';
 import {ArrowRightIcon} from '@heroicons/react/24/solid';
 import SocialsList from './SocialsList';
 import {type AddSubscriberMutation} from 'storefrontapi.generated';
-import {FooterMenuDataWrap, HeaderMenuDataWrap} from './Layout';
+import {FooterMenuDataWrap} from './Layout';
 import type {RootLoader} from '~/root';
 
 interface FooterProps {}
@@ -100,22 +101,24 @@ const Footer: React.FC<FooterProps> = () => {
 
         <div className="mt-16 border-t border-neutral-800 pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-20">
           <div className="flex flex-wrap gap-x-6 gap-y-3 md:order-2">
-            <HeaderMenuDataWrap>
-              {({headerData}) => (
-                <SocialsList
-                  data={(headerData?.socials?.edges || []).map((edge) => {
-                    const node = edge.node;
-                    return {
-                      name: node.title?.value || '',
-                      icon: node.icon?.reference?.image?.url || '',
-                      href: node.link?.value || '',
-                    };
-                  })}
-                  itemClass="block w-6 h-6 opacity-90 hover:opacity-100"
-                  className="!gap-5"
-                />
-              )}
-            </HeaderMenuDataWrap>
+            <Suspense fallback={null}>
+              <Await resolve={rootData?.headerPromise}>
+                {(headerData: any) => (
+                  <SocialsList
+                    data={(headerData?.socials?.edges || []).map((edge: any) => {
+                      const node = edge.node;
+                      return {
+                        name: node.title?.value || '',
+                        icon: node.icon?.reference?.image?.url || '',
+                        href: node.link?.value || '',
+                      };
+                    })}
+                    itemClass="block w-6 h-6 opacity-90 hover:opacity-100"
+                    className="!gap-5"
+                  />
+                )}
+              </Await>
+            </Suspense>
           </div>
           <p className="mt-8 text-[13px] leading-5 text-neutral-500 md:order-1 md:mt-0">
             © {new Date().getFullYear()}
