@@ -185,6 +185,25 @@ export function SectionHeroSlider(props: SectionHeroSliderFragment) {
   );
 }
 
+function getPositionClasses(position: string): {
+  flex: string;
+  text: string;
+  mx: string;
+} {
+  const map: Record<string, {flex: string; text: string; mx: string}> = {
+    'top-left':      {flex: 'items-start justify-start',   text: 'text-left',   mx: 'mr-auto'},
+    'top-center':    {flex: 'items-start justify-center',  text: 'text-center', mx: 'mx-auto'},
+    'top-right':     {flex: 'items-start justify-end',     text: 'text-right',  mx: 'ml-auto'},
+    'center-left':   {flex: 'items-center justify-start',  text: 'text-left',   mx: 'mr-auto'},
+    'center-center': {flex: 'items-center justify-center', text: 'text-center', mx: 'mx-auto'},
+    'center-right':  {flex: 'items-center justify-end',    text: 'text-right',  mx: 'ml-auto'},
+    'bottom-left':   {flex: 'items-end justify-start',     text: 'text-left',   mx: 'mr-auto'},
+    'bottom-center': {flex: 'items-end justify-center',    text: 'text-center', mx: 'mx-auto'},
+    'bottom-right':  {flex: 'items-end justify-end',       text: 'text-right',  mx: 'ml-auto'},
+  };
+  return map[position] ?? map['center-left'];
+}
+
 const SectionItem = ({section}: {section: HeroItemFragment}) => {
   const item = parseSection<
     HeroItemFragment,
@@ -201,6 +220,18 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
   const subheadingColor = (item as any).subheading_color?.value || '#475569';
   const buttonBgColor = (item as any).button_bg_color?.value || '#1e293b';
   const buttonTextColor = (item as any).button_text_color?.value || '#ffffff';
+
+  // Content block position (default: center-left)
+  const rawPosition = (item as any).content_position?.value || 'center-left';
+  const positionClasses = getPositionClasses(rawPosition);
+  const isBottomAligned = rawPosition.startsWith('bottom-');
+  const verticalPaddingClass = isBottomAligned ? 'pt-8 pb-16' : 'py-0';
+  const buttonJustify =
+    positionClasses.text === 'text-right'
+      ? 'flex justify-end'
+      : positionClasses.text === 'text-center'
+        ? 'flex justify-center'
+        : 'flex justify-start';
 
   return (
     <div className="h-[60vh] min-h-[400px] w-full lg:h-[55vh] lg:min-h-[500px] relative overflow-hidden bg-slate-100">
@@ -247,10 +278,10 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
         )}
       </div>
 
-      {/* CONTENT - Above image, vertically centered */}
-      <div className="relative z-10 h-full flex items-center">
+      {/* CONTENT - Above image, position controlled by content_position */}
+      <div className={`relative z-10 h-full flex ${verticalPaddingClass} ${positionClasses.flex}`}>
         <div className="container">
-          <div className="nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8">
+          <div className={`nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8 ${positionClasses.mx} ${positionClasses.text}`}>
             <div className="space-y-3 sm:space-y-4">
               {!!item.heading?.value && (
                 <h2
@@ -269,6 +300,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
             </div>
 
             {!!item.cta_button?.href?.value && (
+              <div className={buttonJustify}>
               <a
                 href={item.cta_button.href.value}
                 target={item.cta_button?.target?.value === 'true' ? '_blank' : '_self'}
@@ -292,6 +324,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
                 </svg>
               </a>
+              </div>
             )}
           </div>
         </div>
