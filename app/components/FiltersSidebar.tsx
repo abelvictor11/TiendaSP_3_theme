@@ -140,17 +140,24 @@ const COLOR_MAP: Record<string, string> = {
   multi: 'conic-gradient(red, yellow, lime, aqua, blue, magenta, red)',
 };
 
+// Pre-computed at module load: sorted by key length DESC + keys already normalized
+// This avoids re-sorting and re-normalizing on every getColorFromLabel call
+const SORTED_NORMALIZED_COLOR_ENTRIES: Array<[string, string]> = Object.entries(COLOR_MAP)
+  .sort((a, b) => b[0].length - a[0].length)
+  .map(([key, value]) => [
+    key.normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
+    value,
+  ]);
+
 // Get color from label — matches the LONGEST (most specific) color name first
 function getColorFromLabel(label: string): string | null {
-  const normalizedLabel = label.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\//g, '/');
-  
-  // Sort entries by key length descending so compound names match before simple ones
-  const sortedEntries = Object.entries(COLOR_MAP).sort(
-    (a, b) => b[0].length - a[0].length,
-  );
+  const normalizedLabel = label
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/\//g, '/');
 
-  for (const [colorName, colorValue] of sortedEntries) {
-    const normalizedColorName = colorName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  for (const [normalizedColorName, colorValue] of SORTED_NORMALIZED_COLOR_ENTRIES) {
     if (normalizedLabel.includes(normalizedColorName)) {
       return colorValue;
     }

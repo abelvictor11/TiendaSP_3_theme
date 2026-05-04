@@ -58,12 +58,20 @@ const COLOR_MAP: Record<string, string> = {
   lavender: '#E6E6FA',
 };
 
+// Pre-computed at module load: keys already normalized, no per-call allocation
+const NORMALIZED_COLOR_ENTRIES: Array<[string, string]> = Object.entries(COLOR_MAP).map(
+  ([key, value]) => [key.normalize('NFD').replace(/[\u0300-\u036f]/g, ''), value],
+);
+
 // Get color hex from name
 function getColorFromName(name: string): string | null {
-  const normalizedName = name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/_/g, ' ');
-  
-  for (const [colorName, colorValue] of Object.entries(COLOR_MAP)) {
-    const normalizedColorName = colorName.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  const normalizedName = name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/_/g, ' ');
+
+  for (const [normalizedColorName, colorValue] of NORMALIZED_COLOR_ENTRIES) {
     if (normalizedName.includes(normalizedColorName)) {
       return colorValue;
     }
