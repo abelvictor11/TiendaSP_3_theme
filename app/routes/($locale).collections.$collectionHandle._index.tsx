@@ -298,44 +298,55 @@ function CollectionContent({
   }
 
   return (
-    <div className="flex gap-8">
-      {/* Sidebar with Filters - sticky with independent scroll */}
-      <div className="hidden lg:block lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-32px)] lg:overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 scrollbar-track-transparent">
-        <FiltersSidebar
-          filters={collection.products.filters as Filter[]}
-          appliedFilters={appliedFilters}
-          defaultPriceFilter={defaultPriceFilter}
-        />
-      </div>
-
-      {/* Main Content */}
-      <div className="flex-1 min-w-0">
-        {/* Mobile Filters + Sort */}
-        <div className="lg:hidden mb-8">
-          <SortFilter
+    <>
+      <div className="flex gap-8">
+        {/* Sidebar with Filters - sticky with independent scroll */}
+        <div className="hidden lg:block lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-32px)] lg:overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 scrollbar-track-transparent">
+          <FiltersSidebar
             filters={collection.products.filters as Filter[]}
+            appliedFilters={appliedFilters}
             defaultPriceFilter={defaultPriceFilter}
           />
         </div>
 
-        {/* Desktop Sort Only */}
-        <div className="hidden lg:flex justify-end mb-8">
-          <SortFilter
-            filters={[]}
-            defaultPriceFilter={defaultPriceFilter}
+        {/* Main Content */}
+        <div className="flex-1 min-w-0">
+          {/* Mobile Filters + Sort */}
+          <div className="lg:hidden mb-8">
+            <SortFilter
+              filters={collection.products.filters as Filter[]}
+              defaultPriceFilter={defaultPriceFilter}
+            />
+          </div>
+
+          {/* Desktop Sort Only */}
+          <div className="hidden lg:flex justify-end mb-8">
+            <SortFilter
+              filters={[]}
+              defaultPriceFilter={defaultPriceFilter}
+            />
+          </div>
+
+          {/* Products Grid */}
+          <ProductsGrid nodes={displayNodes as any} className="mt-0" />
+
+          <PaginationBar
+            totalProducts={totalProducts}
+            pageSize={pageSize}
+            currentPage={currentPage}
           />
         </div>
-
-        {/* Products Grid */}
-        <ProductsGrid nodes={displayNodes as any} className="mt-0" />
-        
-        <PaginationBar
-          totalProducts={totalProducts}
-          pageSize={pageSize}
-          currentPage={currentPage}
-        />
       </div>
-    </div>
+
+      {collection.descripcion?.value && (
+        <div className="mt-10 lg:mt-14">
+          <div
+            className="prose prose-sm sm:prose-base max-w-none prose-headings:font-semibold prose-p:leading-relaxed prose-a:text-[#004f9d] prose-a:underline"
+            dangerouslySetInnerHTML={{__html: collection.descripcion.value}}
+          />
+        </div>
+      )}
+    </>
   );
 }
 
@@ -365,6 +376,9 @@ const COLLECTION_QUERY = `#graphql
         width
         height
         altText
+      }
+      descripcion: metafield(namespace: "custom", key: "descripci_n") {
+        value
       }
       subcollections: metafield(namespace: "custom", key: "coleccion_hija") {
         references(first: 20) {
