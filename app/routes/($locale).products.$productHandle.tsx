@@ -569,11 +569,12 @@ export function ProductForm({
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
   const isOutOfStock = !selectedVariant?.availableForSale;
-  const maxQty = selectedVariant?.quantityAvailable ?? 99;
+  // null = inventory not tracked or CONTINUE policy → no limit
+  const maxQty = (selectedVariant as any)?.quantityAvailable ?? null;
 
   // Reset qty to 1 when variant changes, or clamp if new stock < current qty
   useEffect(() => {
-    setQuantity((prev) => Math.min(prev, maxQty || 1));
+    setQuantity((prev) => (maxQty !== null ? Math.min(prev, maxQty || 1) : prev));
   }, [selectedVariant?.id, maxQty]);
 
   // Build breadcrumb hierarchy from product collections
