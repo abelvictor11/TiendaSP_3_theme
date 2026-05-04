@@ -1,9 +1,10 @@
 import {
   defer,
+  redirect,
   type LoaderFunctionArgs,
   type MetaArgs,
 } from '@shopify/remix-oxygen';
-import {Await, useLoaderData, Link} from '@remix-run/react';
+import {Await, useLoaderData, useRouteError, isRouteErrorResponse, Link} from '@remix-run/react';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
 import {Analytics, getSeoMeta} from '@shopify/hydrogen';
 import invariant from 'tiny-invariant';
@@ -52,8 +53,9 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   const {filters, sortKey, reverse, page} =
     getPaginationAndFiltersFromRequest(request, COLLECTION_PAGE_SIZE);
 
-  const {collection, products, totalProducts, currentPage, pageSize} =
-    await loadCollectionPage({
+  let collectionPageData;
+  try {
+    collectionPageData = await loadCollectionPage({
       storefront: context.storefront,
       handle: collectionHandle,
       collectionQuery: COLLECTION_QUERY,
@@ -62,6 +64,14 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
       reverse,
       page,
     });
+  } catch (err) {
+    if (err instanceof Response && err.status === 404) {
+      // La colección no existe → redirigir a búsqueda con el handle como query
+      throw redirect(`/search?q=${encodeURIComponent(collectionHandle)}`);
+    }
+    throw err;
+  }
+  const {collection, products, totalProducts, currentPage, pageSize} = collectionPageData;
 
   const seo = seoPayload.collection({collection, url: request.url});
 
@@ -87,6 +97,29 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
   return getSeoMeta(...matches.map((match) => (match.data as any).seo));
 };
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isRouteError = isRouteErrorResponse(error);
+  const status = isRouteError ? error.status : 500;
+  const message =
+    status === 404
+      ? 'No encontramos esta colección.'
+      : 'Ocurrió un error al cargar la colección.';
+
+  return (
+    <div className="container py-20 text-center">
+      <h1 className="text-4xl font-bold mb-4">{status}</h1>
+      <p className="text-neutral-500 mb-8">{message}</p>
+      <Link
+        to="/collections/all"
+        className="inline-flex items-center gap-2 bg-[#004f9d] text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+      >
+        Ver todos los productos
+      </Link>
+    </div>
+  );
+}
 
 export default function Collection() {
   const {collection, products, currentPage, pageSize, totalProducts, defaultPriceFilter, routePromise} =

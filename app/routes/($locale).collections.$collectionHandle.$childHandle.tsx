@@ -1,9 +1,10 @@
 import {
   defer,
+  redirect,
   type LoaderFunctionArgs,
   type MetaArgs,
 } from '@shopify/remix-oxygen';
-import {Await, useLoaderData, Link, useParams} from '@remix-run/react';
+import {Await, useLoaderData, useRouteError, isRouteErrorResponse, Link, useParams} from '@remix-run/react';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
 import {Analytics, getSeoMeta} from '@shopify/hydrogen';
 import invariant from 'tiny-invariant';
@@ -54,8 +55,9 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
 
   // Fetch child page (with stock-first stitching) and parent collection
   // (for the subcollections nav bar) in parallel.
-  const [pageResult, {collection: parentCollection}] = await Promise.all([
-    loadCollectionPage({
+  let pageResult;
+  try {
+    pageResult = await loadCollectionPage({
       storefront: context.storefront,
       handle: childHandle,
       collectionQuery: CHILD_COLLECTION_QUERY,
@@ -63,15 +65,24 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
       sortKey,
       reverse,
       page,
-    }),
-    context.storefront.query(PARENT_COLLECTION_QUERY, {
+    });
+  } catch (err) {
+    if (err instanceof Response && err.status === 404) {
+      throw redirect(`/collections/${encodeURIComponent(collectionHandle)}`);
+    }
+    throw err;
+  }
+
+  const {collection: parentCollection} = await context.storefront.query(
+    PARENT_COLLECTION_QUERY,
+    {
       variables: {
         handle: collectionHandle,
         country: context.storefront.i18n.country,
         language: context.storefront.i18n.language,
       },
-    }),
-  ]);
+    },
+  );
 
   const {
     collection: childCollection,
@@ -116,6 +127,29 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
   return getSeoMeta(...matches.map((match) => (match.data as any).seo));
 };
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isRouteError = isRouteErrorResponse(error);
+  const status = isRouteError ? error.status : 500;
+  const message =
+    status === 404
+      ? 'No encontramos esta colección.'
+      : 'Ocurrió un error al cargar la colección.';
+
+  return (
+    <div className="container py-20 text-center">
+      <h1 className="text-4xl font-bold mb-4">{status}</h1>
+      <p className="text-neutral-500 mb-8">{message}</p>
+      <Link
+        to="/collections/all"
+        className="inline-flex items-center gap-2 bg-[#004f9d] text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+      >
+        Ver todos los productos
+      </Link>
+    </div>
+  );
+}
 
 export default function ChildCollection() {
   const {
