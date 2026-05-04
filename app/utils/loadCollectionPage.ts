@@ -15,9 +15,10 @@ import type {
 } from '@shopify/hydrogen/storefront-api-types';
 import type {Storefront} from '@shopify/hydrogen';
 import {
-  fetchProductsStockFirst,
   getTotalProductsForAppliedFilters,
   hasAvailabilityFilter,
+  COLLECTION_PRODUCT_STOCK_META_QUERY,
+  processStockMetaAndFetchPage,
 } from '~/utils/fetchProductsStockFirst';
 
 export const COLLECTION_PAGE_SIZE = 24;
@@ -61,6 +62,25 @@ export async function loadCollectionPage(
 
   // Fetch metadata + 1 product so we can read the availability facet
   // before deciding whether to stitch.
+  const noAvailFilter = !hasAvailabilityFilter(filters);
+
+  // When no availability filter is applied (common case), run the base query
+  // and the stock-meta query IN PARALLEL to save ~300 ms of sequential latency.
+  const stockMetaPromise = noAvailFilter
+    ? storefront.query(COLLECTION_PRODUCT_STOCK_META_QUERY, {
+        cache: storefront.CacheShort(),
+        variables: {
+          handle,
+          filters,
+          sortKey,
+          reverse,
+          country,
+          language,
+          first: 250,
+        },
+      })
+    : null;
+
   const {collection: baseCollection} = await storefront.query(collectionQuery, {
     variables: {
       first: 1,
@@ -81,7 +101,7 @@ export async function loadCollectionPage(
     (f: Filter) => f.id === 'filter.v.availability',
   );
   const useStockFirst =
-    !hasAvailabilityFilter(filters) &&
+    noAvailFilter &&
     availabilityFacet &&
     availabilityFacet.values?.length > 0;
 
@@ -91,8 +111,11 @@ export async function loadCollectionPage(
   let truncated = false;
 
   if (useStockFirst) {
-    const result = await fetchProductsStockFirst({
+    // stockMetaPromise was started in parallel above; await its result now
+    const stockMetaData = await stockMetaPromise;
+    const result = await processStockMetaAndFetchPage({
       storefront,
+      collectionData: stockMetaData,
       handle,
       page,
       pageSize,

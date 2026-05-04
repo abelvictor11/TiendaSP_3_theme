@@ -125,7 +125,7 @@ export function getTotalProductsForAppliedFilters(
  * Also returns filters so the caller can render facets without a separate
  * trip to the API.
  */
-const COLLECTION_PRODUCT_STOCK_META_QUERY = `#graphql
+export const COLLECTION_PRODUCT_STOCK_META_QUERY = `#graphql
   query CollectionProductStockMeta(
     $handle: String!
     $country: CountryCode
@@ -183,6 +183,51 @@ const PRODUCTS_BY_IDS_QUERY = `#graphql
   }
   ${COMMON_PRODUCT_CARD_FRAGMENT}
 ` as const;
+
+/**
+ * Accept pre-fetched stock-meta collection data (avoids a round-trip when
+ * the caller already ran COLLECTION_PRODUCT_STOCK_META_QUERY in parallel).
+ */
+export async function processStockMetaAndFetchPage(
+  args: Omit<FetchArgs, 'storefront'> & {
+    storefront: Storefront;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    collectionData: any;
+  },
+): Promise<PagedResult> {
+  const {storefront, collectionData, page, pageSize, country, language} = args;
+  const meta = (collectionData?.collection?.products?.nodes ?? []) as StockMeta[];
+
+  const inStockIds: string[] = [];
+  const outOfStockIds: string[] = [];
+  for (const p of meta) {
+    if (p.availableForSale) inStockIds.push(p.id);
+    else outOfStockIds.push(p.id);
+  }
+  const orderedIds = [...inStockIds, ...outOfStockIds];
+  const startIndex = (page - 1) * pageSize;
+  const pageIds = orderedIds.slice(startIndex, startIndex + pageSize);
+
+  const baseResult = {
+    filters: collectionData?.collection?.products?.filters ?? [],
+    total: orderedIds.length,
+    totalInStock: inStockIds.length,
+    totalOutOfStock: outOfStockIds.length,
+    truncated: collectionData?.collection?.products?.pageInfo?.hasNextPage ?? false,
+  };
+
+  if (pageIds.length === 0) return {nodes: [], ...baseResult};
+
+  const {nodes} = await storefront.query(PRODUCTS_BY_IDS_QUERY, {
+    variables: {ids: pageIds, country, language},
+    cache: storefront.CacheShort(),
+  });
+
+  const pageNodes = (nodes as Array<ProductCard | null>).filter(
+    (n): n is ProductCard => Boolean(n),
+  );
+  return {nodes: pageNodes, ...baseResult};
+}
 
 /**
  * Main entry point. Returns the requested page with in-stock products

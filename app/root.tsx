@@ -15,6 +15,7 @@ import {
   useRouteError,
   type ShouldRevalidateFunction,
   useRouteLoaderData,
+  useNavigation,
 } from '@remix-run/react';
 import {
   useNonce,
@@ -238,6 +239,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
         <Links />
       </head>
       <body className="bg-white">
+        <NavigationProgress />
         {data ? (
           <>
             {/* ── Inyecta GTM, GA4 y Meta Pixel en el cliente (evita problemas de nonce/CSP en SSR) ── */}
@@ -273,6 +275,27 @@ function MainLayout({children}: {children?: React.ReactNode}) {
         <Scripts nonce={nonce} />
       </body>
     </html>
+  );
+}
+
+function NavigationProgress() {
+  const navigation = useNavigation();
+  const isLoading = navigation.state !== 'idle';
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '3px',
+        zIndex: 9999,
+        pointerEvents: 'none',
+        background: isLoading ? '#004f9d' : 'transparent',
+        transition: isLoading ? 'none' : 'background 0.3s ease 0.1s',
+        animation: isLoading ? 'nav-progress 1.5s ease-in-out infinite' : 'none',
+      }}
+    />
   );
 }
 
