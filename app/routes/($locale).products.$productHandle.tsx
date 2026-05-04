@@ -569,6 +569,12 @@ export function ProductForm({
   const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
 
   const isOutOfStock = !selectedVariant?.availableForSale;
+  const maxQty = selectedVariant?.quantityAvailable ?? 99;
+
+  // Reset qty to 1 when variant changes, or clamp if new stock < current qty
+  useEffect(() => {
+    setQuantity((prev) => Math.min(prev, maxQty || 1));
+  }, [selectedVariant?.id, maxQty]);
 
   // Build breadcrumb hierarchy from product collections
   const breadcrumbs = (() => {
@@ -772,6 +778,7 @@ export function ProductForm({
                   className=""
                   defaultValue={quantity}
                   onChange={setQuantity}
+                  max={maxQty}
                 />
               </div>
               <div className="flex-1 *:h-full *:flex">
@@ -1206,6 +1213,7 @@ export const PRODUCT_VARIANT_FRAGMENT = `#graphql
   fragment ProductVariant on ProductVariant {
     id
     availableForSale
+    quantityAvailable
     selectedOptions {
       name
       value
