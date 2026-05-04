@@ -3,7 +3,7 @@ import {
   type MetaArgs,
   type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
-import {Await, Link, useLoaderData, useSearchParams} from '@remix-run/react';
+import {Await, Link, useLoaderData, useRouteError, isRouteErrorResponse, useSearchParams} from '@remix-run/react';
 import {Analytics, getSeoMeta} from '@shopify/hydrogen';
 import {seoPayload} from '~/lib/seo.server';
 import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
@@ -47,8 +47,9 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
     sortKey === 'PRICE' ? 'PRICE' : 'RELEVANCE';
   const searchReverse = sortKey === 'PRICE' ? reverse : false;
 
-  // Fetch page * PAGE_SIZE products so we can slice to the current page
-  const fetchCount = page * PAGE_SIZE;
+  // Fetch all products up to the current page for client-side slicing.
+  // Capped at 250 (Shopify Storefront API limit).
+  const fetchCount = Math.min(page * PAGE_SIZE, 250);
 
   const [data, dataGetDefaultPriceFilter, searchSuggestionsData] = await Promise.all([
     storefront.query(SEARCH_QUERY, {
@@ -74,11 +75,12 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
 
   // Slice products to only the current page
   const startIndex = (page - 1) * PAGE_SIZE;
-  const slicedNodes = data.search.nodes.slice(startIndex, startIndex + PAGE_SIZE);
+  const allNodes = data?.search?.nodes ?? [];
+  const slicedNodes = allNodes.slice(startIndex, startIndex + PAGE_SIZE);
 
   const defaultPriceFilter =
-    dataGetDefaultPriceFilter.search.productFilters?.find(
-      (filter) => filter.id === 'filter.v.price',
+    dataGetDefaultPriceFilter?.search?.productFilters?.find(
+      (filter: any) => filter.id === 'filter.v.price',
     );
 
   const seo = seoPayload.collection({
@@ -101,13 +103,18 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
 
   const searchSuggestions = searchSuggestionsData?.metaobject;
 
+  // Only serialize what the component needs — avoids sending all fetched
+  // product nodes (up to page * PAGE_SIZE) over the wire when the component
+  // only renders slicedNodes.
+  const productFilters = (data?.search?.productFilters ?? []) as Filter[];
+
   return defer({
     routePromise,
     defaultPriceFilter: {
       value: defaultPriceFilter?.values[0] ?? null,
       locale: storefront.i18n,
     },
-    data,
+    productFilters,
     seo,
     searchTerm,
     products: slicedNodes,
@@ -120,6 +127,29 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
   return getSeoMeta(...matches.map((match) => (match.data as any).seo));
 };
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isRouteError = isRouteErrorResponse(error);
+  const status = isRouteError ? error.status : 500;
+  const message =
+    status === 404
+      ? 'Página de búsqueda no encontrada.'
+      : 'Ocurrió un error al cargar los resultados de búsqueda.';
+
+  return (
+    <div className="container py-20 text-center">
+      <h1 className="text-4xl font-bold mb-4">{status}</h1>
+      <p className="text-neutral-500 mb-8">{message}</p>
+      <Link
+        to="/"
+        className="inline-flex items-center gap-2 bg-[#004f9d] text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+      >
+        Volver al inicio
+      </Link>
+    </div>
+  );
+}
 
 // Parse search suggestions metaobject into a usable format
 function parseSearchSuggestions(metaobject: any) {
@@ -168,14 +198,14 @@ function parseSearchSuggestions(metaobject: any) {
 }
 
 export default function Search() {
-  const {searchTerm, data, products, currentPage, pageSize, defaultPriceFilter, routePromise, searchSuggestions} =
+  const {searchTerm, productFilters, products, currentPage, pageSize, defaultPriceFilter, routePromise, searchSuggestions} =
     useLoaderData<typeof loader>();
   const [params] = useSearchParams();
   const noResults = !products.length;
   const parsedSuggestions = parseSearchSuggestions(searchSuggestions);
 
   // Get total products from availability filter
-  const availabilityFilter = (data.search.productFilters as Filter[])?.find(
+  const availabilityFilter = (productFilters as Filter[])?.find(
     (filter) => filter.id === 'filter.v.availability',
   );
   const totalProducts = noResults
@@ -196,7 +226,7 @@ export default function Search() {
     [] as ProductFilter[],
   );
 
-  const allFilterValues = (data.search.productFilters as Filter[])?.flatMap(
+  const allFilterValues = (productFilters as Filter[])?.flatMap(
     (filter) => filter.values,
   ) || [];
   const appliedFilters = filtersFromSearchParams
@@ -277,7 +307,7 @@ export default function Search() {
                 {/* Sidebar with Filters - Desktop only */}
                 <div className="hidden lg:block lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-32px)] lg:overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 scrollbar-track-transparent">
                   <FiltersSidebar
-                    filters={data.search.productFilters as Filter[]}
+                    filters={productFilters as Filter[]}
                     appliedFilters={appliedFilters}
                     defaultPriceFilter={defaultPriceFilter}
                   />
@@ -288,7 +318,7 @@ export default function Search() {
                   {/* Mobile Filters + Sort */}
                   <div className="lg:hidden mb-8">
                     <SortFilter
-                      filters={data.search.productFilters as Filter[]}
+                      filters={productFilters as Filter[]}
                       defaultPriceFilter={defaultPriceFilter}
                       sorts={[
                         {label: 'Relevance', key: 'relevance'},
