@@ -99,6 +99,7 @@ export async function loader(args: LoaderFunctionArgs) {
     publicOkendoSubcriberId: env.PUBLIC_OKENDO_SUBSCRIBER_ID,
     publicGtmId: env.PUBLIC_GTM_ID ?? 'GTM-KNGTLWDD',
     publicGaMeasurementId: env.PUBLIC_GA_MEASUREMENT_ID ?? 'G-3KXN1RL4D5',
+    publicGoogleAdsId: env.PUBLIC_GOOGLE_ADS_ID ?? '',
     publicMetaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
     publicTiktokPixelId: env.PUBLIC_TIKTOK_PIXEL_ID ?? '',
     /**********   EXAMPLE UPDATE END   ************/
@@ -191,6 +192,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
   const gtmId = data?.publicGtmId as string | null | undefined;
   const gaMeasurementId = data?.publicGaMeasurementId as string | null | undefined;
+  const googleAdsId = data?.publicGoogleAdsId as string | null | undefined;
   const metaPixelId = data?.publicMetaPixelId as string | null | undefined;
   const tiktokPixelId = data?.publicTiktokPixelId as string | null | undefined;
 
@@ -220,6 +222,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
             <GtmLoader
               gtmId={gtmId}
               gaMeasurementId={gaMeasurementId}
+              googleAdsId={googleAdsId}
               metaPixelId={metaPixelId}
               tiktokPixelId={tiktokPixelId}
             />

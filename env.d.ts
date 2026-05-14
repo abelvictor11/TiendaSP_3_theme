@@ -38,6 +38,7 @@ declare global {
     // Tracking / Analytics
     PUBLIC_GTM_ID?: string;
     PUBLIC_GA_MEASUREMENT_ID?: string;
+    PUBLIC_GOOGLE_ADS_ID?: string;
     PUBLIC_META_PIXEL_ID?: string;
     PUBLIC_TIKTOK_PIXEL_ID?: string;
     // Server-side tracking (Meta CAPI / GA4 Measurement Protocol / TikTok Events API)
