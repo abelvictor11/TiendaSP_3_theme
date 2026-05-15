@@ -89,7 +89,7 @@ const ProductCard: FC<ProductCardProps> = ({
     product.handle,
     firstVariant?.selectedOptions ?? [],
   );
-  const {getImageWithCdnUrlByName, getColorHexByName} =
+  const {getImageWithCdnUrlByName, getSwatchStyle} =
     useGetPublicStoreCdnStaticUrlFromRootLoaderData();
 
   // State for selected color on hover - persists until another color is hovered
@@ -123,7 +123,7 @@ const ProductCard: FC<ProductCardProps> = ({
             return null;
           }
           const imageUrl = getImageWithCdnUrlByName(color.replaceAll(/ /g, '_'));
-          const colorHex = getColorHexByName(color);
+          const swatchStyle = getSwatchStyle(color);
 
           const isActive = color === activeColor;
           
@@ -138,7 +138,7 @@ const ProductCard: FC<ProductCardProps> = ({
             >
               <div 
                 className="w-full h-full rounded-full overflow-hidden"
-                style={!imageUrl ? {backgroundColor: colorHex} : undefined}
+                style={!imageUrl ? swatchStyle : undefined}
               >
                 {imageUrl && (
                   <Image

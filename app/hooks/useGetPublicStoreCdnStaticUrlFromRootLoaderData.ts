@@ -1,3 +1,4 @@
+import type React from 'react';
 import {useRouteLoaderData} from '@remix-run/react';
 import type {RootLoader} from '~/root';
 
@@ -98,10 +99,29 @@ export const useGetPublicStoreCdnStaticUrlFromRootLoaderData = () => {
     return getColorFromName(colorName) || '#C4C4C4';
   };
 
+  // Returns a CSS style object for a color swatch.
+  // Supports compound names like "Negro/Azul" or "Negro-Azul" by splitting on / or -
+  // and rendering a diagonal split gradient.
+  const getSwatchStyle = (colorName: string): React.CSSProperties => {
+    const separatorMatch = colorName.match(/[/]/);
+    if (separatorMatch) {
+      const parts = colorName.split('/').map((p) => p.trim());
+      if (parts.length >= 2) {
+        const hex1 = getColorFromName(parts[0]) || '#C4C4C4';
+        const hex2 = getColorFromName(parts[1]) || '#C4C4C4';
+        return {
+          background: `linear-gradient(135deg, ${hex1} 50%, ${hex2} 50%)`,
+        };
+      }
+    }
+    return {backgroundColor: getColorFromName(colorName) || '#C4C4C4'};
+  };
+
   return {
     publicStoreCdnStaticUrl,
     imgFormat,
     getImageWithCdnUrlByName,
     getColorHexByName,
+    getSwatchStyle,
   };
 };

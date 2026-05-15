@@ -972,7 +972,7 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
 };
 
 const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
-  const {getImageWithCdnUrlByName, getColorHexByName} =
+  const {getImageWithCdnUrlByName, getSwatchStyle} =
     useGetPublicStoreCdnStaticUrlFromRootLoaderData();
 
   if (!option.optionValues.length) {
@@ -1002,7 +1002,7 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
             handle,
           }) => {
             const imageUrl = getImageWithCdnUrlByName(value.replaceAll(/ /g, '_'));
-            const colorHex = getColorHexByName(value);
+            const swatchStyle = getSwatchStyle(value);
 
             return (
               <Link
@@ -1025,7 +1025,7 @@ const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
 
                 <div 
                   className="absolute inset-0 rounded-full overflow-hidden"
-                  style={!imageUrl ? {backgroundColor: colorHex} : undefined}
+                  style={!imageUrl ? swatchStyle : undefined}
                 >
                   {imageUrl && (
                     <Image
