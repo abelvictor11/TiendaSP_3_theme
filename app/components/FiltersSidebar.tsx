@@ -165,6 +165,20 @@ function getColorFromLabel(label: string): string | null {
   return null;
 }
 
+// Returns a CSS background value for a color swatch.
+// Supports compound names like "Negro/Azul" — renders a diagonal split gradient.
+function getSwatchBackground(label: string): string {
+  if (label.includes('/')) {
+    const parts = label.split('/').map((p) => p.trim());
+    if (parts.length >= 2) {
+      const hex1 = getColorFromLabel(parts[0]) || '#C4C4C4';
+      const hex2 = getColorFromLabel(parts[1]) || '#C4C4C4';
+      return `linear-gradient(135deg, ${hex1} 50%, ${hex2} 50%)`;
+    }
+  }
+  return getColorFromLabel(label) || '#C4C4C4';
+}
+
 // Check if filter is a color filter
 function isColorFilter(filter: Filter): boolean {
   const label = filter.label.toLowerCase();
@@ -241,8 +255,8 @@ export default function FiltersSidebar({
             const isChecked = appliedFilters.some(
               (af) => af.data?.id === option.id && af.label === option.label,
             );
-            const color = getColorFromLabel(option.label);
-            const isWhite = color === '#FFFFFF';
+            const swatchBg = getSwatchBackground(option.label);
+            const isWhite = getColorFromLabel(option.label) === '#FFFFFF';
 
             return (
               <button
@@ -260,7 +274,7 @@ export default function FiltersSidebar({
                     isWhite ? 'border border-slate-300' : '',
                     isChecked && 'ring-2 ring-offset-2 ring-black',
                   )}
-                  style={{background: color || '#C4C4C4'}}
+                  style={{background: swatchBg}}
                 />
                 <span className="text-xs text-center truncate w-full">
                   {option.label.length > 7 ? option.label.slice(0, 7) + '...' : option.label}
@@ -284,8 +298,8 @@ export default function FiltersSidebar({
                   const isChecked = appliedFilters.some(
                     (af) => af.data?.id === option.id && af.label === option.label,
                   );
-                  const color = getColorFromLabel(option.label);
-                  const isWhite = color === '#FFFFFF';
+                  const swatchBg = getSwatchBackground(option.label);
+                  const isWhite = getColorFromLabel(option.label) === '#FFFFFF';
 
                   return (
                     <button
@@ -303,7 +317,7 @@ export default function FiltersSidebar({
                           isWhite ? 'border border-slate-300' : '',
                           isChecked && 'ring-2 ring-offset-2 ring-black',
                         )}
-                        style={{background: color || '#C4C4C4'}}
+                        style={{background: swatchBg}}
                       />
                       <span className="text-xs text-center truncate w-full">
                         {option.label.length > 7 ? option.label.slice(0, 7) + '...' : option.label}
