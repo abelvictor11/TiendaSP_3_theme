@@ -14,11 +14,13 @@ import {useEffect} from 'react';
 export function GtmLoader({
   gtmId,
   gaMeasurementId,
+  googleAdsId,
   metaPixelId,
   tiktokPixelId,
 }: {
   gtmId?: string | null;
   gaMeasurementId?: string | null;
+  googleAdsId?: string | null;
   metaPixelId?: string | null;
   tiktokPixelId?: string | null;
 }) {
@@ -61,7 +63,23 @@ export function GtmLoader({
       document.head.appendChild(s);
     }
 
-    // ── 4. Meta Pixel (fbq) ───────────────────────────────────────────────
+    // ── 4. Google Ads ─────────────────────────────────────────────────────
+    if (
+      googleAdsId &&
+      !document.querySelector(`script[data-google-ads-id="${googleAdsId}"]`)
+    ) {
+      const s = document.createElement('script');
+      s.async = true;
+      s.setAttribute('data-google-ads-id', googleAdsId);
+      s.src = `https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`;
+      s.onload = () => {
+        w.gtag('js', new Date());
+        w.gtag('config', googleAdsId);
+      };
+      document.head.appendChild(s);
+    }
+
+    // ── 5. Meta Pixel (fbq) ───────────────────────────────────────────────
     // Inicializa fbq en el main window para que CustomAnalytics pueda usarlo.
     // Sin esto, window.fbq solo existe dentro del iframe sandbox de Shopify.
     if (metaPixelId && !w.fbq) {
