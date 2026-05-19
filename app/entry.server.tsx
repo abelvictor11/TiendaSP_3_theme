@@ -22,6 +22,8 @@ export default async function handleRequest(
       'https://shopify.com',
       'https://www.google-analytics.com',
       'https://www.googletagmanager.com',
+      'https://googleads.g.doubleclick.net',
+      'https://td.doubleclick.net',
       // Meta Pixel (fbevents.js)
       'https://connect.facebook.net',
       'https://www.facebook.com',
@@ -113,13 +115,15 @@ export default async function handleRequest(
       'https://surveys.okendo.io',
       // Error tracking
       'https://api.raygun.com',
-      // Google Analytics / GTM
+      // Google Analytics / GTM / Ads
       'https://www.google-analytics.com',
       'https://www.googletagmanager.com',
       'https://analytics.google.com',
       'https://region1.google-analytics.com',
       'https://www.google.com',
       'https://www.gstatic.com',
+      'https://googleads.g.doubleclick.net',
+      'https://td.doubleclick.net',
       // Meta Pixel
       'https://www.facebook.com',
       'https://connect.facebook.net',
@@ -138,6 +142,8 @@ export default async function handleRequest(
       'https://shopify.com',
       'https://*.shopifysvc.com',
       'https://www.googletagmanager.com',
+      'https://googleads.g.doubleclick.net',
+      'https://td.doubleclick.net',
     ],
   });
 
