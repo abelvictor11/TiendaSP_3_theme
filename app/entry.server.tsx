@@ -28,6 +28,8 @@ export default async function handleRequest(
       'https://shopify.com',
       'https://www.google-analytics.com',
       'https://www.googletagmanager.com',
+      'https://googleads.g.doubleclick.net',
+      'https://td.doubleclick.net',
       // Meta Pixel (fbevents.js)
       'https://connect.facebook.net',
       'https://www.facebook.com',
@@ -139,6 +141,8 @@ export default async function handleRequest(
       'https://www.googletagmanager.com',
       'https://analytics.google.com',
       'https://region1.google-analytics.com',
+      'https://googleads.g.doubleclick.net',
+      'https://td.doubleclick.net',
       'https://www.facebook.com',
       'https://connect.facebook.net',
       'https://analytics.tiktok.com',
@@ -154,7 +158,16 @@ export default async function handleRequest(
       // your ngrok domain if you're using ngrok for development
       'wss://refined-starfish-verbally.ngrok-free.app:*',
     ],
-    frameSrc: ['https://www.google.com', 'https://www.gstatic.com', 'https://cdn.shopify.com', 'https://shopify.com', 'https://*.shopifysvc.com'],
+    frameSrc: [
+      'https://www.google.com',
+      'https://www.gstatic.com',
+      'https://cdn.shopify.com',
+      'https://shopify.com',
+      'https://*.shopifysvc.com',
+      'https://www.googletagmanager.com',
+      'https://googleads.g.doubleclick.net',
+      'https://td.doubleclick.net',
+    ],
   });
 
   const body = await renderToReadableStream(

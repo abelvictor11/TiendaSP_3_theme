@@ -134,7 +134,7 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
     consent: {
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
       storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
-      withPrivacyBanner: true,
+      withPrivacyBanner: false,
     },
     selectedLocale: storefront.i18n,
     okendoProviderData,
