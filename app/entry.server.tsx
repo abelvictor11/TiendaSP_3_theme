@@ -24,6 +24,8 @@ export default async function handleRequest(
       'https://www.googletagmanager.com',
       'https://googleads.g.doubleclick.net',
       'https://td.doubleclick.net',
+      // Addi widget
+      'https://statics.addi.com',
       // Meta Pixel (fbevents.js)
       'https://connect.facebook.net',
       'https://www.facebook.com',
@@ -124,6 +126,9 @@ export default async function handleRequest(
       'https://www.gstatic.com',
       'https://googleads.g.doubleclick.net',
       'https://td.doubleclick.net',
+      // Addi widget
+      'https://statics.addi.com',
+      'https://api.addi.com',
       // Meta Pixel
       'https://www.facebook.com',
       'https://connect.facebook.net',

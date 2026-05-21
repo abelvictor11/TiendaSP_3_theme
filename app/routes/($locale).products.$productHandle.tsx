@@ -1,4 +1,4 @@
-import {Suspense, useState} from 'react';
+import {Suspense, useState, useEffect} from 'react';
 import {
   defer,
   type MetaArgs,
@@ -497,7 +497,7 @@ export function ProductForm({
           </div>
         )}
 
-        <div className="flex flex-wrap items-center mt-5 gap-4 lg:gap-5">
+        <div id="addi-price-anchor" className="flex flex-wrap items-center mt-5 gap-4 lg:gap-5">
           <Prices
             contentClass="py-1 px-2 md:py-1.5 md:px-3 text-lg font-semibold"
             price={selectedVariant?.price}
@@ -532,6 +532,9 @@ export function ProductForm({
 
         </div>
       </div>
+
+      {/* ---------- ADDI WIDGET ---------- */}
+      <AddiWidget />
 
       {/* ---------- VARIANTS AND COLORS LIST ----------  */}
       {productOptions.map((option, optionIndex) => (
@@ -679,6 +682,22 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
     </div>
   );
 };
+
+function AddiWidget() {
+  useEffect(() => {
+    const src = 'https://statics.addi.com/shopify/js/shopify-co-widget-wrapper.bundle.min.js';
+    if (document.querySelector(`script[data-name="shopifyAddiWidget"]`)) return;
+    const s = document.createElement('script');
+    s.setAttribute('data-name', 'shopifyAddiWidget');
+    s.setAttribute('data-id', 'sportfitnessshopcolombiasas');
+    s.setAttribute('data-ally-slug', 'sportfitnessshopcolombiasas-ecommerce');
+    s.setAttribute('data-element-reference', '#addi-price-anchor');
+    s.src = src;
+    s.async = true;
+    document.body.appendChild(s);
+  }, []);
+  return null;
+}
 
 const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
   const {getImageWithCdnUrlByName} =
