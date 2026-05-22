@@ -497,7 +497,7 @@ export function ProductForm({
           </div>
         )}
 
-        <div id="addi-price-anchor" className="flex flex-wrap items-center mt-5 gap-4 lg:gap-5">
+        <div className="flex flex-wrap items-center mt-5 gap-4 lg:gap-5">
           <Prices
             contentClass="py-1 px-2 md:py-1.5 md:px-3 text-lg font-semibold"
             price={selectedVariant?.price}
@@ -698,7 +698,7 @@ function AddiWidget({productId}: {productId: string}) {
     s.setAttribute('data-name', 'shopifyAddiWidget');
     s.setAttribute('data-id', 'sportfitnessshopcolombiasas');
     s.setAttribute('data-ally-slug', 'sportfitnessshopcolombiasas-ecommerce');
-    s.setAttribute('data-element-reference', '#addi-price-anchor');
+    s.setAttribute('data-element-reference', '#addi-price-ref');
     s.src = SRC;
     s.async = true;
     document.body.appendChild(s);
