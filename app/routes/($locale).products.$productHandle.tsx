@@ -534,7 +534,7 @@ export function ProductForm({
       </div>
 
       {/* ---------- ADDI WIDGET ---------- */}
-      <AddiWidget />
+      <AddiWidget productId={product.id} />
 
       {/* ---------- VARIANTS AND COLORS LIST ----------  */}
       {productOptions.map((option, optionIndex) => (
@@ -683,20 +683,28 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
   );
 };
 
-function AddiWidget() {
+
+function AddiWidget({productId}: {productId: string}) {
   useEffect(() => {
-    const src = 'https://statics.addi.com/shopify/js/shopify-co-widget-wrapper.bundle.min.js';
-    if (document.querySelector(`script[data-name="shopifyAddiWidget"]`)) return;
+    const SCRIPT_ATTR = 'data-addi-loaded';
+    const SRC = 'https://statics.addi.com/shopify/js/shopify-co-widget-wrapper.bundle.min.js';
+
+    // Eliminar script anterior para forzar reinicialización al cambiar de producto
+    const existing = document.querySelector(`script[${SCRIPT_ATTR}]`);
+    if (existing) existing.remove();
+
     const s = document.createElement('script');
+    s.setAttribute(SCRIPT_ATTR, 'true');
     s.setAttribute('data-name', 'shopifyAddiWidget');
     s.setAttribute('data-id', 'sportfitnessshopcolombiasas');
     s.setAttribute('data-ally-slug', 'sportfitnessshopcolombiasas-ecommerce');
     s.setAttribute('data-element-reference', '#addi-price-anchor');
-    s.src = src;
+    s.src = SRC;
     s.async = true;
     document.body.appendChild(s);
-  }, []);
-  return null;
+  }, [productId]);
+
+  return <div id="addi-widget-container" className="w-full" />;
 }
 
 const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
