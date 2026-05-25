@@ -26,6 +26,7 @@ export default async function handleRequest(
       'https://td.doubleclick.net',
       // Addi widget
       'https://statics.addi.com',
+      'https://cdn.addi.com',
       // Meta Pixel (fbevents.js)
       'https://connect.facebook.net',
       'https://www.facebook.com',
@@ -75,6 +76,9 @@ export default async function handleRequest(
       'https://googleads.g.doubleclick.net',
       // TikTok
       'https://analytics.tiktok.com',
+      // Addi widget
+      'https://statics.addi.com',
+      'https://cdn.addi.com',
     ],
     mediaSrc: [
       "'self'",
@@ -128,6 +132,7 @@ export default async function handleRequest(
       'https://td.doubleclick.net',
       // Addi widget
       'https://statics.addi.com',
+      'https://cdn.addi.com',
       'https://api.addi.com',
       // Meta Pixel
       'https://www.facebook.com',
