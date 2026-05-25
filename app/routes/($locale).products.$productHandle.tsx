@@ -719,13 +719,61 @@ function AddiWidget({productId}: {productId: string}) {
       // Agregar listener para cuando el script cargue
       s.onload = () => {
         console.log('[AddiWidget] Script cargado correctamente');
-        // Mover el widget renderizado a nuestro contenedor si es necesario
-        setTimeout(() => {
-          const addiWidget = document.querySelector('shopify-addi-widget, [data-addi-widget], addi-widget');
-          if (addiWidget && containerRef.current) {
-            containerRef.current.appendChild(addiWidget);
+        
+        // Esperar a que Addi renderice (puede tardar hasta 2s)
+        const checkForWidget = () => {
+          // Múltiples selectores posibles para el widget de Addi
+          const selectors = [
+            'shopify-addi-widget',
+            '[data-addi-widget]',
+            'addi-widget',
+            '.addi-widget',
+            '#addi-widget',
+            'iframe[src*="addi"]',
+            'div[class*="addi"]',
+            '[class*="addi-"]',
+          ];
+          
+          let widget = null;
+          for (const selector of selectors) {
+            widget = document.querySelector(selector);
+            if (widget) {
+              console.log('[AddiWidget] Encontrado con selector:', selector);
+              break;
+            }
           }
-        }, 500);
+          
+          // También buscar por texto conteniendo "Addi"
+          if (!widget) {
+            const allDivs = document.querySelectorAll('div');
+            for (const div of allDivs) {
+              if (div.textContent?.toLowerCase().includes('addi') && div.children.length > 0) {
+                console.log('[AddiWidget] Encontrado por contenido de texto');
+                widget = div;
+                break;
+              }
+            }
+          }
+          
+          if (widget && containerRef.current) {
+            // Forzar visibilidad
+            (widget as HTMLElement).style.display = 'block';
+            (widget as HTMLElement).style.visibility = 'visible';
+            (widget as HTMLElement).style.opacity = '1';
+            
+            // Mover al contenedor
+            containerRef.current.innerHTML = '';
+            containerRef.current.appendChild(widget);
+            console.log('[AddiWidget] Widget movido al contenedor exitosamente');
+          } else {
+            console.log('[AddiWidget] Widget aún no renderizado, esperando...');
+          }
+        };
+        
+        // Intentar múltiples veces
+        setTimeout(checkForWidget, 500);
+        setTimeout(checkForWidget, 1500);
+        setTimeout(checkForWidget, 3000);
       };
       
       s.onerror = () => {
@@ -759,8 +807,11 @@ function AddiWidget({productId}: {productId: string}) {
     <div 
       ref={containerRef}
       id="addi-widget-mounted" 
-      className="w-full min-h-[60px] flex items-center justify-center"
-    />
+      className="w-full min-h-[60px] flex items-center justify-center border border-dashed border-gray-300 rounded p-2"
+      style={{background: '#f9fafb'}}
+    >
+      <span style={{color: '#9ca3af', fontSize: '12px'}}>Addi widget placeholder</span>
+    </div>
   );
 }
 
