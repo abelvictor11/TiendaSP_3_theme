@@ -1,4 +1,4 @@
-import {Suspense, useState, useEffect} from 'react';
+import {Suspense, useState, useEffect, useRef} from 'react';
 import {
   defer,
   type MetaArgs,
@@ -685,26 +685,83 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
 
 
 function AddiWidget({productId}: {productId: string}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const SCRIPT_ATTR = 'data-addi-loaded';
     const SRC = 'https://statics.addi.com/shopify/js/shopify-co-widget-wrapper.bundle.min.js';
 
-    // Eliminar script anterior para forzar reinicialización al cambiar de producto
-    const existing = document.querySelector(`script[${SCRIPT_ATTR}]`);
-    if (existing) existing.remove();
+    // Función para cargar el script cuando el elemento objetivo esté disponible
+    const loadAddiScript = () => {
+      const targetElement = document.querySelector('#addi-price-ref');
+      if (!targetElement) {
+        console.warn('[AddiWidget] #addi-price-ref no encontrado, reintentando...');
+        return false;
+      }
 
-    const s = document.createElement('script');
-    s.setAttribute(SCRIPT_ATTR, 'true');
-    s.setAttribute('data-name', 'shopifyAddiWidget');
-    s.setAttribute('data-id', 'sportfitnessshopcolombiasas');
-    s.setAttribute('data-ally-slug', 'sportfitnessshopcolombiasas-ecommerce');
-    s.setAttribute('data-element-reference', '#addi-price-ref');
-    s.src = SRC;
-    s.async = true;
-    document.body.appendChild(s);
+      // Eliminar script anterior
+      const existing = document.querySelector(`script[${SCRIPT_ATTR}]`);
+      if (existing) existing.remove();
+
+      // Limpiar contenedor anterior si existe
+      const existingWidget = document.querySelector('#addi-widget-mounted');
+      if (existingWidget) existingWidget.remove();
+
+      const s = document.createElement('script');
+      s.setAttribute(SCRIPT_ATTR, 'true');
+      s.setAttribute('data-name', 'shopifyAddiWidget');
+      s.setAttribute('data-id', 'sportfitnessshopcolombiasas');
+      s.setAttribute('data-ally-slug', 'sportfitnessshopcolombiasas-ecommerce');
+      s.setAttribute('data-element-reference', '#addi-price-ref');
+      s.src = SRC;
+      s.async = true;
+      
+      // Agregar listener para cuando el script cargue
+      s.onload = () => {
+        console.log('[AddiWidget] Script cargado correctamente');
+        // Mover el widget renderizado a nuestro contenedor si es necesario
+        setTimeout(() => {
+          const addiWidget = document.querySelector('shopify-addi-widget, [data-addi-widget], addi-widget');
+          if (addiWidget && containerRef.current) {
+            containerRef.current.appendChild(addiWidget);
+          }
+        }, 500);
+      };
+      
+      s.onerror = () => {
+        console.error('[AddiWidget] Error cargando script de Addi');
+      };
+      
+      document.body.appendChild(s);
+      return true;
+    };
+
+    // Retry mechanism: intentar cada 200ms hasta 5 veces
+    let attempts = 0;
+    const maxAttempts = 25; // 5 segundos total
+    
+    const retryInterval = setInterval(() => {
+      attempts++;
+      if (loadAddiScript()) {
+        clearInterval(retryInterval);
+      } else if (attempts >= maxAttempts) {
+        clearInterval(retryInterval);
+        console.error('[AddiWidget] No se pudo cargar después de', maxAttempts, 'intentos');
+      }
+    }, 200);
+
+    return () => {
+      clearInterval(retryInterval);
+    };
   }, [productId]);
 
-  return <div id="addi-widget-container" className="w-full" />;
+  return (
+    <div 
+      ref={containerRef}
+      id="addi-widget-mounted" 
+      className="w-full min-h-[60px] flex items-center justify-center"
+    />
+  );
 }
 
 const ProductColorOption = ({option}: {option: MappedProductOptions}) => {
