@@ -685,134 +685,37 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
 
 
 function AddiWidget({productId}: {productId: string}) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
-    const SCRIPT_ATTR = 'data-addi-loaded';
-    const SRC = 'https://statics.addi.com/shopify/js/shopify-co-widget-wrapper.bundle.min.js';
-
-    // Función para cargar el script cuando el elemento objetivo esté disponible
-    const loadAddiScript = () => {
-      const targetElement = document.querySelector('#addi-price-ref');
-      if (!targetElement) {
-        console.warn('[AddiWidget] #addi-price-ref no encontrado, reintentando...');
-        return false;
+    // Esperar a que React hidrate completamente (1 segundo)
+    const timer = setTimeout(() => {
+      const SCRIPT_ID = 'addi-widget-script';
+      
+      // Si ya existe, no recargar (evita duplicados en navegación SPA)
+      if (document.getElementById(SCRIPT_ID)) {
+        console.log('[AddiWidget] Script ya existe, saltando carga');
+        return;
       }
 
-      // Eliminar script anterior
-      const existing = document.querySelector(`script[${SCRIPT_ATTR}]`);
-      if (existing) existing.remove();
-
-      // Limpiar contenedor anterior si existe
-      const existingWidget = document.querySelector('#addi-widget-mounted');
-      if (existingWidget) existingWidget.remove();
-
       const s = document.createElement('script');
-      s.setAttribute(SCRIPT_ATTR, 'true');
+      s.id = SCRIPT_ID;
       s.setAttribute('data-name', 'shopifyAddiWidget');
       s.setAttribute('data-id', 'sportfitnessshopcolombiasas');
       s.setAttribute('data-ally-slug', 'sportfitnessshopcolombiasas-ecommerce');
       s.setAttribute('data-element-reference', '#addi-price-ref');
-      s.src = SRC;
+      s.src = 'https://statics.addi.com/shopify/js/shopify-co-widget-wrapper.bundle.min.js';
       s.async = true;
       
-      // Agregar listener para cuando el script cargue
-      s.onload = () => {
-        console.log('[AddiWidget] Script cargado correctamente');
-        
-        // Esperar a que Addi renderice (puede tardar hasta 2s)
-        const checkForWidget = () => {
-          // Múltiples selectores posibles para el widget de Addi
-          const selectors = [
-            'shopify-addi-widget',
-            '[data-addi-widget]',
-            'addi-widget',
-            '.addi-widget',
-            '#addi-widget',
-            'iframe[src*="addi"]',
-            'div[class*="addi"]',
-            '[class*="addi-"]',
-          ];
-          
-          let widget = null;
-          for (const selector of selectors) {
-            widget = document.querySelector(selector);
-            if (widget) {
-              console.log('[AddiWidget] Encontrado con selector:', selector);
-              break;
-            }
-          }
-          
-          // También buscar por texto conteniendo "Addi"
-          if (!widget) {
-            const allDivs = document.querySelectorAll('div');
-            for (const div of allDivs) {
-              if (div.textContent?.toLowerCase().includes('addi') && div.children.length > 0) {
-                console.log('[AddiWidget] Encontrado por contenido de texto');
-                widget = div;
-                break;
-              }
-            }
-          }
-          
-          if (widget && containerRef.current) {
-            // Forzar visibilidad
-            (widget as HTMLElement).style.display = 'block';
-            (widget as HTMLElement).style.visibility = 'visible';
-            (widget as HTMLElement).style.opacity = '1';
-            
-            // Mover al contenedor
-            containerRef.current.innerHTML = '';
-            containerRef.current.appendChild(widget);
-            console.log('[AddiWidget] Widget movido al contenedor exitosamente');
-          } else {
-            console.log('[AddiWidget] Widget aún no renderizado, esperando...');
-          }
-        };
-        
-        // Intentar múltiples veces
-        setTimeout(checkForWidget, 500);
-        setTimeout(checkForWidget, 1500);
-        setTimeout(checkForWidget, 3000);
-      };
-      
-      s.onerror = () => {
-        console.error('[AddiWidget] Error cargando script de Addi');
-      };
+      s.onload = () => console.log('[AddiWidget] Script cargado');
+      s.onerror = () => console.error('[AddiWidget] Error cargando script');
       
       document.body.appendChild(s);
-      return true;
-    };
+    }, 1000);
 
-    // Retry mechanism: intentar cada 200ms hasta 5 veces
-    let attempts = 0;
-    const maxAttempts = 25; // 5 segundos total
-    
-    const retryInterval = setInterval(() => {
-      attempts++;
-      if (loadAddiScript()) {
-        clearInterval(retryInterval);
-      } else if (attempts >= maxAttempts) {
-        clearInterval(retryInterval);
-        console.error('[AddiWidget] No se pudo cargar después de', maxAttempts, 'intentos');
-      }
-    }, 200);
-
-    return () => {
-      clearInterval(retryInterval);
-    };
+    return () => clearTimeout(timer);
   }, [productId]);
 
-  return (
-    <div 
-      ref={containerRef}
-      id="addi-widget-mounted" 
-      className="w-full min-h-[60px] flex items-center justify-center border border-dashed border-gray-300 rounded p-2"
-      style={{background: '#f9fafb'}}
-    >
-      <span style={{color: '#9ca3af', fontSize: '12px'}}>Addi widget placeholder</span>
-    </div>
-  );
+  // El widget se renderiza aquí, Addi lo posiciona según data-element-reference
+  return <div id="addi-widget-container" className="w-full" />;
 }
 
 const ProductColorOption = ({option}: {option: MappedProductOptions}) => {

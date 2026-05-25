@@ -130,6 +130,7 @@ export default async function handleRequest(
       'https://www.gstatic.com',
       'https://googleads.g.doubleclick.net',
       'https://td.doubleclick.net',
+      'https://stats.g.doubleclick.net',
       // Addi widget
       'https://statics.addi.com',
       'https://cdn.addi.com',
@@ -154,6 +155,8 @@ export default async function handleRequest(
       'https://www.googletagmanager.com',
       'https://googleads.g.doubleclick.net',
       'https://td.doubleclick.net',
+      'https://www.facebook.com',
+      'https://connect.facebook.net',
     ],
   });
 
