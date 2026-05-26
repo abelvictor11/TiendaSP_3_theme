@@ -684,72 +684,54 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
 };
 
 
-// Script global de Addi - se carga solo una vez
-let addiScriptLoaded = false;
-
-function loadAddiScript() {
-  if (typeof window === 'undefined') return;
-  if (addiScriptLoaded) return;
-  if (document.getElementById('addi-global-script')) return;
-  
-  const s = document.createElement('script');
-  s.id = 'addi-global-script';
-  s.setAttribute('data-name', 'shopifyAddiWidget');
-  s.setAttribute('data-id', 'sportfitnessshopcolombiasas');
-  s.setAttribute('data-ally-slug', 'sportfitnessshopcolombiasas-ecommerce');
-  s.setAttribute('data-element-reference', '#addi-price-ref');
-  s.src = 'https://statics.addi.com/shopify/js/shopify-co-widget-wrapper.bundle.min.js';
-  s.async = true;
-  
-  s.onload = () => {
-    console.log('[Addi] Script cargado globalmente');
-    addiScriptLoaded = true;
-    // Trigger re-render de widgets si es necesario
-    if ((window as any).shopifyAddiWidget?.reInit) {
-      (window as any).shopifyAddiWidget.reInit();
-    }
-  };
-  
-  s.onerror = () => {
-    console.error('[Addi] Error cargando script');
-  };
-  
-  document.body.appendChild(s);
-}
-
 function AddiWidget({price}: {price?: {amount: string; currencyCode: string}}) {
-  const [shouldShow, setShouldShow] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  // Solo renderizar en cliente, nunca en SSR
+  const [isClient, setIsClient] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   
   useEffect(() => {
-    if (typeof window === 'undefined') return;
+    setIsClient(true);
     
-    // Validar precio
     if (!price || parseFloat(price.amount) <= 0) return;
+    
     const amount = parseFloat(price.amount);
-    if (price.currencyCode !== 'COP' || amount < 50000) return;
+    // Addi Colombia: mínimo $50,000, máximo $3,000,000 COP
+    if (price.currencyCode !== 'COP' || amount < 50000 || amount > 3000000) return;
     
-    setShouldShow(true);
-    
-    // Cargar script global (solo la primera vez)
-    const timer = setTimeout(() => {
-      loadAddiScript();
-    }, 1000); // Esperar a que todo esté renderizado
-    
-    return () => clearTimeout(timer);
+    setIsVisible(true);
   }, [price]);
   
-  if (!shouldShow) return null;
+  // No renderizar nada durante SSR o si no cumple condiciones
+  if (!isClient || !isVisible || !price) return null;
   
-  // El widget real lo renderiza el script de Addi
-  // Este div es un placeholder que se reemplaza
+  const amount = Math.round(parseFloat(price.amount));
+  const addiUrl = `https://www.addi.com/compra-ahora-paga-despues/?storeUuid=sportfitnessshopcolombiasas&price=${amount}&currency=${price.currencyCode}`;
+  
   return (
-    <div 
-      ref={containerRef}
-      className="addi-widget-placeholder w-full min-h-[40px]" 
-      data-addi-price={price?.amount}
-      data-addi-currency={price?.currencyCode}
-    />
+    <div className="w-full mt-3 mb-2">
+      <a 
+        href={addiUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-800 transition-colors"
+      >
+        <span className="font-medium">Paga en cuotas con</span>
+        {/* Logo de Addi como texto estilizado - evita problemas de carga de imagen */}
+        <span 
+          className="font-bold text-lg tracking-tight"
+          style={{ 
+            color: '#00D0A0',
+            fontFamily: 'system-ui, -apple-system, sans-serif'
+          }}
+        >
+          addi
+        </span>
+        <span className="text-slate-400 text-xs">→</span>
+      </a>
+      <p className="text-xs text-slate-500 mt-1">
+        Monto mínimo $50.000 COP • <a href={addiUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-700">Ver condiciones</a>
+      </p>
+    </div>
   );
 }
 
