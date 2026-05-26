@@ -534,7 +534,7 @@ export function ProductForm({
       </div>
 
       {/* ---------- ADDI WIDGET ---------- */}
-      <AddiWidget price={selectedVariant?.price} />
+      <AddiWidget productId={product.id} />
 
       {/* ---------- VARIANTS AND COLORS LIST ----------  */}
       {productOptions.map((option, optionIndex) => (
@@ -684,53 +684,63 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
 };
 
 
-function AddiWidget({price}: {price?: {amount: string; currencyCode: string}}) {
-  const [isVisible, setIsVisible] = useState(false);
-  
+function AddiWidget({productId}: {productId: string}) {
+  const scriptRef = useRef<HTMLScriptElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    // Solo mostrar si hay un precio válido
-    if (!price || parseFloat(price.amount) <= 0) return;
-    
-    // Verificar que sea pesos colombianos y monto válido para Addi (typicamente $50.000 - $3M COP)
-    const amount = parseFloat(price.amount);
-    if (price.currencyCode !== 'COP' || amount < 50000) return;
-    
-    setIsVisible(true);
-  }, [price]);
-  
-  if (!isVisible) return null;
-  
-  const amount = Math.round(parseFloat(price!.amount));
-  
-  // URL del widget de Addi para Colombia
-  const addiUrl = `https://www.addi.com/compra-ahora-paga-despues/?storeUuid=sportfitnessshopcolombiasas&price=${amount}&currency=${price!.currencyCode}`;
-  
+    // Solo ejecutar en el cliente
+    if (typeof window === 'undefined') return;
+
+    const SCRIPT_ID = 'addi-widget-script';
+    const EXISTING_SCRIPT = document.getElementById(SCRIPT_ID) as HTMLScriptElement;
+
+    // Función para cargar el script
+    const loadScript = () => {
+      // Remover script anterior si existe
+      if (EXISTING_SCRIPT) {
+        EXISTING_SCRIPT.remove();
+      }
+
+      const s = document.createElement('script');
+      s.id = SCRIPT_ID;
+      s.setAttribute('data-name', 'shopifyAddiWidget');
+      s.setAttribute('data-id', 'sportfitnessshopcolombiasas');
+      s.setAttribute('data-ally-slug', 'sportfitnessshopcolombiasas-ecommerce');
+      s.setAttribute('data-element-reference', '#addi-price-ref');
+      s.src = 'https://statics.addi.com/shopify/js/shopify-co-widget-wrapper.bundle.min.js';
+      s.async = true;
+
+      s.onload = () => {
+        console.log('[AddiWidget] Script cargado correctamente');
+      };
+
+      s.onerror = () => {
+        console.error('[AddiWidget] Error al cargar el script');
+      };
+
+      document.body.appendChild(s);
+      scriptRef.current = s;
+    };
+
+    // Esperar a que el DOM esté listo y React haya hidratado
+    const timer = setTimeout(() => {
+      loadScript();
+    }, 500);
+
+    return () => {
+      clearTimeout(timer);
+      // No remover el script al desmontar para evitar problemas de carga
+    };
+  }, [productId]);
+
   return (
-    <div className="w-full mt-2 mb-4">
-      <a 
-        href={addiUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center gap-2 text-sm text-slate-600 hover:text-slate-900 transition-colors"
-      >
-        <span>Paga en cuotas con</span>
-        <img 
-          src="https://statics.addi.com/assets/logo-addi.svg" 
-          alt="Addi" 
-          className="h-5"
-          onError={(e) => {
-            // Fallback si la imagen no carga
-            e.currentTarget.style.display = 'none';
-            e.currentTarget.nextElementSibling?.classList.remove('hidden');
-          }}
-        />
-        <span className="hidden font-semibold text-blue-600">Addi</span>
-        <span className="text-slate-400">→</span>
-      </a>
-      <p className="text-xs text-slate-500 mt-1">
-        Aplica para compras desde $50.000 COP. Consulta términos.
-      </p>
-    </div>
+    <div 
+      ref={containerRef}
+      id="addi-widget-container" 
+      className="w-full min-h-[40px]" 
+      data-product-id={productId}
+    />
   );
 }
 
