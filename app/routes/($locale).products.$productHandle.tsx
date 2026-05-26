@@ -534,7 +534,7 @@ export function ProductForm({
       </div>
 
       {/* ---------- ADDI WIDGET ---------- */}
-      <AddiWidget productId={product.id} />
+      <AddiWidget price={selectedVariant?.price} />
 
       {/* ---------- VARIANTS AND COLORS LIST ----------  */}
       {productOptions.map((option, optionIndex) => (
@@ -684,63 +684,47 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
 };
 
 
-function AddiWidget({productId}: {productId: string}) {
-  const scriptRef = useRef<HTMLScriptElement | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-
+function AddiWidget({price}: {price?: {amount: string; currencyCode: string}}) {
+  const [widgetUrl, setWidgetUrl] = useState<string | null>(null);
+  
   useEffect(() => {
-    // Solo ejecutar en el cliente
     if (typeof window === 'undefined') return;
-
-    const SCRIPT_ID = 'addi-widget-script';
-    const EXISTING_SCRIPT = document.getElementById(SCRIPT_ID) as HTMLScriptElement;
-
-    // Función para cargar el script
-    const loadScript = () => {
-      // Remover script anterior si existe
-      if (EXISTING_SCRIPT) {
-        EXISTING_SCRIPT.remove();
-      }
-
-      const s = document.createElement('script');
-      s.id = SCRIPT_ID;
-      s.setAttribute('data-name', 'shopifyAddiWidget');
-      s.setAttribute('data-id', 'sportfitnessshopcolombiasas');
-      s.setAttribute('data-ally-slug', 'sportfitnessshopcolombiasas-ecommerce');
-      s.setAttribute('data-element-reference', '#addi-price-ref');
-      s.src = 'https://statics.addi.com/shopify/js/shopify-co-widget-wrapper.bundle.min.js';
-      s.async = true;
-
-      s.onload = () => {
-        console.log('[AddiWidget] Script cargado correctamente');
-      };
-
-      s.onerror = () => {
-        console.error('[AddiWidget] Error al cargar el script');
-      };
-
-      document.body.appendChild(s);
-      scriptRef.current = s;
-    };
-
-    // Esperar a que el DOM esté listo y React haya hidratado
-    const timer = setTimeout(() => {
-      loadScript();
-    }, 500);
-
-    return () => {
-      clearTimeout(timer);
-      // No remover el script al desmontar para evitar problemas de carga
-    };
-  }, [productId]);
-
+    if (!price || parseFloat(price.amount) <= 0) return;
+    
+    const amount = parseFloat(price.amount);
+    // Addi Colombia requiere monto mínimo de $50,000 COP y máximo $3,000,000 COP
+    if (price.currencyCode !== 'COP' || amount < 50000 || amount > 3000000) return;
+    
+    // Usar la URL del widget de Addi Colombia directamente
+    // El widget se carga vía iframe desde addi.com
+    const url = `https://www.addi.com/compra-ahora-paga-despues/?storeUuid=sportfitnessshopcolombiasas&price=${Math.round(amount)}&currency=${price.currencyCode}`;
+    setWidgetUrl(url);
+  }, [price]);
+  
+  if (!widgetUrl) return null;
+  
   return (
-    <div 
-      ref={containerRef}
-      id="addi-widget-container" 
-      className="w-full min-h-[40px]" 
-      data-product-id={productId}
-    />
+    <div className="w-full mt-2 mb-3">
+      <div className="flex items-center gap-2 text-sm text-slate-600">
+        <span>Paga en cuotas con</span>
+        <a 
+          href={widgetUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center hover:opacity-80 transition-opacity"
+        >
+          <img 
+            src="https://statics.addi.com/assets/logo-addi.svg" 
+            alt="Addi - Compra ahora, paga después"
+            className="h-6 w-auto"
+            loading="lazy"
+          />
+        </a>
+      </div>
+      <p className="text-xs text-slate-500 mt-1">
+        Monto mínimo $50.000. <a href={widgetUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-700">Ver condiciones</a>
+      </p>
+    </div>
   );
 }
 
