@@ -72,17 +72,7 @@ export function ProductGallery({
           onClick={() => openModal(activeIndex)}
           aria-hidden
         >
-          {/* Badge de Oferta flotante */}
-          {discountPercentage && discountPercentage > 0 && (
-            <div className="absolute z-10 top-4 left-4">
-              <ProductStatus
-                status="Oferta"
-                icon="IconDiscount"
-                color="rose"
-                className="px-3 py-1.5 text-sm"
-              />
-            </div>
-          )}
+          {/* Badge de Oferta se maneja en el PDP para evitar duplicación */}
 
           {/* Zoom button */}
           <button

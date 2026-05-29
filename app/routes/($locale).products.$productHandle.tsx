@@ -341,10 +341,19 @@ export default function Product() {
                 id={id}
                 className="absolute top-3 end-3 z-10 !w-10 !h-10"
               />
-              {/* Out of stock badge — top-left corner over the image */}
-              {isOutOfStock && (
-                <div className="absolute top-3 start-3 z-10">
-                  <ProductBadge status={status} />
+              {/* Badges — top-left corner over the image (stacked vertically) */}
+              {(discountPercentage > 0 || isOutOfStock) && (
+                <div className="absolute top-4 start-4 z-10 flex flex-col items-start gap-2">
+                  {isOutOfStock && (
+                    <ProductBadge status="Agotado" className="px-3 py-1.5 text-sm" />
+                  )}
+                  {discountPercentage > 0 && (
+                    <ProductBadge 
+                      status="Oferta" 
+                      discountPercentage={discountPercentage}
+                      className="px-3 py-1.5 text-sm" 
+                    />
+                  )}
                 </div>
               )}
             </div>

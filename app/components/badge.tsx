@@ -32,6 +32,7 @@ const colors = {
     'bg-fuchsia-400/15 text-fuchsia-800 group-data-[hover]:bg-fuchsia-400/25 dark:bg-fuchsia-400/10 dark:text-fuchsia-400 dark:group-data-[hover]:bg-fuchsia-400/20',
   rose: 'bg-[#000000] text-[#F9F9F9] group-data-[hover]:bg-[#000000]/90 dark:bg-[#000000] dark:text-[#F9F9F9]',
   black: 'bg-black text-white group-data-[hover]:bg-black/90 dark:bg-black dark:text-white',
+  cyclewearBlue: 'bg-[#004f9d] text-white font-semibold group-data-[hover]:bg-[#004f9d]/90 dark:bg-[#004f9d] dark:text-white',
 };
 
 export const badgeColors = Object.keys(colors) as (keyof typeof colors)[];

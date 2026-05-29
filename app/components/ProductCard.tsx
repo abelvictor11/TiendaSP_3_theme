@@ -84,6 +84,16 @@ const ProductCard: FC<ProductCardProps> = ({
     Number(product.compareAtPriceRange?.minVariantPrice?.amount || 0) >
     Number(product.priceRange.minVariantPrice.amount);
 
+  // Calcular porcentaje de descuento
+  const discountPercentage = isSale
+    ? Math.round(
+        ((Number(product.compareAtPriceRange?.minVariantPrice?.amount || 0) -
+          Number(product.priceRange.minVariantPrice.amount)) /
+          Number(product.compareAtPriceRange?.minVariantPrice?.amount || 1)) *
+          100,
+      )
+    : 0;
+
   const {open} = useAside();
   const variantUrl = useVariantUrl(
     product.handle,
@@ -311,6 +321,7 @@ const ProductCard: FC<ProductCardProps> = ({
                 priceRangeMinVariantPrice: product.priceRange.minVariantPrice,
                 publishedAt: product.publishedAt,
               })}
+              discountPercentage={discountPercentage}
               className="px-2 py-1 text-xs !relative !top-0 !start-0"
             />
             {/* Badge Tipo de Uso */}
@@ -448,9 +459,11 @@ const ProductCard: FC<ProductCardProps> = ({
 export const ProductBadge = ({
   status,
   className,
+  discountPercentage,
 }: {
   status: 'Sold out' | 'Sale' | 'New' | 'Agotado' | 'Oferta' | 'Nuevo' | null;
   className?: string;
+  discountPercentage?: number;
 }) => {
   if (!status) {
     return null;
@@ -468,11 +481,14 @@ export const ProductBadge = ({
   }
 
   if (status === 'Sale' || status === 'Oferta') {
+    const discountText = discountPercentage && discountPercentage > 0 
+      ? `Oferta - ${discountPercentage}%` 
+      : 'Oferta';
     return (
       <ProductStatus
         className={className}
-        color="rose"
-        status="Oferta"
+        color="cyclewearBlue"
+        status={discountText}
         icon="IconDiscount"
       />
     );
