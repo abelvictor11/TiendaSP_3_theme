@@ -32,7 +32,7 @@ export function getSortValuesFromParam(sortParam: SortParam | null): {
       };
     case 'featured':
       return {
-        sortKey: 'MANUAL',
+        sortKey: 'COLLECTION_DEFAULT',
         reverse: false,
       };
     case 'on-sale':
@@ -43,8 +43,8 @@ export function getSortValuesFromParam(sortParam: SortParam | null): {
       };
     default:
       return {
-        sortKey: 'CREATED',
-        reverse: true,
+        sortKey: 'COLLECTION_DEFAULT',
+        reverse: false,
       };
   }
 }
