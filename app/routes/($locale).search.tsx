@@ -21,7 +21,6 @@ import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFilter
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
 import {ProductsGrid} from '~/components/ProductsGrid';
 import {PaginationBar} from '~/components/PaginationBar';
-import {getProductTotalByFilter} from '~/utils/getProductTotalByFilter';
 import {SearchAutocomplete} from '~/components/SearchAutocomplete';
 import {Suspense} from 'react';
 
@@ -107,6 +106,10 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
   // product nodes (up to page * PAGE_SIZE) over the wire when the component
   // only renders slicedNodes.
   const productFilters = (data?.search?.productFilters ?? []) as Filter[];
+  // totalCount from Shopify only counts products actually published and
+  // available on this sales channel, avoiding the mismatch that occurs when
+  // summing availability filter counts (which can include draft/archived products).
+  const totalProducts = data?.search?.totalCount ?? 0;
 
   return defer({
     routePromise,
@@ -118,6 +121,7 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
     seo,
     searchTerm,
     products: slicedNodes,
+    totalProducts,
     currentPage: page,
     pageSize: PAGE_SIZE,
     searchSuggestions,
@@ -198,19 +202,11 @@ function parseSearchSuggestions(metaobject: any) {
 }
 
 export default function Search() {
-  const {searchTerm, productFilters, products, currentPage, pageSize, defaultPriceFilter, routePromise, searchSuggestions} =
+  const {searchTerm, productFilters, products, totalProducts, currentPage, pageSize, defaultPriceFilter, routePromise, searchSuggestions} =
     useLoaderData<typeof loader>();
   const [params] = useSearchParams();
   const noResults = !products.length;
   const parsedSuggestions = parseSearchSuggestions(searchSuggestions);
-
-  // Get total products from availability filter
-  const availabilityFilter = (productFilters as Filter[])?.find(
-    (filter) => filter.id === 'filter.v.availability',
-  );
-  const totalProducts = noResults
-    ? 0
-    : getProductTotalByFilter(availabilityFilter?.values as any);
 
   // Build applied filters from search params (same logic as collection page)
   const filtersFromSearchParams = [...params.entries()].reduce(
@@ -393,9 +389,10 @@ const SEARCH_QUERY = `#graphql
       types: PRODUCT,
       query: $searchTerm,
       productFilters: $filters,
-      sortKey: $sortKey,  
-      reverse: $reverse  
+      sortKey: $sortKey,
+      reverse: $reverse
     ) {
+      totalCount
       productFilters {
         id
         label
