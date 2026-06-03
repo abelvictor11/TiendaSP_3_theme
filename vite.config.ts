@@ -40,25 +40,7 @@ export default defineConfig({
   },
   build: {
     // Allow a strict Content-Security-Policy
-    // without inlining assets as base64:
+    // withtout inlining assets as base64:
     assetsInlineLimit: 0,
-    rollupOptions: {
-      output: {
-        // Split heavy third-party libs into separate chunks so the browser
-        // can cache them independently and pages load only what they need.
-        manualChunks(id) {
-          // Headless UI (dialogs, menus, etc.) — loaded on interaction
-          if (id.includes('@headlessui/react')) return 'headlessui';
-          // beautiful-react-hooks — used only in hero slider
-          if (id.includes('beautiful-react-hooks')) return 'beautiful-react-hooks';
-          // Heroicons — icon library
-          if (id.includes('@heroicons')) return 'heroicons';
-          // Okendo reviews widget
-          if (id.includes('okendo')) return 'okendo';
-          // React core — always needed, keep in its own chunk for long-term caching
-          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) return 'react-vendor';
-        },
-      },
-    },
   },
 });
