@@ -72,7 +72,23 @@ export const links: LinksFunction = () => {
     {rel: 'preconnect', href: 'https://shop.app'},
     {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
     {rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' as const},
+    // preconnect early so the TLS handshake is done before the font CSS loads
     {rel: 'preconnect', href: 'https://use.typekit.net'},
+    {rel: 'preconnect', href: 'https://p.typekit.net'},
+    // Preload TypeKit CSS so the browser fetches it early but NOT render-blocking.
+    // The media trick (print → all) is the standard async stylesheet pattern.
+    {
+      rel: 'preload',
+      href: 'https://use.typekit.net/nfu3xaw.css',
+      as: 'style',
+    },
+    {
+      rel: 'stylesheet',
+      href: 'https://use.typekit.net/nfu3xaw.css',
+      // @ts-expect-error — `media` is valid HTML but not typed in Remix's LinkDescriptor
+      media: 'print',
+      onLoad: "this.media='all'",
+    },
     {rel: 'icon', href: storeConfig.faviconUrl},
   ];
 };
@@ -112,14 +128,9 @@ export async function loader(args: LoaderFunctionArgs) {
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
 async function loadCriticalData({request, context}: LoaderFunctionArgs) {
-  const [layout, okendoProviderData] = await Promise.all([
-    getLayoutData(context),
-    getOkendoProviderData({
-      context,
-      subscriberId: context.env.PUBLIC_OKENDO_SUBSCRIBER_ID,
-    }),
-    // Add other queries here, so that they are loaded in parallel
-  ]);
+  // Only await what is strictly needed for the first byte: layout (menu/shop)
+  // and SEO. Okendo is moved to loadDeferredData so it doesn't block TTFB.
+  const layout = await getLayoutData(context);
 
   const seo = seoPayload.root({shop: layout.shop, url: request.url});
   const {storefront, env} = context;
@@ -137,7 +148,6 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
       withPrivacyBanner: false,
     },
     selectedLocale: storefront.i18n,
-    okendoProviderData,
   };
 }
 
@@ -193,6 +203,13 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
     },
   });
 
+  // Okendo moved here (deferred) so it doesn't block TTFB.
+  // It resolves in parallel with cart/header/footer after the first byte is sent.
+  const okendoProviderDataPromise = getOkendoProviderData({
+    context,
+    subscriberId: context.env.PUBLIC_OKENDO_SUBSCRIBER_ID,
+  });
+
   return {
     isLoggedIn: isLoggedInPromise,
     isLoggedInPromise,
@@ -200,6 +217,7 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
     headerPromise,
     footerPromise,
     menuCollectionsPromise,
+    okendoProviderData: okendoProviderDataPromise,
   };
 }
 
@@ -235,7 +253,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
         <link rel="stylesheet" href={styles}></link>
         <link rel="stylesheet" href={stylesFont}></link>
         <link rel="stylesheet" href={rcSliderStyle}></link>
-        <link rel="stylesheet" href="https://use.typekit.net/nfu3xaw.css"></link>
+        {/* TypeKit CSS is loaded async via links() to avoid render-blocking */}
 
         <Meta />
         <Links />

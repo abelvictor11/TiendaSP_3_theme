@@ -267,6 +267,8 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
             sizes="110vw"
             className={`hidden h-full w-full object-cover lg:block${isImageOnlyLink ? ' transition-transform duration-500 group-hover:scale-105' : ''}`}
             style={{objectPosition: 'center center'}}
+            loading="eager"
+            fetchpriority="high"
           />
         )}
 
@@ -287,6 +289,8 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
             sizes="100vw"
             className={`block h-full w-full object-cover lg:hidden${isImageOnlyLink ? ' transition-transform duration-500 group-hover:scale-105' : ''}`}
             style={{objectPosition: 'center center'}}
+            loading="eager"
+            fetchpriority="high"
           />
         )}
       </div>

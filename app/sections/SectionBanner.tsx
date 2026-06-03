@@ -68,6 +68,8 @@ export function SectionBanner(props: SectionBannerProps) {
               data={desktopImg}
               className="w-full h-full object-cover"
               sizes="100vw"
+              loading="eager"
+              fetchpriority="high"
             />
           </div>
         )}
@@ -79,6 +81,8 @@ export function SectionBanner(props: SectionBannerProps) {
               data={mobileImg}
               className="w-full h-full object-cover"
               sizes="100vw"
+              loading="eager"
+              fetchpriority="high"
             />
           </div>
         )}
