@@ -104,7 +104,10 @@ export async function loadCollectionPage(
     });
     pageNodes = result.nodes;
     if (result.filters.length) pageFilters = result.filters;
-    stockFirstTotal = result.truncated ? null : result.total;
+    // When truncated, result.total is the number of products we could fetch
+    // (max 250), which is the actual paginable count for stock-first mode.
+    // Using the facet total would show more pages than actually exist.
+    stockFirstTotal = result.total;
     truncated = result.truncated;
     if (truncated) {
       // eslint-disable-next-line no-console
