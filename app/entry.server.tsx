@@ -11,10 +11,14 @@ export default async function handleRequest(
   remixContext: EntryContext,
   context: AppLoadContext,
 ) {
+  const storeDomain = context.env.PUBLIC_STORE_DOMAIN;
+  const shopifyDomain = context.env.PUBLIC_SHOPIFY_STORE_DOMAIN || storeDomain;
+  const requestOrigin = new URL(request.url).origin;
+
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
     shop: {
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
-      storeDomain: context.env.PUBLIC_STORE_DOMAIN,
+      storeDomain,
     },
     scriptSrc: [
       "'self'",
@@ -79,13 +83,22 @@ export default async function handleRequest(
       // Addi widget
       'https://statics.addi.com',
       'https://cdn.addi.com',
+      // Shopify Analytics
+      `https://${shopifyDomain}`,
+      'https://*.myshopify.com',
+      requestOrigin,
     ],
     mediaSrc: [
       "'self'",
+      'https://cdn.shopify.com',
       'https://d3hw6dc1ow8pp2.cloudfront.net',
       'https://d3g5hqndtiniji.cloudfront.net',
       'https://dov7r31oq5dkj.cloudfront.net',
       'https://cdn-static.okendo.io',
+      `https://${shopifyDomain}`,
+      `https://${storeDomain}`,
+      'https://*.myshopify.com',
+      requestOrigin,
     ],
     styleSrc: [
       "'self'",
