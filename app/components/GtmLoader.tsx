@@ -58,7 +58,11 @@ export function GtmLoader({
       s.src = `https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`;
       s.onload = () => {
         w.gtag('js', new Date());
-        w.gtag('config', gaMeasurementId);
+        // send_page_view: false evita el page_view automatico de GA4.
+        // El page_view lo dispara CustomAnalytics (uno por cada vista/navegacion
+        // SPA). Sin esto, cada carga generaba 2 page_views (auto + manual),
+        // inflando sesiones y usuarios en GA4 frente a Shopify.
+        w.gtag('config', gaMeasurementId, {send_page_view: false});
       };
       document.head.appendChild(s);
     }
