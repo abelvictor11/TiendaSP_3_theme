@@ -127,26 +127,44 @@ export async function loadCollectionPage(
 
   if (useCursorPagination) {
     // Cursor-based pagination — used when the user has already filtered by
-    // availability or when there's no availability facet.
+    // availability, when there's no availability facet, or when collection
+    // has more than 250 products.
     let afterCursor: string | null = null;
+    
     if (page > 1) {
+      // Shopify limits `first` to 250, so we need to chain multiple requests
+      // to reach pages beyond 250 products.
       const skipCount = (page - 1) * pageSize;
-      const {collection: cursorCollection} = await storefront.query(
-        collectionQuery,
-        {
-          variables: {
-            first: skipCount,
-            handle,
-            filters,
-            sortKey,
-            reverse,
-            country,
-            language,
+      const MAX_PER_REQUEST = 250;
+      let skipped = 0;
+      
+      while (skipped < skipCount) {
+        const toSkip = Math.min(MAX_PER_REQUEST, skipCount - skipped);
+        const {collection: cursorCollection} = await storefront.query(
+          collectionQuery,
+          {
+            variables: {
+              first: toSkip,
+              after: afterCursor,
+              handle,
+              filters,
+              sortKey,
+              reverse,
+              country,
+              language,
+            },
           },
-        },
-      );
-      afterCursor = cursorCollection?.products?.pageInfo?.endCursor || null;
+        );
+        afterCursor = cursorCollection?.products?.pageInfo?.endCursor || null;
+        skipped += toSkip;
+        
+        // If no more pages, break early
+        if (!cursorCollection?.products?.pageInfo?.hasNextPage) {
+          break;
+        }
+      }
     }
+    
     const {collection: pagedCollection} = await storefront.query(
       collectionQuery,
       {
