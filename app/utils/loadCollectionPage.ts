@@ -89,6 +89,8 @@ export async function loadCollectionPage(
   let pageFilters: any[] = baseCollection.products.filters;
   let stockFirstTotal: number | null = null;
   let truncated = false;
+  // Track if we're using cursor pagination (for large collections or filtered)
+  let useCursorPagination = false;
 
   if (useStockFirst) {
     const result = await fetchProductsStockFirst({
@@ -102,21 +104,28 @@ export async function loadCollectionPage(
       country,
       language,
     });
-    pageNodes = result.nodes;
-    if (result.filters.length) pageFilters = result.filters;
-    // When truncated, result.total is the number of products we could fetch
-    // (max 250), which is the actual paginable count for stock-first mode.
-    // Using the facet total would show more pages than actually exist.
-    stockFirstTotal = result.total;
-    truncated = result.truncated;
-    if (truncated) {
+
+    // If collection has more than 250 products (truncated), fall back to
+    // cursor-based pagination to show ALL products instead of just 250.
+    // Stock-first ordering won't apply, but users can see everything.
+    if (result.truncated) {
       // eslint-disable-next-line no-console
-      console.warn(
+      console.info(
         `[loadCollectionPage] collection "${handle}" has more than 250 ` +
-          `products; stock-first ordering applies only to the first 250.`,
+          `products; using cursor pagination to show all products.`,
       );
+      useCursorPagination = true;
+    } else {
+      pageNodes = result.nodes;
+      if (result.filters.length) pageFilters = result.filters;
+      stockFirstTotal = result.total;
+      truncated = false;
     }
   } else {
+    useCursorPagination = true;
+  }
+
+  if (useCursorPagination) {
     // Cursor-based pagination — used when the user has already filtered by
     // availability or when there's no availability facet.
     let afterCursor: string | null = null;
