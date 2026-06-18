@@ -62,6 +62,8 @@ import ProductHelpBanner from '~/components/ProductHelpBanner';
 import ProductSpecs from '~/components/ProductSpecs';
 import {ComplementaryProducts} from '~/components/ComplementaryProducts';
 import {PdpEnhancedSection, parsePdpEnhancedData} from '~/components/PdpEnhancedSection';
+import {ProductDescriptionBlock} from '~/components/ProductDescriptionBlock';
+import {ProductFeatureBlocks, parseFeatureBlocks} from '~/components/ProductFeatureBlocks';
 
 export const headers = routeHeaders;
 
@@ -236,6 +238,14 @@ export default function Product() {
               />
             </div>
 
+            {/* Description below thumbnails */}
+            {!!descriptionHtml && (
+              <ProductDescriptionBlock
+                descriptionHtml={descriptionHtml}
+                maxChars={350}
+                className="mt-8 lg:mt-10"
+              />
+            )}
           </div>
 
           {/* Right Column - Product Info */}
@@ -247,18 +257,8 @@ export default function Product() {
                 storeDomain={storeDomain}
               />
 
-              {/* Accordions: Descripción, Especificaciones, Equípate al completo */}
+              {/* Accordions: Especificaciones, Equípate al completo */}
               <div className="divide-y divide-[#dacac7] dark:divide-slate-700 border border-[#dacac7] dark:border-slate-700 rounded-xl overflow-hidden">
-                {/* Descripción Accordion */}
-                {!!descriptionHtml && (
-                  <PdpAccordion title="Descripción">
-                    <div
-                      className="prose prose-sm dark:prose-invert max-w-none"
-                      dangerouslySetInnerHTML={{__html: descriptionHtml}}
-                    />
-                  </PdpAccordion>
-                )}
-
                 {/* Especificaciones Técnicas Accordion */}
                 <PdpAccordion title="Especificaciones Técnicas">
                   <ProductSpecs
@@ -328,6 +328,17 @@ export default function Product() {
 
         {/* Enhanced PDP sections (per-product, activated via metafields) */}
         {enhancedData && <PdpEnhancedSection data={enhancedData} />}
+
+        {/* Feature Blocks - Image/Video + Text sections */}
+        {(() => {
+          const featureBlocks = parseFeatureBlocks(product);
+          return featureBlocks.length > 0 ? (
+            <ProductFeatureBlocks
+              blocks={featureBlocks}
+              className="mt-12 sm:mt-16"
+            />
+          ) : null;
+        })()}
 
         {/* DETAIL AND REVIEW */}
         <div className="mt-12 sm:mt-16 space-y-12 sm:space-y-16">
@@ -1200,6 +1211,55 @@ const PRODUCT_FRAGMENT = `#graphql
                 }
               }
             }
+          }
+        }
+      }
+      # Feature blocks for PDP (image/video + text sections)
+      feature_1_title: metafield(namespace: "pdp_features", key: "block_1_title") { value }
+      feature_1_description: metafield(namespace: "pdp_features", key: "block_1_description") { value }
+      feature_1_media: metafield(namespace: "pdp_features", key: "block_1_media") {
+        reference {
+          ... on MediaImage {
+            image { url altText }
+          }
+          ... on Video {
+            sources { url mimeType }
+          }
+        }
+      }
+      feature_2_title: metafield(namespace: "pdp_features", key: "block_2_title") { value }
+      feature_2_description: metafield(namespace: "pdp_features", key: "block_2_description") { value }
+      feature_2_media: metafield(namespace: "pdp_features", key: "block_2_media") {
+        reference {
+          ... on MediaImage {
+            image { url altText }
+          }
+          ... on Video {
+            sources { url mimeType }
+          }
+        }
+      }
+      feature_3_title: metafield(namespace: "pdp_features", key: "block_3_title") { value }
+      feature_3_description: metafield(namespace: "pdp_features", key: "block_3_description") { value }
+      feature_3_media: metafield(namespace: "pdp_features", key: "block_3_media") {
+        reference {
+          ... on MediaImage {
+            image { url altText }
+          }
+          ... on Video {
+            sources { url mimeType }
+          }
+        }
+      }
+      feature_4_title: metafield(namespace: "pdp_features", key: "block_4_title") { value }
+      feature_4_description: metafield(namespace: "pdp_features", key: "block_4_description") { value }
+      feature_4_media: metafield(namespace: "pdp_features", key: "block_4_media") {
+        reference {
+          ... on MediaImage {
+            image { url altText }
+          }
+          ... on Video {
+            sources { url mimeType }
           }
         }
       }

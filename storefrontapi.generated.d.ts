@@ -1462,6 +1462,62 @@ export type ProductFragment = Pick<
       >;
     }>;
   }>;
+  feature_1_title?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Metafield, 'value'>>;
+  feature_1_description?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.Metafield, 'value'>
+  >;
+  feature_1_media?: StorefrontAPI.Maybe<{
+    reference?: StorefrontAPI.Maybe<
+      | {
+          image?: StorefrontAPI.Maybe<
+            Pick<StorefrontAPI.Image, 'url' | 'altText'>
+          >;
+        }
+      | {sources: Array<Pick<StorefrontAPI.VideoSource, 'url' | 'mimeType'>>}
+    >;
+  }>;
+  feature_2_title?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Metafield, 'value'>>;
+  feature_2_description?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.Metafield, 'value'>
+  >;
+  feature_2_media?: StorefrontAPI.Maybe<{
+    reference?: StorefrontAPI.Maybe<
+      | {
+          image?: StorefrontAPI.Maybe<
+            Pick<StorefrontAPI.Image, 'url' | 'altText'>
+          >;
+        }
+      | {sources: Array<Pick<StorefrontAPI.VideoSource, 'url' | 'mimeType'>>}
+    >;
+  }>;
+  feature_3_title?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Metafield, 'value'>>;
+  feature_3_description?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.Metafield, 'value'>
+  >;
+  feature_3_media?: StorefrontAPI.Maybe<{
+    reference?: StorefrontAPI.Maybe<
+      | {
+          image?: StorefrontAPI.Maybe<
+            Pick<StorefrontAPI.Image, 'url' | 'altText'>
+          >;
+        }
+      | {sources: Array<Pick<StorefrontAPI.VideoSource, 'url' | 'mimeType'>>}
+    >;
+  }>;
+  feature_4_title?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Metafield, 'value'>>;
+  feature_4_description?: StorefrontAPI.Maybe<
+    Pick<StorefrontAPI.Metafield, 'value'>
+  >;
+  feature_4_media?: StorefrontAPI.Maybe<{
+    reference?: StorefrontAPI.Maybe<
+      | {
+          image?: StorefrontAPI.Maybe<
+            Pick<StorefrontAPI.Image, 'url' | 'altText'>
+          >;
+        }
+      | {sources: Array<Pick<StorefrontAPI.VideoSource, 'url' | 'mimeType'>>}
+    >;
+  }>;
   options: Array<
     Pick<StorefrontAPI.ProductOption, 'name'> & {
       optionValues: Array<
@@ -1782,6 +1838,86 @@ export type ProductQuery = {
             }
           >;
         }>;
+      }>;
+      feature_1_title?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Metafield, 'value'>
+      >;
+      feature_1_description?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Metafield, 'value'>
+      >;
+      feature_1_media?: StorefrontAPI.Maybe<{
+        reference?: StorefrontAPI.Maybe<
+          | {
+              image?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.Image, 'url' | 'altText'>
+              >;
+            }
+          | {
+              sources: Array<
+                Pick<StorefrontAPI.VideoSource, 'url' | 'mimeType'>
+              >;
+            }
+        >;
+      }>;
+      feature_2_title?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Metafield, 'value'>
+      >;
+      feature_2_description?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Metafield, 'value'>
+      >;
+      feature_2_media?: StorefrontAPI.Maybe<{
+        reference?: StorefrontAPI.Maybe<
+          | {
+              image?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.Image, 'url' | 'altText'>
+              >;
+            }
+          | {
+              sources: Array<
+                Pick<StorefrontAPI.VideoSource, 'url' | 'mimeType'>
+              >;
+            }
+        >;
+      }>;
+      feature_3_title?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Metafield, 'value'>
+      >;
+      feature_3_description?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Metafield, 'value'>
+      >;
+      feature_3_media?: StorefrontAPI.Maybe<{
+        reference?: StorefrontAPI.Maybe<
+          | {
+              image?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.Image, 'url' | 'altText'>
+              >;
+            }
+          | {
+              sources: Array<
+                Pick<StorefrontAPI.VideoSource, 'url' | 'mimeType'>
+              >;
+            }
+        >;
+      }>;
+      feature_4_title?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Metafield, 'value'>
+      >;
+      feature_4_description?: StorefrontAPI.Maybe<
+        Pick<StorefrontAPI.Metafield, 'value'>
+      >;
+      feature_4_media?: StorefrontAPI.Maybe<{
+        reference?: StorefrontAPI.Maybe<
+          | {
+              image?: StorefrontAPI.Maybe<
+                Pick<StorefrontAPI.Image, 'url' | 'altText'>
+              >;
+            }
+          | {
+              sources: Array<
+                Pick<StorefrontAPI.VideoSource, 'url' | 'mimeType'>
+              >;
+            }
+        >;
       }>;
       options: Array<
         Pick<StorefrontAPI.ProductOption, 'name'> & {
@@ -7662,7 +7798,7 @@ interface GeneratedQueryTypes {
     return: PoliciesIndexQuery;
     variables: PoliciesIndexQueryVariables;
   };
-  '#graphql\n  query Product(\n    $country: CountryCode\n    $language: LanguageCode\n    $handle: String!\n    $selectedOptions: [SelectedOptionInput!]!\n  ) @inContext(country: $country, language: $language) {\n    product(handle: $handle) {\n      ...Product\n    }\n    shop {\n      name\n      primaryDomain {\n        url\n      }\n      shippingPolicy {\n        handle\n      }\n      refundPolicy {\n        handle\n      }\n      subscriptionPolicy {\n        handle\n      }\n    }\n  }\n  #graphql\n  fragment Media on Media {\n    __typename\n    mediaContentType\n    alt\n    previewImage {\n      url\n    }\n    ... on MediaImage {\n      id\n      image {\n        id\n        url\n        width\n        height\n      }\n    }\n    ... on Video {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on Model3d {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on ExternalVideo {\n      id\n      embedUrl\n      host\n    }\n  }\n\n  #graphql\n  fragment Product on Product {\n    id\n      title\n      vendor\n      handle\n      descriptionHtml\n      description\n      publishedAt\n      encodedVariantExistence\n      encodedVariantAvailability\n      collections(first: 1) {\n        nodes {\n          id\n          title\n          handle\n        }\n      }\n      reviews_rating_count: metafield(namespace: "reviews", key:"rating_count") {\n        id\n        value\n        namespace\n        key\n      }\n      reviews_rating: metafield(namespace: "reviews", key:"rating") {\n        id\n        value\n        namespace\n        key\n      }\n      outstanding_features: metafield(namespace: "ciseco--product", key:"outstanding_features") {\n        id\n        value\n        namespace\n        key\n      }\n      custom_badges: metafield(namespace: "custom", key:"badges") {\n        id\n        value\n        namespace\n        key\n      }\n      # Badge de envío (metaobject reference)\n      shipping_badge: metafield(namespace: "custom", key: "shipping_badge") {\n        reference {\n          ... on Metaobject {\n            type\n            label: field(key: "label") { value }\n            icon_emoji: field(key: "icon_emoji") { value }\n            background_color: field(key: "background_color") { value }\n            text_color: field(key: "text_color") { value }\n            priority: field(key: "priority") { value }\n          }\n        }\n      }\n      # Especificaciones técnicas\n      specs_dimensiones: metafield(namespace: "specs", key:"dimensiones") {\n        value\n      }\n      specs_peso_max_usuario: metafield(namespace: "specs", key:"peso_max_usuario") {\n        value\n      }\n      specs_tipo_resistencia: metafield(namespace: "specs", key:"tipo_resistencia") {\n        value\n      }\n      specs_niveles_resistencia: metafield(namespace: "specs", key:"niveles_resistencia") {\n        value\n      }\n      specs_potencia_motor: metafield(namespace: "specs", key:"potencia_motor") {\n        value\n      }\n      specs_peso_producto: metafield(namespace: "specs", key:"peso_producto") {\n        value\n      }\n      specs_garantia: metafield(namespace: "specs", key:"garantia") {\n        value\n      }\n      specs_nivel_ruido: metafield(namespace: "specs", key:"nivel_ruido") {\n        value\n      }\n      specs_conectividad: metafield(namespace: "specs", key:"conectividad") {\n        value\n      }\n      specs_certificaciones: metafield(namespace: "specs", key:"certificaciones") {\n        value\n      }\n      specs_plegable: metafield(namespace: "specs", key:"plegable") {\n        value\n      }\n      specs_requiere_electricidad: metafield(namespace: "specs", key:"requiere_electricidad") {\n        value\n      }\n      specs_ficha_tecnica_pdf: metafield(namespace: "specs", key:"ficha_tecnica_pdf") {\n        reference {\n          ... on GenericFile {\n            url\n          }\n        }\n      }\n      specs_video_producto: metafield(namespace: "specs", key:"video_producto") {\n        value\n      }\n      specs_highlights: metafield(namespace: "specs", key:"highlights") {\n        value\n      }\n      # Enhanced PDP (per-product)\n      pdp_enhanced_enabled: metafield(namespace: "pdp_enhanced", key: "enabled") {\n        value\n      }\n      pdp_enhanced_subtitle: metafield(namespace: "pdp_enhanced", key: "subtitle") {\n        value\n      }\n      pdp_enhanced_hero_description: metafield(namespace: "pdp_enhanced", key: "hero_description") {\n        value\n      }\n      pdp_enhanced_feature_icons: metafield(namespace: "pdp_enhanced", key: "feature_icons") {\n        references(first: 10) {\n          nodes {\n            ... on Metaobject {\n              id\n              fields {\n                key\n                value\n                reference {\n                  ... on MediaImage {\n                    image {\n                      url\n                      altText\n                      width\n                      height\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n      pdp_enhanced_detail_cards: metafield(namespace: "pdp_enhanced", key: "detail_cards") {\n        references(first: 10) {\n          nodes {\n            ... on Metaobject {\n              id\n              fields {\n                key\n                value\n                reference {\n                  ... on MediaImage {\n                    image {\n                      url\n                      altText\n                      width\n                      height\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n      pdp_enhanced_applications: metafield(namespace: "pdp_enhanced", key: "applications") {\n        value\n      }\n      pdp_enhanced_includes_list: metafield(namespace: "pdp_enhanced", key: "includes_list") {\n        value\n      }\n      pdp_enhanced_dimensions_image: metafield(namespace: "pdp_enhanced", key: "dimensions_image") {\n        reference {\n          ... on MediaImage {\n            image {\n              url\n              altText\n              width\n              height\n            }\n          }\n        }\n      }\n      pdp_enhanced_warranty_badges: metafield(namespace: "pdp_enhanced", key: "warranty_badges") {\n        references(first: 10) {\n          nodes {\n            ... on Metaobject {\n              id\n              fields {\n                key\n                value\n                reference {\n                  ... on MediaImage {\n                    image {\n                      url\n                      altText\n                      width\n                      height\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n      options {\n        name\n        optionValues {\n          name\n          firstSelectableVariant {\n            ...ProductVariant\n          }\n          swatch {\n            color\n            image {\n              previewImage {\n                url\n              }\n            }\n          }\n        }\n      }\n      selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions, ignoreUnknownOptions: true, caseInsensitiveMatch: true) {\n        ...ProductVariant\n      }\n      adjacentVariants (selectedOptions: $selectedOptions) {\n        ...ProductVariant\n      }\n      media(first: 7) {\n        nodes {\n          ...Media\n        }\n      }\n      # variants(first: 1) {\n      #   nodes {\n      #     ...ProductVariant\n      #   }\n      # }\n      seo {\n        description\n        title\n      }\n      ...OkendoStarRatingSnippet\n\t\t  ...OkendoReviewsSnippet\n  }\n  #graphql\n  fragment ProductVariant on ProductVariant {\n    id\n    availableForSale\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n    price {\n      amount\n      currencyCode\n    }\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    sku\n    title\n    unitPrice {\n      amount\n      currencyCode\n    }\n    product {\n      title\n      handle\n    }\n  }\n\n  #graphql\n\tfragment OkendoStarRatingSnippet on Product {\n\t\tokendoStarRatingSnippet: metafield(\n\t\t\tnamespace: "okendo"\n\t\t\tkey: "StarRatingSnippet"\n\t\t) {\n\t\t\tvalue\n\t\t}\n\t}\n\n\t#graphql\n\tfragment OkendoReviewsSnippet on Product {\n\t\tokendoReviewsSnippet: metafield(\n\t\t\tnamespace: "okendo"\n\t\t\tkey: "ReviewsWidgetSnippet"\n\t\t) {\n\t\t\tvalue\n\t\t}\n\t}\n\n\n': {
+  '#graphql\n  query Product(\n    $country: CountryCode\n    $language: LanguageCode\n    $handle: String!\n    $selectedOptions: [SelectedOptionInput!]!\n  ) @inContext(country: $country, language: $language) {\n    product(handle: $handle) {\n      ...Product\n    }\n    shop {\n      name\n      primaryDomain {\n        url\n      }\n      shippingPolicy {\n        handle\n      }\n      refundPolicy {\n        handle\n      }\n      subscriptionPolicy {\n        handle\n      }\n    }\n  }\n  #graphql\n  fragment Media on Media {\n    __typename\n    mediaContentType\n    alt\n    previewImage {\n      url\n    }\n    ... on MediaImage {\n      id\n      image {\n        id\n        url\n        width\n        height\n      }\n    }\n    ... on Video {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on Model3d {\n      id\n      sources {\n        mimeType\n        url\n      }\n    }\n    ... on ExternalVideo {\n      id\n      embedUrl\n      host\n    }\n  }\n\n  #graphql\n  fragment Product on Product {\n    id\n      title\n      vendor\n      handle\n      descriptionHtml\n      description\n      publishedAt\n      encodedVariantExistence\n      encodedVariantAvailability\n      collections(first: 1) {\n        nodes {\n          id\n          title\n          handle\n        }\n      }\n      reviews_rating_count: metafield(namespace: "reviews", key:"rating_count") {\n        id\n        value\n        namespace\n        key\n      }\n      reviews_rating: metafield(namespace: "reviews", key:"rating") {\n        id\n        value\n        namespace\n        key\n      }\n      outstanding_features: metafield(namespace: "ciseco--product", key:"outstanding_features") {\n        id\n        value\n        namespace\n        key\n      }\n      custom_badges: metafield(namespace: "custom", key:"badges") {\n        id\n        value\n        namespace\n        key\n      }\n      # Badge de envío (metaobject reference)\n      shipping_badge: metafield(namespace: "custom", key: "shipping_badge") {\n        reference {\n          ... on Metaobject {\n            type\n            label: field(key: "label") { value }\n            icon_emoji: field(key: "icon_emoji") { value }\n            background_color: field(key: "background_color") { value }\n            text_color: field(key: "text_color") { value }\n            priority: field(key: "priority") { value }\n          }\n        }\n      }\n      # Especificaciones técnicas\n      specs_dimensiones: metafield(namespace: "specs", key:"dimensiones") {\n        value\n      }\n      specs_peso_max_usuario: metafield(namespace: "specs", key:"peso_max_usuario") {\n        value\n      }\n      specs_tipo_resistencia: metafield(namespace: "specs", key:"tipo_resistencia") {\n        value\n      }\n      specs_niveles_resistencia: metafield(namespace: "specs", key:"niveles_resistencia") {\n        value\n      }\n      specs_potencia_motor: metafield(namespace: "specs", key:"potencia_motor") {\n        value\n      }\n      specs_peso_producto: metafield(namespace: "specs", key:"peso_producto") {\n        value\n      }\n      specs_garantia: metafield(namespace: "specs", key:"garantia") {\n        value\n      }\n      specs_nivel_ruido: metafield(namespace: "specs", key:"nivel_ruido") {\n        value\n      }\n      specs_conectividad: metafield(namespace: "specs", key:"conectividad") {\n        value\n      }\n      specs_certificaciones: metafield(namespace: "specs", key:"certificaciones") {\n        value\n      }\n      specs_plegable: metafield(namespace: "specs", key:"plegable") {\n        value\n      }\n      specs_requiere_electricidad: metafield(namespace: "specs", key:"requiere_electricidad") {\n        value\n      }\n      specs_ficha_tecnica_pdf: metafield(namespace: "specs", key:"ficha_tecnica_pdf") {\n        reference {\n          ... on GenericFile {\n            url\n          }\n        }\n      }\n      specs_video_producto: metafield(namespace: "specs", key:"video_producto") {\n        value\n      }\n      specs_highlights: metafield(namespace: "specs", key:"highlights") {\n        value\n      }\n      # Enhanced PDP (per-product)\n      pdp_enhanced_enabled: metafield(namespace: "pdp_enhanced", key: "enabled") {\n        value\n      }\n      pdp_enhanced_subtitle: metafield(namespace: "pdp_enhanced", key: "subtitle") {\n        value\n      }\n      pdp_enhanced_hero_description: metafield(namespace: "pdp_enhanced", key: "hero_description") {\n        value\n      }\n      pdp_enhanced_feature_icons: metafield(namespace: "pdp_enhanced", key: "feature_icons") {\n        references(first: 10) {\n          nodes {\n            ... on Metaobject {\n              id\n              fields {\n                key\n                value\n                reference {\n                  ... on MediaImage {\n                    image {\n                      url\n                      altText\n                      width\n                      height\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n      pdp_enhanced_detail_cards: metafield(namespace: "pdp_enhanced", key: "detail_cards") {\n        references(first: 10) {\n          nodes {\n            ... on Metaobject {\n              id\n              fields {\n                key\n                value\n                reference {\n                  ... on MediaImage {\n                    image {\n                      url\n                      altText\n                      width\n                      height\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n      pdp_enhanced_applications: metafield(namespace: "pdp_enhanced", key: "applications") {\n        value\n      }\n      pdp_enhanced_includes_list: metafield(namespace: "pdp_enhanced", key: "includes_list") {\n        value\n      }\n      pdp_enhanced_dimensions_image: metafield(namespace: "pdp_enhanced", key: "dimensions_image") {\n        reference {\n          ... on MediaImage {\n            image {\n              url\n              altText\n              width\n              height\n            }\n          }\n        }\n      }\n      pdp_enhanced_warranty_badges: metafield(namespace: "pdp_enhanced", key: "warranty_badges") {\n        references(first: 10) {\n          nodes {\n            ... on Metaobject {\n              id\n              fields {\n                key\n                value\n                reference {\n                  ... on MediaImage {\n                    image {\n                      url\n                      altText\n                      width\n                      height\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n      # Feature blocks for PDP (image/video + text sections)\n      feature_1_title: metafield(namespace: "pdp_features", key: "block_1_title") { value }\n      feature_1_description: metafield(namespace: "pdp_features", key: "block_1_description") { value }\n      feature_1_media: metafield(namespace: "pdp_features", key: "block_1_media") {\n        reference {\n          ... on MediaImage {\n            image { url altText }\n          }\n          ... on Video {\n            sources { url mimeType }\n          }\n        }\n      }\n      feature_2_title: metafield(namespace: "pdp_features", key: "block_2_title") { value }\n      feature_2_description: metafield(namespace: "pdp_features", key: "block_2_description") { value }\n      feature_2_media: metafield(namespace: "pdp_features", key: "block_2_media") {\n        reference {\n          ... on MediaImage {\n            image { url altText }\n          }\n          ... on Video {\n            sources { url mimeType }\n          }\n        }\n      }\n      feature_3_title: metafield(namespace: "pdp_features", key: "block_3_title") { value }\n      feature_3_description: metafield(namespace: "pdp_features", key: "block_3_description") { value }\n      feature_3_media: metafield(namespace: "pdp_features", key: "block_3_media") {\n        reference {\n          ... on MediaImage {\n            image { url altText }\n          }\n          ... on Video {\n            sources { url mimeType }\n          }\n        }\n      }\n      feature_4_title: metafield(namespace: "pdp_features", key: "block_4_title") { value }\n      feature_4_description: metafield(namespace: "pdp_features", key: "block_4_description") { value }\n      feature_4_media: metafield(namespace: "pdp_features", key: "block_4_media") {\n        reference {\n          ... on MediaImage {\n            image { url altText }\n          }\n          ... on Video {\n            sources { url mimeType }\n          }\n        }\n      }\n      options {\n        name\n        optionValues {\n          name\n          firstSelectableVariant {\n            ...ProductVariant\n          }\n          swatch {\n            color\n            image {\n              previewImage {\n                url\n              }\n            }\n          }\n        }\n      }\n      selectedOrFirstAvailableVariant(selectedOptions: $selectedOptions, ignoreUnknownOptions: true, caseInsensitiveMatch: true) {\n        ...ProductVariant\n      }\n      adjacentVariants (selectedOptions: $selectedOptions) {\n        ...ProductVariant\n      }\n      media(first: 7) {\n        nodes {\n          ...Media\n        }\n      }\n      # variants(first: 1) {\n      #   nodes {\n      #     ...ProductVariant\n      #   }\n      # }\n      seo {\n        description\n        title\n      }\n      ...OkendoStarRatingSnippet\n\t\t  ...OkendoReviewsSnippet\n  }\n  #graphql\n  fragment ProductVariant on ProductVariant {\n    id\n    availableForSale\n    selectedOptions {\n      name\n      value\n    }\n    image {\n      id\n      url\n      altText\n      width\n      height\n    }\n    price {\n      amount\n      currencyCode\n    }\n    compareAtPrice {\n      amount\n      currencyCode\n    }\n    sku\n    title\n    unitPrice {\n      amount\n      currencyCode\n    }\n    product {\n      title\n      handle\n    }\n  }\n\n  #graphql\n\tfragment OkendoStarRatingSnippet on Product {\n\t\tokendoStarRatingSnippet: metafield(\n\t\t\tnamespace: "okendo"\n\t\t\tkey: "StarRatingSnippet"\n\t\t) {\n\t\t\tvalue\n\t\t}\n\t}\n\n\t#graphql\n\tfragment OkendoReviewsSnippet on Product {\n\t\tokendoReviewsSnippet: metafield(\n\t\t\tnamespace: "okendo"\n\t\t\tkey: "ReviewsWidgetSnippet"\n\t\t) {\n\t\t\tvalue\n\t\t}\n\t}\n\n\n': {
     return: ProductQuery;
     variables: ProductQueryVariables;
   };
