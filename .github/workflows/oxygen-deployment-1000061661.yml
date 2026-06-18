@@ -36,6 +36,11 @@ jobs:
         run: npm ci
 
       - name: Build and Publish to Oxygen
-        run: npx shopify hydrogen deploy
+        run: |
+          for i in 1 2 3; do
+            npx shopify hydrogen deploy && break
+            echo "Attempt $i failed, retrying in 10 seconds..."
+            sleep 10
+          done
         env:
           SHOPIFY_HYDROGEN_DEPLOYMENT_TOKEN: ${{ secrets.OXYGEN_DEPLOYMENT_TOKEN_1000061661 }}
