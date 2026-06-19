@@ -238,12 +238,12 @@ export default function Product() {
               />
             </div>
 
-            {/* Description below thumbnails */}
+            {/* Description below thumbnails - only on desktop */}
             {!!descriptionHtml && (
               <ProductDescriptionBlock
                 descriptionHtml={descriptionHtml}
                 maxChars={350}
-                className="mt-8 lg:mt-10"
+                className="hidden lg:block mt-8 lg:mt-10"
               />
             )}
           </div>
@@ -299,6 +299,15 @@ export default function Product() {
                   </Await>
                 </Suspense>
               </div>
+
+              {/* Description after accordion - only on mobile */}
+              {!!descriptionHtml && (
+                <ProductDescriptionBlock
+                  descriptionHtml={descriptionHtml}
+                  maxChars={350}
+                  className="lg:hidden"
+                />
+              )}
 
               {/* Help Banner */}
               <Suspense fallback={null}>
