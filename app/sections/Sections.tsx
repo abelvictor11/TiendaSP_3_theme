@@ -67,6 +67,14 @@ import {
   SECTION_SHOP_BY_CATEGORY_FRAGMENT,
   SectionShopByCategory,
 } from './SectionShopByCategory';
+import {
+  SECTION_BLOG_CAROUSEL_FRAGMENT,
+  SectionBlogCarousel,
+} from './SectionBlogCarousel';
+import {
+  SECTION_SEO_TEXT_FRAGMENT,
+  SectionSeoText,
+} from './SectionSeoText';
 import clsx from 'clsx';
 import {SECTION_HERO_FRAGMENT, SectionHero} from './SectionHero';
 import {OKENDO_PRODUCT_STAR_RATING_FRAGMENT} from '@okendo/shopify-hydrogen';
@@ -97,7 +105,9 @@ export type CisecoSectionType =
   | 'ciseco--section_brands_ticker'
   | 'ciseco--section_product_testimonial'
   | 'section_intro_feature'
-  | 'section_shop_by_category';
+  | 'section_shop_by_category'
+  | 'ciseco--section_blog_carousel'
+  | 'ciseco--section_seo_text';
 
 export function Sections({
   sections,
@@ -223,6 +233,20 @@ export function Sections({
                 <SectionShopByCategory {...section} key={section.id} />
               </WrapSection>
             );
+          case 'ciseco--section_blog_carousel':
+            return (
+              <WrapSection key={section.id} index={index} {...args}>
+                <ClientOnly>
+                  <SectionBlogCarousel {...section} key={section.id} />
+                </ClientOnly>
+              </WrapSection>
+            );
+          case 'ciseco--section_seo_text':
+            return (
+              <WrapSection key={section.id} index={index} {...args}>
+                <SectionSeoText {...section} key={section.id} />
+              </WrapSection>
+            );
 
           // case 'section_another':
           //   return <AnotherSection />;
@@ -293,6 +317,8 @@ export const SECTIONS_FRAGMENT = `#graphql
             ...SectionProductTestimonial
             ...SectionIntroFeature
             ...SectionShopByCategory
+            ...SectionBlogCarousel
+            ...SectionSeoText
           }
         }
       }
@@ -316,6 +342,8 @@ export const SECTIONS_FRAGMENT = `#graphql
   ${SECTION_PRODUCT_TESTIMONIAL_FRAGMENT}
   ${SECTION_INTRO_FEATURE_FRAGMENT}
   ${SECTION_SHOP_BY_CATEGORY_FRAGMENT}
+  ${SECTION_BLOG_CAROUSEL_FRAGMENT}
+  ${SECTION_SEO_TEXT_FRAGMENT}
 
   # All common fragments
   ${COMMON_PRODUCT_CARD_FRAGMENT}
