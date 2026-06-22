@@ -115,6 +115,66 @@ function FeatureBlockItem({
   );
 }
 
+// Helper to convert Shopify rich text JSON to HTML
+function richTextToHtml(richTextJson: string | undefined): string {
+  if (!richTextJson) return '';
+  
+  try {
+    const richText = JSON.parse(richTextJson);
+    if (!richText || !richText.children) return richTextJson;
+
+    return richText.children
+      .map((node: any) => {
+        if (node.type === 'paragraph') {
+          const content = node.children
+            ?.map((child: any) => {
+              if (child.type === 'text') {
+                let text = child.value || '';
+                if (child.bold) text = `<strong>${text}</strong>`;
+                if (child.italic) text = `<em>${text}</em>`;
+                return text;
+              }
+              if (child.type === 'link') {
+                const linkText = child.children?.map((c: any) => c.value).join('') || '';
+                return `<a href="${child.url}" target="${child.target || '_self'}">${linkText}</a>`;
+              }
+              return '';
+            })
+            .join('');
+          return `<p>${content}</p>`;
+        }
+        if (node.type === 'heading') {
+          const level = node.level || 2;
+          const content = node.children?.map((c: any) => c.value).join('') || '';
+          return `<h${level}>${content}</h${level}>`;
+        }
+        if (node.type === 'list') {
+          const tag = node.listType === 'ordered' ? 'ol' : 'ul';
+          const items = node.children
+            ?.map((item: any) => {
+              const itemContent = item.children
+                ?.map((c: any) => {
+                  if (c.type === 'text') return c.value;
+                  if (c.type === 'paragraph') {
+                    return c.children?.map((pc: any) => pc.value).join('') || '';
+                  }
+                  return '';
+                })
+                .join('');
+              return `<li>${itemContent}</li>`;
+            })
+            .join('');
+          return `<${tag}>${items}</${tag}>`;
+        }
+        return '';
+      })
+      .join('');
+  } catch {
+    // If not valid JSON, return as-is (might be plain text)
+    return richTextJson;
+  }
+}
+
 // Helper to parse feature blocks from product data
 export function parseFeatureBlocks(product: any): FeatureBlock[] {
   const blocks: FeatureBlock[] = [];
@@ -122,7 +182,8 @@ export function parseFeatureBlocks(product: any): FeatureBlock[] {
   // Support up to 4 feature blocks
   for (let i = 1; i <= 4; i++) {
     const title = product?.[`feature_${i}_title`]?.value;
-    const description = product?.[`feature_${i}_description`]?.value;
+    const descriptionRaw = product?.[`feature_${i}_description`]?.value;
+    const description = richTextToHtml(descriptionRaw);
     const mediaRef = product?.[`feature_${i}_media`]?.reference;
     
     // Get media URL and type
