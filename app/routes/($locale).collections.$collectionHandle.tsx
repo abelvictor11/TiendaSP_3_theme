@@ -26,7 +26,7 @@ import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFilter
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
 import {ProductsGrid} from '~/components/ProductsGrid';
 import clsx from 'clsx';
-import {Suspense} from 'react';
+import {Suspense, useState} from 'react';
 
 export const headers = routeHeaders;
 
@@ -334,12 +334,122 @@ function CollectionContent({
                     )}
                   </nav>
                 )}
+
+                {/* SEO Text Below */}
+                {collection.textBelow?.value && (
+                  <CollectionSeoText richTextJson={collection.textBelow.value} />
+                )}
               </>
               );
             }}
           </Pagination>
         ) : (
           <Empty />
+        )}
+
+        {/* SEO Text Below (when no results) */}
+        {noResults && collection.textBelow?.value && (
+          <CollectionSeoText richTextJson={collection.textBelow.value} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Component to render SEO text with truncation
+function CollectionSeoText({richTextJson}: {richTextJson: string}) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  
+  // Parse rich text JSON to HTML
+  let htmlContent = '';
+  try {
+    const richText = JSON.parse(richTextJson);
+    if (richText && richText.children) {
+      htmlContent = richText.children
+        .map((node: any) => {
+          if (node.type === 'paragraph') {
+            const content = node.children
+              ?.map((child: any) => {
+                if (child.type === 'text') {
+                  let text = child.value || '';
+                  if (child.bold) text = `<strong>${text}</strong>`;
+                  if (child.italic) text = `<em>${text}</em>`;
+                  return text;
+                }
+                if (child.type === 'link') {
+                  const linkText = child.children?.map((c: any) => c.value).join('') || '';
+                  return `<a href="${child.url}" class="text-primary-600 hover:underline">${linkText}</a>`;
+                }
+                return '';
+              })
+              .join('');
+            return `<p>${content}</p>`;
+          }
+          if (node.type === 'heading') {
+            const level = node.level || 2;
+            const content = node.children?.map((c: any) => c.value).join('') || '';
+            return `<h${level} class="text-lg font-semibold mt-4 mb-2">${content}</h${level}>`;
+          }
+          if (node.type === 'list') {
+            const tag = node.listType === 'ordered' ? 'ol' : 'ul';
+            const items = node.children
+              ?.map((item: any) => {
+                const itemContent = item.children
+                  ?.map((c: any) => {
+                    if (c.type === 'text') return c.value;
+                    if (c.type === 'paragraph') {
+                      return c.children?.map((pc: any) => pc.value).join('') || '';
+                    }
+                    return '';
+                  })
+                  .join('');
+                return `<li>${itemContent}</li>`;
+              })
+              .join('');
+            return `<${tag} class="list-disc list-inside space-y-1">${items}</${tag}>`;
+          }
+          return '';
+        })
+        .join('');
+    } else {
+      htmlContent = richTextJson;
+    }
+  } catch {
+    htmlContent = richTextJson;
+  }
+
+  // Strip HTML to count characters
+  const textContent = htmlContent.replace(/<[^>]*>/g, '');
+  const maxChars = 300;
+  const needsTruncation = textContent.length > maxChars;
+
+  // Truncate text for display
+  const truncatedText = needsTruncation && !isExpanded
+    ? textContent.slice(0, maxChars) + '...'
+    : null;
+
+  return (
+    <div className="mt-12 pt-8 border-t border-neutral-200 dark:border-neutral-700">
+      <div className="max-w-4xl">
+        {truncatedText ? (
+          <div className="prose prose-sm dark:prose-invert max-w-none text-neutral-600 dark:text-neutral-300">
+            <p>{truncatedText}</p>
+          </div>
+        ) : (
+          <div
+            className="prose prose-sm dark:prose-invert max-w-none text-neutral-600 dark:text-neutral-300"
+            dangerouslySetInnerHTML={{__html: htmlContent}}
+          />
+        )}
+
+        {needsTruncation && (
+          <button
+            type="button"
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="mt-3 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 underline underline-offset-2"
+          >
+            {isExpanded ? 'Ver menos' : 'Ver más'}
+          </button>
         )}
       </div>
     </div>
@@ -385,6 +495,9 @@ const COLLECTION_QUERY = `#graphql
             }
           }
         }
+      }
+      textBelow: metafield(namespace: "custom", key: "text_below") {
+        value
       }
       productsWithDefaultFilter:products(
         first: 0,
