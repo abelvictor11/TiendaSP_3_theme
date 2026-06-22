@@ -108,7 +108,7 @@ function BlogCarouselCard({article}: {article: Article}) {
       to={articleUrl}
       className="flex-none w-[280px] md:w-[320px] lg:w-[360px] snap-start group"
     >
-      <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-transparent hover:border-black dark:hover:border-white transition-colors duration-300">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-[#e5e7eb] hover:border-black dark:border-slate-700 dark:hover:border-white transition-colors duration-300">
         {image && (
           <div className="aspect-[16/10] overflow-hidden">
             <Image
