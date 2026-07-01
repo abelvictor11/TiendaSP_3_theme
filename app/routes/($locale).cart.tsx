@@ -18,6 +18,7 @@ import {
 } from '@shopify/hydrogen';
 import {isLocalPath} from '~/lib/utils';
 import {getFbCookies} from '~/lib/fbCookies';
+import {decorateCheckoutUrl} from '~/lib/checkoutContinuity';
 import {Link} from '~/components/Link';
 import {FeaturedProducts} from '~/components/FeaturedProducts';
 import {ArrowLeftIcon, CheckIcon} from '@heroicons/react/24/outline';
@@ -383,7 +384,7 @@ function CartSummary({
           // Si falla, no bloqueamos la compra
         })
         .finally(() => {
-          window.location.href = checkoutUrl;
+          window.location.href = decorateCheckoutUrl(checkoutUrl);
         });
     }
   };

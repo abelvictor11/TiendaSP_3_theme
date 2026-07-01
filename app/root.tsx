@@ -102,6 +102,7 @@ export async function loader(args: LoaderFunctionArgs) {
     publicGoogleAdsId: env.PUBLIC_GOOGLE_ADS_ID ?? '',
     publicMetaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
     publicTiktokPixelId: env.PUBLIC_TIKTOK_PIXEL_ID ?? '',
+    publicCheckoutDomain: env.PUBLIC_CHECKOUT_DOMAIN ?? '',
     /**********   EXAMPLE UPDATE END   ************/
   });
 }
@@ -195,6 +196,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   const googleAdsId = data?.publicGoogleAdsId as string | null | undefined;
   const metaPixelId = data?.publicMetaPixelId as string | null | undefined;
   const tiktokPixelId = data?.publicTiktokPixelId as string | null | undefined;
+  const checkoutDomain = data?.publicCheckoutDomain as string | null | undefined;
 
   return (
     <html lang={locale.language}>
@@ -225,6 +227,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
               googleAdsId={googleAdsId}
               metaPixelId={metaPixelId}
               tiktokPixelId={tiktokPixelId}
+              checkoutDomain={checkoutDomain}
             />
             <OkendoProvider
               nonce={nonce}

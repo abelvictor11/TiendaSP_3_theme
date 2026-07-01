@@ -11,28 +11,10 @@
  * directamente y garantiza que se envíe al servidor.
  */
 
+import {COOKIE_TTL_DAYS, readCookie, writeCookie} from '~/lib/cookieUtils';
+
 const FBP_COOKIE = '_fbp';
 const FBC_COOKIE = '_fbc';
-const COOKIE_TTL_DAYS = 90; // Igual que la ventana de atribución de Meta
-
-function readCookie(name: string): string | null {
-  if (typeof document === 'undefined') return null;
-  const match = document.cookie.match(
-    new RegExp('(?:^|;\\s*)' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '=([^;]*)'),
-  );
-  return match ? decodeURIComponent(match[1]) : null;
-}
-
-function writeCookie(name: string, value: string, days: number) {
-  if (typeof document === 'undefined') return;
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  const domain =
-    typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-      ? `; domain=.${window.location.hostname.replace(/^www\./, '')}`
-      : '';
-  document.cookie = `${name}=${encodeURIComponent(value)}; expires=${expires.toUTCString()}; path=/${domain}; SameSite=Lax`;
-}
 
 /**
  * Captura fbclid desde la URL y escribe _fbc si todavía no existe.
@@ -45,7 +27,9 @@ export function captureFbclid(): void {
   const fbclid = params.get('fbclid');
   if (!fbclid) return;
   const existing = readCookie(FBC_COOKIE);
-  if (existing) return;
+  // Refresh when a new ad click arrives: _fbc ends with `.{fbclid}`, so only
+  // skip the write when the stored click id matches the current one.
+  if (existing && existing.endsWith(`.${fbclid}`)) return;
   const value = `fb.1.${Date.now()}.${fbclid}`;
   writeCookie(FBC_COOKIE, value, COOKIE_TTL_DAYS);
 }

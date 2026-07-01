@@ -22,6 +22,8 @@ import ButtonSecondary from './Button/ButtonSecondary';
 import {ArrowLeftIcon} from '@heroicons/react/24/solid';
 import {useVariantUrl} from '~/lib/variants';
 import {useAside} from './Aside';
+import type {MouseEvent} from 'react';
+import {decorateCheckoutUrl} from '~/lib/checkoutContinuity';
 
 export function Cart({
   onClose,
@@ -100,6 +102,21 @@ function CartSummary({
   checkoutUrl?: string;
   onClose?: () => void;
 }) {
+  function handleCheckoutClick(event: MouseEvent<HTMLAnchorElement>) {
+    if (
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey ||
+      !checkoutUrl
+    ) {
+      return;
+    }
+
+    event.currentTarget.href = decorateCheckoutUrl(checkoutUrl);
+  }
+
   return (
     <section
       aria-labelledby="summary-heading"
@@ -130,7 +147,12 @@ function CartSummary({
           >
             Ver carrito
           </ButtonSecondary>
-          <a className="flex" href={checkoutUrl} target="_self">
+          <a
+            className="flex"
+            href={checkoutUrl}
+            target="_self"
+            onClick={handleCheckoutClick}
+          >
             <ButtonPrimary className="flex-1">Finalizar compra</ButtonPrimary>
           </a>
         </div>

@@ -11,22 +11,46 @@
  */
 import {useEffect} from 'react';
 
+function getCheckoutHostname(checkoutDomain?: string | null): string | null {
+  if (!checkoutDomain) return null;
+  try {
+    return new URL(checkoutDomain).hostname;
+  } catch {
+    try {
+      return new URL(`https://${checkoutDomain}`).hostname;
+    } catch {
+      return null;
+    }
+  }
+}
+
 export function GtmLoader({
   gtmId,
   gaMeasurementId,
   googleAdsId,
   metaPixelId,
   tiktokPixelId,
+  checkoutDomain,
 }: {
   gtmId?: string | null;
   gaMeasurementId?: string | null;
   googleAdsId?: string | null;
   metaPixelId?: string | null;
   tiktokPixelId?: string | null;
+  checkoutDomain?: string | null;
 }) {
+  const checkoutHostname = getCheckoutHostname(checkoutDomain);
+
   useEffect(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const w = window as any;
+    const linker = checkoutHostname
+      ? {
+          linker: {
+            domains: [checkoutHostname],
+            accept_incoming: true,
+          },
+        }
+      : null;
 
     // ── 1. dataLayer + función gtag estándar ──────────────────────────────
     w.dataLayer = w.dataLayer ?? [];
@@ -58,11 +82,12 @@ export function GtmLoader({
       s.src = `https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`;
       s.onload = () => {
         w.gtag('js', new Date());
-        // send_page_view: false evita el page_view automático de GA4.
-        // El page_view lo dispara CustomAnalytics (uno por cada vista/navegación
-        // SPA). Sin esto, cada carga generaba 2 page_views (auto + manual),
-        // inflando sesiones y usuarios en GA4 frente a Shopify.
-        w.gtag('config', gaMeasurementId, {send_page_view: false});
+        // CustomAnalytics owns page_view (incl. the first load) so SPA nav is
+        // tracked consistently — disable gtag's automatic initial page_view.
+        w.gtag('config', gaMeasurementId, {
+          send_page_view: false,
+          ...(linker ?? {}),
+        });
       };
       document.head.appendChild(s);
     }
@@ -78,7 +103,9 @@ export function GtmLoader({
       s.src = `https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`;
       s.onload = () => {
         w.gtag('js', new Date());
-        w.gtag('config', googleAdsId);
+        w.gtag('config', googleAdsId, {
+          ...(linker ?? {}),
+        });
       };
       document.head.appendChild(s);
     }
@@ -94,11 +121,12 @@ export function GtmLoader({
       document.head.appendChild(fbScript);
 
       // Definir fbq queue antes de que cargue el script
-      w.fbq = function () {
-        // eslint-disable-next-line prefer-rest-params
-        w.fbq.callMethod
-          ? w.fbq.callMethod.apply(w.fbq, arguments)
-          : w.fbq.queue.push(arguments);
+      w.fbq = function (...args: unknown[]) {
+        if (w.fbq.callMethod) {
+          w.fbq.callMethod(...args);
+        } else {
+          w.fbq.queue.push(args);
+        }
       };
       w._fbq = w.fbq;
       w.fbq.push = w.fbq;
@@ -106,8 +134,9 @@ export function GtmLoader({
       w.fbq.version = '2.0';
       w.fbq.queue = [];
 
+      // Only init here; CustomAnalytics fires PageView on every PAGE_VIEWED
+      // (including the initial load) to avoid double-counting.
       w.fbq('init', metaPixelId);
-      w.fbq('track', 'PageView');
     }
 
     // ── 5. TikTok Pixel (ttq) ─────────────────────────────────────────────
@@ -161,8 +190,9 @@ export function GtmLoader({
         document.head.appendChild(s);
       };
 
+      // Only load here; CustomAnalytics calls ttq.page() on every PAGE_VIEWED
+      // (including the initial load) to avoid double-counting.
       tt.load(tiktokPixelId);
-      tt.page();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
