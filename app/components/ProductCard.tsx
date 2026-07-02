@@ -77,7 +77,11 @@ const ProductCard: FC<ProductCardProps> = ({
 
   const firstVariant = variants?.nodes?.[0];
 
-  const optColor = options?.find((option) => option.name === 'Color');
+  // Detecta la opción de color de forma flexible: matchea "Color", "Color principal",
+  // "Colour", etc. (case-insensitive). Cyclewear usa "Color principal", por lo que
+  // un match exacto por 'Color' dejaba las cards sin mostrar las variantes de color.
+  const optColor = options?.find((option) => /colou?r/i.test(option.name));
+  const colorOptionName = optColor?.name;
   const optSizes = options?.find((option) => option.name === 'Size');
   const optWeight = options?.find((option) => option.name === 'Peso' || option.name === 'Weight');
   const isSale =
@@ -113,7 +117,7 @@ const ProductCard: FC<ProductCardProps> = ({
     if (!colorName || !variants?.nodes) return null;
     const variant = variants.nodes.find((v) =>
       v.selectedOptions?.some(
-        (opt) => opt.name === 'Color' && opt.value === colorName
+        (opt) => opt.name === colorOptionName && opt.value === colorName
       )
     );
     return variant?.image;
