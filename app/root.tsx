@@ -186,12 +186,35 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
       }
     }
     if (handles.size === 0) return {nodes: []};
-    const queryStr = [...handles].map((h) => `handle:${h}`).join(' OR ');
-    const result = await storefront.query(MENU_COLLECTIONS_QUERY, {
+    // Usa lookups exactos `collection(handle:)` con alias en vez de la búsqueda
+    // difusa `collections(query: "handle:x OR ...")`. La búsqueda difusa es poco
+    // confiable: no matchea ciertos handles (p.ej. running-fitness, motos-y-cuatrimotos)
+    // y en cambio devuelve colecciones irrelevantes que, con el cap de `first`,
+    // empujaban fuera a las que sí necesitábamos, dejando su megamenú sin armar.
+    const handleList = [...handles];
+    const aliasedFields = handleList
+      .map(
+        (h, i) =>
+          `c${i}: collection(handle: ${JSON.stringify(h)}) { ...MenuCollectionFields }`,
+      )
+      .join('\n');
+    const query = `#graphql
+      query MenuCollectionsByHandle($language: LanguageCode, $country: CountryCode)
+      @inContext(language: $language, country: $country) {
+        ${aliasedFields}
+      }
+      ${MENU_COLLECTION_FIELDS_FRAGMENT}
+    `;
+    const result: any = await storefront.query(query, {
       cache: storefront.CacheLong(),
-      variables: {query: queryStr, first: handles.size + 5, language, country},
+      variables: {language, country},
     });
-    return result?.collections || {nodes: []};
+    // Reconstituye un shape {nodes: [...]} en el mismo orden del menú,
+    // descartando handles que no resolvieron a una colección.
+    const nodes = handleList
+      .map((_, i) => result?.[`c${i}`])
+      .filter(Boolean);
+    return {nodes};
   });
 
   const footerPromise = storefront.query(FOOTER_QUERY, {
@@ -766,45 +789,36 @@ const HEADER_QUERY = `#graphql
   ${COMMON_COLLECTION_ITEM_FRAGMENT}
 ` as const;
 
-const MENU_COLLECTIONS_QUERY = `#graphql
-  query MenuCollections(
-    $query: String!
-    $first: Int!
-    $language: LanguageCode
-    $country: CountryCode
-  ) @inContext(language: $language, country: $country) {
-    collections(first: $first, query: $query) {
-      nodes {
-        id
-        handle
-        title
-        image {
-          url
-          altText
-          width
-          height
-        }
-        subcollections: metafield(namespace: "custom", key: "coleccion_hija") {
-          references(first: 20) {
-            nodes {
-              ... on Collection {
-                id
-                handle
-                title
-                image {
-                  url
-                  altText
-                  width
-                  height
-                }
-              }
+const MENU_COLLECTION_FIELDS_FRAGMENT = `#graphql
+  fragment MenuCollectionFields on Collection {
+    id
+    handle
+    title
+    image {
+      url
+      altText
+      width
+      height
+    }
+    subcollections: metafield(namespace: "custom", key: "coleccion_hija") {
+      references(first: 20) {
+        nodes {
+          ... on Collection {
+            id
+            handle
+            title
+            image {
+              url
+              altText
+              width
+              height
             }
           }
         }
       }
     }
   }
-` as const;
+`;
 
 async function getLayoutData({storefront, env}: AppLoadContext) {
   const data = await storefront.query(LAYOUT_QUERY, {
