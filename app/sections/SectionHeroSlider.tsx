@@ -25,6 +25,31 @@ export function SectionHeroSlider(props: SectionHeroSliderFragment) {
   const [indexActive, setIndexActive] = useState(0);
   const [isRunning, toggleIsRunning] = useState(true);
 
+  // Detecta el viewport para saber qué media se muestra (horizontal en desktop,
+  // vertical en mobile) y así decidir si el slide activo reproduce un video.
+  const [isDesktop, setIsDesktop] = useState(true);
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 1024px)');
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
+  // ¿El slide activo muestra un video en el viewport actual? (nodo crudo, aún
+  // sin parseSection, por eso se accede vía .reference.sources)
+  const activeNode: any = DATA[indexActive];
+  const activeHasVideo = isDesktop
+    ? !!activeNode?.horizontal_video?.reference?.sources?.[0]?.url
+    : !!activeNode?.vertical_video?.reference?.sources?.[0]?.url;
+
+  // Evita doble avance: cada video (horizontal y vertical) puede disparar
+  // onEnded; solo el primero por slide avanza. Se resetea al cambiar de slide.
+  const endedHandledRef = useRef(false);
+  useEffect(() => {
+    endedHandledRef.current = false;
+  }, [indexActive]);
+
   useEffect(() => {
     if (isSlided || !indexActive) {
       return;
@@ -41,11 +66,13 @@ export function SectionHeroSlider(props: SectionHeroSliderFragment) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [swipeState.direction, swipeState.swiping, swipeState.count]);
 
+  // Si el slide activo tiene video, el avance lo dispara onEnded del video
+  // (no el timer). Para slides de imagen se mantiene el timer de 5s.
   useInterval(
     () => {
       handleAutoNext();
     },
-    isRunning ? 5000 : 999999,
+    isRunning && !activeHasVideo ? 5000 : 999999,
   );
 
   const handleAutoNext = () => {
@@ -55,6 +82,13 @@ export function SectionHeroSlider(props: SectionHeroSliderFragment) {
       }
       return state + 1;
     });
+  };
+
+  // Al terminar el video del slide activo, avanza al siguiente (con loop al final).
+  const handleVideoEnded = () => {
+    if (endedHandledRef.current) return;
+    endedHandledRef.current = true;
+    handleAutoNext();
   };
 
   const handleClickNext = () => {
@@ -174,7 +208,11 @@ export function SectionHeroSlider(props: SectionHeroSliderFragment) {
               isSlided && 'nc-SectionHeroSliderItem--animation',
             )}
           >
-            <SectionItem section={section} />
+            <SectionItem
+              section={section}
+              onVideoEnded={handleVideoEnded}
+              loopVideo={DATA.length <= 1}
+            />
           </div>
         ) : null,
       )}
@@ -204,7 +242,15 @@ function getPositionClasses(position: string): {
   return map[position] ?? map['center-left'];
 }
 
-const SectionItem = ({section}: {section: HeroItemFragment}) => {
+const SectionItem = ({
+  section,
+  onVideoEnded,
+  loopVideo = false,
+}: {
+  section: HeroItemFragment;
+  onVideoEnded?: () => void;
+  loopVideo?: boolean;
+}) => {
   const item = parseSection<
     HeroItemFragment,
     {
@@ -242,8 +288,9 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
           <video
             autoPlay
             muted
-            loop
+            loop={loopVideo}
             playsInline
+            onEnded={onVideoEnded}
             className="hidden h-full w-full object-cover lg:block"
           >
             <source src={(item as any).horizontal_video.sources[0].url} type={(item as any).horizontal_video.sources[0].mimeType || 'video/mp4'} />
@@ -262,8 +309,9 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
           <video
             autoPlay
             muted
-            loop
+            loop={loopVideo}
             playsInline
+            onEnded={onVideoEnded}
             className="block h-full w-full object-cover lg:hidden"
           >
             <source src={(item as any).vertical_video.sources[0].url} type={(item as any).vertical_video.sources[0].mimeType || 'video/mp4'} />
