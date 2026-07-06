@@ -238,7 +238,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
       {/* BG - Absolute positioned */}
       <div className="nc-SectionHeroSliderItem__image absolute inset-0 w-full h-full">
         {/* Desktop: Video or Image */}
-        {(item as any).horizontal_video?.reference?.sources?.[0]?.url ? (
+        {(item as any).horizontal_video?.sources?.[0]?.url ? (
           <video
             autoPlay
             muted
@@ -246,7 +246,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
             playsInline
             className="hidden h-full w-full object-cover lg:block"
           >
-            <source src={(item as any).horizontal_video.reference.sources[0].url} type={(item as any).horizontal_video.reference.sources[0].mimeType || 'video/mp4'} />
+            <source src={(item as any).horizontal_video.sources[0].url} type={(item as any).horizontal_video.sources[0].mimeType || 'video/mp4'} />
           </video>
         ) : item.horizontal_image?.image && (
           <Image
@@ -258,7 +258,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
         )}
 
         {/* Mobile: Video or Image */}
-        {(item as any).vertical_video?.reference?.sources?.[0]?.url ? (
+        {(item as any).vertical_video?.sources?.[0]?.url ? (
           <video
             autoPlay
             muted
@@ -266,7 +266,7 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
             playsInline
             className="block h-full w-full object-cover lg:hidden"
           >
-            <source src={(item as any).vertical_video.reference.sources[0].url} type={(item as any).vertical_video.reference.sources[0].mimeType || 'video/mp4'} />
+            <source src={(item as any).vertical_video.sources[0].url} type={(item as any).vertical_video.sources[0].mimeType || 'video/mp4'} />
           </video>
         ) : item.vertical_image?.image && (
           <Image
