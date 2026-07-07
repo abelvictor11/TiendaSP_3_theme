@@ -237,6 +237,11 @@ export default function FiltersSidebar({
       });
     }
 
+    // Al cambiar cualquier filtro, volver a la página 1. Si no, un filtro
+    // aplicado estando en la página 2+ puede dejar la vista vacía cuando el
+    // set filtrado tiene menos productos que el offset de la página actual.
+    paramsClone.delete('page');
+
     navigate(`${location.pathname}?${paramsClone.toString()}`, {
       preventScrollReset: true,
     });

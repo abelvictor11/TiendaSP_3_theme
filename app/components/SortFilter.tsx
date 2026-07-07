@@ -315,6 +315,8 @@ export function FiltersDrawer({
                             },
                           );
 
+                          // Reset a página 1 al cambiar filtros (ver FiltersSidebar).
+                          paramsClone.delete('page');
                           navigate(
                             `${location.pathname}?${paramsClone.toString()}`,
                             {preventScrollReset: true},
@@ -582,6 +584,7 @@ function TabsPriceRage({
                         params,
                       });
 
+                      newParams.delete('page');
                       navigate(`${location.pathname}?${newParams.toString()}`, {
                         preventScrollReset: true,
                       });
@@ -844,6 +847,7 @@ function TabMoreFilterOnMobile({
                     });
                   }
 
+                  newParams.delete('page');
                   navigate(`${location.pathname}?${newParams.toString()}`, {
                     preventScrollReset: true,
                   });
