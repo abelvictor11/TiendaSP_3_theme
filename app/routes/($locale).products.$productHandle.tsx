@@ -58,6 +58,7 @@ import type {RootLoader} from '~/root';
 import {useAside} from '~/components/Aside';
 import {SlashIcon} from '@heroicons/react/24/solid';
 import ProductHelpBanner from '~/components/ProductHelpBanner';
+import {PreorderCountdown} from '~/components/PreorderCountdown';
 // ProductHighlights import removed - replaced by PdpAccordion structure
 import ProductSpecs from '~/components/ProductSpecs';
 import {ComplementaryProducts} from '~/components/ComplementaryProducts';
@@ -615,6 +616,12 @@ export function ProductForm({
               storeDomain={storeDomain}
             />
           )} */}
+
+          {/* Countdown de preventa: aparece si el producto tiene el metafield
+              custom.fecha_envio_preventa con una fecha futura. */}
+          <PreorderCountdown
+            shipDate={(product as any).preorder_ship_date?.value}
+          />
         </div>
       )}
     </>
@@ -1062,6 +1069,11 @@ const PRODUCT_FRAGMENT = `#graphql
         value
         namespace
         key
+      }
+      # Fecha estimada de envío para productos en preventa (tipo date).
+      # Alimenta el countdown debajo del botón "Agregar al carrito".
+      preorder_ship_date: metafield(namespace: "custom", key: "fecha_envio_preventa") {
+        value
       }
       # Badge de envío (metaobject reference)
       shipping_badge: metafield(namespace: "custom", key: "shipping_badge") {
