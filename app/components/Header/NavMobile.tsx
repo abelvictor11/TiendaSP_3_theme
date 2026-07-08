@@ -1,6 +1,9 @@
 import React from 'react';
 import {ChevronDownIcon} from '@heroicons/react/24/solid';
-import {type ParentEnhancedMenuItem} from '~/lib/utils';
+import {
+  type ChildEnhancedMenuItem,
+  type ParentEnhancedMenuItem,
+} from '~/lib/utils';
 import SocialsList from '../SocialsList';
 import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/react';
 import {Link, useRouteLoaderData} from '@remix-run/react';
@@ -24,12 +27,14 @@ const NavMobile: React.FC<NavMobileProps> = ({onClose}) => {
   ) => {
     return (
       <ul className="nav-mobile-sub-menu pl-4 pb-1 text-base">
-        {item.items?.map((i, index) => (
+        {/* parseMenu (lib/utils) enriquece recursivamente los hijos con to/target;
+            el cast alinea el tipo del fragment con lo que existe en runtime. */}
+        {(item.items as unknown as ChildEnhancedMenuItem[])?.map((i, index) => (
           <Disclosure key={i.id} as="li">
             <Link
-              to={item.to}
+              to={i.to}
               className={`flex text-sm rounded-lg hover:bg-neutral-100 dark:hover:bg-neutral-800 mt-0.5 pr-4 ${itemClass}`}
-              target={item.target}
+              target={i.target}
               prefetch="intent"
             >
               <span
