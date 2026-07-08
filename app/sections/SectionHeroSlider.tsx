@@ -12,6 +12,71 @@ import clsx from 'clsx';
 
 let TIME_OUT: NodeJS.Timeout | null = null;
 
+type VideoSource = {url: string; mimeType?: string | null};
+
+/**
+ * Video de fondo del hero, compatible con Firefox:
+ *
+ * 1. Shopify entrega varios `sources` (MP4 en varias resoluciones + un stream
+ *    HLS .m3u8). Renderizar solo sources[0] rompía Firefox cuando ese primer
+ *    source era el HLS (no soportado nativamente). Aquí se renderizan TODOS
+ *    los sources con MP4 primero, y el browser elige el primero que soporte.
+ * 2. React no emite el atributo `muted` en SSR (react#10389) y la política de
+ *    autoplay de Firefox exige muted al cargar. Se fuerza vía ref y se
+ *    reintenta play() explícitamente.
+ */
+function HeroVideo({
+  sources,
+  loop,
+  onEnded,
+  className,
+}: {
+  sources: VideoSource[];
+  loop: boolean;
+  onEnded?: () => void;
+  className: string;
+}) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // MP4 primero; HLS al final como último recurso (Safari sí lo soporta).
+  const orderedSources = [...sources].sort((a, b) => {
+    const aMp4 = (a.mimeType || '').includes('mp4') ? 0 : 1;
+    const bMp4 = (b.mimeType || '').includes('mp4') ? 0 : 1;
+    return aMp4 - bMp4;
+  });
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    // Garantiza muted en el DOM real (React lo omite en SSR) y arranca.
+    el.muted = true;
+    el.defaultMuted = true;
+    el.play().catch(() => {
+      // Autoplay bloqueado: el video queda en el primer frame como poster.
+    });
+  }, []);
+
+  return (
+    <video
+      ref={videoRef}
+      autoPlay
+      muted
+      loop={loop}
+      playsInline
+      onEnded={onEnded}
+      className={className}
+    >
+      {orderedSources.map((source) => (
+        <source
+          key={source.url}
+          src={source.url}
+          type={source.mimeType || 'video/mp4'}
+        />
+      ))}
+    </video>
+  );
+}
+
 export function SectionHeroSlider(props: SectionHeroSliderFragment) {
   const DATA = props?.hero_items?.references?.nodes || [];
 
@@ -285,16 +350,12 @@ const SectionItem = ({
       <div className="nc-SectionHeroSliderItem__image absolute inset-0 w-full h-full">
         {/* Desktop: Video or Image */}
         {(item as any).horizontal_video?.sources?.[0]?.url ? (
-          <video
-            autoPlay
-            muted
+          <HeroVideo
+            sources={(item as any).horizontal_video.sources}
             loop={loopVideo}
-            playsInline
             onEnded={onVideoEnded}
             className="hidden h-full w-full object-cover lg:block"
-          >
-            <source src={(item as any).horizontal_video.sources[0].url} type={(item as any).horizontal_video.sources[0].mimeType || 'video/mp4'} />
-          </video>
+          />
         ) : item.horizontal_image?.image && (
           <Image
             data={item.horizontal_image?.image}
@@ -306,16 +367,12 @@ const SectionItem = ({
 
         {/* Mobile: Video or Image */}
         {(item as any).vertical_video?.sources?.[0]?.url ? (
-          <video
-            autoPlay
-            muted
+          <HeroVideo
+            sources={(item as any).vertical_video.sources}
             loop={loopVideo}
-            playsInline
             onEnded={onVideoEnded}
             className="block h-full w-full object-cover lg:hidden"
-          >
-            <source src={(item as any).vertical_video.sources[0].url} type={(item as any).vertical_video.sources[0].mimeType || 'video/mp4'} />
-          </video>
+          />
         ) : item.vertical_image?.image && (
           <Image
             data={item.vertical_image?.image}
