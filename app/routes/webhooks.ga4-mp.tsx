@@ -11,7 +11,8 @@
  * Variables de entorno (Oxygen → Storefront settings → Environments):
  *   - PUBLIC_GA_MEASUREMENT_ID   ID del stream (ej. "G-XXXXXXX")
  *   - GA4_API_SECRET             API secret generado en GA4 Admin → Data Streams → Measurement Protocol API secrets
- *   - SHOPIFY_WEBHOOK_SECRET     (opcional) Para validar HMAC del webhook
+ *   - SHOPIFY_WEBHOOK_SECRET     REQUERIDO — valida el HMAC del webhook.
+ *                                Sin él, el endpoint rechaza todo (fail-closed).
  */
 import {type ActionFunctionArgs} from '@shopify/remix-oxygen';
 
@@ -38,6 +39,19 @@ async function verifyShopifyHmac(
   return computed === hmacHeader;
 }
 
+/** Lee un attribute guardado en el cart/checkout (note_attributes o attributes). */
+function getAttr(data: Record<string, any>, key: string): string | null {
+  const lists = [data.note_attributes, data.attributes];
+  for (const list of lists) {
+    if (!Array.isArray(list)) continue;
+    const found: any = list.find(
+      (a: any) => a?.key === key || a?.name === key,
+    );
+    if (found?.value) return String(found.value);
+  }
+  return null;
+}
+
 export async function action({request, context}: ActionFunctionArgs) {
   if (request.method !== 'POST') {
     return new Response('Method Not Allowed', {status: 405});
@@ -59,12 +73,16 @@ export async function action({request, context}: ActionFunctionArgs) {
   const hmacHeader = request.headers.get('x-shopify-hmac-sha256');
   const topic = request.headers.get('x-shopify-topic') ?? '';
 
-  if (webhookSecret) {
-    const ok = await verifyShopifyHmac(rawBody, hmacHeader, webhookSecret);
-    if (!ok) {
-      console.warn('[ga4-mp] Invalid HMAC signature');
-      return new Response('Unauthorized', {status: 401});
-    }
+  // Fail-closed: sin secret configurado, cualquiera podría inyectar
+  // compras falsas en GA4. Nunca procesar sin verificar HMAC.
+  if (!webhookSecret) {
+    console.error('[ga4-mp] SHOPIFY_WEBHOOK_SECRET not configured — rejecting');
+    return new Response('Webhook secret not configured', {status: 503});
+  }
+  const ok = await verifyShopifyHmac(rawBody, hmacHeader, webhookSecret);
+  if (!ok) {
+    console.warn('[ga4-mp] Invalid HMAC signature');
+    return new Response('Unauthorized', {status: 401});
   }
 
   let data: Record<string, any>;
@@ -74,15 +92,19 @@ export async function action({request, context}: ActionFunctionArgs) {
     return new Response('Invalid JSON', {status: 400});
   }
 
-  // client_id es requerido por GA4. Se usa el ID del customer cuando existe,
-  // y como fallback el ID del order/checkout. Idealmente debería ser el mismo
-  // que se usa client-side para conservar la sesión del usuario.
+  // client_id: usa el MISMO client_id del navegador (cookie _ga) que el cart
+  // guardó como attribute `_ga_client_id` antes del checkout. Así la compra
+  // se atribuye a la sesión/fuente original. Fallbacks: customer id, order id.
+  const gaClientId = getAttr(data, '_ga_client_id');
+  const gaSessionId = getAttr(data, '_ga_session_id');
   const clientId = String(
-    data.customer?.id ?? data.id ?? `anon_${Date.now()}`,
+    gaClientId ?? data.customer?.id ?? data.id ?? `anon_${Date.now()}`,
   );
 
   let eventName: string | null = null;
   const params: Record<string, any> = {};
+  // session_id une el evento server-side con la sesión client-side de GA4.
+  if (gaSessionId) params.session_id = gaSessionId;
 
   const items = (data.line_items ?? []).map((item: any) => ({
     item_id: String(item.product_id),

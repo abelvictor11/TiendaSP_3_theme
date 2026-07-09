@@ -107,7 +107,10 @@ export async function loader(args: LoaderFunctionArgs) {
     ...criticalData,
 
     /**********  EXAMPLE UPDATE STARTS  ************/
-    env,
+    // SEGURIDAD: nunca retornar `env` completo — el loader raíz se serializa
+    // en el HTML del cliente y expondría todos los secretos del servidor
+    // (PRIVATE_STOREFRONT_API_TOKEN, SESSION_SECRET, webhooks, etc.).
+    // Solo exponer campos PUBLIC_* explícitos.
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
     publicStoreSubdomain: env.PUBLIC_SHOPIFY_STORE_DOMAIN,
     publicStoreCdnStaticUrl: env.PUBLIC_STORE_CDN_STATIC_URL,

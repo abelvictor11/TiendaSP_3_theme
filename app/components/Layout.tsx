@@ -217,7 +217,11 @@ export function HeaderMenuDataWrap({
 
   const headerPromise = rootData?.headerPromise;
   const layout = rootData?.layout;
-  const env = rootData?.env;
+  // El loader ya no expone env completo (seguridad); parseMenu solo
+  // necesita PUBLIC_STORE_DOMAIN.
+  const env = rootData?.publicStoreDomain
+    ? ({PUBLIC_STORE_DOMAIN: rootData.publicStoreDomain} as Env)
+    : undefined;
 
   const shop = layout?.shop;
 
@@ -267,7 +271,9 @@ export function FooterMenuDataWrap({
   const rootData = useRouteLoaderData<RootLoader>('root');
   const footerPromise = rootData?.footerPromise;
   const layout = rootData?.layout;
-  const env = rootData?.env;
+  const env = rootData?.publicStoreDomain
+    ? ({PUBLIC_STORE_DOMAIN: rootData.publicStoreDomain} as Env)
+    : undefined;
   const shop = layout?.shop;
 
   const customPrefixes = {BLOG: '', CATALOG: 'products'};
