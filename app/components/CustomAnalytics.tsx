@@ -25,6 +25,8 @@ import type {
 } from '@shopify/hydrogen';
 import {useEffect} from 'react';
 import {captureFbclid} from '~/lib/fbCookies';
+import {analyticsAllowed} from '~/lib/consent';
+import {captureMarketingParams} from '~/lib/checkoutContinuity';
 
 // ── Tipos globales para fbq (Meta Pixel) y gtag (Google Analytics) ──────────
 declare global {
@@ -41,25 +43,35 @@ declare global {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+//
+// Anti doble-conteo: cada evento sale por UNA sola vía.
+//   - gtmOwnsTags=false (default): gtag/fbq/ttq directos; NO se hace push de
+//     eventos ecommerce al dataLayer (si el contenedor GTM además tuviera tags
+//     de GA4/Meta, cada evento se contaría dos veces).
+//   - gtmOwnsTags=true: SOLO dataLayer; los tags viven en el contenedor GTM.
+let gtmOwns = false;
 
 function pushDataLayer(event: string, data: Record<string, unknown>) {
-  if (typeof window === 'undefined') return;
+  // Gate de consentimiento en el momento de emitir: sin él, eventos previos
+  // al consentimiento quedarían encolados en dataLayer y GTM los procesaría
+  // retroactivamente al cargar.
+  if (typeof window === 'undefined' || !gtmOwns || !analyticsAllowed()) return;
   window.dataLayer = window.dataLayer ?? [];
   window.dataLayer.push({event, ...data});
 }
 
 function fbqEvent(event: string, data?: Record<string, unknown>) {
-  if (typeof window === 'undefined' || !window.fbq) return;
+  if (typeof window === 'undefined' || gtmOwns || !window.fbq) return;
   window.fbq('track', event, data);
 }
 
 function gtagEvent(event: string, data?: Record<string, unknown>) {
-  if (typeof window === 'undefined' || !window.gtag) return;
+  if (typeof window === 'undefined' || gtmOwns || !window.gtag) return;
   window.gtag('event', event, data);
 }
 
 function ttqEvent(event: string, data?: Record<string, unknown>) {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined' || gtmOwns) return;
   const ttq = window.ttq;
   if (ttq && typeof ttq.track === 'function') {
     ttq.track(event, data ?? {});
@@ -68,91 +80,88 @@ function ttqEvent(event: string, data?: Record<string, unknown>) {
 
 // ── Componente ───────────────────────────────────────────────────────────────
 
-export function CustomAnalytics() {
+export function CustomAnalytics({gtmOwnsTags = false}: {gtmOwnsTags?: boolean}) {
   const {subscribe} = useAnalytics();
+  gtmOwns = gtmOwnsTags;
 
   useEffect(() => {
     // Captura fbclid inmediatamente (solo una vez al montar)
+    captureMarketingParams();
     captureFbclid();
 
     // ── PAGE VIEW ─────────────────────────────────────────────────────────
-    const unsubPage = subscribe(
-      AnalyticsEvent.PAGE_VIEWED,
-      (payload: PageViewPayload) => {
-        // Por si el usuario navega a una URL con ?fbclid= sin recargar
-        captureFbclid();
+    subscribe(AnalyticsEvent.PAGE_VIEWED, (payload: PageViewPayload) => {
+      // Por si el usuario navega a una URL con ?fbclid= sin recargar
+      captureMarketingParams();
+      captureFbclid();
 
-        // Meta Pixel: PageView en cada navegación SPA
-        fbqEvent('PageView');
+      // Meta Pixel: PageView en cada navegación SPA
+      fbqEvent('PageView');
 
-        // GA4: page_view en cada navegación SPA
-        gtagEvent('page_view', {page_location: payload.url});
+      // GA4: page_view en cada navegación SPA
+      gtagEvent('page_view', {page_location: payload.url});
 
-        // TikTok Pixel
-        if (typeof window !== 'undefined' && window.ttq?.page) {
-          window.ttq.page();
-        }
+      // TikTok Pixel (misma regla de "una sola vía" que el resto)
+      if (typeof window !== 'undefined' && !gtmOwns && window.ttq?.page) {
+        window.ttq.page();
+      }
 
-        // GTM dataLayer
-        pushDataLayer('page_view', {page_location: payload.url});
-      },
-    );
+      // GTM dataLayer
+      pushDataLayer('page_view', {page_location: payload.url});
+    });
 
     // ── PRODUCT VIEW (ViewContent / view_item) ────────────────────────────
-    const unsubProduct = subscribe(
-      AnalyticsEvent.PRODUCT_VIEWED,
-      (payload: ProductViewPayload) => {
-        const product = payload.products?.[0];
-        if (!product) return;
+    subscribe(AnalyticsEvent.PRODUCT_VIEWED, (payload: ProductViewPayload) => {
+      const product = payload.products?.[0];
+      if (!product) return;
 
-        const currency = payload.shop?.currency ?? 'COP';
-        const price = parseFloat(product.price ?? '0');
+      const currency = payload.shop?.currency ?? 'COP';
+      const price = parseFloat(product.price ?? '0');
 
-        // Meta Pixel
-        fbqEvent('ViewContent', {
-          content_ids: [product.id],
-          content_name: product.title,
-          content_type: 'product',
-          content_category: product.productType ?? '',
-          value: price,
-          currency,
-        });
+      // Meta Pixel
+      fbqEvent('ViewContent', {
+        content_ids: [product.id],
+        content_name: product.title,
+        content_type: 'product',
+        content_category: product.productType ?? '',
+        value: price,
+        currency,
+      });
 
-        // TikTok Pixel
-        ttqEvent('ViewContent', {
-          contents: [
-            {
-              content_id: product.id,
-              content_name: product.title,
-              price,
-              quantity: 1,
-            },
-          ],
-          content_type: 'product',
-          value: price,
-          currency,
-        });
+      // TikTok Pixel
+      ttqEvent('ViewContent', {
+        contents: [
+          {
+            content_id: product.id,
+            content_name: product.title,
+            price,
+            quantity: 1,
+          },
+        ],
+        content_type: 'product',
+        value: price,
+        currency,
+      });
 
-        // GA4 ecommerce
-        const item = {
-          item_id: product.variantId,
-          item_name: product.title,
-          item_brand: product.vendor,
-          item_variant: product.variantTitle,
-          price,
-        };
-        gtagEvent('view_item', {currency, value: price, items: [item]});
+      // GA4 ecommerce
+      const item = {
+        item_id: product.variantId,
+        item_name: product.title,
+        item_brand: product.vendor,
+        item_variant: product.variantTitle,
+        price,
+      };
+      gtagEvent('view_item', {currency, value: price, items: [item]});
 
-        // GTM dataLayer (clear ecommerce primero — buena práctica GA4)
-        pushDataLayer('clear_ecommerce', {ecommerce: null});
-        pushDataLayer('view_item', {
-          ecommerce: {currency, value: price, items: [item]},
-        });
-      },
-    );
+      // GTM dataLayer (clear ecommerce primero — buena práctica GA4)
+      pushDataLayer('clear_ecommerce', {ecommerce: null});
+      pushDataLayer('view_item', {
+        ecommerce: {currency, value: price, items: [item]},
+      });
+    });
 
     // ── ADD TO CART ───────────────────────────────────────────────────────
-    const unsubAddToCart = subscribe(
+    subscribe(
       AnalyticsEvent.PRODUCT_ADD_TO_CART,
       (payload: CartLineUpdatePayload) => {
         const line = payload.currentLine;
@@ -212,8 +221,40 @@ export function CustomAnalytics() {
       },
     );
 
+    // ── REMOVE FROM CART ──────────────────────────────────────────────────
+    subscribe(
+      AnalyticsEvent.PRODUCT_REMOVED_FROM_CART,
+      (payload: CartLineUpdatePayload) => {
+        const line = payload.prevLine ?? payload.currentLine;
+        if (!line) return;
+
+        const merchandise = line.merchandise as Record<string, unknown>;
+        const productData = merchandise?.product as Record<string, unknown>;
+        const price = parseFloat((line.cost as any)?.totalAmount?.amount ?? '0');
+        const currency =
+          (line.cost as any)?.totalAmount?.currencyCode ??
+          payload.shop?.currency ??
+          'COP';
+
+        const item = {
+          item_id: merchandise?.id,
+          item_name: productData?.title,
+          item_brand: productData?.vendor,
+          item_variant: merchandise?.title,
+          price: price / (line.quantity || 1),
+          quantity: line.quantity,
+        };
+        gtagEvent('remove_from_cart', {currency, value: price, items: [item]});
+
+        pushDataLayer('clear_ecommerce', {ecommerce: null});
+        pushDataLayer('remove_from_cart', {
+          ecommerce: {currency, value: price, items: [item]},
+        });
+      },
+    );
+
     // ── COLLECTION VIEW ───────────────────────────────────────────────────
-    const unsubCollection = subscribe(
+    subscribe(
       AnalyticsEvent.COLLECTION_VIEWED,
       (payload: CollectionViewPayload) => {
         const listId = payload.collection?.id ?? '';
@@ -232,36 +273,32 @@ export function CustomAnalytics() {
     );
 
     // ── SEARCH ────────────────────────────────────────────────────────────
-    const unsubSearch = subscribe(
-      AnalyticsEvent.SEARCH_VIEWED,
-      (payload: SearchViewPayload) => {
-        const term = payload.searchTerm ?? '';
+    subscribe(AnalyticsEvent.SEARCH_VIEWED, (payload: SearchViewPayload) => {
+      const term = payload.searchTerm ?? '';
 
-        // Meta Pixel
-        fbqEvent('Search', {search_string: term});
+      // Meta Pixel
+      fbqEvent('Search', {search_string: term});
 
-        // GA4
-        gtagEvent('search', {search_term: term});
+      // GA4
+      gtagEvent('search', {search_term: term});
 
-        // TikTok Pixel
-        ttqEvent('Search', {query: term});
+      // TikTok Pixel
+      ttqEvent('Search', {query: term});
 
-        // GTM dataLayer
-        pushDataLayer('search', {search_term: term});
-      },
-    );
+      // GTM dataLayer
+      pushDataLayer('search', {search_term: term});
+    });
 
     // ── CART VIEW ─────────────────────────────────────────────────────────
-    const unsubCart = subscribe(
-      AnalyticsEvent.CART_VIEWED,
-      (payload: CartViewPayload) => {
-        const cartData = payload.cart;
-        const currency =
-          (cartData?.cost as any)?.totalAmount?.currencyCode ?? 'COP';
-        const value = parseFloat(
-          (cartData?.cost as any)?.totalAmount?.amount ?? '0',
-        );
-        const items = (cartData?.lines as any)?.nodes?.map((line: any) => {
+    subscribe(AnalyticsEvent.CART_VIEWED, (payload: CartViewPayload) => {
+      const cartData = payload.cart;
+      const currency =
+        (cartData?.cost as any)?.totalAmount?.currencyCode ?? 'COP';
+      const value = parseFloat(
+        (cartData?.cost as any)?.totalAmount?.amount ?? '0',
+      );
+      const items =
+        (cartData?.lines as any)?.nodes?.map((line: any) => {
           const merch = line.merchandise as any;
           return {
             item_id: merch?.id,
@@ -272,22 +309,13 @@ export function CustomAnalytics() {
           };
         }) ?? [];
 
-        gtagEvent('view_cart', {currency, value, items});
+      gtagEvent('view_cart', {currency, value, items});
 
-        pushDataLayer('clear_ecommerce', {ecommerce: null});
-        pushDataLayer('view_cart', {ecommerce: {currency, value, items}});
-      },
-    );
-
-    // Cleanup al desmontar
-    return () => {
-      unsubPage();
-      unsubProduct();
-      unsubAddToCart();
-      unsubCollection();
-      unsubSearch();
-      unsubCart();
-    };
+      pushDataLayer('clear_ecommerce', {ecommerce: null});
+      pushDataLayer('view_cart', {ecommerce: {currency, value, items}});
+    });
+    // Hydrogen's Analytics provider removes these subscriptions automatically
+    // when the component unmounts; `subscribe` returns void (no manual cleanup).
   }, [subscribe]);
 
   // No renderiza nada — solo lógica de suscripción

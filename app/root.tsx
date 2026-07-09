@@ -119,9 +119,13 @@ export async function loader(args: LoaderFunctionArgs) {
     publicOkendoSubcriberId: env.PUBLIC_OKENDO_SUBSCRIBER_ID,
     publicGtmId: env.PUBLIC_GTM_ID ?? '',
     publicGaMeasurementId: env.PUBLIC_GA_MEASUREMENT_ID ?? '',
+    // 'true' → GTM container es dueño de los tags GA4/Meta/TikTok (solo
+    // dataLayer); cualquier otro valor → este código dispara gtag/fbq/ttq.
+    publicGtmOwnsTags: env.PUBLIC_GTM_OWNS_TAGS ?? '',
     publicGoogleAdsId: env.PUBLIC_GOOGLE_ADS_ID ?? '',
     publicMetaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
     publicTiktokPixelId: env.PUBLIC_TIKTOK_PIXEL_ID ?? '',
+    publicCheckoutDomain: env.PUBLIC_CHECKOUT_DOMAIN ?? '',
     /**********   EXAMPLE UPDATE END   ************/
   });
 }
@@ -148,7 +152,10 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
     consent: {
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
       storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
-      withPrivacyBanner: false,
+      // Banner nativo de Shopify Customer Privacy: solo aparece donde el
+      // Admin lo exige (Configuración → Privacidad de clientes). En Colombia
+      // (sin exigencia configurada) se trackea por defecto sin banner.
+      withPrivacyBanner: true,
     },
     selectedLocale: storefront.i18n,
   };
@@ -263,6 +270,8 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   const googleAdsId = data?.publicGoogleAdsId as string | null | undefined;
   const metaPixelId = data?.publicMetaPixelId as string | null | undefined;
   const tiktokPixelId = data?.publicTiktokPixelId as string | null | undefined;
+  const checkoutDomain = data?.publicCheckoutDomain as string | null | undefined;
+  const gtmOwnsTags = (data?.publicGtmOwnsTags as string | undefined) === 'true';
 
   return (
     <html lang={locale.language}>
@@ -288,14 +297,6 @@ function MainLayout({children}: {children?: React.ReactNode}) {
         <NavigationProgress />
         {data ? (
           <>
-            {/* ── Inyecta GTM, GA4 y Meta Pixel en el cliente (evita problemas de nonce/CSP en SSR) ── */}
-            <GtmLoader
-              gtmId={gtmId}
-              gaMeasurementId={gaMeasurementId}
-              googleAdsId={googleAdsId}
-              metaPixelId={metaPixelId}
-              tiktokPixelId={tiktokPixelId}
-            />
             <OkendoProvider
               nonce={nonce}
               okendoProviderData={data.okendoProviderData}
@@ -305,7 +306,19 @@ function MainLayout({children}: {children?: React.ReactNode}) {
               shop={data.shop}
               consent={data.consent}
             >
-              <CustomAnalytics />
+              {/* Carga GTM/GA4/Ads/Meta/TikTok gateado por consentimiento
+                  (Customer Privacy API) — debe vivir dentro del Provider */}
+              <GtmLoader
+                gtmId={gtmId}
+                gaMeasurementId={gaMeasurementId}
+                googleAdsId={googleAdsId}
+                metaPixelId={metaPixelId}
+                tiktokPixelId={tiktokPixelId}
+                checkoutDomain={checkoutDomain}
+                gtmOwnsTags={gtmOwnsTags}
+              />
+              {/* Puente SPA: dispara eventos a Meta Pixel, GA4 y dataLayer en cada navegación */}
+              <CustomAnalytics gtmOwnsTags={gtmOwnsTags} />
               <Layout
                 key={`${locale.language}-${locale.country}`}
                 layout={data.layout}

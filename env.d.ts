@@ -38,6 +38,9 @@ declare global {
     // Tracking / Analytics
     PUBLIC_GTM_ID?: string;
     PUBLIC_GA_MEASUREMENT_ID?: string;
+    // 'true' → el contenedor GTM es dueño de los tags GA4/Meta/TikTok
+    // (solo dataLayer); default → gtag/fbq/ttq directos.
+    PUBLIC_GTM_OWNS_TAGS?: string;
     PUBLIC_GOOGLE_ADS_ID?: string;
     PUBLIC_META_PIXEL_ID?: string;
     PUBLIC_TIKTOK_PIXEL_ID?: string;
