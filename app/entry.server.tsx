@@ -90,6 +90,8 @@ export default async function handleRequest(
       'https://www.googletagmanager.com',
       'https://*.googletagmanager.com',
       'https://www.google.com',
+      // Google Ads dispara beacons de remarketing desde el dominio por país
+      'https://www.google.com.co',
       'https://region1.google-analytics.com',
       'https://www.googleadservices.com',
       'https://googleads.g.doubleclick.net',
