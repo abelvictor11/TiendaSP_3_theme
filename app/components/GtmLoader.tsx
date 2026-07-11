@@ -75,13 +75,55 @@ export function GtmLoader({
     // sepan qué vía usar sin prop-drilling.
     w.__gtmOwnsTags = gtmOwnsTags === true;
 
+    // ── Google Consent Mode v2 ────────────────────────────────────────────
+    // Default "denied" ANTES de que cargue gtag.js/gtm.js (los comandos se
+    // encolan en dataLayer y gtag los procesa en orden al cargar). Sin estas
+    // señales, Google recibe los hits como "sin consentimiento declarado" y
+    // los limita/descarta para Ads aunque el evento llegue.
+    w.dataLayer = w.dataLayer ?? [];
+    if (!w.gtag) {
+      w.gtag = function () {
+        // eslint-disable-next-line prefer-rest-params
+        w.dataLayer.push(arguments);
+      };
+    }
+    if (!w.__consentModeDefaultSet) {
+      w.__consentModeDefaultSet = true;
+      w.gtag('consent', 'default', {
+        ad_storage: 'denied',
+        analytics_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        // margen para que el update (síncrono en regiones sin banner)
+        // llegue antes de que los tags disparen
+        wait_for_update: 500,
+      });
+    }
+
+    const emitConsentSignals = (c: ConsentState) => {
+      // Google Consent Mode v2: refleja el estado del Customer Privacy API
+      w.gtag('consent', 'update', {
+        analytics_storage: c.analytics ? 'granted' : 'denied',
+        ad_storage: c.marketing ? 'granted' : 'denied',
+        ad_user_data: c.marketing ? 'granted' : 'denied',
+        ad_personalization: c.marketing ? 'granted' : 'denied',
+      });
+      // Meta Pixel: si fbq ya existe, sincroniza grant/revoke
+      if (typeof w.fbq === 'function') {
+        w.fbq('consent', c.marketing ? 'grant' : 'revoke');
+      }
+    };
+
     const update = () => {
       const c = readConsent();
       // Refleja el estado actual (no acumulativo): si el visitante revoca
       // consentimiento, los flags vuelven a false y los emisores dejan de
       // enviar (los scripts ya cargados no se pueden descargar, pero los
       // helpers verifican consentimiento al emitir cada evento).
-      if (c) setConsent(c);
+      if (c) {
+        setConsent(c);
+        emitConsentSignals(c);
+      }
     };
 
     // Ya respondido en visita anterior / región sin banner
@@ -212,6 +254,11 @@ export function GtmLoader({
       w.fbq.version = '2.0';
       w.fbq.queue = [];
 
+      // Consentimiento explícito ANTES del init: este efecto solo corre con
+      // marketing permitido, así que declaramos grant (Meta por defecto
+      // asume grant, pero declararlo deja el estado consistente si luego
+      // se revoca vía emitConsentSignals).
+      w.fbq('consent', 'grant');
       // Only init here; CustomAnalytics fires PageView on every PAGE_VIEWED
       // (including the initial load) to avoid double-counting.
       w.fbq('init', metaPixelId);
