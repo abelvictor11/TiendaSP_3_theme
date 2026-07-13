@@ -25,6 +25,7 @@ import {
 import {Layout} from '~/components/Layout';
 import {CustomAnalytics} from '~/components/CustomAnalytics';
 import {GtmLoader} from '~/components/GtmLoader';
+import {RudderStackLoader} from '~/components/RudderStackLoader';
 import {seoPayload} from '~/lib/seo.server';
 import {storeConfig} from '~/config/store';
 import {GenericError} from './components/GenericError';
@@ -103,6 +104,8 @@ export async function loader(args: LoaderFunctionArgs) {
     publicMetaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
     publicTiktokPixelId: env.PUBLIC_TIKTOK_PIXEL_ID ?? '',
     publicCheckoutDomain: env.PUBLIC_CHECKOUT_DOMAIN ?? '',
+    publicRudderstackWriteKey: env.PUBLIC_RUDDERSTACK_WRITE_KEY ?? '',
+    publicRudderstackDataPlaneUrl: env.PUBLIC_RUDDERSTACK_DATA_PLANE_URL ?? '',
     /**********   EXAMPLE UPDATE END   ************/
   });
 }
@@ -197,6 +200,14 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   const metaPixelId = data?.publicMetaPixelId as string | null | undefined;
   const tiktokPixelId = data?.publicTiktokPixelId as string | null | undefined;
   const checkoutDomain = data?.publicCheckoutDomain as string | null | undefined;
+  const rudderstackWriteKey = data?.publicRudderstackWriteKey as
+    | string
+    | null
+    | undefined;
+  const rudderstackDataPlaneUrl = data?.publicRudderstackDataPlaneUrl as
+    | string
+    | null
+    | undefined;
 
   return (
     <html lang={locale.language}>
@@ -229,6 +240,11 @@ function MainLayout({children}: {children?: React.ReactNode}) {
               tiktokPixelId={tiktokPixelId}
               checkoutDomain={checkoutDomain}
             />
+            {/* ── Inicializa el SDK de RudderStack (CDP propio) ── */}
+            <RudderStackLoader
+              writeKey={rudderstackWriteKey}
+              dataPlaneUrl={rudderstackDataPlaneUrl}
+            />
             <OkendoProvider
               nonce={nonce}
               okendoProviderData={data.okendoProviderData}
@@ -238,7 +254,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
               shop={data.shop}
               consent={data.consent}
             >
-              {/* Puente SPA: dispara eventos a Meta Pixel, GA4 y dataLayer en cada navegación */}
+              {/* Puente SPA: dispara eventos a Meta Pixel, GA4, dataLayer y RudderStack en cada navegación */}
               <CustomAnalytics />
               <Layout
                 key={`${locale.language}-${locale.country}`}

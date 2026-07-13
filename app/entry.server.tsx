@@ -185,6 +185,8 @@ export default async function handleRequest(
       // Klaviyo
       'https://a.klaviyo.com',
       'https://static.klaviyo.com',
+      // RudderStack (CDP propio, self-hosted data plane vía Cloudflare Tunnel)
+      'https://cdp.tienda-sportfitness.com',
     ],
     // Web pixels de Shopify corren en iframes sandbox - necesitan estos dominios
     frameSrc: [

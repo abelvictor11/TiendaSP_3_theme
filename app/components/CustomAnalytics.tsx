@@ -1,18 +1,22 @@
 /**
- * CustomAnalytics — Puente entre Hydrogen Analytics y Meta Pixel / GA4 / dataLayer.
+ * CustomAnalytics — Puente entre Hydrogen Analytics y Meta Pixel / GA4 / dataLayer / RudderStack.
  *
  * Coloca este componente DENTRO de <Analytics.Provider> en root.tsx.
  * Funciona junto con los Web Pixels de Shopify (configurados en Admin).
  * Soluciona el problema de SPA: Hydrogen no recarga la página en cada navegación,
  * por lo que los pixels estándar solo ven el primer pageview.
  *
+ * RudderStack (nuestro CDP propio, self-hosted) se inicializa en
+ * RudderStackLoader.tsx (window.rudderanalytics) — este componente solo llama
+ * a .page()/.track() sobre ese cliente ya cargado, igual que hace con fbq/gtag.
+ *
  * Eventos que maneja:
- *  - page_viewed        → fbq PageView / gtag page_view
- *  - product_viewed     → fbq ViewContent / gtag view_item
- *  - collection_viewed  → gtag view_item_list / dataLayer
- *  - cart_viewed        → gtag view_cart / dataLayer
- *  - product_add_to_cart→ fbq AddToCart / gtag add_to_cart
- *  - search_viewed      → fbq Search / gtag search
+ *  - page_viewed        → fbq PageView / gtag page_view / rs page()
+ *  - product_viewed     → fbq ViewContent / gtag view_item / rs "Product Viewed"
+ *  - collection_viewed  → gtag view_item_list / dataLayer / rs "Product List Viewed"
+ *  - cart_viewed        → gtag view_cart / dataLayer / rs "Cart Viewed"
+ *  - product_add_to_cart→ fbq AddToCart / gtag add_to_cart / rs "Product Added"
+ *  - search_viewed      → fbq Search / gtag search / rs "Products Searched"
  */
 import {useAnalytics, AnalyticsEvent} from '@shopify/hydrogen';
 import type {
@@ -28,6 +32,9 @@ import {captureFbclid} from '~/lib/fbCookies';
 import {captureMarketingParams} from '~/lib/checkoutContinuity';
 
 // ── Tipos globales para fbq (Meta Pixel) y gtag (Google Analytics) ──────────
+// Nota: `window.rudderanalytics` ya viene tipado globalmente por el propio
+// paquete `@rudderstack/analytics-js` (ver su `declare global`), así que no
+// lo redeclaramos aquí — evita el error TS2687 por modifiers distintos.
 declare global {
   interface Window {
     fbq?: (...args: unknown[]) => void;
@@ -67,6 +74,19 @@ function ttqEvent(event: string, data?: Record<string, unknown>) {
   }
 }
 
+function rsPage(properties?: Record<string, unknown>) {
+  if (typeof window === 'undefined' || !window.rudderanalytics) return;
+  // El SDK tipa `properties` como `ApiObject` (valores primitivos/Date/
+  // ApiObject anidado), más estricto que nuestro `Record<string, unknown>`
+  // genérico — los valores reales que enviamos (string/number) sí calzan.
+  window.rudderanalytics.page(properties as any);
+}
+
+function rsTrack(event: string, properties?: Record<string, unknown>) {
+  if (typeof window === 'undefined' || !window.rudderanalytics) return;
+  window.rudderanalytics.track(event, properties as any);
+}
+
 // ── Componente ───────────────────────────────────────────────────────────────
 
 export function CustomAnalytics() {
@@ -96,6 +116,9 @@ export function CustomAnalytics() {
 
       // GTM dataLayer
       pushDataLayer('page_view', {page_location: payload.url});
+
+      // RudderStack (CDP propio)
+      rsPage({url: payload.url});
     });
 
     // ── PRODUCT VIEW (ViewContent / view_item) ────────────────────────────
@@ -145,6 +168,18 @@ export function CustomAnalytics() {
       pushDataLayer('clear_ecommerce', {ecommerce: null});
       pushDataLayer('view_item', {
         ecommerce: {currency, value: price, items: [item]},
+      });
+
+      // RudderStack (CDP propio) — spec ecommerce "Product Viewed"
+      rsTrack('Product Viewed', {
+        product_id: product.id,
+        variant_id: product.variantId,
+        name: product.title,
+        brand: product.vendor,
+        variant: product.variantTitle,
+        category: product.productType ?? '',
+        price,
+        currency,
       });
     });
 
@@ -206,6 +241,17 @@ export function CustomAnalytics() {
         pushDataLayer('add_to_cart', {
           ecommerce: {currency, value: price, items: [item]},
         });
+
+        // RudderStack (CDP propio) — spec ecommerce "Product Added"
+        rsTrack('Product Added', {
+          product_id: merchandise?.id,
+          name: productData?.title,
+          brand: productData?.vendor,
+          variant: merchandise?.title,
+          price: price / (line.quantity || 1),
+          quantity: line.quantity,
+          currency,
+        });
       },
     );
 
@@ -225,6 +271,12 @@ export function CustomAnalytics() {
         pushDataLayer('view_item_list', {
           ecommerce: {item_list_id: listId, item_list_name: listName},
         });
+
+        // RudderStack (CDP propio) — spec ecommerce "Product List Viewed"
+        rsTrack('Product List Viewed', {
+          list_id: listId,
+          category: listName,
+        });
       },
     );
 
@@ -243,6 +295,9 @@ export function CustomAnalytics() {
 
       // GTM dataLayer
       pushDataLayer('search', {search_term: term});
+
+      // RudderStack (CDP propio) — spec ecommerce "Products Searched"
+      rsTrack('Products Searched', {query: term});
     });
 
     // ── CART VIEW ─────────────────────────────────────────────────────────
@@ -269,6 +324,9 @@ export function CustomAnalytics() {
 
       pushDataLayer('clear_ecommerce', {ecommerce: null});
       pushDataLayer('view_cart', {ecommerce: {currency, value, items}});
+
+      // RudderStack (CDP propio) — spec ecommerce "Cart Viewed"
+      rsTrack('Cart Viewed', {currency, value, products: items});
     });
     // Hydrogen's Analytics provider removes these subscriptions automatically
     // when the component unmounts; `subscribe` returns void (no manual cleanup).
