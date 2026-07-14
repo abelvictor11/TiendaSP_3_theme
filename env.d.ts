@@ -44,6 +44,9 @@ declare global {
     PUBLIC_GOOGLE_ADS_ID?: string;
     PUBLIC_META_PIXEL_ID?: string;
     PUBLIC_TIKTOK_PIXEL_ID?: string;
+    // RudderStack (CDP propio, self-hosted)
+    PUBLIC_RUDDERSTACK_WRITE_KEY?: string;
+    PUBLIC_RUDDERSTACK_DATA_PLANE_URL?: string;
     // Server-side tracking (Meta CAPI / GA4 Measurement Protocol / TikTok Events API)
     META_CAPI_ACCESS_TOKEN?: string;
     META_TEST_EVENT_CODE?: string;

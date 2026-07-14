@@ -81,11 +81,13 @@ Prefijo `PUBLIC_*`. Se incluyen en el bundle JS — **no son secretas**.
 | `PUBLIC_GA_MEASUREMENT_ID` | Recomendado | Stream ID de GA4 | `G-PMJ8N4MCVR` |
 | `PUBLIC_META_PIXEL_ID` | Opcional | Pixel ID de Meta (15–16 dígitos) | `1234567890123456` |
 | `PUBLIC_TIKTOK_PIXEL_ID` | Opcional | Pixel ID de TikTok | `CXXX…` |
+| `PUBLIC_RUDDERSTACK_WRITE_KEY` | Recomendado | Write key de la fuente JS configurada en RudderStack Cloud | `3GRkOELaGYW9EtCckPpCmZzB0Fw` |
+| `PUBLIC_RUDDERSTACK_DATA_PLANE_URL` | Recomendado | URL del data plane self-hosted (vía Cloudflare Tunnel) | `https://cdp.tienda-sportfitness.com` |
 
 > **Nota:** `PUBLIC_GTM_ID` y `PUBLIC_GA_MEASUREMENT_ID` tienen fallback
 > hardcoded en `root.tsx` por tienda, así que funcionan aunque no los
-> configures. Meta y TikTok no tienen fallback — si no los configuras, no
-> se cargan.
+> configures. Meta, TikTok y RudderStack no tienen fallback — si no los
+> configuras, no se cargan.
 
 ### 🔒 Variables privadas (solo server)
 
@@ -400,7 +402,8 @@ Sí, pero no está implementado. El patrón sería similar:
 | Archivo | Rol |
 |---------|-----|
 | `app/components/GtmLoader.tsx` | Inicializa GTM, GA4, Meta Pixel, TikTok Pixel en el main window |
-| `app/components/CustomAnalytics.tsx` | Bridge SPA: escucha Hydrogen Analytics y dispara a los pixels |
+| `app/components/RudderStackLoader.tsx` | Inicializa el SDK de RudderStack (CDP propio, self-hosted) en el main window |
+| `app/components/CustomAnalytics.tsx` | Bridge SPA: escucha Hydrogen Analytics y dispara a los pixels + RudderStack |
 | `app/lib/fbCookies.ts` | Captura `fbclid` → `_fbc`, lee `_fbp` |
 | `app/routes/($locale).cart.tsx` | Persiste fbp/fbc como cart attributes antes del checkout |
 | `app/routes/webhooks.meta-capi.tsx` | Recibe webhooks de Shopify → Meta CAPI |

@@ -25,6 +25,7 @@ import {
 import {Layout} from '~/components/Layout';
 import {CustomAnalytics} from '~/components/CustomAnalytics';
 import {GtmLoader} from '~/components/GtmLoader';
+import {RudderStackLoader} from '~/components/RudderStackLoader';
 import {seoPayload} from '~/lib/seo.server';
 import {storeConfig} from '~/config/store';
 import {GenericError} from './components/GenericError';
@@ -111,6 +112,8 @@ export async function loader(args: LoaderFunctionArgs) {
     publicMetaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
     publicTiktokPixelId: env.PUBLIC_TIKTOK_PIXEL_ID ?? '',
     publicCheckoutDomain: env.PUBLIC_CHECKOUT_DOMAIN ?? '',
+    publicRudderstackWriteKey: env.PUBLIC_RUDDERSTACK_WRITE_KEY ?? '',
+    publicRudderstackDataPlaneUrl: env.PUBLIC_RUDDERSTACK_DATA_PLANE_URL ?? '',
     /**********   EXAMPLE UPDATE END   ************/
   });
 }
@@ -210,6 +213,14 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   const metaPixelId = data?.publicMetaPixelId as string | null | undefined;
   const tiktokPixelId = data?.publicTiktokPixelId as string | null | undefined;
   const checkoutDomain = data?.publicCheckoutDomain as string | null | undefined;
+  const rudderstackWriteKey = data?.publicRudderstackWriteKey as
+    | string
+    | null
+    | undefined;
+  const rudderstackDataPlaneUrl = data?.publicRudderstackDataPlaneUrl as
+    | string
+    | null
+    | undefined;
   const gtmOwnsTags = (data?.publicGtmOwnsTags as string | undefined) === 'true';
 
   return (
@@ -234,7 +245,6 @@ function MainLayout({children}: {children?: React.ReactNode}) {
       <body className="bg-white">
         {data ? (
           <>
-            {/* ── Inyecta GTM y GA4 en el cliente (evita problemas de nonce/CSP en SSR) ── */}
             <OkendoProvider
               nonce={nonce}
               okendoProviderData={data.okendoProviderData}
@@ -244,7 +254,6 @@ function MainLayout({children}: {children?: React.ReactNode}) {
               shop={data.shop}
               consent={data.consent}
             >
-              {/* Puente SPA: dispara eventos a Meta Pixel, GA4 y dataLayer en cada navegación */}
               {/* Carga GTM/GA4/Ads/Meta/TikTok gateado por consentimiento
                   (Customer Privacy API) — debe vivir dentro del Provider */}
               <GtmLoader
@@ -256,6 +265,13 @@ function MainLayout({children}: {children?: React.ReactNode}) {
                 checkoutDomain={checkoutDomain}
                 gtmOwnsTags={gtmOwnsTags}
               />
+              {/* Inicializa el SDK de RudderStack (CDP propio) — mismo gate
+                  de consentimiento que GtmLoader, ver RudderStackLoader.tsx */}
+              <RudderStackLoader
+                writeKey={rudderstackWriteKey}
+                dataPlaneUrl={rudderstackDataPlaneUrl}
+              />
+              {/* Puente SPA: dispara eventos a Meta Pixel, GA4, dataLayer y RudderStack en cada navegación */}
               <CustomAnalytics gtmOwnsTags={gtmOwnsTags} />
               <Layout
                 key={`${locale.language}-${locale.country}`}
