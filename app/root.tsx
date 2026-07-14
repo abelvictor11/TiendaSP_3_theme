@@ -104,6 +104,9 @@ export async function loader(args: LoaderFunctionArgs) {
     // "no trackear", nunca "enviar datos a la propiedad de otra tienda".
     publicGtmId: env.PUBLIC_GTM_ID ?? '',
     publicGaMeasurementId: env.PUBLIC_GA_MEASUREMENT_ID ?? '',
+    // 'true' → GTM container es dueño de los tags GA4/Meta/TikTok (solo
+    // dataLayer); cualquier otro valor → este código dispara gtag/fbq/ttq.
+    publicGtmOwnsTags: env.PUBLIC_GTM_OWNS_TAGS ?? '',
     publicGoogleAdsId: env.PUBLIC_GOOGLE_ADS_ID ?? '',
     publicMetaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
     publicTiktokPixelId: env.PUBLIC_TIKTOK_PIXEL_ID ?? '',
@@ -139,7 +142,12 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
     consent: {
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
       storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
-      withPrivacyBanner: false,
+      // Banner nativo de Shopify Customer Privacy: con "automated settings"
+      // en el admin, solo aparece donde la ley lo exige. En Colombia se
+      // trackea por defecto sin banner (analyticsProcessingAllowed = true).
+      // false aquí fue lo que silenció Shopify Analytics desde mayo
+      // (commit 8c70d83: consentimiento en blanco permanente).
+      withPrivacyBanner: true,
     },
     selectedLocale: storefront.i18n,
     okendoProviderData,
@@ -202,6 +210,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   const metaPixelId = data?.publicMetaPixelId as string | null | undefined;
   const tiktokPixelId = data?.publicTiktokPixelId as string | null | undefined;
   const checkoutDomain = data?.publicCheckoutDomain as string | null | undefined;
+  const gtmOwnsTags = (data?.publicGtmOwnsTags as string | undefined) === 'true';
 
   return (
     <html lang={locale.language}>
@@ -226,14 +235,6 @@ function MainLayout({children}: {children?: React.ReactNode}) {
         {data ? (
           <>
             {/* ── Inyecta GTM y GA4 en el cliente (evita problemas de nonce/CSP en SSR) ── */}
-            <GtmLoader
-              gtmId={gtmId}
-              gaMeasurementId={gaMeasurementId}
-              googleAdsId={googleAdsId}
-              metaPixelId={metaPixelId}
-              tiktokPixelId={tiktokPixelId}
-              checkoutDomain={checkoutDomain}
-            />
             <OkendoProvider
               nonce={nonce}
               okendoProviderData={data.okendoProviderData}
@@ -244,7 +245,18 @@ function MainLayout({children}: {children?: React.ReactNode}) {
               consent={data.consent}
             >
               {/* Puente SPA: dispara eventos a Meta Pixel, GA4 y dataLayer en cada navegación */}
-              <CustomAnalytics />
+              {/* Carga GTM/GA4/Ads/Meta/TikTok gateado por consentimiento
+                  (Customer Privacy API) — debe vivir dentro del Provider */}
+              <GtmLoader
+                gtmId={gtmId}
+                gaMeasurementId={gaMeasurementId}
+                googleAdsId={googleAdsId}
+                metaPixelId={metaPixelId}
+                tiktokPixelId={tiktokPixelId}
+                checkoutDomain={checkoutDomain}
+                gtmOwnsTags={gtmOwnsTags}
+              />
+              <CustomAnalytics gtmOwnsTags={gtmOwnsTags} />
               <Layout
                 key={`${locale.language}-${locale.country}`}
                 layout={data.layout}

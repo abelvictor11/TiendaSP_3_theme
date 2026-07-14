@@ -25,6 +25,7 @@ import type {
 } from '@shopify/hydrogen';
 import {useEffect} from 'react';
 import {captureFbclid} from '~/lib/fbCookies';
+import {analyticsAllowed} from '~/lib/consent';
 import {captureMarketingParams} from '~/lib/checkoutContinuity';
 
 // ── Tipos globales para fbq (Meta Pixel) y gtag (Google Analytics) ──────────
@@ -42,25 +43,35 @@ declare global {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+//
+// Anti doble-conteo: cada evento sale por UNA sola vía.
+//   - gtmOwnsTags=false (default): gtag/fbq/ttq directos; NO se hace push de
+//     eventos ecommerce al dataLayer (si el contenedor GTM además tuviera tags
+//     de GA4/Meta, cada evento se contaría dos veces).
+//   - gtmOwnsTags=true: SOLO dataLayer; los tags viven en el contenedor GTM.
+let gtmOwns = false;
 
 function pushDataLayer(event: string, data: Record<string, unknown>) {
-  if (typeof window === 'undefined') return;
+  // Gate de consentimiento en el momento de emitir: sin él, eventos previos
+  // al consentimiento quedarían encolados en dataLayer y GTM los procesaría
+  // retroactivamente al cargar.
+  if (typeof window === 'undefined' || !gtmOwns || !analyticsAllowed()) return;
   window.dataLayer = window.dataLayer ?? [];
   window.dataLayer.push({event, ...data});
 }
 
 function fbqEvent(event: string, data?: Record<string, unknown>) {
-  if (typeof window === 'undefined' || !window.fbq) return;
+  if (typeof window === 'undefined' || gtmOwns || !window.fbq) return;
   window.fbq('track', event, data);
 }
 
 function gtagEvent(event: string, data?: Record<string, unknown>) {
-  if (typeof window === 'undefined' || !window.gtag) return;
+  if (typeof window === 'undefined' || gtmOwns || !window.gtag) return;
   window.gtag('event', event, data);
 }
 
 function ttqEvent(event: string, data?: Record<string, unknown>) {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined' || gtmOwns) return;
   const ttq = window.ttq;
   if (ttq && typeof ttq.track === 'function') {
     ttq.track(event, data ?? {});
@@ -69,8 +80,9 @@ function ttqEvent(event: string, data?: Record<string, unknown>) {
 
 // ── Componente ───────────────────────────────────────────────────────────────
 
-export function CustomAnalytics() {
+export function CustomAnalytics({gtmOwnsTags = false}: {gtmOwnsTags?: boolean}) {
   const {subscribe} = useAnalytics();
+  gtmOwns = gtmOwnsTags;
 
   useEffect(() => {
     // Captura fbclid inmediatamente (solo una vez al montar)
@@ -89,8 +101,8 @@ export function CustomAnalytics() {
       // GA4: page_view en cada navegación SPA
       gtagEvent('page_view', {page_location: payload.url});
 
-      // TikTok Pixel
-      if (typeof window !== 'undefined' && window.ttq?.page) {
+      // TikTok Pixel (misma regla de "una sola vía" que el resto)
+      if (typeof window !== 'undefined' && !gtmOwns && window.ttq?.page) {
         window.ttq.page();
       }
 
@@ -204,6 +216,38 @@ export function CustomAnalytics() {
         // GTM dataLayer
         pushDataLayer('clear_ecommerce', {ecommerce: null});
         pushDataLayer('add_to_cart', {
+          ecommerce: {currency, value: price, items: [item]},
+        });
+      },
+    );
+
+    // ── REMOVE FROM CART ──────────────────────────────────────────────────
+    subscribe(
+      AnalyticsEvent.PRODUCT_REMOVED_FROM_CART,
+      (payload: CartLineUpdatePayload) => {
+        const line = payload.prevLine ?? payload.currentLine;
+        if (!line) return;
+
+        const merchandise = line.merchandise as Record<string, unknown>;
+        const productData = merchandise?.product as Record<string, unknown>;
+        const price = parseFloat((line.cost as any)?.totalAmount?.amount ?? '0');
+        const currency =
+          (line.cost as any)?.totalAmount?.currencyCode ??
+          payload.shop?.currency ??
+          'COP';
+
+        const item = {
+          item_id: merchandise?.id,
+          item_name: productData?.title,
+          item_brand: productData?.vendor,
+          item_variant: merchandise?.title,
+          price: price / (line.quantity || 1),
+          quantity: line.quantity,
+        };
+        gtagEvent('remove_from_cart', {currency, value: price, items: [item]});
+
+        pushDataLayer('clear_ecommerce', {ecommerce: null});
+        pushDataLayer('remove_from_cart', {
           ecommerce: {currency, value: price, items: [item]},
         });
       },
