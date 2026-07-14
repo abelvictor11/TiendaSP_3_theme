@@ -90,15 +90,20 @@ export async function loader(args: LoaderFunctionArgs) {
     ...criticalData,
 
     /**********  EXAMPLE UPDATE STARTS  ************/
-    env,
+    // SEGURIDAD: nunca retornar `env` completo — el loader raíz se serializa
+    // en el HTML del cliente y expondría todos los secretos del servidor
+    // (PRIVATE_STOREFRONT_API_TOKEN, SESSION_SECRET, webhooks, etc.).
+    // Solo exponer campos PUBLIC_* explícitos.
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
     publicStoreSubdomain: env.PUBLIC_SHOPIFY_STORE_DOMAIN,
     publicStoreCdnStaticUrl: env.PUBLIC_STORE_CDN_STATIC_URL,
     publicImageFormatForProductOption:
       env.PUBLIC_IMAGE_FORMAT_FOR_PRODUCT_OPTION,
     publicOkendoSubcriberId: env.PUBLIC_OKENDO_SUBSCRIBER_ID,
-    publicGtmId: env.PUBLIC_GTM_ID ?? 'GTM-KNGTLWDD',
-    publicGaMeasurementId: env.PUBLIC_GA_MEASUREMENT_ID ?? 'G-3KXN1RL4D5',
+    // Sin fallbacks hardcodeados: si falta la env var debe significar
+    // "no trackear", nunca "enviar datos a la propiedad de otra tienda".
+    publicGtmId: env.PUBLIC_GTM_ID ?? '',
+    publicGaMeasurementId: env.PUBLIC_GA_MEASUREMENT_ID ?? '',
     publicGoogleAdsId: env.PUBLIC_GOOGLE_ADS_ID ?? '',
     publicMetaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
     publicTiktokPixelId: env.PUBLIC_TIKTOK_PIXEL_ID ?? '',
