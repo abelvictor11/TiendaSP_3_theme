@@ -325,8 +325,17 @@ export function CustomAnalytics() {
       pushDataLayer('clear_ecommerce', {ecommerce: null});
       pushDataLayer('view_cart', {ecommerce: {currency, value, items}});
 
-      // RudderStack (CDP propio) — spec ecommerce "Cart Viewed"
-      rsTrack('Cart Viewed', {currency, value, products: items});
+      // RudderStack (CDP propio) — spec ecommerce "Cart Viewed": `products[]`
+      // usa nombres de campo distintos a los de `items` (pensado para GA4),
+      // así que se remapea en vez de reusar el array tal cual.
+      const rsProducts = items.map((item: Record<string, unknown>) => ({
+        product_id: item.item_id,
+        name: item.item_name,
+        variant: item.item_variant,
+        price: item.price,
+        quantity: item.quantity,
+      }));
+      rsTrack('Cart Viewed', {currency, value, products: rsProducts});
     });
     // Hydrogen's Analytics provider removes these subscriptions automatically
     // when the component unmounts; `subscribe` returns void (no manual cleanup).
