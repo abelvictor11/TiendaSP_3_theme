@@ -187,6 +187,13 @@ export default async function handleRequest(
       'https://static.klaviyo.com',
       // RudderStack (CDP propio, self-hosted data plane vía Cloudflare Tunnel)
       'https://cdp.tienda-sportfitness.com',
+      // El SDK JS de RudderStack consulta sourceConfig (destinos habilitados,
+      // no datos de eventos) directamente al control plane por defecto,
+      // incluso con un data plane self-hosted — nuestro rudder-server no
+      // expone /sourceConfig (confirmado: 404), así que el browser sí
+      // necesita llegar a api.rudderstack.com para esto. Sin este dominio
+      // el SDK fallaba en cargar en producción.
+      'https://api.rudderstack.com',
     ],
     // Web pixels de Shopify corren en iframes sandbox - necesitan estos dominios
     frameSrc: [
