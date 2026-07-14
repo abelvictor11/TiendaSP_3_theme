@@ -91,15 +91,23 @@ export async function loader(args: LoaderFunctionArgs) {
     ...criticalData,
 
     /**********  EXAMPLE UPDATE STARTS  ************/
-    env,
+    // SEGURIDAD: nunca retornar `env` completo — el loader raíz se serializa
+    // en el HTML del cliente y expondría todos los secretos del servidor
+    // (PRIVATE_STOREFRONT_API_TOKEN, SESSION_SECRET, webhooks, etc.).
+    // Solo exponer campos PUBLIC_* explícitos.
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
     publicStoreSubdomain: env.PUBLIC_SHOPIFY_STORE_DOMAIN,
     publicStoreCdnStaticUrl: env.PUBLIC_STORE_CDN_STATIC_URL,
     publicImageFormatForProductOption:
       env.PUBLIC_IMAGE_FORMAT_FOR_PRODUCT_OPTION,
     publicOkendoSubcriberId: env.PUBLIC_OKENDO_SUBSCRIBER_ID,
-    publicGtmId: env.PUBLIC_GTM_ID ?? 'GTM-KNGTLWDD',
-    publicGaMeasurementId: env.PUBLIC_GA_MEASUREMENT_ID ?? 'G-3KXN1RL4D5',
+    // Sin fallbacks hardcodeados: si falta la env var debe significar
+    // "no trackear", nunca "enviar datos a la propiedad de otra tienda".
+    publicGtmId: env.PUBLIC_GTM_ID ?? '',
+    publicGaMeasurementId: env.PUBLIC_GA_MEASUREMENT_ID ?? '',
+    // 'true' → GTM container es dueño de los tags GA4/Meta/TikTok (solo
+    // dataLayer); cualquier otro valor → este código dispara gtag/fbq/ttq.
+    publicGtmOwnsTags: env.PUBLIC_GTM_OWNS_TAGS ?? '',
     publicGoogleAdsId: env.PUBLIC_GOOGLE_ADS_ID ?? '',
     publicMetaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
     publicTiktokPixelId: env.PUBLIC_TIKTOK_PIXEL_ID ?? '',
@@ -137,7 +145,12 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
     consent: {
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
       storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
-      withPrivacyBanner: false,
+      // Banner nativo de Shopify Customer Privacy: con "automated settings"
+      // en el admin, solo aparece donde la ley lo exige. En Colombia se
+      // trackea por defecto sin banner (analyticsProcessingAllowed = true).
+      // false aquí fue lo que silenció Shopify Analytics desde mayo
+      // (commit 8c70d83: consentimiento en blanco permanente).
+      withPrivacyBanner: true,
     },
     selectedLocale: storefront.i18n,
     okendoProviderData,
@@ -208,6 +221,7 @@ function MainLayout({children}: {children?: React.ReactNode}) {
     | string
     | null
     | undefined;
+  const gtmOwnsTags = (data?.publicGtmOwnsTags as string | undefined) === 'true';
 
   return (
     <html lang={locale.language}>
@@ -231,20 +245,6 @@ function MainLayout({children}: {children?: React.ReactNode}) {
       <body className="bg-white">
         {data ? (
           <>
-            {/* ── Inyecta GTM y GA4 en el cliente (evita problemas de nonce/CSP en SSR) ── */}
-            <GtmLoader
-              gtmId={gtmId}
-              gaMeasurementId={gaMeasurementId}
-              googleAdsId={googleAdsId}
-              metaPixelId={metaPixelId}
-              tiktokPixelId={tiktokPixelId}
-              checkoutDomain={checkoutDomain}
-            />
-            {/* ── Inicializa el SDK de RudderStack (CDP propio) ── */}
-            <RudderStackLoader
-              writeKey={rudderstackWriteKey}
-              dataPlaneUrl={rudderstackDataPlaneUrl}
-            />
             <OkendoProvider
               nonce={nonce}
               okendoProviderData={data.okendoProviderData}
@@ -254,8 +254,25 @@ function MainLayout({children}: {children?: React.ReactNode}) {
               shop={data.shop}
               consent={data.consent}
             >
+              {/* Carga GTM/GA4/Ads/Meta/TikTok gateado por consentimiento
+                  (Customer Privacy API) — debe vivir dentro del Provider */}
+              <GtmLoader
+                gtmId={gtmId}
+                gaMeasurementId={gaMeasurementId}
+                googleAdsId={googleAdsId}
+                metaPixelId={metaPixelId}
+                tiktokPixelId={tiktokPixelId}
+                checkoutDomain={checkoutDomain}
+                gtmOwnsTags={gtmOwnsTags}
+              />
+              {/* Inicializa el SDK de RudderStack (CDP propio) — mismo gate
+                  de consentimiento que GtmLoader, ver RudderStackLoader.tsx */}
+              <RudderStackLoader
+                writeKey={rudderstackWriteKey}
+                dataPlaneUrl={rudderstackDataPlaneUrl}
+              />
               {/* Puente SPA: dispara eventos a Meta Pixel, GA4, dataLayer y RudderStack en cada navegación */}
-              <CustomAnalytics />
+              <CustomAnalytics gtmOwnsTags={gtmOwnsTags} />
               <Layout
                 key={`${locale.language}-${locale.country}`}
                 layout={data.layout}

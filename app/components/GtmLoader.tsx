@@ -1,15 +1,36 @@
 /**
- * GtmLoader — Inicializa GTM, GA4 y Meta Pixel en el main window vía useEffect.
+ * GtmLoader — Inicializa GTM, GA4, Google Ads, Meta Pixel y TikTok Pixel,
+ * **gateado por consentimiento** vía el Customer Privacy API de Shopify.
+ *
+ * Debe montarse DENTRO de <Analytics.Provider> (usa useAnalytics).
+ *
+ * Reglas de consentimiento:
+ *   - GTM + GA4           → requieren `analyticsProcessingAllowed()`
+ *   - Google Ads / Meta / TikTok → requieren `marketingAllowed()`
+ *   En regiones sin leyes de consentimiento, Shopify devuelve true de
+ *   inmediato; en regiones con banner, esperamos `visitorConsentCollected`.
  *
  * Por qué useEffect + createElement en vez de <script nonce> en SSR:
  *   Scripts con nonce en el <head> de React pueden ser bloqueados por CSP
  *   o eliminados durante la hidratación. Scripts cargados con createElement
  *   son siempre evaluados por el browser y detectados por Tag Assistant.
- *
- * No declara tipos globales de Window para evitar conflictos con
- *   CustomAnalytics.tsx. Usa (window as any) en su lugar.
  */
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
+
+type ConsentState = {analytics: boolean; marketing: boolean};
+
+function readConsent(): ConsentState | null {
+  const cp = (window as any).Shopify?.customerPrivacy;
+  if (!cp) return null;
+  try {
+    return {
+      analytics: cp.analyticsProcessingAllowed?.() === true,
+      marketing: cp.marketingAllowed?.() === true,
+    };
+  } catch {
+    return null;
+  }
+}
 
 function getCheckoutHostname(checkoutDomain?: string | null): string | null {
   if (!checkoutDomain) return null;
@@ -31,6 +52,7 @@ export function GtmLoader({
   metaPixelId,
   tiktokPixelId,
   checkoutDomain,
+  gtmOwnsTags,
 }: {
   gtmId?: string | null;
   gaMeasurementId?: string | null;
@@ -38,21 +60,104 @@ export function GtmLoader({
   metaPixelId?: string | null;
   tiktokPixelId?: string | null;
   checkoutDomain?: string | null;
+  gtmOwnsTags?: boolean;
 }) {
   const checkoutHostname = getCheckoutHostname(checkoutDomain);
+  const [consent, setConsent] = useState<ConsentState>({
+    analytics: false,
+    marketing: false,
+  });
 
+  // ── 0. Espera el consentimiento (Customer Privacy API) ──────────────────
   useEffect(() => {
     const w = window as any;
+    // Flag global para que otros handlers (ej. begin_checkout en el cart)
+    // sepan qué vía usar sin prop-drilling.
+    w.__gtmOwnsTags = gtmOwnsTags === true;
+
+    // ── Google Consent Mode v2 ────────────────────────────────────────────
+    // Default "denied" ANTES de que cargue gtag.js/gtm.js (los comandos se
+    // encolan en dataLayer y gtag los procesa en orden al cargar). Sin estas
+    // señales, Google recibe los hits como "sin consentimiento declarado" y
+    // los limita/descarta para Ads aunque el evento llegue.
+    w.dataLayer = w.dataLayer ?? [];
+    if (!w.gtag) {
+      w.gtag = function () {
+        // eslint-disable-next-line prefer-rest-params
+        w.dataLayer.push(arguments);
+      };
+    }
+    if (!w.__consentModeDefaultSet) {
+      w.__consentModeDefaultSet = true;
+      w.gtag('consent', 'default', {
+        ad_storage: 'denied',
+        analytics_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        // margen para que el update (síncrono en regiones sin banner)
+        // llegue antes de que los tags disparen
+        wait_for_update: 500,
+      });
+    }
+
+    const emitConsentSignals = (c: ConsentState) => {
+      // Google Consent Mode v2: refleja el estado del Customer Privacy API
+      w.gtag('consent', 'update', {
+        analytics_storage: c.analytics ? 'granted' : 'denied',
+        ad_storage: c.marketing ? 'granted' : 'denied',
+        ad_user_data: c.marketing ? 'granted' : 'denied',
+        ad_personalization: c.marketing ? 'granted' : 'denied',
+      });
+      // Meta Pixel: si fbq ya existe, sincroniza grant/revoke
+      if (typeof w.fbq === 'function') {
+        w.fbq('consent', c.marketing ? 'grant' : 'revoke');
+      }
+    };
+
+    const update = () => {
+      const c = readConsent();
+      // Refleja el estado actual (no acumulativo): si el visitante revoca
+      // consentimiento, los flags vuelven a false y los emisores dejan de
+      // enviar (los scripts ya cargados no se pueden descargar, pero los
+      // helpers verifican consentimiento al emitir cada evento).
+      if (c) {
+        setConsent(c);
+        emitConsentSignals(c);
+      }
+    };
+
+    // Ya respondido en visita anterior / región sin banner
+    update();
+
+    // El banner nativo de Shopify dispara este evento al responder
+    document.addEventListener('visitorConsentCollected', update);
+
+    // El script del Customer Privacy API carga async — reintenta un rato
+    // por si `window.Shopify.customerPrivacy` aún no existía en el mount.
+    const interval = setInterval(() => {
+      if (readConsent()) {
+        update();
+        clearInterval(interval);
+      }
+    }, 500);
+    const stop = setTimeout(() => clearInterval(interval), 20000);
+
+    return () => {
+      document.removeEventListener('visitorConsentCollected', update);
+      clearInterval(interval);
+      clearTimeout(stop);
+    };
+  }, [gtmOwnsTags]);
+
+  // ── A. Analytics permitido → GTM + GA4 ──────────────────────────────────
+  useEffect(() => {
+    if (!consent.analytics) return;
+    const w = window as any;
     const linker = checkoutHostname
-      ? {
-          linker: {
-            domains: [checkoutHostname],
-            accept_incoming: true,
-          },
-        }
+      ? {linker: {domains: [checkoutHostname], accept_incoming: true}}
       : null;
 
-    // ── 1. dataLayer + función gtag estándar ──────────────────────────────
+    // dataLayer + función gtag estándar
     w.dataLayer = w.dataLayer ?? [];
     if (!w.gtag) {
       w.gtag = function () {
@@ -61,7 +166,7 @@ export function GtmLoader({
       };
     }
 
-    // ── 2. GTM container ──────────────────────────────────────────────────
+    // GTM container
     if (gtmId && !document.querySelector(`script[data-gtm-id="${gtmId}"]`)) {
       w.dataLayer.push({'gtm.start': new Date().getTime(), event: 'gtm.js'});
       const s = document.createElement('script');
@@ -71,8 +176,11 @@ export function GtmLoader({
       document.head.appendChild(s);
     }
 
-    // ── 3. GA4 gtag.js ────────────────────────────────────────────────────
+    // GA4 gtag.js — solo si este código es dueño de los tags. Si GTM es el
+    // dueño (gtmOwnsTags), GA4 se configura dentro del contenedor GTM y
+    // cargarlo aquí duplicaría los hits.
     if (
+      !gtmOwnsTags &&
       gaMeasurementId &&
       !document.querySelector(`script[data-ga-id="${gaMeasurementId}"]`)
     ) {
@@ -91,9 +199,27 @@ export function GtmLoader({
       };
       document.head.appendChild(s);
     }
+  }, [consent.analytics]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    // ── 4. Google Ads ─────────────────────────────────────────────────────
+  // ── B. Marketing permitido → Google Ads + Meta + TikTok ─────────────────
+  useEffect(() => {
+    if (!consent.marketing) return;
+    const w = window as any;
+    const linker = checkoutHostname
+      ? {linker: {domains: [checkoutHostname], accept_incoming: true}}
+      : null;
+
+    w.dataLayer = w.dataLayer ?? [];
+    if (!w.gtag) {
+      w.gtag = function () {
+        // eslint-disable-next-line prefer-rest-params
+        w.dataLayer.push(arguments);
+      };
+    }
+
+    // Google Ads
     if (
+      !gtmOwnsTags &&
       googleAdsId &&
       !document.querySelector(`script[data-google-ads-id="${googleAdsId}"]`)
     ) {
@@ -103,24 +229,18 @@ export function GtmLoader({
       s.src = `https://www.googletagmanager.com/gtag/js?id=${googleAdsId}`;
       s.onload = () => {
         w.gtag('js', new Date());
-        w.gtag('config', googleAdsId, {
-          ...(linker ?? {}),
-        });
+        w.gtag('config', googleAdsId, {...(linker ?? {})});
       };
       document.head.appendChild(s);
     }
 
-    // ── 5. Meta Pixel (fbq) ───────────────────────────────────────────────
-    // Inicializa fbq en el main window para que CustomAnalytics pueda usarlo.
-    // Sin esto, window.fbq solo existe dentro del iframe sandbox de Shopify.
-    if (metaPixelId && !w.fbq) {
-      // Cargar fbevents.js
+    // Meta Pixel (fbq) — en el main window para que CustomAnalytics lo use.
+    if (!gtmOwnsTags && metaPixelId && !w.fbq) {
       const fbScript = document.createElement('script');
       fbScript.async = true;
       fbScript.src = 'https://connect.facebook.net/en_US/fbevents.js';
       document.head.appendChild(fbScript);
 
-      // Definir fbq queue antes de que cargue el script
       w.fbq = function (...args: unknown[]) {
         if (w.fbq.callMethod) {
           w.fbq.callMethod(...args);
@@ -134,17 +254,20 @@ export function GtmLoader({
       w.fbq.version = '2.0';
       w.fbq.queue = [];
 
+      // Consentimiento explícito ANTES del init: este efecto solo corre con
+      // marketing permitido, así que declaramos grant (Meta por defecto
+      // asume grant, pero declararlo deja el estado consistente si luego
+      // se revoca vía emitConsentSignals).
+      w.fbq('consent', 'grant');
       // Only init here; CustomAnalytics fires PageView on every PAGE_VIEWED
       // (including the initial load) to avoid double-counting.
       w.fbq('init', metaPixelId);
     }
 
-    // ── 5. TikTok Pixel (ttq) ─────────────────────────────────────────────
-    if (tiktokPixelId && !w.ttq) {
-      // Snippet oficial de TikTok, adaptado: el código original usa
-      // eval y manipula document.head directamente. Lo reemplazamos por
-      // createElement para cumplir con CSP estricto.
-      const ttq: any = (w.TiktokAnalyticsObject = 'ttq');
+    // TikTok Pixel (ttq)
+    if (!gtmOwnsTags && tiktokPixelId && !w.ttq) {
+      // Snippet oficial de TikTok adaptado a createElement (CSP estricto).
+      w.TiktokAnalyticsObject = 'ttq';
       w.ttq = [];
       const methods = [
         'page',
@@ -194,7 +317,7 @@ export function GtmLoader({
       // (including the initial load) to avoid double-counting.
       tt.load(tiktokPixelId);
     }
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [consent.marketing]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return null;
 }

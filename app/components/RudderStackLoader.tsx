@@ -30,8 +30,14 @@
  * CustomAnalytics.tsx es dueño de disparar los eventos (page/track) en cada
  * navegación SPA, igual que con GTM/Meta Pixel/TikTok — este loader solo
  * inicializa el cliente y lo expone en window.rudderanalytics.
+ *
+ * **Gateado por consentimiento** (Customer Privacy API), mismo patrón de
+ * espera que GtmLoader.tsx: no se carga el SDK (ni siquiera el chunk) hasta
+ * que `analyticsAllowed()` sea true. Fail-closed — si el visitante nunca
+ * responde o lo rechaza, el SDK simplemente no se carga.
  */
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
+import {analyticsAllowed} from '~/lib/consent';
 
 const PRELOAD_METHODS = [
   'load',
@@ -67,8 +73,32 @@ export function RudderStackLoader({
   writeKey?: string | null;
   dataPlaneUrl?: string | null;
 }) {
+  const [allowed, setAllowed] = useState(false);
+
+  // ── Espera consentimiento (Customer Privacy API) — mismo patrón que
+  // GtmLoader.tsx: responde ya-contestado/región-sin-banner de inmediato,
+  // escucha el evento del banner nativo, y hace polling corto por si el
+  // script de privacy de Shopify todavía no había cargado al montar.
   useEffect(() => {
-    if (!writeKey || !dataPlaneUrl) return;
+    const update = () => setAllowed(analyticsAllowed());
+    update();
+    document.addEventListener('visitorConsentCollected', update);
+    const interval = setInterval(() => {
+      if (analyticsAllowed()) {
+        update();
+        clearInterval(interval);
+      }
+    }, 500);
+    const stop = setTimeout(() => clearInterval(interval), 20000);
+    return () => {
+      document.removeEventListener('visitorConsentCollected', update);
+      clearInterval(interval);
+      clearTimeout(stop);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!allowed || !writeKey || !dataPlaneUrl) return;
     const w = window as any;
     // Ya inicializado con el SDK real (no un array-queue) — evita doble init
     // en HMR/StrictMode.
@@ -89,7 +119,7 @@ export function RudderStackLoader({
     return () => {
       cancelled = true;
     };
-  }, [writeKey, dataPlaneUrl]);
+  }, [allowed, writeKey, dataPlaneUrl]);
 
   return null;
 }

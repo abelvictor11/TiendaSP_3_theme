@@ -7,16 +7,19 @@
  * por lo que los pixels estándar solo ven el primer pageview.
  *
  * RudderStack (nuestro CDP propio, self-hosted) se inicializa en
- * RudderStackLoader.tsx (window.rudderanalytics) — este componente solo llama
- * a .page()/.track() sobre ese cliente ya cargado, igual que hace con fbq/gtag.
+ * RudderStackLoader.tsx (window.rudderanalytics), gateado por el mismo
+ * consentimiento (Customer Privacy API) que GTM/GA4 — es procesamiento de
+ * analítica, así que rsPage/rsTrack verifican analyticsAllowed() igual que
+ * pushDataLayer, además del propio gate de carga en RudderStackLoader.
  *
  * Eventos que maneja:
- *  - page_viewed        → fbq PageView / gtag page_view / rs page()
- *  - product_viewed     → fbq ViewContent / gtag view_item / rs "Product Viewed"
- *  - collection_viewed  → gtag view_item_list / dataLayer / rs "Product List Viewed"
- *  - cart_viewed        → gtag view_cart / dataLayer / rs "Cart Viewed"
- *  - product_add_to_cart→ fbq AddToCart / gtag add_to_cart / rs "Product Added"
- *  - search_viewed      → fbq Search / gtag search / rs "Products Searched"
+ *  - page_viewed          → fbq PageView / gtag page_view / rs page()
+ *  - product_viewed       → fbq ViewContent / gtag view_item / rs "Product Viewed"
+ *  - collection_viewed    → gtag view_item_list / dataLayer / rs "Product List Viewed"
+ *  - cart_viewed          → gtag view_cart / dataLayer / rs "Cart Viewed"
+ *  - product_add_to_cart  → fbq AddToCart / gtag add_to_cart / rs "Product Added"
+ *  - product_removed      → gtag remove_from_cart / dataLayer / rs "Product Removed"
+ *  - search_viewed        → fbq Search / gtag search / rs "Products Searched"
  */
 import {useAnalytics, AnalyticsEvent} from '@shopify/hydrogen';
 import type {
@@ -29,6 +32,7 @@ import type {
 } from '@shopify/hydrogen';
 import {useEffect} from 'react';
 import {captureFbclid} from '~/lib/fbCookies';
+import {analyticsAllowed} from '~/lib/consent';
 import {captureMarketingParams} from '~/lib/checkoutContinuity';
 
 // ── Tipos globales para fbq (Meta Pixel) y gtag (Google Analytics) ──────────
@@ -49,25 +53,35 @@ declare global {
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
+//
+// Anti doble-conteo: cada evento sale por UNA sola vía.
+//   - gtmOwnsTags=false (default): gtag/fbq/ttq directos; NO se hace push de
+//     eventos ecommerce al dataLayer (si el contenedor GTM además tuviera tags
+//     de GA4/Meta, cada evento se contaría dos veces).
+//   - gtmOwnsTags=true: SOLO dataLayer; los tags viven en el contenedor GTM.
+let gtmOwns = false;
 
 function pushDataLayer(event: string, data: Record<string, unknown>) {
-  if (typeof window === 'undefined') return;
+  // Gate de consentimiento en el momento de emitir: sin él, eventos previos
+  // al consentimiento quedarían encolados en dataLayer y GTM los procesaría
+  // retroactivamente al cargar.
+  if (typeof window === 'undefined' || !gtmOwns || !analyticsAllowed()) return;
   window.dataLayer = window.dataLayer ?? [];
   window.dataLayer.push({event, ...data});
 }
 
 function fbqEvent(event: string, data?: Record<string, unknown>) {
-  if (typeof window === 'undefined' || !window.fbq) return;
+  if (typeof window === 'undefined' || gtmOwns || !window.fbq) return;
   window.fbq('track', event, data);
 }
 
 function gtagEvent(event: string, data?: Record<string, unknown>) {
-  if (typeof window === 'undefined' || !window.gtag) return;
+  if (typeof window === 'undefined' || gtmOwns || !window.gtag) return;
   window.gtag('event', event, data);
 }
 
 function ttqEvent(event: string, data?: Record<string, unknown>) {
-  if (typeof window === 'undefined') return;
+  if (typeof window === 'undefined' || gtmOwns) return;
   const ttq = window.ttq;
   if (ttq && typeof ttq.track === 'function') {
     ttq.track(event, data ?? {});
@@ -75,7 +89,13 @@ function ttqEvent(event: string, data?: Record<string, unknown>) {
 }
 
 function rsPage(properties?: Record<string, unknown>) {
-  if (typeof window === 'undefined' || !window.rudderanalytics) return;
+  // RudderStack es procesamiento de analítica igual que GTM/GA4 — mismo gate
+  // de consentimiento (fail-closed) que pushDataLayer/gtagEvent. Necesario
+  // incluso con RudderStackLoader ya esperando consentimiento para cargar el
+  // SDK: si el visitante revoca consentimiento después, el script cargado no
+  // se puede descargar, así que el chequeo tiene que repetirse aquí también.
+  if (typeof window === 'undefined' || !window.rudderanalytics || !analyticsAllowed())
+    return;
   // El SDK tipa `properties` como `ApiObject` (valores primitivos/Date/
   // ApiObject anidado), más estricto que nuestro `Record<string, unknown>`
   // genérico — los valores reales que enviamos (string/number) sí calzan.
@@ -83,14 +103,16 @@ function rsPage(properties?: Record<string, unknown>) {
 }
 
 function rsTrack(event: string, properties?: Record<string, unknown>) {
-  if (typeof window === 'undefined' || !window.rudderanalytics) return;
+  if (typeof window === 'undefined' || !window.rudderanalytics || !analyticsAllowed())
+    return;
   window.rudderanalytics.track(event, properties as any);
 }
 
 // ── Componente ───────────────────────────────────────────────────────────────
 
-export function CustomAnalytics() {
+export function CustomAnalytics({gtmOwnsTags = false}: {gtmOwnsTags?: boolean}) {
   const {subscribe} = useAnalytics();
+  gtmOwns = gtmOwnsTags;
 
   useEffect(() => {
     // Captura fbclid inmediatamente (solo una vez al montar)
@@ -109,8 +131,8 @@ export function CustomAnalytics() {
       // GA4: page_view en cada navegación SPA
       gtagEvent('page_view', {page_location: payload.url});
 
-      // TikTok Pixel
-      if (typeof window !== 'undefined' && window.ttq?.page) {
+      // TikTok Pixel (misma regla de "una sola vía" que el resto)
+      if (typeof window !== 'undefined' && !gtmOwns && window.ttq?.page) {
         window.ttq.page();
       }
 
@@ -244,6 +266,49 @@ export function CustomAnalytics() {
 
         // RudderStack (CDP propio) — spec ecommerce "Product Added"
         rsTrack('Product Added', {
+          product_id: merchandise?.id,
+          name: productData?.title,
+          brand: productData?.vendor,
+          variant: merchandise?.title,
+          price: price / (line.quantity || 1),
+          quantity: line.quantity,
+          currency,
+        });
+      },
+    );
+
+    // ── REMOVE FROM CART ──────────────────────────────────────────────────
+    subscribe(
+      AnalyticsEvent.PRODUCT_REMOVED_FROM_CART,
+      (payload: CartLineUpdatePayload) => {
+        const line = payload.prevLine ?? payload.currentLine;
+        if (!line) return;
+
+        const merchandise = line.merchandise as Record<string, unknown>;
+        const productData = merchandise?.product as Record<string, unknown>;
+        const price = parseFloat((line.cost as any)?.totalAmount?.amount ?? '0');
+        const currency =
+          (line.cost as any)?.totalAmount?.currencyCode ??
+          payload.shop?.currency ??
+          'COP';
+
+        const item = {
+          item_id: merchandise?.id,
+          item_name: productData?.title,
+          item_brand: productData?.vendor,
+          item_variant: merchandise?.title,
+          price: price / (line.quantity || 1),
+          quantity: line.quantity,
+        };
+        gtagEvent('remove_from_cart', {currency, value: price, items: [item]});
+
+        pushDataLayer('clear_ecommerce', {ecommerce: null});
+        pushDataLayer('remove_from_cart', {
+          ecommerce: {currency, value: price, items: [item]},
+        });
+
+        // RudderStack (CDP propio) — spec ecommerce "Product Removed"
+        rsTrack('Product Removed', {
           product_id: merchandise?.id,
           name: productData?.title,
           brand: productData?.vendor,

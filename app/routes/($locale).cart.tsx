@@ -18,6 +18,8 @@ import {
 } from '@shopify/hydrogen';
 import {isLocalPath} from '~/lib/utils';
 import {getFbCookies} from '~/lib/fbCookies';
+import {getGaCookies} from '~/lib/gaCookies';
+import {analyticsAllowed} from '~/lib/consent';
 import {decorateCheckoutUrl} from '~/lib/checkoutContinuity';
 import {Link} from '~/components/Link';
 import {FeaturedProducts} from '~/components/FeaturedProducts';
@@ -313,7 +315,11 @@ function CartSummary({
 
     // Meta Pixel
     const w = window as any;
-    if (w.fbq) {
+    // Si GTM es dueño de los tags, solo empujamos al dataLayer (abajo) para
+    // no contar begin_checkout dos veces.
+    const gtmOwns = w.__gtmOwnsTags === true;
+
+    if (!gtmOwns && w.fbq) {
       w.fbq(
         'track',
         'InitiateCheckout',
@@ -328,7 +334,7 @@ function CartSummary({
       );
     }
     // GA4
-    if (w.gtag) {
+    if (!gtmOwns && w.gtag) {
       w.gtag('event', 'begin_checkout', {
         currency,
         value,
@@ -337,7 +343,7 @@ function CartSummary({
       });
     }
     // TikTok Pixel
-    if (w.ttq && typeof w.ttq.track === 'function') {
+    if (!gtmOwns && w.ttq && typeof w.ttq.track === 'function') {
       w.ttq.track('InitiateCheckout', {
         contents: items.map((i) => ({
           content_id: i.item_id,
@@ -351,13 +357,16 @@ function CartSummary({
         event_id: eventId,
       });
     }
-    // GTM dataLayer
-    w.dataLayer = w.dataLayer ?? [];
-    w.dataLayer.push({ecommerce: null});
-    w.dataLayer.push({
-      event: 'begin_checkout',
-      ecommerce: {currency, value, items, event_id: eventId},
-    });
+    // GTM dataLayer (solo cuando el contenedor GTM es dueño de los tags y
+    // hay consentimiento — evita encolar eventos pre-consentimiento)
+    if (gtmOwns && analyticsAllowed()) {
+      w.dataLayer = w.dataLayer ?? [];
+      w.dataLayer.push({ecommerce: null});
+      w.dataLayer.push({
+        event: 'begin_checkout',
+        ecommerce: {currency, value, items, event_id: eventId},
+      });
+    }
 
     // ── Persistir fbp/fbc + user_agent como cart attributes para CAPI ─────
     // El checkout está en dominio distinto, las cookies no cruzan. Los cart
@@ -370,6 +379,14 @@ function CartSummary({
       attributes.push({key: '_client_user_agent', value: navigator.userAgent});
     }
     attributes.push({key: '_client_event_id', value: eventId});
+
+    // GA4: client_id + session_id para que el webhook /webhooks/ga4-mp
+    // atribuya la compra a la sesión original del navegador.
+    const ga = getGaCookies();
+    if (ga.clientId) attributes.push({key: '_ga_client_id', value: ga.clientId});
+    if (ga.sessionId) {
+      attributes.push({key: '_ga_session_id', value: ga.sessionId});
+    }
 
     if (attributes.length > 0 && checkoutUrl) {
       // Preventimos el redirect inmediato, guardamos attributes, y luego vamos.

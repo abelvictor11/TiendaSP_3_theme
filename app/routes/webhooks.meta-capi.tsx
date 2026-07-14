@@ -24,7 +24,7 @@
  */
 import {type ActionFunctionArgs} from '@shopify/remix-oxygen';
 
-const META_GRAPH_API_VERSION = 'v19.0';
+const META_GRAPH_API_VERSION = 'v23.0';
 
 // Hash con SHA-256 usando WebCrypto (disponible en Oxygen Workers)
 async function sha256(value: string): Promise<string> {
@@ -125,12 +125,18 @@ export async function action({request, context}: ActionFunctionArgs) {
   const hmacHeader = request.headers.get('x-shopify-hmac-sha256');
   const topic = request.headers.get('x-shopify-topic') ?? '';
 
-  if (webhookSecret) {
-    const ok = await verifyShopifyHmac(rawBody, hmacHeader, webhookSecret);
-    if (!ok) {
-      console.warn('[meta-capi] Invalid HMAC signature');
-      return new Response('Unauthorized', {status: 401});
-    }
+  // Fail-closed: sin secret configurado, cualquiera podría inyectar
+  // eventos falsos (Purchase) al pixel. Nunca procesar sin verificar HMAC.
+  if (!webhookSecret) {
+    console.error(
+      '[meta-capi] SHOPIFY_WEBHOOK_SECRET not configured — rejecting',
+    );
+    return new Response('Webhook secret not configured', {status: 503});
+  }
+  const ok = await verifyShopifyHmac(rawBody, hmacHeader, webhookSecret);
+  if (!ok) {
+    console.warn('[meta-capi] Invalid HMAC signature');
+    return new Response('Unauthorized', {status: 401});
   }
 
   let data: Record<string, any>;
