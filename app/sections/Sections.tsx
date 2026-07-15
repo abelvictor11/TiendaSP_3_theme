@@ -75,6 +75,14 @@ import {
   SECTION_BANNER_FRAGMENT,
   SectionBanner,
 } from './SectionBanner';
+import {
+  SECTION_PRODUCT_CAROUSEL_FRAGMENT,
+  SectionProductCarousel,
+} from './SectionProductCarousel';
+import {
+  SECTION_SEO_TEXT_FRAGMENT,
+  SectionSeoText,
+} from './SectionSeoText';
 import clsx from 'clsx';
 import {SECTION_HERO_FRAGMENT, SectionHero} from './SectionHero';
 import {OKENDO_PRODUCT_STAR_RATING_FRAGMENT} from '@okendo/shopify-hydrogen';
@@ -107,7 +115,9 @@ export type CisecoSectionType =
   | 'section_intro_feature'
   | 'section_shop_by_category'
   | 'ciseco--section_shop_by_brand'
-  | 'ciseco--section_banner';
+  | 'ciseco--section_banner'
+  | 'ciseco--section_product_carousel'
+  | 'ciseco--section_seo_text';
 
 export function Sections({
   sections,
@@ -249,6 +259,18 @@ export function Sections({
                 <SectionBanner {...section} key={section.id} />
               </WrapSection>
             );
+          case 'ciseco--section_product_carousel':
+            return (
+              <WrapSection key={section.id} index={index} spacing={spacing} {...args}>
+                <SectionProductCarousel {...section} key={section.id} />
+              </WrapSection>
+            );
+          case 'ciseco--section_seo_text':
+            return (
+              <WrapSection key={section.id} index={index} spacing={spacing} {...args}>
+                <SectionSeoText {...section} key={section.id} />
+              </WrapSection>
+            );
 
           // case 'section_another':
           //   return <AnotherSection />;
@@ -354,6 +376,8 @@ export const SECTIONS_FRAGMENT = `#graphql
             ...SectionShopByCategory
             ...SectionShopByBrand
             ...SectionBanner
+            ...SectionProductCarousel
+            ...SectionSeoText
           }
         }
       }
@@ -379,6 +403,8 @@ export const SECTIONS_FRAGMENT = `#graphql
   ${SECTION_SHOP_BY_CATEGORY_FRAGMENT}
   ${SECTION_SHOP_BY_BRAND_FRAGMENT}
   ${SECTION_BANNER_FRAGMENT}
+  ${SECTION_PRODUCT_CAROUSEL_FRAGMENT}
+  ${SECTION_SEO_TEXT_FRAGMENT}
 
   # All common fragments
   ${COMMON_PRODUCT_CARD_FRAGMENT}

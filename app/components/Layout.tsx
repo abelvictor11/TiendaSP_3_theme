@@ -9,6 +9,7 @@ import {type EnhancedMenu, parseMenu, useIsHomePath} from '~/lib/utils';
 import MainNav from './Header/MainNav';
 import NavigationBar from './Header/NavigationBar';
 import NavMobile from './Header/NavMobile';
+import DesktopMegaMenu from './Header/DesktopMegaMenu';
 import StickyHeader from './Header/StickyHeader';
 import Logo from './Logo';
 import Footer from './Footer';
@@ -47,29 +48,80 @@ export function Layout({children, layout}: LayoutProps) {
 
 function MyHeader() {
   const isHome = useIsHomePath();
+  const rootData = useRouteLoaderData<RootLoader>('root');
+  const menuCollectionsPromise = rootData?.menuCollectionsPromise;
 
   return (
     <>
       <CartAside />
       <MobileMenuAside />
+      <DesktopMenuAside />
       <TopBarMarqueeWrap />
       {/* Main Header - Not sticky, scrolls with page */}
       <div className="nc-Header z-40 relative">
         <HeaderMenuDataWrap>
           {({headerData, headerMenu}) => {
-            const brands = (headerData as any)?.brands?.nodes || [];
+            // Try metaobject brands first, fallback to dynamic vendors from filters
+            const metaobjectBrands = (headerData as any)?.brands?.nodes || [];
+            
+            // Extract vendors from the "all" collection vendor filter
+            const allVendorsFilters = (headerData as any)?.allVendors?.products?.filters || [];
+            const vendorFilter = allVendorsFilters.find((f: any) => f.id === 'filter.p.vendor');
+            const dynamicVendors = (vendorFilter?.values || [])
+              .map((v: any) => ({
+                id: `vendor-${v.label}`,
+                handle: v.label.toLowerCase().replace(/\s+/g, '-'),
+                name: {value: v.label},
+                slug: {value: v.label},
+                count: v.count,
+              }))
+              .sort((a: any, b: any) => a.name.value.localeCompare(b.name.value));
+
+            // Use metaobject brands if available, otherwise use dynamic vendors
+            const brands = metaobjectBrands.length > 0 ? metaobjectBrands : dynamicVendors;
+
             const quickLinksConfig = (headerData as any)?.headerQuickLinks?.nodes?.[0];
             const quickLinks = {
               enabled: quickLinksConfig?.enabled?.value !== 'false',
               items: quickLinksConfig?.items?.references?.nodes || [],
             };
+
+            // Parse search suggestions for header search input
+            const searchSuggestionsRaw = (headerData as any)?.searchSuggestions;
+
             return (
               <>
-                <MainNav isHome={isHome} brands={brands} quickLinks={quickLinks} />
-                <NavigationBar 
-                  headerMenu={headerMenu?.items} 
-                  headerData={headerData}
-                />
+                <MainNav isHome={isHome} brands={brands} quickLinks={quickLinks} searchSuggestions={searchSuggestionsRaw} />
+                <Suspense fallback={
+                  <NavigationBar
+                    headerMenu={headerMenu?.items}
+                    headerData={headerData}
+                    collectionsWithChildren={{}}
+                  />
+                }>
+                  <Await resolve={menuCollectionsPromise}>
+                    {(menuCollectionsData: any) => {
+                      const nodes = menuCollectionsData?.nodes || [];
+                      const cwc: Record<string, any[]> = {};
+                      for (const col of nodes) {
+                        const children = col.subcollections?.references?.nodes || [];
+                        if (children.length > 0) {
+                          cwc[col.handle] = children.map((child: any) => ({
+                            ...child,
+                            parentHandle: col.handle,
+                          }));
+                        }
+                      }
+                      return (
+                        <NavigationBar
+                          headerMenu={headerMenu?.items}
+                          headerData={headerData}
+                          collectionsWithChildren={cwc}
+                        />
+                      );
+                    }}
+                  </Await>
+                </Suspense>
               </>
             );
           }}
@@ -127,8 +179,21 @@ function CartAside() {
 function MobileMenuAside() {
   const {close} = useAside();
   return (
-    <Aside openFrom="left" renderHeading={() => <Logo />} type="mobile">
+    <Aside openFrom="left" type="mobile" heading="Menu">
       <NavMobile onClose={close} />
+    </Aside>
+  );
+}
+
+function DesktopMenuAside() {
+  const {close} = useAside();
+  return (
+    <Aside openFrom="left" type="desktop-menu" noHeader>
+      <HeaderMenuDataWrap>
+        {({ultraMenu}) => (
+          <DesktopMegaMenu menu={ultraMenu} onClose={close} />
+        )}
+      </HeaderMenuDataWrap>
     </Aside>
   );
 }
@@ -141,8 +206,10 @@ export function HeaderMenuDataWrap({
   children: ({
     headerData,
     headerMenu,
+    ultraMenu,
   }: {
     headerMenu: EnhancedMenu | null | undefined;
+    ultraMenu: EnhancedMenu | null | undefined;
     headerData: HeaderMenuQuery;
   }) => React.ReactNode;
 }) {
@@ -150,7 +217,11 @@ export function HeaderMenuDataWrap({
 
   const headerPromise = rootData?.headerPromise;
   const layout = rootData?.layout;
-  const env = rootData?.env;
+  // El loader ya no expone env completo (seguridad); parseMenu solo
+  // necesita PUBLIC_STORE_DOMAIN.
+  const env = rootData?.publicStoreDomain
+    ? ({PUBLIC_STORE_DOMAIN: rootData.publicStoreDomain} as Env)
+    : undefined;
 
   const shop = layout?.shop;
 
@@ -169,7 +240,17 @@ export function HeaderMenuDataWrap({
                 )
               : undefined;
 
-          return headerData ? children({headerData, headerMenu: menu}) : null;
+          const ultraMenuParsed =
+            (headerData as any)?.ultraMenu && shop?.primaryDomain?.url && env
+              ? parseMenu(
+                  (headerData as any).ultraMenu,
+                  shop?.primaryDomain?.url,
+                  env,
+                  customPrefixes,
+                )
+              : undefined;
+
+          return headerData ? children({headerData, headerMenu: menu, ultraMenu: ultraMenuParsed}) : null;
         }}
       </Await>
     </Suspense>
@@ -190,7 +271,9 @@ export function FooterMenuDataWrap({
   const rootData = useRouteLoaderData<RootLoader>('root');
   const footerPromise = rootData?.footerPromise;
   const layout = rootData?.layout;
-  const env = rootData?.env;
+  const env = rootData?.publicStoreDomain
+    ? ({PUBLIC_STORE_DOMAIN: rootData.publicStoreDomain} as Env)
+    : undefined;
   const shop = layout?.shop;
 
   const customPrefixes = {BLOG: '', CATALOG: 'products'};

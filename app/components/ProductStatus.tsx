@@ -41,7 +41,7 @@ const ProductStatus: FC<Props> = ({
     if (!status) {
       return null;
     }
-    const CLASSES = `nc-shadow-lg !rounded-full flex items-center justify-center ${className}`;
+    const CLASSES = `nc-shadow-lg rounded-md flex items-center justify-center ${className}`;
     return (
       <Badge color={color} className={CLASSES}>
         {Icon ? <Icon className="w-3.5 h-3.5" /> : ''}

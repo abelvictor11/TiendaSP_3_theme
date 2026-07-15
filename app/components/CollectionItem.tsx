@@ -48,9 +48,9 @@ const CollectionItem: FC<CollectionItemProps> = ({
       to={'/collections/' + handle}
       className={clsx(`block w-full`, className)}
       onClick={onClick}
-      prefetch="viewport"
+      prefetch="intent"
     >
-      <div className="relative w-full aspect-w-16 aspect-h-12 sm:aspect-h-9 rounded-2xl overflow-hidden bg-slate-100 group">
+      <div className="relative w-full aspect-w-16 aspect-h-12 sm:aspect-h-9 rounded-2xl overflow-hidden bg-[#efefef] group">
         {/* Background image - use horizontal_image first, fallback to main image */}
         {hImage && (
           <Image
@@ -109,7 +109,7 @@ export const CollectionItemSkeleton = ({
 }) => {
   return (
     <div className={clsx(`block w-full`, className)}>
-      <div className="relative w-full aspect-w-16 aspect-h-12 sm:aspect-h-9 rounded-2xl overflow-hidden bg-slate-100 group">
+      <div className="relative w-full aspect-w-16 aspect-h-12 sm:aspect-h-9 rounded-2xl overflow-hidden bg-[#efefef] group">
         {/* Background gradient placeholder */}
         <div className="absolute inset-0 bg-gradient-to-br from-slate-200 to-slate-300 rounded-2xl"></div>
         

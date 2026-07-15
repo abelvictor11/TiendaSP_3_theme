@@ -38,7 +38,7 @@ const CollectionCard6: FC<CollectionCard6Props> = ({
         <div className="absolute inset-5 flex flex-col justify-between items-center">
           <div className="flex justify-center items-center">
             <div
-              className={`w-20 h-20 rounded-full overflow-hidden bg-slate-100 z-0`}
+              className={`w-20 h-20 rounded-full overflow-hidden bg-[#efefef] z-0`}
             >
               {!!featuredImage && <Image data={featuredImage} />}
             </div>

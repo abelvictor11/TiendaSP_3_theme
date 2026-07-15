@@ -1,64 +1,85 @@
 import {
-  json,
+  defer,
   type MetaArgs,
   type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
 import {useLoaderData} from '@remix-run/react';
-import invariant from 'tiny-invariant';
-import {
-  Pagination,
-  getPaginationVariables,
-  getSeoMeta,
-} from '@shopify/hydrogen';
+import type {Filter} from '@shopify/hydrogen/storefront-api-types';
+import {getSeoMeta} from '@shopify/hydrogen';
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
-import ButtonPrimary from '~/components/Button/ButtonPrimary';
+import {SortFilter} from '~/components/SortFilter';
+import type {SortParam} from '~/components/SortMenu';
+import FiltersSidebar from '~/components/FiltersSidebar';
+import {useSearchParams} from '@remix-run/react';
+import type {ProductFilter} from '@shopify/hydrogen/storefront-api-types';
+import {FILTER_URL_PREFIX} from '~/components/SortFilter';
+import {PaginationBar} from '~/components/PaginationBar';
 import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
 import PageHeader from '~/components/PageHeader';
+import {getProductTotalByFilter} from '~/utils/getProductTotalByFilter';
 import {Empty} from '~/components/Empty';
-import {ProductsGrid} from '~/components/ProductsGrid';
 import {FireIcon} from '@heroicons/react/24/outline';
-
-const PAGE_BY = 12;
+import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFiltersFromRequest';
+import {ProductsGrid} from '~/components/ProductsGrid';
 
 export const headers = routeHeaders;
 
-export async function loader({
-  request,
-  context: {storefront},
-}: LoaderFunctionArgs) {
-  const variables = getPaginationVariables(request, {pageBy: PAGE_BY});
+export async function loader({request, context}: LoaderFunctionArgs) {
+  const locale = context.storefront.i18n;
+  const PAGE_SIZE = 24;
 
-  const data = await storefront.query(ALL_PRODUCTS_QUERY, {
+  const {filters, sortKey, reverse, page} =
+    getPaginationAndFiltersFromRequest(request, PAGE_SIZE);
+
+  const fetchCount = page * PAGE_SIZE;
+
+  const {collection} = await context.storefront.query(ALL_PRODUCTS_COLLECTION_QUERY, {
     variables: {
-      ...variables,
-      country: storefront.i18n.country,
-      language: storefront.i18n.language,
+      first: fetchCount,
+      handle: 'all',
+      filters,
+      sortKey,
+      reverse,
+      country: context.storefront.i18n.country,
+      language: context.storefront.i18n.language,
     },
   });
 
-  invariant(data, 'No data returned from Shopify API');
+  if (!collection) {
+    throw new Response('Collection not found', {status: 404});
+  }
+
+  // Slice products to only the current page
+  const startIndex = (page - 1) * PAGE_SIZE;
+  const slicedNodes = collection.products.nodes.slice(startIndex, startIndex + PAGE_SIZE);
 
   const seo = seoPayload.collection({
     url: request.url,
     collection: {
-      id: 'all-products',
-      title: 'All Products',
-      handle: 'products',
-      descriptionHtml: 'All the store products',
-      description: 'All the store products',
+      ...collection,
+      title: 'Todos los productos',
+      description: collection.description || 'Todos los productos de la tienda',
       seo: {
-        title: 'All Products',
-        description: 'All the store products',
+        title: 'Todos los productos',
+        description: 'Todos los productos de la tienda',
       },
-      metafields: [],
-      products: data.products,
-      updatedAt: '',
     },
   });
 
-  return json({
-    products: data.products,
+  const defaultPriceFilter = collection.productsWithDefaultFilter.filters.find(
+    (filter: Filter) => filter.id === 'filter.v.price',
+  );
+
+  return defer({
+    collection,
+    products: slicedNodes,
+    currentPage: page,
+    pageSize: PAGE_SIZE,
+    defaultPriceFilter: {
+      value: defaultPriceFilter?.values[0] ?? null,
+      locale,
+    },
     seo,
   });
 }
@@ -68,86 +89,242 @@ export const meta = ({matches}: MetaArgs<typeof loader>) => {
 };
 
 export default function AllProducts() {
-  const {products} = useLoaderData<typeof loader>();
-  if (!products) return null;
+  const {collection, products, currentPage, pageSize, defaultPriceFilter} =
+    useLoaderData<typeof loader>();
+
+  const [params] = useSearchParams();
+  const noResults = !products.length;
+
+  // Check if any filters are active (URL params starting with "filter.")
+  const hasActiveFilters = [...params.keys()].some((key) => key.startsWith(FILTER_URL_PREFIX));
+
+  // Use the unfiltered default query for consistent total count
+  const defaultAvailabilityFilter = collection.productsWithDefaultFilter.filters.find(
+    (filter: any) => filter.id === 'filter.v.availability',
+  );
+  const totalProductsDefault = getProductTotalByFilter(defaultAvailabilityFilter?.values as any);
+
+  // Get filtered total (changes when filters are applied)
+  const filteredAvailabilityFilter = collection.products.filters.find(
+    (filter: Filter) => filter.id === 'filter.v.availability',
+  );
+  const totalProductsFiltered = noResults
+    ? 0
+    : getProductTotalByFilter(filteredAvailabilityFilter?.values as any);
+
+  // Show filtered count when filters are active, otherwise show stable default count
+  const totalProducts = hasActiveFilters ? totalProductsFiltered : totalProductsDefault;
 
   return (
-    <div className={`page-all-products pt-16 lg:pt-24 pb-20 lg:pb-28 xl:pb-32`}>
-      <div className="container">
-        <div className="space-y-10 lg:space-y-16">
+    <div className="nc-PageCollection pb-20 lg:pb-28 xl:pb-32">
+      <div className="container-fluid px-6 pt-6 lg:pt-8">
+        <div className="space-y-6 lg:space-y-8">
           {/* HEADING */}
           <div>
-            <div className="flex items-center text-sm font-medium gap-2 text-neutral-500 mb-2">
+            <div className="flex items-center text-sm font-medium gap-2 text-neutral-500 mb-1">
               <FireIcon className="w-5 h-5" />
-              <span className="text-neutral-700 ">All Products</span>
+              <span className="text-neutral-700 dark:text-neutral-300">
+                {totalProducts} productos
+              </span>
             </div>
             <PageHeader
-              title={'All Products'}
-              hasBreadcrumb={true}
-              breadcrumbText={'All Products'}
+              title="Todos los productos"
+              hasBreadcrumb={false}
+              breadcrumbText="Todos los productos"
             />
           </div>
 
-          <hr />
-
-          {!products?.nodes?.length ? (
-            <Empty description="No products found!" />
-          ) : (
-            <Pagination connection={products}>
-              {({
-                nodes,
-                isLoading,
-                PreviousLink,
-                NextLink,
-                nextPageUrl,
-                hasNextPage,
-                state,
-                hasPreviousPage,
-              }) => (
-                <>
-                  {hasPreviousPage && (
-                    <div className="flex items-center justify-center my-14">
-                      <ButtonPrimary loading={isLoading} as={PreviousLink}>
-                        {'Load previous products'}
-                      </ButtonPrimary>
-                    </div>
-                  )}
-                  <ProductsGrid nodes={nodes} />
-                  {hasNextPage && (
-                    <div className="flex items-center justify-center mt-14">
-                      <ButtonPrimary loading={isLoading} as={NextLink}>
-                        {'Cargar más productos'}
-                      </ButtonPrimary>
-                    </div>
-                  )}
-                </>
-              )}
-            </Pagination>
-          )}
+          <main>
+            <AllProductsContent
+              collection={collection}
+              products={products}
+              currentPage={currentPage}
+              pageSize={pageSize}
+              totalProducts={totalProducts}
+              defaultPriceFilter={defaultPriceFilter}
+              noResults={noResults}
+            />
+          </main>
         </div>
       </div>
     </div>
   );
 }
 
-const ALL_PRODUCTS_QUERY = `#graphql
-  query AllProducts(
+// Sort options for /products page - excludes 'Ofertas' since it requires a dedicated collection
+const PRODUCTS_SORT_ITEMS: {label: string; key: SortParam}[] = [
+  {label: 'Destacados', key: 'featured'},
+  {label: 'Precio: Menor a Mayor', key: 'price-low-high'},
+  {label: 'Precio: Mayor a Menor', key: 'price-high-low'},
+  {label: 'Más Vendidos', key: 'best-selling'},
+  {label: 'Más Recientes', key: 'newest'},
+];
+
+function AllProductsContent({
+  collection,
+  products,
+  currentPage,
+  pageSize,
+  totalProducts,
+  defaultPriceFilter,
+  noResults,
+}: {
+  collection: any;
+  products: any[];
+  currentPage: number;
+  pageSize: number;
+  totalProducts: number;
+  defaultPriceFilter: any;
+  noResults: boolean;
+}) {
+  const [params] = useSearchParams();
+
+  const filtersFromSearchParams = [...params.entries()].reduce(
+    (filters, [key, value]) => {
+      if (key.startsWith(FILTER_URL_PREFIX)) {
+        const filterKey = key.substring(FILTER_URL_PREFIX.length);
+        filters.push({
+          [filterKey]: JSON.parse(value),
+        });
+      }
+      return filters;
+    },
+    [] as ProductFilter[],
+  );
+
+  const allFilterValues = collection.products.filters.flatMap((filter: Filter) => filter.values);
+  const appliedFilters = filtersFromSearchParams
+    .map((filter) => {
+      const foundValue = allFilterValues?.find((value: any) => {
+        const valueInput = JSON.parse(value.input as string) as ProductFilter;
+        if (valueInput.price && filter.price) {
+          return true;
+        }
+        return JSON.stringify(valueInput) === JSON.stringify(filter);
+      });
+      if (!foundValue) {
+        return null;
+      }
+      return {
+        filter,
+        label: foundValue.label,
+        data: foundValue,
+      };
+    })
+    .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
+
+  return (
+    <div className="flex gap-8">
+      {/* Sidebar with Filters */}
+      <div className="hidden lg:block lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-32px)] lg:overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 scrollbar-track-transparent">
+        <FiltersSidebar
+          filters={collection.products.filters as Filter[]}
+          appliedFilters={appliedFilters}
+          defaultPriceFilter={defaultPriceFilter}
+        />
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1">
+        {/* Mobile Filters + Sort */}
+        <div className="lg:hidden mb-8">
+          <SortFilter
+            filters={collection.products.filters as Filter[]}
+            defaultPriceFilter={defaultPriceFilter}
+            sorts={PRODUCTS_SORT_ITEMS}
+          />
+        </div>
+
+        {/* Desktop Sort Only */}
+        <div className="hidden lg:flex justify-end mb-8">
+          <SortFilter
+            filters={[]}
+            defaultPriceFilter={defaultPriceFilter}
+            sorts={PRODUCTS_SORT_ITEMS}
+          />
+        </div>
+
+        {/* Products Grid */}
+        {!noResults ? (
+          <>
+            <ProductsGrid nodes={products as any} className="mt-0" />
+
+            <PaginationBar
+              totalProducts={totalProducts}
+              pageSize={pageSize}
+              currentPage={currentPage}
+            />
+          </>
+        ) : (
+          <Empty />
+        )}
+      </div>
+    </div>
+  );
+}
+
+const ALL_PRODUCTS_COLLECTION_QUERY = `#graphql
+  query AllProductsCollection(
+    $handle: String!
     $country: CountryCode
     $language: LanguageCode
-    $first: Int
-    $last: Int
-    $startCursor: String
-    $endCursor: String
+    $filters: [ProductFilter!]
+    $sortKey: ProductCollectionSortKeys!
+    $reverse: Boolean
+    $first: Int!
   ) @inContext(country: $country, language: $language) {
-    products(first: $first, last: $last, before: $startCursor, after: $endCursor) {
-      nodes {
-        ...CommonProductCard
+    collection(handle: $handle) {
+      id
+      handle
+      title
+      description
+      seo {
+        description
+        title
       }
-      pageInfo {
-        hasPreviousPage
-        hasNextPage
-        startCursor
-        endCursor
+      image {
+        id
+        url
+        width
+        height
+        altText
+      }
+      productsWithDefaultFilter:products(
+        first: 0,
+        filters: {},
+      ) {
+        filters {
+          id
+          label
+          type
+          values {
+            id
+            label
+            count
+            input
+          }
+        }
+      }
+      products(
+        first: $first,
+        filters: $filters,
+        sortKey: $sortKey,
+        reverse: $reverse
+      ) {
+        filters {
+          id
+          label
+          type
+          values {
+            id
+            label
+            count
+            input
+          }
+        }
+        nodes {
+          ...CommonProductCard
+        }
       }
     }
   }

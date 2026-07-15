@@ -15,6 +15,7 @@ import {
   useRouteError,
   type ShouldRevalidateFunction,
   useRouteLoaderData,
+  useNavigation,
 } from '@remix-run/react';
 import {
   useNonce,
@@ -23,8 +24,11 @@ import {
   getShopAnalytics,
 } from '@shopify/hydrogen';
 import {Layout} from '~/components/Layout';
+import {CustomAnalytics} from '~/components/CustomAnalytics';
+import {GtmLoader} from '~/components/GtmLoader';
 import {seoPayload} from '~/lib/seo.server';
-import favicon from '@/assets/favicon.svg';
+import {storeConfig} from '~/config/store';
+import {useEffect} from 'react';
 import {GenericError} from './components/GenericError';
 import {NotFound} from './components/NotFound';
 import styles from './styles/app.css?url';
@@ -69,8 +73,24 @@ export const links: LinksFunction = () => {
     {rel: 'preconnect', href: 'https://shop.app'},
     {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
     {rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' as const},
-    {rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap'},
-    {rel: 'icon', type: 'image/svg+xml', href: favicon},
+    // preconnect early so the TLS handshake is done before the font CSS loads
+    {rel: 'preconnect', href: 'https://use.typekit.net'},
+    {rel: 'preconnect', href: 'https://p.typekit.net'},
+    // Preload TypeKit CSS so the browser fetches it early but NOT render-blocking.
+    // The media trick (print → all) is the standard async stylesheet pattern.
+    {
+      rel: 'preload',
+      href: 'https://use.typekit.net/nfu3xaw.css',
+      as: 'style',
+    },
+    {
+      rel: 'stylesheet',
+      href: 'https://use.typekit.net/nfu3xaw.css',
+      // @ts-expect-error — `media` is valid HTML but not typed in Remix's LinkDescriptor
+      media: 'print',
+      onLoad: "this.media='all'",
+    },
+    {rel: 'icon', href: storeConfig.faviconUrl},
   ];
 };
 
@@ -88,13 +108,25 @@ export async function loader(args: LoaderFunctionArgs) {
     ...criticalData,
 
     /**********  EXAMPLE UPDATE STARTS  ************/
-    env,
+    // SEGURIDAD: nunca retornar `env` completo — el loader raíz se serializa
+    // en el HTML del cliente y expondría todos los secretos del servidor
+    // (PRIVATE_STOREFRONT_API_TOKEN, SESSION_SECRET, webhooks, etc.).
+    // Solo exponer campos PUBLIC_* explícitos.
     publicStoreDomain: env.PUBLIC_STORE_DOMAIN,
     publicStoreSubdomain: env.PUBLIC_SHOPIFY_STORE_DOMAIN,
     publicStoreCdnStaticUrl: env.PUBLIC_STORE_CDN_STATIC_URL,
     publicImageFormatForProductOption:
       env.PUBLIC_IMAGE_FORMAT_FOR_PRODUCT_OPTION,
     publicOkendoSubcriberId: env.PUBLIC_OKENDO_SUBSCRIBER_ID,
+    publicGtmId: env.PUBLIC_GTM_ID ?? '',
+    publicGaMeasurementId: env.PUBLIC_GA_MEASUREMENT_ID ?? '',
+    // 'true' → GTM container es dueño de los tags GA4/Meta/TikTok (solo
+    // dataLayer); cualquier otro valor → este código dispara gtag/fbq/ttq.
+    publicGtmOwnsTags: env.PUBLIC_GTM_OWNS_TAGS ?? '',
+    publicGoogleAdsId: env.PUBLIC_GOOGLE_ADS_ID ?? '',
+    publicMetaPixelId: env.PUBLIC_META_PIXEL_ID ?? '',
+    publicTiktokPixelId: env.PUBLIC_TIKTOK_PIXEL_ID ?? '',
+    publicCheckoutDomain: env.PUBLIC_CHECKOUT_DOMAIN ?? '',
     /**********   EXAMPLE UPDATE END   ************/
   });
 }
@@ -104,14 +136,9 @@ export async function loader(args: LoaderFunctionArgs) {
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
 async function loadCriticalData({request, context}: LoaderFunctionArgs) {
-  const [layout, okendoProviderData] = await Promise.all([
-    getLayoutData(context),
-    getOkendoProviderData({
-      context,
-      subscriberId: context.env.PUBLIC_OKENDO_SUBSCRIBER_ID,
-    }),
-    // Add other queries here, so that they are loaded in parallel
-  ]);
+  // Only await what is strictly needed for the first byte: layout (menu/shop)
+  // and SEO. Okendo is moved to loadDeferredData so it doesn't block TTFB.
+  const layout = await getLayoutData(context);
 
   const seo = seoPayload.root({shop: layout.shop, url: request.url});
   const {storefront, env} = context;
@@ -126,10 +153,12 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
     consent: {
       checkoutDomain: env.PUBLIC_CHECKOUT_DOMAIN,
       storefrontAccessToken: env.PUBLIC_STOREFRONT_API_TOKEN,
+      // Banner nativo de Shopify Customer Privacy: solo aparece donde el
+      // Admin lo exige (Configuración → Privacidad de clientes). En Colombia
+      // (sin exigencia configurada) se trackea por defecto sin banner.
       withPrivacyBanner: true,
     },
     selectedLocale: storefront.i18n,
-    okendoProviderData,
   };
 }
 
@@ -149,11 +178,56 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
     variables: {
       featuredCollectionsFirst: 1,
       socialsFirst: 10,
-      headerMenuHandle: 'main-menu',
+      headerMenuHandle: 'main-menu-1',
+      ultraMenuHandle: 'ultra-menu',
       language,
       country,
     },
   });
+
+  // After menu loads, fetch ONLY the collections referenced in menu items by handle
+  const menuCollectionsPromise = headerPromise.then(async (headerData: any) => {
+    const handles = new Set<string>();
+    for (const item of headerData?.headerMenu?.items || []) {
+      const m = item.url?.match(/\/collections\/([^/?#]+)/);
+      if (m) handles.add(m[1]);
+      for (const child of item.items || []) {
+        const cm = child.url?.match(/\/collections\/([^/?#]+)/);
+        if (cm) handles.add(cm[1]);
+      }
+    }
+    if (handles.size === 0) return {nodes: []};
+    // Usa lookups exactos `collection(handle:)` con alias en vez de la búsqueda
+    // difusa `collections(query: "handle:x OR ...")`. La búsqueda difusa es poco
+    // confiable: no matchea ciertos handles (p.ej. running-fitness, motos-y-cuatrimotos)
+    // y en cambio devuelve colecciones irrelevantes que, con el cap de `first`,
+    // empujaban fuera a las que sí necesitábamos, dejando su megamenú sin armar.
+    const handleList = [...handles];
+    const aliasedFields = handleList
+      .map(
+        (h, i) =>
+          `c${i}: collection(handle: ${JSON.stringify(h)}) { ...MenuCollectionFields }`,
+      )
+      .join('\n');
+    const query = `#graphql
+      query MenuCollectionsByHandle($language: LanguageCode, $country: CountryCode)
+      @inContext(language: $language, country: $country) {
+        ${aliasedFields}
+      }
+      ${MENU_COLLECTION_FIELDS_FRAGMENT}
+    `;
+    const result: any = await storefront.query(query, {
+      cache: storefront.CacheLong(),
+      variables: {language, country},
+    });
+    // Reconstituye un shape {nodes: [...]} en el mismo orden del menú,
+    // descartando handles que no resolvieron a una colección.
+    const nodes = handleList
+      .map((_, i) => result?.[`c${i}`])
+      .filter(Boolean);
+    return {nodes};
+  });
+
   const footerPromise = storefront.query(FOOTER_QUERY, {
     cache: storefront.CacheLong(),
     variables: {
@@ -163,12 +237,21 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
     },
   });
 
+  // Okendo moved here (deferred) so it doesn't block TTFB.
+  // It resolves in parallel with cart/header/footer after the first byte is sent.
+  const okendoProviderDataPromise = getOkendoProviderData({
+    context,
+    subscriberId: context.env.PUBLIC_OKENDO_SUBSCRIBER_ID,
+  });
+
   return {
     isLoggedIn: isLoggedInPromise,
     isLoggedInPromise,
     cart: cart.get(),
     headerPromise,
     footerPromise,
+    menuCollectionsPromise,
+    okendoProviderData: okendoProviderDataPromise,
   };
 }
 
@@ -183,6 +266,13 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   const nonce = useNonce();
   const data = useRouteLoaderData<RootLoader>('root');
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
+  const gtmId = data?.publicGtmId as string | null | undefined;
+  const gaMeasurementId = data?.publicGaMeasurementId as string | null | undefined;
+  const googleAdsId = data?.publicGoogleAdsId as string | null | undefined;
+  const metaPixelId = data?.publicMetaPixelId as string | null | undefined;
+  const tiktokPixelId = data?.publicTiktokPixelId as string | null | undefined;
+  const checkoutDomain = data?.publicCheckoutDomain as string | null | undefined;
+  const gtmOwnsTags = (data?.publicGtmOwnsTags as string | undefined) === 'true';
 
   return (
     <html lang={locale.language}>
@@ -199,11 +289,13 @@ function MainLayout({children}: {children?: React.ReactNode}) {
         <link rel="stylesheet" href={styles}></link>
         <link rel="stylesheet" href={stylesFont}></link>
         <link rel="stylesheet" href={rcSliderStyle}></link>
+        {/* TypeKit CSS is loaded async via links() to avoid render-blocking */}
 
         <Meta />
         <Links />
       </head>
       <body className="bg-white">
+        <NavigationProgress />
         {data ? (
           <>
             <OkendoProvider
@@ -215,6 +307,19 @@ function MainLayout({children}: {children?: React.ReactNode}) {
               shop={data.shop}
               consent={data.consent}
             >
+              {/* Carga GTM/GA4/Ads/Meta/TikTok gateado por consentimiento
+                  (Customer Privacy API) — debe vivir dentro del Provider */}
+              <GtmLoader
+                gtmId={gtmId}
+                gaMeasurementId={gaMeasurementId}
+                googleAdsId={googleAdsId}
+                metaPixelId={metaPixelId}
+                tiktokPixelId={tiktokPixelId}
+                checkoutDomain={checkoutDomain}
+                gtmOwnsTags={gtmOwnsTags}
+              />
+              {/* Puente SPA: dispara eventos a Meta Pixel, GA4 y dataLayer en cada navegación */}
+              <CustomAnalytics gtmOwnsTags={gtmOwnsTags} />
               <Layout
                 key={`${locale.language}-${locale.country}`}
                 layout={data.layout}
@@ -234,7 +339,39 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   );
 }
 
+function NavigationProgress() {
+  const navigation = useNavigation();
+  const isLoading = navigation.state !== 'idle';
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '3px',
+        zIndex: 9999,
+        pointerEvents: 'none',
+        background: isLoading ? '#004f9d' : 'transparent',
+        transition: isLoading ? 'none' : 'background 0.3s ease 0.1s',
+        animation: isLoading ? 'nav-progress 1.5s ease-in-out infinite' : 'none',
+      }}
+    />
+  );
+}
+
 export default function App() {
+  // La app montó sin error: limpiamos la bandera de recarga por assets
+  // obsoletos para que una futura desincronización (próximo deploy) pueda
+  // volver a disparar una única recarga.
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem('sf:asset-reload');
+    } catch {
+      /* sessionStorage no disponible */
+    }
+  }, []);
+
   return (
     <MainLayout>
       <Outlet />
@@ -254,6 +391,32 @@ export function ErrorBoundary({error}: {error: Error}) {
     title = 'Not found';
     if (routeError.status === 404) pageType = routeError.data || pageType;
   }
+
+  // Recuperación ante assets obsoletos: tras un deploy, el cliente puede tener
+  // en caché chunks con hash viejo. Al navegar (client-side), Remix intenta
+  // importar un módulo que ya no existe en el servidor y falla, cayendo aquí.
+  // Detectamos ese patrón y forzamos UNA sola recarga completa para traer los
+  // assets nuevos. La guarda en sessionStorage evita bucles de recarga.
+  useEffect(() => {
+    if (isRouteError) return;
+    const message =
+      (routeError as Error)?.message || (error as Error)?.message || '';
+    const isChunkLoadError =
+      /dynamically imported module|Importing a module script failed|Failed to fetch|ChunkLoadError|Loading chunk|Unexpected token '<'/i.test(
+        message,
+      );
+    if (!isChunkLoadError) return;
+    const RELOAD_KEY = 'sf:asset-reload';
+    try {
+      if (sessionStorage.getItem(RELOAD_KEY)) return;
+      sessionStorage.setItem(RELOAD_KEY, '1');
+      window.location.reload();
+    } catch {
+      // sessionStorage no disponible: recargamos igualmente una vez.
+      window.location.reload();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <MainLayout>
@@ -357,10 +520,14 @@ const HEADER_QUERY = `#graphql
     $language: LanguageCode
     $country: CountryCode
     $headerMenuHandle: String!
+    $ultraMenuHandle: String!
     $featuredCollectionsFirst: Int!
     $socialsFirst: Int!
   ) @inContext(language: $language, country: $country) {
     headerMenu: menu(handle: $headerMenuHandle) {
+      ...Menu
+    }
+    ultraMenu: menu(handle: $ultraMenuHandle) {
       ...Menu
     }
     featuredCollections: collections(first: $featuredCollectionsFirst, sortKey: UPDATED_AT) {
@@ -430,6 +597,54 @@ const HEADER_QUERY = `#graphql
         }
       }
     }
+    searchSuggestions: metaobject(handle: {handle: "search-suggestions", type: "ciseco--search_suggestions"}) {
+      fields {
+        key
+        value
+        references(first: 20) {
+          edges {
+            node {
+              ... on Metaobject {
+                id
+                handle
+                fields {
+                  key
+                  value
+                  reference {
+                    ... on Collection {
+                      id
+                      handle
+                      title
+                    }
+                    ... on MediaImage {
+                      image {
+                        url
+                        altText
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    allVendors: collection(handle: "all") {
+      products(first: 0) {
+        filters {
+          id
+          label
+          values {
+            label
+            count
+            input
+          }
+        }
+      }
+    }
     topBarMarquee: metaobjects(type: "ciseco--top_bar_marquee", first: 1) {
       nodes {
         id
@@ -462,7 +677,7 @@ const HEADER_QUERY = `#graphql
           value
         }
         items: field(key: "items") {
-          references(first: 3) {
+          references(first: 5) {
             nodes {
               ... on Metaobject {
                 id
@@ -477,6 +692,33 @@ const HEADER_QUERY = `#graphql
                 }
                 icon_color: field(key: "icon_color") {
                   value
+                }
+                text_color: field(key: "text_color") {
+                  value
+                }
+                background_color: field(key: "background_color") {
+                  value
+                }
+                border_color: field(key: "border_color") {
+                  value
+                }
+                subitems: field(key: "subitems") {
+                  references(first: 10) {
+                    nodes {
+                      ... on Metaobject {
+                        id
+                        label: field(key: "label") {
+                          value
+                        }
+                        link: field(key: "link") {
+                          value
+                        }
+                        svg_icon: field(key: "svg_icon") {
+                          value
+                        }
+                      }
+                    }
+                  }
                 }
               }
             }
@@ -600,6 +842,37 @@ const HEADER_QUERY = `#graphql
   ${MENU_FRAGMENT}
   ${COMMON_COLLECTION_ITEM_FRAGMENT}
 ` as const;
+
+const MENU_COLLECTION_FIELDS_FRAGMENT = `#graphql
+  fragment MenuCollectionFields on Collection {
+    id
+    handle
+    title
+    image {
+      url
+      altText
+      width
+      height
+    }
+    subcollections: metafield(namespace: "custom", key: "coleccion_hija") {
+      references(first: 20) {
+        nodes {
+          ... on Collection {
+            id
+            handle
+            title
+            image {
+              url
+              altText
+              width
+              height
+            }
+          }
+        }
+      }
+    }
+  }
+`;
 
 async function getLayoutData({storefront, env}: AppLoadContext) {
   const data = await storefront.query(LAYOUT_QUERY, {

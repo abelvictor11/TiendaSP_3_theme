@@ -71,7 +71,7 @@ async function loadCriticalData({
   return {
     shop,
     route,
-    seo: seoPayload.home({url: request.url}),
+    seo: seoPayload.home({shop, url: request.url}),
   };
 }
 
@@ -120,7 +120,7 @@ export default function Homepage() {
   const {route} = useLoaderData<typeof loader>();
 
   return (
-    <div className={clsx('page-home', 'pb-16 lg:pb-20 xl:pb-24')}>
+    <div className="page-home">
       {/* 3. Render the route's content sections */}
       <RouteContent route={route} />
     </div>

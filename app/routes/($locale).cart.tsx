@@ -17,6 +17,10 @@ import {
   type OptimisticCart,
 } from '@shopify/hydrogen';
 import {isLocalPath} from '~/lib/utils';
+import {getFbCookies} from '~/lib/fbCookies';
+import {getGaCookies} from '~/lib/gaCookies';
+import {analyticsAllowed} from '~/lib/consent';
+import {decorateCheckoutUrl} from '~/lib/checkoutContinuity';
 import {Link} from '~/components/Link';
 import {FeaturedProducts} from '~/components/FeaturedProducts';
 import {ArrowLeftIcon, CheckIcon} from '@heroicons/react/24/outline';
@@ -70,6 +74,9 @@ export async function action({request, context}: ActionFunctionArgs) {
         ...inputs.buyerIdentity,
       });
       break;
+    case CartForm.ACTIONS.AttributesUpdateInput:
+      result = await cart.updateAttributes(inputs.attributes);
+      break;
     default:
       invariant(false, `${action} cart action is not defined`);
   }
@@ -112,9 +119,9 @@ export default function CartRoute() {
         <main className="container py-10 lg:pb-28 lg:pt-20 ">
           <div className="mb-12 sm:mb-16">
             <PageHeader
-              title={'Shopping Cart'}
+              title={'Carrito de compras'}
               hasBreadcrumb={true}
-              breadcrumbText={'Shopping Cart'}
+              breadcrumbText={'Carrito de compras'}
             />
           </div>
 
@@ -124,7 +131,7 @@ export default function CartRoute() {
         </main>
       </div>
 
-      <Analytics.CartView />
+      <Analytics.CartView data={{cart}} />
     </>
   );
 }
@@ -152,6 +159,7 @@ function Content({cart: originalCart}: {cart: OptimisticCart | null}) {
                 discountCodes={cart.discountCodes}
                 checkoutUrl={cart.checkoutUrl}
                 isSkeleton={!cartHasItems}
+                lines={currentLines}
               />
             </div>
           </div>
@@ -166,7 +174,7 @@ function Content({cart: originalCart}: {cart: OptimisticCart | null}) {
         <FeaturedProducts
           className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 lg:gap-x-6 gap-y-8"
           count={4}
-          heading="You may also like"
+          heading="También te puede interesar"
           sortKey="BEST_SELLING"
           headingClassName="text-xl sm:text-2xl font-semibold"
         />
@@ -177,6 +185,7 @@ function Content({cart: originalCart}: {cart: OptimisticCart | null}) {
 
 function CartLineItem({line}: {line: OptimisticCartLine}) {
   const {id, quantity, merchandise, isOptimistic} = line;
+  const deliveryTime = (line as any).attributes?.find((a: any) => a.key === '_deliveryTime')?.value;
 
   const lineItemUrl = useVariantUrl(
     merchandise?.product?.handle || '',
@@ -190,7 +199,7 @@ function CartLineItem({line}: {line: OptimisticCartLine}) {
     return (
       <div className="rounded-full flex items-center justify-center px-2.5 py-1.5 text-xs text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
         <CheckIcon className="w-3.5 h-3.5 text-secondary-500" />
-        <span className="ml-1 leading-none">In Stock</span>
+        <span className="ml-1 leading-none">En Stock</span>
       </div>
     );
   };
@@ -263,6 +272,15 @@ function CartLineItem({line}: {line: OptimisticCartLine}) {
           </div>
         </div>
 
+        {deliveryTime && (
+          <div className="flex items-center gap-1.5 mt-3">
+            <svg className="w-4 h-4 text-[#004f9d] flex-shrink-0" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 0 0-3.213-9.193 2.056 2.056 0 0 0-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 0 0-10.026 0 1.106 1.106 0 0 0-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+            </svg>
+            <span className="text-xs text-slate-500">{deliveryTime}</span>
+          </div>
+        )}
+
         <div className="flex mt-auto pt-4 items-end justify-between text-sm">
           {renderStatusInstock()}
 
@@ -280,6 +298,7 @@ function CartSummary({
   discountCodes,
   onClose,
   isSkeleton,
+  lines,
 }: {
   children?: React.ReactNode;
   cost?: CartCost;
@@ -287,7 +306,116 @@ function CartSummary({
   checkoutUrl?: string;
   onClose?: () => void;
   isSkeleton?: boolean;
+  lines?: any[];
 }) {
+  const handleInitiateCheckout = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (typeof window === 'undefined') return;
+    const currency = (cost as any)?.totalAmount?.currencyCode ?? 'COP';
+    const value = parseFloat((cost as any)?.totalAmount?.amount ?? '0');
+    const items = (lines ?? []).map((line: any) => ({
+      item_id: line?.merchandise?.id,
+      item_name: line?.merchandise?.product?.title,
+      item_variant: line?.merchandise?.title,
+      price: parseFloat(line?.cost?.totalAmount?.amount ?? '0'),
+      quantity: line?.quantity,
+    }));
+    const contentIds = items.map((i) => i.item_id).filter(Boolean);
+    // Event ID estable para deduplicación con CAPI server-side
+    const eventId = `client_checkout_${Date.now()}`;
+
+    const w = window as any;
+    // Si GTM es dueño de los tags, solo empujamos al dataLayer (abajo) para
+    // no contar begin_checkout dos veces.
+    const gtmOwns = w.__gtmOwnsTags === true;
+
+    // Meta Pixel
+    if (!gtmOwns && w.fbq) {
+      w.fbq(
+        'track',
+        'InitiateCheckout',
+        {
+          content_ids: contentIds,
+          content_type: 'product',
+          value,
+          currency,
+          num_items: items.length,
+        },
+        {eventID: eventId},
+      );
+    }
+    // GA4
+    if (!gtmOwns && w.gtag) {
+      w.gtag('event', 'begin_checkout', {
+        currency,
+        value,
+        items,
+        event_id: eventId,
+      });
+    }
+    // TikTok Pixel
+    if (!gtmOwns && w.ttq && typeof w.ttq.track === 'function') {
+      w.ttq.track('InitiateCheckout', {
+        contents: items.map((i) => ({
+          content_id: i.item_id,
+          content_name: i.item_name,
+          price: i.price,
+          quantity: i.quantity,
+        })),
+        content_type: 'product',
+        value,
+        currency,
+        event_id: eventId,
+      });
+    }
+    // GTM dataLayer (solo cuando el contenedor GTM es dueño de los tags y
+    // hay consentimiento — evita encolar eventos pre-consentimiento)
+    if (gtmOwns && analyticsAllowed()) {
+      w.dataLayer = w.dataLayer ?? [];
+      w.dataLayer.push({ecommerce: null});
+      w.dataLayer.push({
+        event: 'begin_checkout',
+        ecommerce: {currency, value, items, event_id: eventId},
+      });
+    }
+
+    // ── Persistir fbp/fbc + user_agent como cart attributes para CAPI ─────
+    // El checkout está en dominio distinto, las cookies no cruzan. Los cart
+    // attributes quedan en la orden y son leídos por /webhooks/meta-capi.
+    const fb = getFbCookies();
+    const attributes: Array<{key: string; value: string}> = [];
+    if (fb.fbp) attributes.push({key: '_fbp', value: fb.fbp});
+    if (fb.fbc) attributes.push({key: '_fbc', value: fb.fbc});
+    if (navigator?.userAgent) {
+      attributes.push({key: '_client_user_agent', value: navigator.userAgent});
+    }
+    attributes.push({key: '_client_event_id', value: eventId});
+
+    // GA4: client_id + session_id para que el webhook /webhooks/ga4-mp
+    // atribuya la compra a la sesión original del navegador.
+    const ga = getGaCookies();
+    if (ga.clientId) attributes.push({key: '_ga_client_id', value: ga.clientId});
+    if (ga.sessionId) {
+      attributes.push({key: '_ga_session_id', value: ga.sessionId});
+    }
+
+    if (attributes.length > 0 && checkoutUrl) {
+      // Preventimos el redirect inmediato, guardamos attributes, y luego vamos.
+      e.preventDefault();
+      const form = new FormData();
+      form.set(
+        '[CartForm]',
+        JSON.stringify({action: 'AttributesUpdateInput', inputs: {attributes}}),
+      );
+      fetch('/cart', {method: 'POST', body: form, keepalive: true})
+        .catch(() => {
+          // Si falla, no bloqueamos la compra
+        })
+        .finally(() => {
+          // Propaga UTM/gclid/fbclid a la URL de checkout (otro dominio)
+          window.location.href = decorateCheckoutUrl(checkoutUrl);
+        });
+    }
+  };
   return (
     <>
       <div className="flex justify-between">
@@ -302,7 +430,7 @@ function CartSummary({
         </span>
       </div>
       <p className="mt-2 text-sm text-slate-500">
-        Shipping, discounts, will be calculated at checkout.
+        Los gastos de envío y descuentos se calcularán al momento del pago.
       </p>
 
       {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
@@ -311,9 +439,10 @@ function CartSummary({
         href={isSkeleton ? undefined : checkoutUrl}
         target="_self"
         aria-disabled={isSkeleton}
+        onClick={isSkeleton ? undefined : handleInitiateCheckout}
       >
         <ButtonPrimary as={'span'} className="w-full">
-          Checkout
+         Pagar
         </ButtonPrimary>
       </a>
       <div className="mt-5 text-sm text-slate-500 flex items-center justify-center">
@@ -345,12 +474,12 @@ function CartSummary({
               strokeLinejoin="round"
             />
           </svg>
-          Learn more{` `}
+          Obtenga más información {` `}
           <Link
             to={'/policies/shipping-policy'}
             className="text-slate-900 dark:text-slate-200 underline font-medium"
           >
-            shipping
+            envíos
           </Link>
           <span>
             {` `}and{` `}
@@ -362,9 +491,9 @@ function CartSummary({
             href="##"
             className="text-slate-900 dark:text-slate-200 underline font-medium"
           >
-            refund
+           reembolsos
           </Link>
-          {` `} infomation
+          {` `} infomación
         </p>
       </div>
     </>

@@ -185,6 +185,32 @@ export function SectionHeroSlider(props: SectionHeroSliderFragment) {
   );
 }
 
+// Maps a "vertical-horizontal" position string to Tailwind classes.
+// `flex`  → applied to the outer flex wrapper (vertical alignment of the
+//           text block within the slide).
+// `text`  → text-align for the heading/subheading.
+// `mx`    → horizontal margin on the inner max-w-3xl block; needed because
+//           that block sits inside `.container` and won't be centered by the
+//           outer flex's justify-* alone.
+function getPositionClasses(position: string): {
+  flex: string;
+  text: string;
+  mx: string;
+} {
+  const map: Record<string, {flex: string; text: string; mx: string}> = {
+    'top-left':      {flex: 'items-start justify-start',  text: 'text-left',   mx: 'mr-auto'},
+    'top-center':    {flex: 'items-start justify-center', text: 'text-center', mx: 'mx-auto'},
+    'top-right':     {flex: 'items-start justify-end',    text: 'text-right',  mx: 'ml-auto'},
+    'center-left':   {flex: 'items-center justify-start', text: 'text-left',   mx: 'mr-auto'},
+    'center-center': {flex: 'items-center justify-center',text: 'text-center', mx: 'mx-auto'},
+    'center-right':  {flex: 'items-center justify-end',   text: 'text-right',  mx: 'ml-auto'},
+    'bottom-left':   {flex: 'items-end justify-start',    text: 'text-left',   mx: 'mr-auto'},
+    'bottom-center': {flex: 'items-end justify-center',   text: 'text-center', mx: 'mx-auto'},
+    'bottom-right':  {flex: 'items-end justify-end',      text: 'text-right',  mx: 'ml-auto'},
+  };
+  return map[position] ?? map['center-left'];
+}
+
 const SectionItem = ({section}: {section: HeroItemFragment}) => {
   const item = parseSection<
     HeroItemFragment,
@@ -202,8 +228,26 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
   const buttonBgColor = (item as any).button_bg_color?.value || '#1e293b';
   const buttonTextColor = (item as any).button_text_color?.value || '#ffffff';
 
-  return (
-    <div className="h-[60vh] min-h-[400px] w-full lg:h-[55vh] lg:min-h-[500px] relative overflow-hidden bg-slate-100">
+  // Content block position (default: center-left)
+  const rawPosition = (item as any).content_position?.value || 'center-left';
+  const positionClasses = getPositionClasses(rawPosition);
+  // Reserve room for the dot indicators (which sit at bottom-4) when the
+  // content is anchored to the bottom edge — otherwise the CTA overlaps
+  // the dots instead of sitting above them.
+  const isBottomAligned = rawPosition.startsWith('bottom-');
+  const verticalPaddingClass = isBottomAligned ? 'pt-8 pb-20' : 'pb-8 pt-8';
+
+  // Determine if this hero item has text content
+  const hasTextContent = !!(item.heading?.value || item.sub_heading?.value || item.cta_button?.text?.value);
+  const linkUrl = item.cta_button?.href?.value;
+  const linkTarget = item.cta_button?.target?.value === 'true' ? '_blank' : '_self';
+  const linkRel = item.cta_button?.target?.value === 'true' ? 'noopener noreferrer' : undefined;
+
+  // If no text content but has a URL, the entire slide becomes clickable
+  const isImageOnlyLink = !hasTextContent && !!linkUrl;
+
+  const slideContent = (
+    <div className={`h-[60vh] min-h-[400px] w-full lg:h-[55vh] lg:min-h-[500px] relative overflow-hidden bg-[#efefef]${isImageOnlyLink ? ' group' : ''}`}>
       {/* BG - Absolute positioned */}
       <div className="nc-SectionHeroSliderItem__image absolute inset-0 w-full h-full">
         {/* Desktop: Video or Image */}
@@ -221,8 +265,10 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
           <Image
             data={item.horizontal_image?.image}
             sizes="110vw"
-            className="hidden h-full w-full object-cover lg:block"
+            className={`hidden h-full w-full object-cover lg:block${isImageOnlyLink ? ' transition-transform duration-500 group-hover:scale-105' : ''}`}
             style={{objectPosition: 'center center'}}
+            loading="eager"
+            fetchpriority="high"
           />
         )}
 
@@ -241,63 +287,84 @@ const SectionItem = ({section}: {section: HeroItemFragment}) => {
           <Image
             data={item.vertical_image?.image}
             sizes="100vw"
-            className="block h-full w-full object-cover lg:hidden"
+            className={`block h-full w-full object-cover lg:hidden${isImageOnlyLink ? ' transition-transform duration-500 group-hover:scale-105' : ''}`}
             style={{objectPosition: 'center center'}}
+            loading="eager"
+            fetchpriority="high"
           />
         )}
       </div>
 
-      {/* CONTENT - Above image, vertically centered */}
-      <div className="relative z-10 h-full flex items-center">
-        <div className="container">
-          <div className="nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8">
-            <div className="space-y-3 sm:space-y-4">
-              {!!item.heading?.value && (
-                <h2
-                  className="nc-SectionHeroSliderItem__heading font-headline text-2xl font-normal !leading-[114%] sm:text-3xl md:text-4xl xl:text-5xl 2xl:text-6xl"
-                  style={{color: headingColor}}
-                  dangerouslySetInnerHTML={{__html: item.heading.value}}
-                />
-              )}
-              {!!item.sub_heading?.value && (
-                <span
-                  className="nc-SectionHeroSliderItem__subheading block text-base font-normal md:text-lg"
-                  style={{color: subheadingColor}}
-                  dangerouslySetInnerHTML={{__html: item.sub_heading.value}}
-                />
+      {/* CONTENT - Only show text overlay if there is text content */}
+      {hasTextContent && (
+        <div className={`relative z-10 h-full flex ${verticalPaddingClass} ${positionClasses.flex}`}>
+          <div className="container">
+            <div className={`nc-SectionHeroSliderItem__left relative w-full max-w-3xl space-y-6 lg:space-y-8 ${positionClasses.mx} ${positionClasses.text}`}>
+              <div className="space-y-3 sm:space-y-4">
+                {!!item.heading?.value && (
+                  <h2
+                    className="nc-SectionHeroSliderItem__heading font-headline text-2xl font-normal !leading-[114%] sm:text-3xl md:text-4xl xl:text-5xl 2xl:text-6xl"
+                    style={{color: headingColor}}
+                    dangerouslySetInnerHTML={{__html: item.heading.value}}
+                  />
+                )}
+                {!!item.sub_heading?.value && (
+                  <span
+                    className="nc-SectionHeroSliderItem__subheading block text-base font-normal md:text-lg"
+                    style={{color: subheadingColor}}
+                    dangerouslySetInnerHTML={{__html: item.sub_heading.value}}
+                  />
+                )}
+              </div>
+
+              {!!item.cta_button?.href?.value && (
+                <div className={positionClasses.text === 'text-left' ? 'flex justify-start' : positionClasses.text === 'text-right' ? 'flex justify-end' : 'flex justify-center'}>
+                  <a
+                    href={item.cta_button.href.value}
+                    target={linkTarget}
+                    rel={linkRel}
+                    className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded-xl border border-current transition-all duration-200 hover:opacity-90"
+                    style={{
+                      backgroundColor: buttonBgColor,
+                      color: buttonTextColor,
+                      borderColor: buttonBgColor,
+                    }}
+                  >
+                    <span>{item.cta_button?.text?.value || 'Ver más'}</span>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth="2"
+                      stroke="currentColor"
+                      className="w-5 h-5 ml-2 transition-transform duration-200 ease-in-out group-hover:translate-x-1"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
+                    </svg>
+                  </a>
+                </div>
               )}
             </div>
-
-            {!!item.cta_button?.href?.value && (
-              <a
-                href={item.cta_button.href.value}
-                target={item.cta_button?.target?.value === 'true' ? '_blank' : '_self'}
-                rel={item.cta_button?.target?.value === 'true' ? 'noopener noreferrer' : undefined}
-                className="inline-flex items-center justify-center px-6 py-3 text-sm font-medium rounded border border-current transition-all duration-200 hover:opacity-90"
-                style={{
-                  backgroundColor: buttonBgColor,
-                  color: buttonTextColor,
-                  borderColor: buttonBgColor,
-                }}
-              >
-                <span>{item.cta_button?.text?.value || 'Ver más'}</span>
-                <svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  fill="none" 
-                  viewBox="0 0 24 24" 
-                  strokeWidth="2" 
-                  stroke="currentColor" 
-                  className="w-5 h-5 transition-transform duration-200 ease-in-out group-hover:translate-x-1"
-                >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />
-                </svg>
-              </a>
-            )}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
+
+  if (isImageOnlyLink) {
+    return (
+      <a
+        href={linkUrl!}
+        target={linkTarget}
+        rel={linkRel}
+        className="block"
+      >
+        {slideContent}
+      </a>
+    );
+  }
+
+  return slideContent;
 };
 
 export const HERO_ITEM_FRAGMENT = `#graphql
@@ -366,6 +433,9 @@ export const HERO_ITEM_FRAGMENT = `#graphql
         value
       }
       button_text_color: field(key: "button_text_color") {
+        value
+      }
+      content_position: field(key: "content_position") {
         value
       }
   }

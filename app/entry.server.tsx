@@ -11,17 +11,32 @@ export default async function handleRequest(
   remixContext: EntryContext,
   context: AppLoadContext,
 ) {
+  const storeDomain = context.env.PUBLIC_STORE_DOMAIN;
+  const shopifyDomain = context.env.PUBLIC_SHOPIFY_STORE_DOMAIN || storeDomain;
+  const requestOrigin = new URL(request.url).origin;
+
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
     shop: {
       checkoutDomain: context.env.PUBLIC_CHECKOUT_DOMAIN,
-      storeDomain: context.env.PUBLIC_STORE_DOMAIN,
+      storeDomain,
     },
     scriptSrc: [
-      'self',
+      "'self'",
+      // strict-dynamic allows GTM-injected inline scripts to run when loaded by a nonced script
+      "'strict-dynamic'",
       'https://cdn.shopify.com',
       'https://shopify.com',
       'https://www.google-analytics.com',
       'https://www.googletagmanager.com',
+      'https://googleads.g.doubleclick.net',
+      'https://td.doubleclick.net',
+      // Meta Pixel (fbevents.js)
+      'https://connect.facebook.net',
+      'https://www.facebook.com',
+      // TikTok Pixel
+      'https://analytics.tiktok.com',
+      // Zendesk Widget
+      'https://static.zdassets.com',
       ...(process.env.NODE_ENV !== 'production' ? ['http://localhost:*'] : []),
       'https://d3hw6dc1ow8pp2.cloudfront.net',
       'https://dov7r31oq5dkj.cloudfront.net',
@@ -57,6 +72,18 @@ export default async function handleRequest(
       'https://dov7r31oq5dkj.cloudfront.net',
       'https://cdn-static.okendo.io',
       'https://surveys.okendo.io',
+      'https://www.facebook.com',
+      'https://connect.facebook.net',
+      'https://www.google-analytics.com',
+      'https://www.googletagmanager.com',
+      'https://www.google.com',
+      'https://region1.google-analytics.com',
+      'https://googleads.g.doubleclick.net',
+      'https://analytics.tiktok.com',
+      `https://${shopifyDomain}`,
+      'https://www.cyclewear.com.co',
+      'https://*.myshopify.com',
+      requestOrigin,
     ],
     mediaSrc: [
       "'self'",
@@ -66,6 +93,11 @@ export default async function handleRequest(
       'https://d3g5hqndtiniji.cloudfront.net',
       'https://dov7r31oq5dkj.cloudfront.net',
       'https://cdn-static.okendo.io',
+      `https://${shopifyDomain}`,
+      `https://${storeDomain}`,
+      'https://www.cyclewear.com.co',
+      'https://*.myshopify.com',
+      requestOrigin,
     ],
     styleSrc: [
       "'self'",
@@ -76,6 +108,8 @@ export default async function handleRequest(
       'https://d3hw6dc1ow8pp2.cloudfront.net',
       'https://cdn-static.okendo.io',
       'https://surveys.okendo.io',
+      'https://use.typekit.net',
+      'https://p.typekit.net',
     ],
 
     fontSrc: [
@@ -86,6 +120,8 @@ export default async function handleRequest(
       'https://cdn.shopify.com',
       'https://cdn-static.okendo.io',
       'https://surveys.okendo.io',
+      'https://use.typekit.net',
+      'https://p.typekit.net',
     ],
     connectSrc: [
       "'self'",
@@ -99,11 +135,39 @@ export default async function handleRequest(
       'https://api.raygun.com',
       'https://www.google.com',
       'https://www.gstatic.com',
+      'https://cdn.shopify.com',
+      'https://shopify.com',
+      'https://www.google-analytics.com',
+      'https://www.googletagmanager.com',
+      'https://analytics.google.com',
+      'https://region1.google-analytics.com',
+      'https://googleads.g.doubleclick.net',
+      'https://td.doubleclick.net',
+      'https://www.facebook.com',
+      'https://connect.facebook.net',
+      'https://analytics.tiktok.com',
+      'https://business-api.tiktok.com',
+      'https://a.klaviyo.com',
+      'https://static.klaviyo.com',
+      // Zendesk Widget
+      'https://ekr.zdassets.com',
+      'https://static.zdassets.com',
+      'https://*.zopim.com',
+      'wss://*.zopim.com',
 
       // your ngrok domain if you're using ngrok for development
       'wss://refined-starfish-verbally.ngrok-free.app:*',
     ],
-    frameSrc: ['https://www.google.com', 'https://www.gstatic.com'],
+    frameSrc: [
+      'https://www.google.com',
+      'https://www.gstatic.com',
+      'https://cdn.shopify.com',
+      'https://shopify.com',
+      'https://*.shopifysvc.com',
+      'https://www.googletagmanager.com',
+      'https://googleads.g.doubleclick.net',
+      'https://td.doubleclick.net',
+    ],
   });
 
   const body = await renderToReadableStream(
@@ -116,7 +180,13 @@ export default async function handleRequest(
       onError(error) {
         // eslint-disable-next-line no-console
         console.error(error);
-        responseStatusCode = 500;
+        // Don't downgrade an intentional 4xx (like a loader-thrown 404)
+        // to 500 just because rendering the error boundary hit a snag.
+        // Preserving 404 here is critical so server.ts can run
+        // `storefrontRedirect` against Shopify's URL redirect table.
+        if (responseStatusCode < 400) {
+          responseStatusCode = 500;
+        }
       },
     },
   );

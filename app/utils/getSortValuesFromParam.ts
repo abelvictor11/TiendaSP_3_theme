@@ -32,7 +32,10 @@ export function getSortValuesFromParam(sortParam: SortParam | null): {
       };
     case 'featured':
       return {
-        sortKey: 'MANUAL',
+        // COLLECTION_DEFAULT respects the sort the merchant configured in
+        // Shopify Admin AND any re-ranking rules from Search & Discovery
+        // (e.g. "push out-of-stock products to the end").
+        sortKey: 'COLLECTION_DEFAULT',
         reverse: false,
       };
     case 'on-sale':
@@ -42,8 +45,12 @@ export function getSortValuesFromParam(sortParam: SortParam | null): {
         onSale: true,
       };
     default:
+      // Default sort = whatever the merchant set in Admin for the collection,
+      // with Search & Discovery re-ranking applied (out-of-stock at the end,
+      // boosted/buried products, etc.). Previously was RELEVANCE which only
+      // applies to search, not collections, and bypasses the re-ranking.
       return {
-        sortKey: 'RELEVANCE',
+        sortKey: 'COLLECTION_DEFAULT',
         reverse: false,
       };
   }

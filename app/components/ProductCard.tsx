@@ -1,4 +1,4 @@
-import {type FC} from 'react';
+import {type FC, useState} from 'react';
 import Prices from './Prices';
 import {StarIcon} from '@heroicons/react/24/solid';
 import ProductStatus from './ProductStatus';
@@ -23,6 +23,7 @@ import {OkendoStarRating} from '@okendo/shopify-hydrogen';
 import {useAside} from './Aside';
 import {getVariantUrl, useVariantUrl} from '~/lib/variants';
 import {ClientOnly} from './client-only';
+import {VendorLogoWithFallback} from './VendorLogo';
 
 export interface ProductCardProps {
   className?: string;
@@ -51,7 +52,7 @@ const ProductCard: FC<ProductCardProps> = ({
     vendor,
     images,
     uso_tipo,
-    peso_maximo_usuario,
+    modelo,
     material,
     envio_gratis,
   } = product;
@@ -76,20 +77,53 @@ const ProductCard: FC<ProductCardProps> = ({
 
   const firstVariant = variants?.nodes?.[0];
 
-  const optColor = options.find((option) => option.name === 'Color');
-  const optSizes = options.find((option) => option.name === 'Size');
-  const optWeight = options.find((option) => option.name === 'Peso' || option.name === 'Weight');
+  // Detecta la opción de color de forma flexible: matchea "Color", "Color principal",
+  // "Colour", etc. (case-insensitive). Cyclewear usa "Color principal", por lo que
+  // un match exacto por 'Color' dejaba las cards sin mostrar las variantes de color.
+  const optColor = options?.find((option) => /colou?r/i.test(option.name));
+  const colorOptionName = optColor?.name;
+  const optSizes = options?.find((option) => option.name === 'Size');
+  const optWeight = options?.find((option) => option.name === 'Peso' || option.name === 'Weight');
   const isSale =
     Number(product.compareAtPriceRange?.minVariantPrice?.amount || 0) >
     Number(product.priceRange.minVariantPrice.amount);
 
+  // Calcular porcentaje de descuento
+  const discountPercentage = isSale
+    ? Math.round(
+        ((Number(product.compareAtPriceRange?.minVariantPrice?.amount || 0) -
+          Number(product.priceRange.minVariantPrice.amount)) /
+          Number(product.compareAtPriceRange?.minVariantPrice?.amount || 1)) *
+          100,
+      )
+    : 0;
+
   const {open} = useAside();
   const variantUrl = useVariantUrl(
     product.handle,
-    firstVariant.selectedOptions,
+    firstVariant?.selectedOptions ?? [],
   );
-  const {getImageWithCdnUrlByName, getColorHexByName} =
+  const {getImageWithCdnUrlByName, getSwatchStyle} =
     useGetPublicStoreCdnStaticUrlFromRootLoaderData();
+
+  // State for selected color on hover - persists until another color is hovered
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  
+  // Current active color: hovered one or first color as default
+  const activeColor = selectedColor || optColor?.values?.[0] || null;
+
+  // Find variant image for selected color
+  const getVariantImageForColor = (colorName: string | null) => {
+    if (!colorName || !variants?.nodes) return null;
+    const variant = variants.nodes.find((v) =>
+      v.selectedOptions?.some(
+        (opt) => opt.name === colorOptionName && opt.value === colorName
+      )
+    );
+    return variant?.image;
+  };
+
+  const selectedVariantImage = selectedColor ? getVariantImageForColor(selectedColor) : null;
 
   const renderColorOptions = () => {
     if (!optColor || optColor.values.length < 2) {
@@ -103,28 +137,22 @@ const ProductCard: FC<ProductCardProps> = ({
             return null;
           }
           const imageUrl = getImageWithCdnUrlByName(color.replaceAll(/ /g, '_'));
-          const colorHex = getColorHexByName(color);
+          const swatchStyle = getSwatchStyle(color);
 
+          const isActive = color === activeColor;
+          
           return (
-            <Link
+            <div
               key={color}
-              className="relative w-5 h-5 rounded-full cursor-pointer border border-black p-[2px]"
+              className={`relative w-5 h-5 rounded-full cursor-pointer p-[2px] transition-all ${
+                isActive ? 'ring-1 ring-black ring-offset-1' : ''
+              }`}
               title={color}
-              aria-hidden
-              to={getProductUrlWithSelectedOption({
-                productHandle: product.handle,
-                selectedOptions: [
-                  ...(firstVariant.selectedOptions ?? []),
-                  {
-                    name: 'Color',
-                    value: color,
-                  },
-                ],
-              })}
+              onMouseEnter={() => setSelectedColor(color)}
             >
               <div 
                 className="w-full h-full rounded-full overflow-hidden"
-                style={!imageUrl ? {backgroundColor: colorHex} : undefined}
+                style={!imageUrl ? swatchStyle : undefined}
               >
                 {imageUrl && (
                   <Image
@@ -140,7 +168,7 @@ const ProductCard: FC<ProductCardProps> = ({
                   />
                 )}
               </div>
-            </Link>
+            </div>
           );
         })}
         {optColor.values.length > 5 && (
@@ -208,11 +236,11 @@ const ProductCard: FC<ProductCardProps> = ({
   };
 
   const renderGroupButtons = () => {
-    if (!quickAddToCart) {
+    if (!quickAddToCart || !firstVariant) {
       return null;
     }
     return (
-      <div className="absolute bottom-0 group-hover:bottom-4 inset-x-1 flex justify-center opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+      <div className="absolute hidden bottom-0 group-hover:bottom-4 inset-x-1 flex justify-center opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
         {firstVariant.availableForSale && (
           <ClientOnly>
             <AddToCartButton
@@ -252,25 +280,26 @@ const ProductCard: FC<ProductCardProps> = ({
     );
   };
 
-  const image = firstVariant?.image || featuredImage;
+  // Use selected variant image if color is hovered, otherwise use default
+  const image = selectedVariantImage || firstVariant?.image || featuredImage;
 
   return (
     <>
       <div
-        className={`ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] hover:border-[#1a1a1a] rounded-2xl overflow-hidden ${className}`}
+        className={`ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] hover:border-[#1a1a1a] rounded-md overflow-hidden ${className}`}
       >
-        <Link to={variantUrl} className="absolute inset-0" prefetch="viewport">
+        <Link to={variantUrl} className="absolute inset-0" prefetch="intent">
           <span className="sr-only">{title}</span>
         </Link>
 
-        <div className="relative flex-shrink-0 overflow-hidden z-1 group p-5">
+        <div className="bg-[#f8f8f8] relative flex-shrink-0 overflow-hidden z-1 group p-5">
           <Link to={variantUrl} className="block">
             <div className="flex aspect-w-1 aspect-h-1 w-full relative">
               {/* Imagen principal */}
               {image && (
                 <Image
                   data={{...image, width: undefined, height: undefined}}
-                  className={`object-contain transition-opacity duration-300 ${secondImage ? 'group-hover:opacity-0' : 'group-hover:opacity-80'}`}
+                  className={`mix-blend-multiply object-contain transition-opacity duration-300 ${secondImage ? 'group-hover:opacity-0' : 'group-hover:opacity-80'}`}
                   sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 40vw"
                   loading={loading}
                 />
@@ -296,16 +325,17 @@ const ProductCard: FC<ProductCardProps> = ({
                 priceRangeMinVariantPrice: product.priceRange.minVariantPrice,
                 publishedAt: product.publishedAt,
               })}
+              discountPercentage={discountPercentage}
               className="px-2 py-1 text-xs !relative !top-0 !start-0"
             />
             {/* Badge Tipo de Uso */}
             {uso_tipo?.value && (
               <span className={`px-2 py-1 text-xs font-medium rounded-md ${
                 uso_tipo.value.toLowerCase() === 'comercial' 
-                  ? 'bg-blue-100 text-blue-700' 
+                  ? 'bg-[#004f9d]/10 text-[#004f9d]' 
                   : uso_tipo.value.toLowerCase() === 'profesional'
-                  ? 'bg-purple-100 text-purple-700'
-                  : 'bg-[#F9F9F9] text-[#2B2A2A]'
+                  ? 'bg-[#000000]/10 text-[#000000]'
+                  : 'bg-[#706f6f]/10 text-[#706f6f]'
               }`}>
                 {uso_tipo.value}
               </span>
@@ -316,7 +346,7 @@ const ProductCard: FC<ProductCardProps> = ({
           {renderGroupButtons()}
         </div>
 
-        <div className="py-5 px-2.5 flex-grow flex flex-col dark:bg-slate-800" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+        <div className="px-2.5 pb-4 flex-grow flex flex-col dark:bg-slate-800" style={{ fontFamily: '"nudista-web", sans-serif' }}>
           
           
           {renderColorOptions()}
@@ -347,13 +377,17 @@ const ProductCard: FC<ProductCardProps> = ({
           
 
 
-          <div className="flex-grow mt-1">
-            {/* Marca */}
-          {vendor && (
-            <span className="text-[8px] font-body uppercase tracking-wide" style={{ color: '#000000' }}>
-              {vendor}
-            </span>
-          )}
+          <div className="flex-grow mt-4">
+            {/* Marca - Logo SVG */}
+            {vendor && (
+              <div className="mb-4">
+                <VendorLogoWithFallback
+                  vendor={vendor}
+                  className="h-6 w-auto max-w-[100px] object-contain"
+                  fallbackClassName="text-xs font-medium uppercase tracking-wide text-black"
+                />
+              </div>
+            )}
             <h5
               className="nc-ProductCard__title transition-colors"
               style={{
@@ -368,27 +402,27 @@ const ProductCard: FC<ProductCardProps> = ({
             </h5>
             
             {/* Atributos técnicos con separador | */}
-            {(peso_maximo_usuario?.value || materialValue || hasEnvioGratis) && (
+            {(modelo?.value || materialValue || hasEnvioGratis) && (
               <p className="text-xs flex items-center flex-wrap mt-1" style={{ color: '#000000' }}>
+                {modelo?.value && (
+                  <span>{modelo.value}</span>
+                )}
+                {modelo?.value && materialValue && (
+                  <span className="mx-1.5" style={{ color: '#000000' }}>|</span>
+                )}
                 {materialValue && (
                   <span>{materialValue}</span>
                 )}
-                {materialValue && peso_maximo_usuario?.value && (
-                  <span className="mx-1.5" style={{ color: '#000000' }}>|</span>
-                )}
-                {peso_maximo_usuario?.value && (
-                  <span>Max {peso_maximo_usuario.value}kg</span>
-                )}
-                {(materialValue || peso_maximo_usuario?.value) && hasEnvioGratis && (
+                {(modelo?.value || materialValue) && hasEnvioGratis && (
                   <span className="mx-1.5" style={{ color: '#000000' }}>|</span>
                 )}
                 {hasEnvioGratis && (
-                  <span className="bg-[#28faa5] text-[#213875] font-medium px-2 py-0.5 rounded-md text-xs">Envío Gratis</span>
+                  <span className="bg-[#000000] text-white font-medium px-2 py-0.5 rounded-md text-xs">Envío Gratis</span>
                 )}
               </p>
             )}
             
-            {product.tags && product.tags.length > 0 && !peso_maximo_usuario?.value && !material?.value && (
+            {product.tags && product.tags.length > 0 && !modelo?.value && !material?.value && (
               <p
                 className="capitalize whitespace-nowrap overflow-hidden text-ellipsis"
                 style={{
@@ -429,9 +463,11 @@ const ProductCard: FC<ProductCardProps> = ({
 export const ProductBadge = ({
   status,
   className,
+  discountPercentage,
 }: {
   status: 'Sold out' | 'Sale' | 'New' | 'Agotado' | 'Oferta' | 'Nuevo' | null;
   className?: string;
+  discountPercentage?: number;
 }) => {
   if (!status) {
     return null;
@@ -449,11 +485,14 @@ export const ProductBadge = ({
   }
 
   if (status === 'Sale' || status === 'Oferta') {
+    const discountText = discountPercentage && discountPercentage > 0 
+      ? `Oferta - ${discountPercentage}%` 
+      : 'Oferta';
     return (
       <ProductStatus
         className={className}
-        color="rose"
-        status="Oferta"
+        color="cyclewearBlue"
+        status={discountText}
         icon="IconDiscount"
       />
     );
@@ -463,7 +502,7 @@ export const ProductBadge = ({
     return (
       <ProductStatus
         className={className}
-        color="green"
+        color="black"
         status="Nuevo"
         icon="SparklesIcon"
       />
@@ -531,7 +570,7 @@ export const ProductCardSkeleton = ({
   return (
     <div
       className={
-        `ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] rounded-2xl overflow-hidden ` + className
+        `ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] rounded-md overflow-hidden ` + className
       }
     >
       <div className="relative flex-shrink-0 bg-slate-50 border border-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group p-5">
@@ -549,7 +588,7 @@ export const ProductCardSkeleton = ({
             return (
               <div
                 key={'_' + index.toString()}
-                className={`relative w-4 h-4 rounded-full bg-slate-100 overflow-hidden cursor-pointer`}
+                className={`relative w-4 h-4 rounded-full bg-[#efefef] overflow-hidden cursor-pointer`}
               ></div>
             );
           })}

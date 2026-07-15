@@ -38,19 +38,14 @@ import {MyPrice2Icon} from './Icons/MyPrice2Icon';
 import ButtonThird from './Button/ButtonThird';
 import ButtonPrimary from './Button/ButtonPrimary';
 import {ChevronDownIcon} from '@heroicons/react/24/outline';
-import SortMenu, {type SortMenuProps} from './SortMenu';
+import SortMenu from './SortMenu';
+import type {SortMenuProps} from './SortMenu';
+import ViewAsToggle from './ViewAsToggle';
 import ButtonClose from './ButtonClose';
 import {MyAdjustmentsIcon} from './Icons/MyAdjustmentsIcon';
 import type {RootLoader} from '~/root';
 
-const Slider = lazy(() => delayForDemo(import('rc-slider')));
-
-// Add a fixed delay so you can see the loading state
-function delayForDemo(promise: Promise<any>) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, 100);
-  }).then(() => promise);
-}
+const Slider = lazy(() => import('rc-slider'));
 
 export type MyProductFilter =
   | (Pick<Filter, 'id' | 'label' | 'type'> & {
@@ -151,7 +146,7 @@ export function SortFilter({filters, defaultPriceFilter, sorts}: Props) {
     .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
 
   return (
-    <div className="flex justify-between flex-1 gap-x-16 gap-y-3">
+    <div className="flex justify-between flex-1 gap-x-4 lg:gap-x-16 gap-y-3">
       <div className="flex flex-1 lg:gap-x-4">
         {/* FOR DESKTOP */}
         <div className="hidden lg:flex flex-1 flex-wrap gap-4">
@@ -172,7 +167,8 @@ export function SortFilter({filters, defaultPriceFilter, sorts}: Props) {
         </div>
       </div>
 
-      <div className="flex">
+      <div className="flex items-center gap-4">
+        <ViewAsToggle />
         <SortMenu items={sorts} />
       </div>
     </div>
@@ -319,6 +315,8 @@ export function FiltersDrawer({
                             },
                           );
 
+                          // Reset a página 1 al cambiar filtros (ver FiltersSidebar).
+                          paramsClone.delete('page');
                           navigate(
                             `${location.pathname}?${paramsClone.toString()}`,
                             {preventScrollReset: true},
@@ -586,6 +584,7 @@ function TabsPriceRage({
                         params,
                       });
 
+                      newParams.delete('page');
                       navigate(`${location.pathname}?${newParams.toString()}`, {
                         preventScrollReset: true,
                       });
@@ -848,6 +847,7 @@ function TabMoreFilterOnMobile({
                     });
                   }
 
+                  newParams.delete('page');
                   navigate(`${location.pathname}?${newParams.toString()}`, {
                     preventScrollReset: true,
                   });

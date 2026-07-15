@@ -5,7 +5,7 @@ export interface NcInputNumberProps {
   className?: string;
   defaultValue?: number;
   min?: number;
-  max?: number;
+  max?: number | null;
   onChange?: (value: number) => void;
   label?: string;
   desc?: string;
@@ -15,7 +15,7 @@ const NcInputNumber: FC<NcInputNumberProps> = ({
   className = 'w-full',
   defaultValue = 1,
   min = 1,
-  max = 99,
+  max,
   onChange,
   label,
   desc,

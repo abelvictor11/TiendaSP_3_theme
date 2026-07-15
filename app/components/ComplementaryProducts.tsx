@@ -2,7 +2,7 @@ import {useState} from 'react';
 import {Link} from '@remix-run/react';
 import {Image, Money} from '@shopify/hydrogen';
 import type {CommonProductCardFragment} from 'storefrontapi.generated';
-import {ChevronDownIcon, ChevronUpIcon, InformationCircleIcon} from '@heroicons/react/24/outline';
+import {ChevronDownIcon, InformationCircleIcon} from '@heroicons/react/24/outline';
 import clsx from 'clsx';
 
 interface ComplementaryProductsProps {
@@ -29,21 +29,29 @@ export function ComplementaryProducts({
         className="w-full flex items-center justify-between px-5 py-4 bg-white hover:bg-slate-50 transition-colors"
       >
         <h3 className="font-headline text-lg font-bold text-slate-900">{title}</h3>
-        {isExpanded ? (
-          <ChevronUpIcon className="w-5 h-5 text-slate-500" />
-        ) : (
-          <ChevronDownIcon className="w-5 h-5 text-slate-500" />
-        )}
+        <ChevronDownIcon 
+          className={clsx(
+            'w-5 h-5 text-slate-500 transition-transform duration-300',
+            isExpanded && 'rotate-180'
+          )} 
+        />
       </button>
 
-      {/* Products List */}
-      {isExpanded && (
-        <div className="divide-y divide-slate-200">
-          {products.slice(0, 4).map((product) => (
-            <ComplementaryProductItem key={product.id} product={product} />
-          ))}
+      {/* Products List - Animated */}
+      <div 
+        className={clsx(
+          'grid transition-all duration-300 ease-in-out',
+          isExpanded ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+        )}
+      >
+        <div className="overflow-hidden">
+          <div className="divide-y divide-slate-200">
+            {products.slice(0, 4).map((product) => (
+              <ComplementaryProductItem key={product.id} product={product} />
+            ))}
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -64,7 +72,7 @@ function ComplementaryProductItem({product}: {product: CommonProductCardFragment
       {/* Product Image */}
       <Link
         to={`/products/${product.handle}`}
-        className="shrink-0 w-24 h-24 bg-slate-100 rounded-lg overflow-hidden"
+        className="shrink-0 w-24 h-24 bg-[#efefef] rounded-lg overflow-hidden"
       >
         {image && (
           <Image

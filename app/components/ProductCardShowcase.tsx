@@ -43,7 +43,7 @@ export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
       className="ProductCardShowcase relative flex flex-col h-full rounded-2xl overflow-hidden shadow-xl backdrop-blur-md"
       style={{backgroundColor: `${cardBackgroundColor}cc`}} // cc = 80% opacity
     >
-      <Link to={variantUrl} className="absolute inset-0 z-0" prefetch="viewport">
+      <Link to={variantUrl} className="absolute inset-0 z-0" prefetch="intent">
         <span className="sr-only">{title}</span>
       </Link>
 
@@ -60,7 +60,7 @@ export const ProductCardShowcase: FC<ProductCardShowcaseProps> = ({
       </div>
 
       {/* Content */}
-      <div className="p-4 flex-grow flex flex-col" style={{fontFamily: 'Montserrat, sans-serif'}}>
+      <div className="p-4 flex-grow flex flex-col" style={{fontFamily: '"nudista-web", sans-serif'}}>
         {/* Vendor */}
         {vendor && (
           <span className="text-xs font-medium uppercase tracking-wide mb-1" style={{color: cardTextColor, opacity: 0.7}}>

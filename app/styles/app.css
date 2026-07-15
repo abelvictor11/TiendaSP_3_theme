@@ -2,23 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* F37Bolton Font - Display/Headlines */
-@font-face {
-  font-family: 'F37Bolton';
-  src: url('../assets/fonts/F37Bolton-Regular.woff2') format('woff2');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'F37Bolton';
-  src: url('../assets/fonts/F37Bolton-Bold.woff2') format('woff2');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 /* Tokens */
 :root {
   --color-primary-shopify: 20 20 20; /* Text, buttons, etc. */
@@ -60,16 +43,16 @@
 }
 
 :root {
-  --c-primary-50: 240, 249, 255;
-  --c-primary-100: 224, 242, 254;
-  --c-primary-200: 186, 230, 253;
-  --c-primary-300: 125, 211, 252;
-  --c-primary-400: 56, 189, 248;
-  --c-primary-500: 14, 165, 233;
-  --c-primary-600: 2, 132, 199;
-  --c-primary-700: 3, 105, 161;
-  --c-primary-800: 7, 89, 133;
-  --c-primary-900: 12, 74, 110;
+  --c-primary-50: 230, 240, 250;
+  --c-primary-100: 204, 225, 245;
+  --c-primary-200: 153, 195, 235;
+  --c-primary-300: 102, 165, 224;
+  --c-primary-400: 51, 135, 214;
+  --c-primary-500: 0, 79, 157;
+  --c-primary-600: 0, 67, 138;
+  --c-primary-700: 0, 55, 112;
+  --c-primary-800: 0, 43, 87;
+  --c-primary-900: 0, 31, 61;
 
   --c-secondary-50: 240, 253, 244;
   --c-secondary-100: 220, 252, 231;
@@ -296,6 +279,15 @@ shop-pay-button {
   .hiddenScrollbar {
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
+  }
+
+  /* PDP independent scroll columns - hide scrollbar */
+  .pdp-scroll-col {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    &::-webkit-scrollbar {
+      display: none; /* Chrome/Safari */
+    }
   }
 
   .customScrollBar {
@@ -637,4 +629,38 @@ shop-pay-button {
 a[target='_blank'].has-end-icon::after {
   content: '\2197';
   margin-left: 2px;
+}
+
+/* Cyclewear: ocultar barra de subcolecciones en header */
+div#subcollections-bar {
+  display: none;
+}
+
+/* Ticker / Marquee animations */
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-ticker {
+  animation: ticker linear infinite;
+  width: max-content;
+  will-change: transform;
+}
+.animate-ticker:hover {
+  animation-play-state: paused;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee linear infinite;
+  will-change: transform;
+}
+
+@keyframes nav-progress {
+  0% { transform: scaleX(0); transform-origin: left; }
+  50% { transform: scaleX(0.7); transform-origin: left; }
+  100% { transform: scaleX(1); transform-origin: left; }
 }

@@ -1,0 +1,2 @@
+# Keep store-specific config from being overwritten during merges
+app/config/store.ts merge=ours

@@ -22,9 +22,9 @@ export default {
   darkMode: 'false',
   theme: {
     fontFamily: {
-      display: ['var(--font-display)', ...defaultTheme.fontFamily.sans],
-      body: ['var(--font-body)', ...defaultTheme.fontFamily.sans],
-      headline: ['F37Bolton', ...defaultTheme.fontFamily.sans],
+      display: ['"nudista-web"', 'sans-serif'],
+      body: ['"nudista-web"', 'sans-serif'],
+      headline: ['"nudista-web"', 'sans-serif'],
     },
     container: {
       center: true,
@@ -81,6 +81,7 @@ export default {
         ...defaultTheme.screens,
         '3xl': '1440px',
         '4xl': '1770px',
+        '5xl': '1920px',
         'sm-max': {max: defaultTheme.screens.md},
         'sm-only': {min: defaultTheme.screens.sm, max: defaultTheme.screens.md},
         'md-only': {min: defaultTheme.screens.md, max: defaultTheme.screens.lg},
@@ -105,8 +106,8 @@ export default {
         mobileGallery: 'calc(100vw - 4rem)',
       },
       fontFamily: {
-        sans: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        serif: ['Poppins', 'Palatino', 'ui-serif'],
+        sans: ['"nudista-web"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        serif: ['"nudista-web"', 'Palatino', 'ui-serif'],
       },
       fontSize: {
         display: ['var(--font-size-display)', '1.1'],

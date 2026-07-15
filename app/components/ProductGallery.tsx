@@ -14,13 +14,34 @@ export function ProductGallery({
   media,
   className,
   discountPercentage,
+  selectedVariantImageUrl,
 }: {
   media: MediaFragment[];
   className?: string;
   discountPercentage?: number;
+  selectedVariantImageUrl?: string;
 }) {
+  // Find the index of the selected variant's image in the media array
+  const getInitialIndex = () => {
+    if (!selectedVariantImageUrl) return 0;
+    const index = media.findIndex((m) => {
+      if (m.__typename === 'MediaImage' && m.image?.url) {
+        // Compare URLs - they might have different query params, so compare the base
+        return m.image.url.split('?')[0] === selectedVariantImageUrl.split('?')[0];
+      }
+      return false;
+    });
+    return index >= 0 ? index : 0;
+  };
+
   const [isOpenModal, setOpenModal] = useState(false);
-  const [activeIndex, setActiveIndex] = useState(0);
+  const [activeIndex, setActiveIndex] = useState(getInitialIndex);
+
+  // Update activeIndex when selectedVariantImageUrl changes
+  useEffect(() => {
+    const newIndex = getInitialIndex();
+    setActiveIndex(newIndex);
+  }, [selectedVariantImageUrl]);
 
   const closeModal = () => {
     setOpenModal(false);
@@ -47,21 +68,11 @@ export function ProductGallery({
       <div className={clsx('flex flex-col', className)}>
         {/* Main Image - Maintains aspect ratio and fits within container */}
         <div
-          className="relative w-full bg-slate-50 dark:bg-slate-800 rounded-xl overflow-hidden cursor-zoom-in group flex items-center justify-center min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]"
+          className="border border-slate-200 rounded-xl relative w-full hover:border-black rounded-xl overflow-hidden cursor-zoom-in group flex items-center justify-center min-h-[300px] sm:min-h-[400px] lg:min-h-[500px]"
           onClick={() => openModal(activeIndex)}
           aria-hidden
         >
-          {/* Badge de Oferta flotante */}
-          {discountPercentage && discountPercentage > 0 && (
-            <div className="absolute z-10 top-4 left-4">
-              <ProductStatus
-                status="Oferta"
-                icon="IconDiscount"
-                color="rose"
-                className="px-3 py-1.5 text-sm"
-              />
-            </div>
-          )}
+          {/* Badge de Oferta se maneja en el PDP para evitar duplicación */}
 
           {/* Zoom button */}
           <button
@@ -87,7 +98,7 @@ export function ProductGallery({
         </div>
 
         {/* Thumbnails - Grid of 9 */}
-        <div className="grid grid-cols-9 gap-2 mt-4">
+        <div className="grid grid-cols-9 gap-2 mt-4 pl-4">
           {Array.from({length: 9}).map((_, i) => {
             const med = media[i];
             const image =
@@ -107,10 +118,10 @@ export function ProductGallery({
                 className={clsx(
                   'relative aspect-square rounded-lg overflow-hidden transition-all',
                   hasImage
-                    ? 'bg-slate-100 dark:bg-slate-800 cursor-pointer'
+                    ? 'bg-[#efefef] dark:bg-slate-800 cursor-pointer'
                     : 'bg-slate-50 dark:bg-slate-900 cursor-default',
                   isActive && hasImage
-                    ? 'ring-2 ring-primary-500 ring-offset-2'
+                    ? 'ring-2 ring-black ring-offset-2'
                     : hasImage
                     ? 'hover:ring-2 hover:ring-slate-300 hover:ring-offset-1 opacity-70 hover:opacity-100'
                     : 'opacity-30',
@@ -229,7 +240,7 @@ function ModalImageGallery({
               className={clsx(
                 'relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden bg-white dark:bg-slate-800 transition-all',
                 isActive
-                  ? 'ring-2 ring-primary-500 ring-offset-2'
+                  ? 'ring-2 ring-black ring-offset-2'
                   : 'opacity-60 hover:opacity-100 hover:ring-2 hover:ring-slate-300',
               )}
             >

@@ -3,25 +3,25 @@ import {
   type MetaArgs,
   type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
-import {Await, Form, useLoaderData} from '@remix-run/react';
-import {Pagination, Analytics, getSeoMeta} from '@shopify/hydrogen';
+import {Await, Link, useLoaderData, useRouteError, isRouteErrorResponse, useSearchParams} from '@remix-run/react';
+import {Analytics, getSeoMeta} from '@shopify/hydrogen';
 import {seoPayload} from '~/lib/seo.server';
 import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
-import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import {
   type SearchSortKeys,
   type Filter,
+  type ProductFilter,
 } from '@shopify/hydrogen/storefront-api-types';
-import ButtonCircle from '~/components/Button/ButtonCircle';
-import Input from '~/components/MyInput';
-import {ArrowRightIcon} from '@heroicons/react/24/outline';
 import {MagnifyingGlassIcon} from '~/components/Icons/MyIcons';
 import {Empty} from '~/components/Empty';
-import {SortFilter} from '~/components/SortFilter';
+import {SortFilter, FILTER_URL_PREFIX} from '~/components/SortFilter';
+import FiltersSidebar from '~/components/FiltersSidebar';
 import {RouteContent} from '~/sections/RouteContent';
 import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFiltersFromRequest';
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
 import {ProductsGrid} from '~/components/ProductsGrid';
+import {PaginationBar} from '~/components/PaginationBar';
+import {SearchAutocomplete} from '~/components/SearchAutocomplete';
 import {Suspense} from 'react';
 
 export async function loader({request, context, params}: LoaderFunctionArgs) {
@@ -38,17 +38,26 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
   const searchParams = new URL(request.url).searchParams;
   const searchTerm = searchParams.get('q')! || '';
 
-  const {paginationVariables, filters, sortKey, reverse} =
-    getPaginationAndFiltersFromRequest(request, 12);
+  const PAGE_SIZE = 24;
+  const {filters, sortKey, reverse, page} =
+    getPaginationAndFiltersFromRequest(request, PAGE_SIZE);
 
-  const [data, dataGetDefaultPriceFilter] = await Promise.all([
+  const searchSortKey: SearchSortKeys =
+    sortKey === 'PRICE' ? 'PRICE' : 'RELEVANCE';
+  const searchReverse = sortKey === 'PRICE' ? reverse : false;
+
+  // Fetch all products up to the current page for client-side slicing.
+  // Capped at 250 (Shopify Storefront API limit).
+  const fetchCount = Math.min(page * PAGE_SIZE, 250);
+
+  const [data, dataGetDefaultPriceFilter, searchSuggestionsData] = await Promise.all([
     storefront.query(SEARCH_QUERY, {
       variables: {
         searchTerm,
-        ...paginationVariables,
+        first: fetchCount,
         filters,
-        sortKey: sortKey as SearchSortKeys,
-        reverse,
+        sortKey: searchSortKey,
+        reverse: searchReverse,
         country: storefront.i18n.country,
         language: storefront.i18n.language,
       },
@@ -60,13 +69,17 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
         language: storefront.i18n.language,
       },
     }),
+    storefront.query(SEARCH_SUGGESTIONS_QUERY),
   ]);
 
-  const products = data.search;
+  // Slice products to only the current page
+  const startIndex = (page - 1) * PAGE_SIZE;
+  const allNodes = data?.search?.nodes ?? [];
+  const slicedNodes = allNodes.slice(startIndex, startIndex + PAGE_SIZE);
 
   const defaultPriceFilter =
-    dataGetDefaultPriceFilter.search.productFilters?.find(
-      (filter) => filter.id === 'filter.v.price',
+    dataGetDefaultPriceFilter?.search?.productFilters?.find(
+      (filter: any) => filter.id === 'filter.v.price',
     );
 
   const seo = seoPayload.collection({
@@ -79,13 +92,24 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
       description: 'Search results',
       seo: {
         title: 'Search',
-        description: `Showing ${products.nodes.length} search results for "${searchTerm}"`,
+        description: `Showing ${slicedNodes.length} search results for "${searchTerm}"`,
       },
       metafields: [],
-      products,
+      products: data.search,
       updatedAt: new Date().toISOString(),
     },
   });
+
+  const searchSuggestions = searchSuggestionsData?.metaobject;
+
+  // Only serialize what the component needs — avoids sending all fetched
+  // product nodes (up to page * PAGE_SIZE) over the wire when the component
+  // only renders slicedNodes.
+  const productFilters = (data?.search?.productFilters ?? []) as Filter[];
+  // totalCount from Shopify only counts products actually published and
+  // available on this sales channel, avoiding the mismatch that occurs when
+  // summing availability filter counts (which can include draft/archived products).
+  const totalProducts = data?.search?.totalCount ?? 0;
 
   return defer({
     routePromise,
@@ -93,13 +117,14 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
       value: defaultPriceFilter?.values[0] ?? null,
       locale: storefront.i18n,
     },
-    data,
+    productFilters,
     seo,
     searchTerm,
-    products,
-    // noResultRecommendations: shouldGetRecommendations
-    //   ? getFeaturedData(storefront, {pageBy: PAGINATION_SIZE})
-    //   : Promise.resolve(null),
+    products: slicedNodes,
+    totalProducts,
+    currentPage: page,
+    pageSize: PAGE_SIZE,
+    searchSuggestions,
   });
 }
 
@@ -107,18 +132,118 @@ export const meta = ({matches}: MetaArgs<typeof loader>) => {
   return getSeoMeta(...matches.map((match) => (match.data as any).seo));
 };
 
-export default function Search() {
-  const {searchTerm, data, defaultPriceFilter, routePromise} =
-    useLoaderData<typeof loader>();
-  const noResults = !data.search.nodes.length;
-  // const totalProducts = noResults
-  //   ? 0
-  //   : getProductTotalByFilter(data?.search?.productFilters?.[0]?.values as any);
+export function ErrorBoundary() {
+  const error = useRouteError();
+  const isRouteError = isRouteErrorResponse(error);
+  const status = isRouteError ? error.status : 500;
+  const message =
+    status === 404
+      ? 'Página de búsqueda no encontrada.'
+      : 'Ocurrió un error al cargar los resultados de búsqueda.';
 
-  const products = {
-    nodes: data.search.nodes.filter((item) => item?.id),
-    pageInfo: data.search.pageInfo,
+  return (
+    <div className="container py-20 text-center">
+      <h1 className="text-4xl font-bold mb-4">{status}</h1>
+      <p className="text-neutral-500 mb-8">{message}</p>
+      <Link
+        to="/"
+        className="inline-flex items-center gap-2 bg-[#004f9d] text-white px-6 py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+      >
+        Volver al inicio
+      </Link>
+    </div>
+  );
+}
+
+// Parse search suggestions metaobject into a usable format
+function parseSearchSuggestions(metaobject: any) {
+  if (!metaobject?.fields) return null;
+
+  const titleField = metaobject.fields.find((f: any) => f.key === 'title');
+  const suggestionsField = metaobject.fields.find((f: any) => f.key === 'suggestions');
+
+  const suggestions = suggestionsField?.references?.edges
+    ?.map((edge: any) => {
+      const node = edge.node;
+      if (!node?.fields) return null;
+
+      const label = node.fields.find((f: any) => f.key === 'label')?.value;
+      const imageRef = node.fields.find((f: any) => f.key === 'image')?.reference?.image;
+      const collectionRef = node.fields.find((f: any) => f.key === 'collection')?.reference;
+      const customUrl = node.fields.find((f: any) => f.key === 'url')?.value;
+      const sortOrder = node.fields.find((f: any) => f.key === 'sort_order')?.value;
+
+      let href = collectionRef?.handle ? `/collections/${collectionRef.handle}` : null;
+      if (customUrl) {
+        // If it's an absolute URL, extract the path
+        try {
+          const url = new URL(customUrl);
+          href = url.pathname;
+        } catch {
+          href = customUrl;
+        }
+      }
+
+      return {
+        id: node.id,
+        label,
+        image: imageRef,
+        href,
+        sortOrder: sortOrder ? parseInt(sortOrder, 10) : 999,
+      };
+    })
+    .filter(Boolean)
+    .sort((a: any, b: any) => a.sortOrder - b.sortOrder) || [];
+
+  return {
+    title: titleField?.value || 'Explorar por categoría',
+    suggestions,
   };
+}
+
+export default function Search() {
+  const {searchTerm, productFilters, products, totalProducts, currentPage, pageSize, defaultPriceFilter, routePromise, searchSuggestions} =
+    useLoaderData<typeof loader>();
+  const [params] = useSearchParams();
+  const noResults = !products.length;
+  const parsedSuggestions = parseSearchSuggestions(searchSuggestions);
+
+  // Build applied filters from search params (same logic as collection page)
+  const filtersFromSearchParams = [...params.entries()].reduce(
+    (filters, [key, value]) => {
+      if (key.startsWith(FILTER_URL_PREFIX)) {
+        const filterKey = key.substring(FILTER_URL_PREFIX.length);
+        filters.push({
+          [filterKey]: JSON.parse(value),
+        });
+      }
+      return filters;
+    },
+    [] as ProductFilter[],
+  );
+
+  const allFilterValues = (productFilters as Filter[])?.flatMap(
+    (filter) => filter.values,
+  ) || [];
+  const appliedFilters = filtersFromSearchParams
+    .map((filter) => {
+      const foundValue = allFilterValues?.find((value: any) => {
+        const valueInput = JSON.parse(value.input as string) as ProductFilter;
+        if (valueInput.price && filter.price) {
+          return true;
+        }
+        return JSON.stringify(valueInput) === JSON.stringify(filter);
+      });
+      if (!foundValue) {
+        return null;
+      }
+      return {
+        filter,
+        label: foundValue.label,
+        data: foundValue,
+      };
+    })
+    .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
 
   return (
     <div className={'page-search pb-20 lg:pb-28 xl:pb-32'}>
@@ -128,90 +253,99 @@ export default function Search() {
         <div>
           <div className="container">
             <header className="max-w-2xl mx-auto -mt-10 flex flex-col lg:-mt-7">
-              <Form method="get" className="relative w-full">
-                <label htmlFor="search-input" className="text-slate-500">
-                  <span className="sr-only">Search all icons</span>
-                  <Input
-                    className="shadow-lg border-0 dark:border"
-                    id="search-input"
-                    type="search"
-                    placeholder="Type your keywords"
-                    sizeClass="pl-14 py-5 pr-5 md:pl-16"
-                    rounded="rounded-full"
-                    defaultValue={searchTerm}
-                    name="q"
-                  />
-                  <ButtonCircle
-                    className="absolute right-2.5 top-1/2 transform -translate-y-1/2"
-                    size=" w-11 h-11"
-                    type="submit"
-                  >
-                    <ArrowRightIcon className="w-5 h-5" />
-                  </ButtonCircle>
-                  <span className="absolute left-5 top-1/2 transform -translate-y-1/2 text-2xl md:left-6">
-                    <MagnifyingGlassIcon className="w-5 h-5" />
-                  </span>
-                </label>
-              </Form>
+              <SearchAutocomplete defaultValue={searchTerm} variant="page" />
             </header>
           </div>
 
-          <div className="container pt-20 lg:pt-28">
-            {noResults ? (
-              <Empty />
-            ) : (
-              <div>
-                {/* TABS FILTER */}
-                <SortFilter
-                  filters={data.search.productFilters as Filter[]}
-                  defaultPriceFilter={defaultPriceFilter}
-                  sorts={[
-                    {label: 'Relevance', key: 'relevance'},
-                    {label: 'Price: Low to High', key: 'price-low-high'},
-                    {
-                      label: 'Price: High to Low',
-                      key: 'price-high-low',
-                    },
-                  ]}
-                />
+          {/* Search Suggestions - Category Cards */}
+          {parsedSuggestions && parsedSuggestions.suggestions.length > 0 && !searchTerm && (
+            <div className="container pt-10 lg:pt-14">
+              <h2 className="text-xl font-semibold mb-6">{parsedSuggestions.title}</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {parsedSuggestions.suggestions.map((suggestion: any) => (
+                  <Link
+                    key={suggestion.id}
+                    to={suggestion.href || '#'}
+                    className="group block"
+                  >
+                    <div className="aspect-[4/3] rounded-lg overflow-hidden bg-neutral-100 dark:bg-neutral-800 mb-2">
+                      {suggestion.image?.url ? (
+                        <img
+                          src={suggestion.image.url}
+                          alt={suggestion.image.altText || suggestion.label}
+                          width={suggestion.image.width || 300}
+                          height={suggestion.image.height || 225}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-neutral-400">
+                          <MagnifyingGlassIcon className="w-8 h-8" />
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-sm font-medium text-neutral-700 dark:text-neutral-300 group-hover:text-primary-600 transition-colors">
+                      {suggestion.label}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
-                {/* LOOP ITEMS */}
-                <hr className="mt-8 mb-8 lg:mb-12" />
-                <>
-                  <Pagination connection={products}>
-                    {({
-                      nodes,
-                      isLoading,
-                      PreviousLink,
-                      NextLink,
-                      nextPageUrl,
-                      hasNextPage,
-                      state,
-                      hasPreviousPage,
-                    }) => (
-                      <>
-                        {hasPreviousPage && (
-                          <div className="flex items-center justify-center my-14">
-                            <ButtonPrimary
-                              loading={isLoading}
-                              as={PreviousLink}
-                            >
-                              {'Load previous products'}
-                            </ButtonPrimary>
-                          </div>
-                        )}
-                        <ProductsGrid nodes={nodes} className="mt-0" />
-                        {hasNextPage && (
-                          <div className="flex items-center justify-center mt-14">
-                            <ButtonPrimary loading={isLoading} as={NextLink}>
-                              {'Cargar más productos'}
-                            </ButtonPrimary>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </Pagination>
-                </>
+          <div className="container pt-10 lg:pt-14">
+            {noResults ? (
+              searchTerm ? (
+                <Empty />
+              ) : null
+            ) : (
+              <div className="flex gap-8">
+                {/* Sidebar with Filters - Desktop only */}
+                <div className="hidden lg:block lg:sticky lg:top-4 lg:self-start lg:max-h-[calc(100vh-32px)] lg:overflow-y-auto scrollbar-thin scrollbar-thumb-neutral-300 scrollbar-track-transparent">
+                  <FiltersSidebar
+                    filters={productFilters as Filter[]}
+                    appliedFilters={appliedFilters}
+                    defaultPriceFilter={defaultPriceFilter}
+                  />
+                </div>
+
+                {/* Main Content */}
+                <div className="flex-1">
+                  {/* Mobile Filters + Sort */}
+                  <div className="lg:hidden mb-8">
+                    <SortFilter
+                      filters={productFilters as Filter[]}
+                      defaultPriceFilter={defaultPriceFilter}
+                      sorts={[
+                        {label: 'Relevance', key: 'relevance'},
+                        {label: 'Price: Low to High', key: 'price-low-high'},
+                        {label: 'Price: High to Low', key: 'price-high-low'},
+                      ]}
+                    />
+                  </div>
+
+                  {/* Desktop Sort Only */}
+                  <div className="hidden lg:flex justify-end mb-8">
+                    <SortFilter
+                      filters={[]}
+                      defaultPriceFilter={defaultPriceFilter}
+                      sorts={[
+                        {label: 'Relevance', key: 'relevance'},
+                        {label: 'Price: Low to High', key: 'price-low-high'},
+                        {label: 'Price: High to Low', key: 'price-high-low'},
+                      ]}
+                    />
+                  </div>
+
+                  {/* Products Grid */}
+                  <ProductsGrid nodes={products as any} className="mt-0" />
+
+                  <PaginationBar
+                    totalProducts={totalProducts}
+                    pageSize={pageSize}
+                    currentPage={currentPage}
+                  />
+                </div>
               </div>
             )}
           </div>
@@ -235,7 +369,7 @@ export default function Search() {
         </Suspense>
       </div>
 
-      <Analytics.SearchView data={{searchTerm, searchResults: products}} />
+      <Analytics.SearchView data={{searchTerm, searchResults: {nodes: products, pageInfo: {hasNextPage: false, hasPreviousPage: false}}}} />
     </div>
   );
 }
@@ -243,28 +377,22 @@ export default function Search() {
 const SEARCH_QUERY = `#graphql
   query PaginatedProductsSearch(
     $country: CountryCode
-    $endCursor: String
     $first: Int
     $language: LanguageCode
-    $last: Int
     $searchTerm: String!
     $filters: [ProductFilter!]
     $reverse: Boolean
-    $startCursor: String
     $sortKey: SearchSortKeys!
   ) @inContext(country: $country, language: $language) {
     search(
       first: $first,
-      last: $last,
-      before: $startCursor,
-      after: $endCursor,
-      # sortKey: RELEVANCE,
       types: PRODUCT,
       query: $searchTerm,
       productFilters: $filters,
-      sortKey: $sortKey,  
-      reverse: $reverse  
+      sortKey: $sortKey,
+      reverse: $reverse
     ) {
+      totalCount
       productFilters {
         id
         label
@@ -280,12 +408,6 @@ const SEARCH_QUERY = `#graphql
         ... on Product {
           ...CommonProductCard
         }
-      }
-      pageInfo {
-        startCursor
-        endCursor
-        hasNextPage
-        hasPreviousPage
       }
     }
   }
@@ -304,7 +426,6 @@ const SEARCH_QUERY_2 = `#graphql
       first: 0,
       types: PRODUCT,
       query: $searchTerm,
-      productFilters: {},
     ) {
       productFilters {
         id
@@ -315,6 +436,46 @@ const SEARCH_QUERY_2 = `#graphql
           label
           count
           input
+        }
+      }
+    }
+  }
+` as const;
+
+const SEARCH_SUGGESTIONS_QUERY = `#graphql
+  query SearchSuggestions {
+    metaobject(handle: {handle: "search-suggestions", type: "ciseco--search_suggestions"}) {
+      fields {
+        key
+        value
+        references(first: 20) {
+          edges {
+            node {
+              ... on Metaobject {
+                id
+                handle
+                fields {
+                  key
+                  value
+                  reference {
+                    ... on Collection {
+                      id
+                      handle
+                      title
+                    }
+                    ... on MediaImage {
+                      image {
+                        url
+                        altText
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }

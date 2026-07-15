@@ -44,16 +44,16 @@ const Prices: FC<PricesProps> = ({
     <div className={`${className} pt-2`}>
       <div className={`flex items-center flex-wrap gap-x-2 gap-y-1 ${contentClass}`}>
         {price ? (
-          <span className={hasDiscount ? 'text-red-500 !leading-none font-bold' : 'text-slate-900 dark:text-slate-100 !leading-none font-bold'}>
+          <span className={hasDiscount ? 'text-black !leading-none font-bold' : 'text-slate-900 dark:text-slate-100 !leading-none font-bold'}>
             {formatPrice(price.amount, withoutTrailingZeros)}
           </span>
         ) : null}
         {hasDiscount && compareAtPrice ? (
           <>
-            <s className={`${compareAtPriceClass} text-black font-body line-through`}>
+            <s className={`${compareAtPriceClass} text-black font-light line-through`}>
               {formatPrice(compareAtPrice.amount, withoutTrailingZeros)}
             </s>
-            <span className="text-xs font-semibold text-red-500 bg-red-50 px-2 py-0.5 rounded-md">
+            <span className="hidden text-xs font-semibold text-[#000000] bg-[#000000]/10 px-2 py-0.5 rounded-md">
               Ahorra {discountPercentage}%
             </span>
           </>

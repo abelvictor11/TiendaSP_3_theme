@@ -19,6 +19,16 @@ export function SectionGridProductsAndFilter(
   const locale = rootData?.selectedLocale;
   const isSkeleton = !collection;
 
+  // Static mapping for Tailwind (dynamic classes like `lg:grid-cols-${n}` don't work)
+  const columnClassMap: Record<number, string> = {
+    2: 'sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2',
+    3: 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3',
+    4: 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+    5: 'sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5',
+    6: 'sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6',
+  };
+  const gridColsClass = columnClassMap[columns] || columnClassMap[4];
+
   //
   return (
     <section style={background_color ? {backgroundColor: background_color} : undefined}>
@@ -53,7 +63,7 @@ export function SectionGridProductsAndFilter(
         <hr className="my-8" />
 
         <div className="">
-          {isSkeleton && <ProductsGrid isSkeleton className={`grid sm:grid-cols-2 lg:grid-cols-${columns} xl:grid-cols-${columns} gap-x-4 gap-y-10 auto-rows-fr`} />}
+          {isSkeleton && <ProductsGrid isSkeleton className={`grid ${gridColsClass} gap-x-4 gap-y-10 auto-rows-fr`} />}
 
           {!isSkeleton && !!products?.nodes.length && (
             <Pagination connection={products}>
@@ -73,7 +83,7 @@ export function SectionGridProductsAndFilter(
                       </ButtonPrimary>
                     </div>
                   )}
-                  <ProductsGrid nodes={nodes} className={`sm:!grid-cols-2 lg:!grid-cols-${columns} xl:!grid-cols-${columns}`} />
+                  <ProductsGrid nodes={nodes} className={gridColsClass} />
                   {!!hasNextPage && (
                     <div className="flex items-center justify-center mt-16">
                       <ButtonPrimary as={NextLink} loading={isLoading}>
