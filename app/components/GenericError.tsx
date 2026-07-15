@@ -3,18 +3,18 @@ import ButtonPrimary from './Button/ButtonPrimary';
 
 export function GenericError({
   error,
-  heading = "Something's wrong here.",
-  description = 'We found an error while loading this page.',
+  heading = 'Algo salió mal.',
+  description = 'Ocurrió un error al cargar esta página. Intenta recargar o vuelve al inicio.',
 }: {
   error?: {message: string; stack?: string};
   heading?: string;
   description?: string;
 }) {
-  // TODO hide error in prod?
+  const isDev = import.meta.env.DEV;
   if (error) {
-    description += `\n${error.message}`;
     // eslint-disable-next-line no-console
     console.error(error);
+    if (isDev) description += `\n${error.message}`;
   }
 
   return (
@@ -26,7 +26,7 @@ export function GenericError({
           </h1>
 
           <p dangerouslySetInnerHTML={{__html: description}}></p>
-          {error?.stack && (
+          {isDev && error?.stack && (
             <pre
               style={{
                 padding: '2rem',
@@ -42,7 +42,7 @@ export function GenericError({
           )}
           <ButtonPrimary href={'/'}>
             <HomeIcon className="h-5 w-5 mr-2" />
-            Take me to the home page
+            Volver al inicio
           </ButtonPrimary>
         </div>
       </div>

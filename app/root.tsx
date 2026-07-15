@@ -28,6 +28,7 @@ import {CustomAnalytics} from '~/components/CustomAnalytics';
 import {GtmLoader} from '~/components/GtmLoader';
 import {seoPayload} from '~/lib/seo.server';
 import {storeConfig} from '~/config/store';
+import {useEffect} from 'react';
 import {GenericError} from './components/GenericError';
 import {NotFound} from './components/NotFound';
 import styles from './styles/app.css?url';
@@ -360,6 +361,17 @@ function NavigationProgress() {
 }
 
 export default function App() {
+  // La app montó sin error: limpiamos la bandera de recarga por assets
+  // obsoletos para que una futura desincronización (próximo deploy) pueda
+  // volver a disparar una única recarga.
+  useEffect(() => {
+    try {
+      sessionStorage.removeItem('sf:asset-reload');
+    } catch {
+      /* sessionStorage no disponible */
+    }
+  }, []);
+
   return (
     <MainLayout>
       <Outlet />
@@ -379,6 +391,32 @@ export function ErrorBoundary({error}: {error: Error}) {
     title = 'Not found';
     if (routeError.status === 404) pageType = routeError.data || pageType;
   }
+
+  // Recuperación ante assets obsoletos: tras un deploy, el cliente puede tener
+  // en caché chunks con hash viejo. Al navegar (client-side), Remix intenta
+  // importar un módulo que ya no existe en el servidor y falla, cayendo aquí.
+  // Detectamos ese patrón y forzamos UNA sola recarga completa para traer los
+  // assets nuevos. La guarda en sessionStorage evita bucles de recarga.
+  useEffect(() => {
+    if (isRouteError) return;
+    const message =
+      (routeError as Error)?.message || (error as Error)?.message || '';
+    const isChunkLoadError =
+      /dynamically imported module|Importing a module script failed|Failed to fetch|ChunkLoadError|Loading chunk|Unexpected token '<'/i.test(
+        message,
+      );
+    if (!isChunkLoadError) return;
+    const RELOAD_KEY = 'sf:asset-reload';
+    try {
+      if (sessionStorage.getItem(RELOAD_KEY)) return;
+      sessionStorage.setItem(RELOAD_KEY, '1');
+      window.location.reload();
+    } catch {
+      // sessionStorage no disponible: recargamos igualmente una vez.
+      window.location.reload();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <MainLayout>
