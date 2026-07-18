@@ -32,7 +32,7 @@ import type {
 } from '@shopify/hydrogen';
 import {useEffect} from 'react';
 import {captureFbclid} from '~/lib/fbCookies';
-import {analyticsAllowed} from '~/lib/consent';
+import {analyticsAllowed, marketingAllowed} from '~/lib/consent';
 import {captureMarketingParams} from '~/lib/checkoutContinuity';
 
 // ── Tipos globales para fbq (Meta Pixel) y gtag (Google Analytics) ──────────
@@ -71,17 +71,33 @@ function pushDataLayer(event: string, data: Record<string, unknown>) {
 }
 
 function fbqEvent(event: string, data?: Record<string, unknown>) {
-  if (typeof window === 'undefined' || gtmOwns || !window.fbq) return;
+  // marketingAllowed() se re-chequea al emitir, igual que pushDataLayer/
+  // rsPage/rsTrack: si el visitante otorgó consentimiento (script ya
+  // cargado) y luego lo revoca, el script cargado no se puede descargar,
+  // así que el chequeo tiene que repetirse aquí en cada emisión.
+  if (
+    typeof window === 'undefined' ||
+    gtmOwns ||
+    !window.fbq ||
+    !marketingAllowed()
+  )
+    return;
   window.fbq('track', event, data);
 }
 
 function gtagEvent(event: string, data?: Record<string, unknown>) {
-  if (typeof window === 'undefined' || gtmOwns || !window.gtag) return;
+  if (
+    typeof window === 'undefined' ||
+    gtmOwns ||
+    !window.gtag ||
+    !analyticsAllowed()
+  )
+    return;
   window.gtag('event', event, data);
 }
 
 function ttqEvent(event: string, data?: Record<string, unknown>) {
-  if (typeof window === 'undefined' || gtmOwns) return;
+  if (typeof window === 'undefined' || gtmOwns || !marketingAllowed()) return;
   const ttq = window.ttq;
   if (ttq && typeof ttq.track === 'function') {
     ttq.track(event, data ?? {});
@@ -131,8 +147,16 @@ export function CustomAnalytics({gtmOwnsTags = false}: {gtmOwnsTags?: boolean}) 
       // GA4: page_view en cada navegación SPA
       gtagEvent('page_view', {page_location: payload.url});
 
-      // TikTok Pixel (misma regla de "una sola vía" que el resto)
-      if (typeof window !== 'undefined' && !gtmOwns && window.ttq?.page) {
+      // TikTok Pixel (misma regla de "una sola vía" que el resto). Gateado
+      // por marketingAllowed() igual que ttqEvent — window.ttq solo existe
+      // si GtmLoader ya cargó el script con consentimiento otorgado, pero
+      // ese consentimiento pudo revocarse desde entonces.
+      if (
+        typeof window !== 'undefined' &&
+        !gtmOwns &&
+        window.ttq?.page &&
+        marketingAllowed()
+      ) {
         window.ttq.page();
       }
 
