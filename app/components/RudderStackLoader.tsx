@@ -31,13 +31,16 @@
  * navegación SPA, igual que con GTM/Meta Pixel/TikTok — este loader solo
  * inicializa el cliente y lo expone en window.rudderanalytics.
  *
- * **Gateado por consentimiento** (Customer Privacy API), mismo patrón de
- * espera que GtmLoader.tsx: no se carga el SDK (ni siquiera el chunk) hasta
- * que `analyticsAllowed()` sea true. Fail-closed — si el visitante nunca
- * responde o lo rechaza, el SDK simplemente no se carga.
+ * **Gateado por consentimiento** (Customer Privacy API): no se carga el SDK
+ * (ni siquiera el chunk) hasta que `analyticsProcessingAllowed()` sea true.
+ * Fail-closed — si el visitante nunca responde o lo rechaza, el SDK
+ * simplemente no se carga. La disponibilidad de la API se obtiene de
+ * `customerPrivacy` (useAnalytics()/<Analytics.Provider>, mismo patrón que
+ * GtmLoader.tsx), no con un polling propio contra
+ * `window.Shopify.customerPrivacy`.
  */
 import {useEffect, useState} from 'react';
-import {analyticsAllowed} from '~/lib/consent';
+import {useAnalytics} from '@shopify/hydrogen';
 
 const PRELOAD_METHODS = [
   'load',
@@ -73,29 +76,21 @@ export function RudderStackLoader({
   writeKey?: string | null;
   dataPlaneUrl?: string | null;
 }) {
+  const {customerPrivacy} = useAnalytics();
   const [allowed, setAllowed] = useState(false);
 
-  // ── Espera consentimiento (Customer Privacy API) — mismo patrón que
-  // GtmLoader.tsx: responde ya-contestado/región-sin-banner de inmediato,
-  // escucha el evento del banner nativo, y hace polling corto por si el
-  // script de privacy de Shopify todavía no había cargado al montar.
+  // ── Espera consentimiento (Customer Privacy API) — responde ya-contestado
+  // /región-sin-banner de inmediato en cuanto `customerPrivacy` deja de ser
+  // null, y escucha el evento del banner nativo para cambios posteriores.
   useEffect(() => {
-    const update = () => setAllowed(analyticsAllowed());
+    if (!customerPrivacy) return;
+    const update = () =>
+      setAllowed(customerPrivacy.analyticsProcessingAllowed?.() === true);
     update();
     document.addEventListener('visitorConsentCollected', update);
-    const interval = setInterval(() => {
-      if (analyticsAllowed()) {
-        update();
-        clearInterval(interval);
-      }
-    }, 500);
-    const stop = setTimeout(() => clearInterval(interval), 20000);
-    return () => {
+    return () =>
       document.removeEventListener('visitorConsentCollected', update);
-      clearInterval(interval);
-      clearTimeout(stop);
-    };
-  }, []);
+  }, [customerPrivacy]);
 
   useEffect(() => {
     if (!allowed || !writeKey || !dataPlaneUrl) return;
@@ -112,7 +107,7 @@ export function RudderStackLoader({
       if (cancelled) return;
       // El constructor detecta el `load` recién encolado arriba y se
       // auto-inicializa con esos args (ver comentario de arriba).
-      // eslint-disable-next-line no-new
+
       new RudderAnalytics();
     });
 

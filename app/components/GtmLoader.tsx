@@ -9,6 +9,12 @@
  *   - Google Ads / Meta / TikTok → requieren `marketingAllowed()`
  *   En regiones sin leyes de consentimiento, Shopify devuelve true de
  *   inmediato; en regiones con banner, esperamos `visitorConsentCollected`.
+ *   La disponibilidad de `Shopify.customerPrivacy` en sí se obtiene de
+ *   `customerPrivacy` (useAnalytics()/<Analytics.Provider>), NO con un
+ *   polling propio contra `window.Shopify.customerPrivacy` — ese patrón
+ *   corría en una ventana de carrera contra el `wait_for_update` de Consent
+ *   Mode y perdía la atribución del primer hit de la sesión si el script de
+ *   Customer Privacy de Shopify tardaba en cargar (ver historial de PRs).
  *
  * Por qué useEffect + createElement en vez de <script nonce> en SSR:
  *   Scripts con nonce en el <head> de React pueden ser bloqueados por CSP
@@ -16,19 +22,18 @@
  *   son siempre evaluados por el browser y detectados por Tag Assistant.
  */
 import {useEffect, useState} from 'react';
+import {useAnalytics} from '@shopify/hydrogen';
 
 type ConsentState = {analytics: boolean; marketing: boolean};
 
-function readConsent(): ConsentState | null {
-  const cp = (window as any).Shopify?.customerPrivacy;
-  if (!cp) return null;
+function readConsentFrom(cp: any): ConsentState {
   try {
     return {
-      analytics: cp.analyticsProcessingAllowed?.() === true,
-      marketing: cp.marketingAllowed?.() === true,
+      analytics: cp?.analyticsProcessingAllowed?.() === true,
+      marketing: cp?.marketingAllowed?.() === true,
     };
   } catch {
-    return null;
+    return {analytics: false, marketing: false};
   }
 }
 
@@ -63,23 +68,23 @@ export function GtmLoader({
   gtmOwnsTags?: boolean;
 }) {
   const checkoutHostname = getCheckoutHostname(checkoutDomain);
+  const {customerPrivacy} = useAnalytics();
   const [consent, setConsent] = useState<ConsentState>({
     analytics: false,
     marketing: false,
   });
 
-  // ── 0. Espera el consentimiento (Customer Privacy API) ──────────────────
+  // ── 0a. Google Consent Mode v2: default "denied" ─────────────────────────
+  // Corre de inmediato al montar, ANTES de que cargue gtag.js/gtm.js (los
+  // comandos se encolan en dataLayer y gtag los procesa en orden al cargar).
+  // Sin esto, Google recibe los hits como "sin consentimiento declarado" y
+  // los limita/descarta para Ads aunque el evento llegue.
   useEffect(() => {
     const w = window as any;
     // Flag global para que otros handlers (ej. begin_checkout en el cart)
     // sepan qué vía usar sin prop-drilling.
     w.__gtmOwnsTags = gtmOwnsTags === true;
 
-    // ── Google Consent Mode v2 ────────────────────────────────────────────
-    // Default "denied" ANTES de que cargue gtag.js/gtm.js (los comandos se
-    // encolan en dataLayer y gtag los procesa en orden al cargar). Sin estas
-    // señales, Google recibe los hits como "sin consentimiento declarado" y
-    // los limita/descarta para Ads aunque el evento llegue.
     w.dataLayer = w.dataLayer ?? [];
     if (!w.gtag) {
       w.gtag = function () {
@@ -94,11 +99,27 @@ export function GtmLoader({
         analytics_storage: 'denied',
         ad_user_data: 'denied',
         ad_personalization: 'denied',
-        // margen para que el update (síncrono en regiones sin banner)
-        // llegue antes de que los tags disparen
-        wait_for_update: 500,
+        // Margen defensivo mientras se resuelve el consentimiento real (ver
+        // efecto 0b) — antes este valor estaba en 500ms, empatado con un
+        // polling propio del mismo intervalo, sin margen si el script de
+        // Customer Privacy de Shopify tardaba más en cargar. El primer hit
+        // de la sesión (el que más pesa para atribución de canal) corría
+        // entonces con consentimiento denegado por defecto.
+        wait_for_update: 2000,
       });
     }
+  }, [gtmOwnsTags]);
+
+  // ── 0b. Refleja el consentimiento real (Customer Privacy API) ───────────
+  // `customerPrivacy` viene de useAnalytics()/<Analytics.Provider> — el
+  // mismo mecanismo de espera que ya usa CustomAnalytics.tsx para no perder
+  // el primer PAGE_VIEWED, en vez de reimplementar un polling propio contra
+  // `window.Shopify.customerPrivacy` (ver nota arriba). Este efecto
+  // simplemente no hace nada hasta que `customerPrivacy` deja de ser null;
+  // no hay temporizador que perder.
+  useEffect(() => {
+    if (!customerPrivacy) return;
+    const w = window as any;
 
     const emitConsentSignals = (c: ConsentState) => {
       // Google Consent Mode v2: refleja el estado del Customer Privacy API
@@ -115,15 +136,13 @@ export function GtmLoader({
     };
 
     const update = () => {
-      const c = readConsent();
       // Refleja el estado actual (no acumulativo): si el visitante revoca
       // consentimiento, los flags vuelven a false y los emisores dejan de
       // enviar (los scripts ya cargados no se pueden descargar, pero los
       // helpers verifican consentimiento al emitir cada evento).
-      if (c) {
-        setConsent(c);
-        emitConsentSignals(c);
-      }
+      const c = readConsentFrom(customerPrivacy);
+      setConsent(c);
+      emitConsentSignals(c);
     };
 
     // Ya respondido en visita anterior / región sin banner
@@ -131,23 +150,9 @@ export function GtmLoader({
 
     // El banner nativo de Shopify dispara este evento al responder
     document.addEventListener('visitorConsentCollected', update);
-
-    // El script del Customer Privacy API carga async — reintenta un rato
-    // por si `window.Shopify.customerPrivacy` aún no existía en el mount.
-    const interval = setInterval(() => {
-      if (readConsent()) {
-        update();
-        clearInterval(interval);
-      }
-    }, 500);
-    const stop = setTimeout(() => clearInterval(interval), 20000);
-
-    return () => {
+    return () =>
       document.removeEventListener('visitorConsentCollected', update);
-      clearInterval(interval);
-      clearTimeout(stop);
-    };
-  }, [gtmOwnsTags]);
+  }, [customerPrivacy]);
 
   // ── A. Analytics permitido → GTM + GA4 ──────────────────────────────────
   useEffect(() => {
