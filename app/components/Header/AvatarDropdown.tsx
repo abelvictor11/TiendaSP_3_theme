@@ -1,5 +1,5 @@
 import {Popover, Transition} from '@headlessui/react';
-import {Fragment, Suspense, useEffect, useState} from 'react';
+import {Fragment, Suspense, useEffect, useRef, useState} from 'react';
 import Avatar from '@/components/Avatar';
 import {Link} from '../Link';
 import {
@@ -20,13 +20,13 @@ import {
 import {type CustomerShortDetailsQuery} from 'customer-accountapi.generated';
 import {usePrefixPathWithLocale} from '~/lib/utils';
 import type {RootLoader} from '~/root';
+import {rsIdentify, rsReset} from '~/components/CustomAnalytics';
+import {analyticsAllowed} from '~/lib/consent';
 
 export default function AvatarDropdown() {
   const rootData = useRouteLoaderData<RootLoader>('root');
   const isLoggedInPromise = rootData?.isLoggedInPromise;
   const {state} = useNavigation();
-
-  const [isClicked, setIsClicked] = useState(false);
 
   // Fetch customer short details
   const {load, data: customerShort} = useFetcher<{
@@ -36,7 +36,7 @@ export default function AvatarDropdown() {
     `/api/customer-short-detail`,
   );
   useEffect(() => {
-    if (!isLoggedInPromise || customerShort?.customer || !isClicked) {
+    if (!isLoggedInPromise || customerShort?.customer) {
       return;
     }
     const getCustomerShortDetai = async () => {
@@ -46,13 +46,65 @@ export default function AvatarDropdown() {
       }
     };
     getCustomerShortDetai();
-  }, [
-    load,
-    customerShortDetailApiPath,
-    customerShort,
-    isLoggedInPromise,
-    isClicked,
-  ]);
+  }, [load, customerShortDetailApiPath, customerShort, isLoggedInPromise]);
+
+  // rsIdentify() no envía nada si el consentimiento aún no está otorgado
+  // (analyticsAllowed() en falso), así que aquí rastreamos el consentimiento
+  // por separado (mismo patrón que RudderStackLoader.tsx: evento nativo del
+  // banner + polling corto) para poder REINTENTAR el identify() cuando el
+  // consentimiento llegue después de que los datos del cliente ya estaban
+  // listos — si no, el cliente logueado se queda anónimo toda la sesión.
+  const [analyticsConsent, setAnalyticsConsent] = useState(false);
+  useEffect(() => {
+    const update = () => setAnalyticsConsent(analyticsAllowed());
+    update();
+    document.addEventListener('visitorConsentCollected', update);
+    const interval = setInterval(() => {
+      if (analyticsAllowed()) {
+        update();
+        clearInterval(interval);
+      }
+    }, 500);
+    const stop = setTimeout(() => clearInterval(interval), 20000);
+    return () => {
+      document.removeEventListener('visitorConsentCollected', update);
+      clearInterval(interval);
+      clearTimeout(stop);
+    };
+  }, []);
+
+  // identify() ante RudderStack en cuanto llegan los datos del cliente logueado
+  // Y hay consentimiento — así el tráfico en vivo se fusiona con el grafo de
+  // identidad existente (116k clientes, Klaviyo+Shopify) en vez de quedar
+  // completamente desconectado de él. El ref solo se marca DESPUÉS de un envío
+  // real (no antes), para que este efecto pueda reintentar si `customerShort`
+  // llegó antes que el consentimiento.
+  const identifiedRef = useRef(false);
+  useEffect(() => {
+    if (!analyticsConsent || identifiedRef.current) return;
+    const customer = customerShort?.customer;
+    const email = customer?.emailAddress?.emailAddress;
+    if (!email) return;
+    identifiedRef.current = true;
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const addr = customer.defaultAddress;
+    rsIdentify(normalizedEmail, {
+      email: normalizedEmail,
+      phone: customer.phoneNumber?.phoneNumber,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      ...(addr && {
+        address: {
+          city: addr.city,
+          country: addr.country,
+          postalCode: addr.zip,
+          state: addr.zoneCode,
+          street: addr.address1,
+        },
+      }),
+    });
+  }, [customerShort, analyticsConsent]);
   //
 
   const className =
@@ -79,10 +131,7 @@ export default function AvatarDropdown() {
               <Popover className="relative">
                 {({open, close}) => (
                   <>
-                    <Popover.Button
-                      className={className}
-                      onClick={() => setIsClicked(true)}
-                    >
+                    <Popover.Button className={className}>
                       <MyUserIcon />
                     </Popover.Button>
                     <Transition
@@ -199,6 +248,7 @@ export default function AvatarDropdown() {
                                 className="w-full grid"
                                 method="post"
                                 action={'/account/logout'}
+                                onSubmit={() => rsReset()}
                               >
                                 <button
                                   type="submit"

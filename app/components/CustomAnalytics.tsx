@@ -124,6 +124,32 @@ function rsTrack(event: string, properties?: Record<string, unknown>) {
   window.rudderanalytics.track(event, properties as any);
 }
 
+// identify() ata el visitante anónimo (anonymousId) al grafo de identidad
+// existente (116k clientes, resuelto Klaviyo+Shopify). userId = email en
+// minúsculas/recortado — misma convención que el backfill histórico
+// (scripts/backfill_rudderstack.py en klaviyo-migration), necesaria para que
+// esto se fusione con ese grafo en vez de crear una identidad separada.
+export function rsIdentify(userId: string, traits?: Record<string, unknown>) {
+  if (
+    typeof window === 'undefined' ||
+    !window.rudderanalytics ||
+    !analyticsAllowed()
+  )
+    return;
+  window.rudderanalytics.identify(userId, traits as any);
+}
+
+// Limpia el userId/traits persistidos localmente por el SDK (localStorage) al
+// cerrar sesión — sin esto, la identidad del cliente anterior queda pegada al
+// dispositivo/navegador y los eventos post-logout (incl. de otro cliente en un
+// equipo compartido) seguirían atribuyéndose a él hasta el siguiente identify().
+// No gateado por analyticsAllowed(): limpiar identidad debe poder ocurrir aunque
+// el consentimiento se haya revocado entretanto.
+export function rsReset() {
+  if (typeof window === 'undefined' || !window.rudderanalytics) return;
+  window.rudderanalytics.reset();
+}
+
 // ── Componente ───────────────────────────────────────────────────────────────
 
 export function CustomAnalytics({gtmOwnsTags = false}: {gtmOwnsTags?: boolean}) {
