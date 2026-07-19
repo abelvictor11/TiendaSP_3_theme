@@ -21,12 +21,13 @@ import {type CustomerShortDetailsQuery} from 'customer-accountapi.generated';
 import {usePrefixPathWithLocale} from '~/lib/utils';
 import type {RootLoader} from '~/root';
 import {rsIdentify, rsReset} from '~/components/CustomAnalytics';
-import {analyticsAllowed} from '~/lib/consent';
+import {useAnalytics} from '@shopify/hydrogen';
 
 export default function AvatarDropdown() {
   const rootData = useRouteLoaderData<RootLoader>('root');
   const isLoggedInPromise = rootData?.isLoggedInPromise;
   const {state} = useNavigation();
+  const {customerPrivacy} = useAnalytics();
 
   // Fetch customer short details
   const {load, data: customerShort} = useFetcher<{
@@ -48,30 +49,25 @@ export default function AvatarDropdown() {
     getCustomerShortDetai();
   }, [load, customerShortDetailApiPath, customerShort, isLoggedInPromise]);
 
-  // rsIdentify() no envía nada si el consentimiento aún no está otorgado
-  // (analyticsAllowed() en falso), así que aquí rastreamos el consentimiento
-  // por separado (mismo patrón que RudderStackLoader.tsx: evento nativo del
-  // banner + polling corto) para poder REINTENTAR el identify() cuando el
-  // consentimiento llegue después de que los datos del cliente ya estaban
-  // listos — si no, el cliente logueado se queda anónimo toda la sesión.
+  // rsIdentify() no envía nada si el consentimiento aún no está otorgado,
+  // así que aquí rastreamos el consentimiento por separado (mismo patrón que
+  // GtmLoader.tsx/RudderStackLoader.tsx: `customerPrivacy` de useAnalytics(),
+  // no un polling propio contra `window.Shopify.customerPrivacy`) para poder
+  // REINTENTAR el identify() cuando el consentimiento llegue después de que
+  // los datos del cliente ya estaban listos — si no, el cliente logueado se
+  // queda anónimo toda la sesión.
   const [analyticsConsent, setAnalyticsConsent] = useState(false);
   useEffect(() => {
-    const update = () => setAnalyticsConsent(analyticsAllowed());
+    if (!customerPrivacy) return;
+    const update = () =>
+      setAnalyticsConsent(
+        customerPrivacy.analyticsProcessingAllowed?.() === true,
+      );
     update();
     document.addEventListener('visitorConsentCollected', update);
-    const interval = setInterval(() => {
-      if (analyticsAllowed()) {
-        update();
-        clearInterval(interval);
-      }
-    }, 500);
-    const stop = setTimeout(() => clearInterval(interval), 20000);
-    return () => {
+    return () =>
       document.removeEventListener('visitorConsentCollected', update);
-      clearInterval(interval);
-      clearTimeout(stop);
-    };
-  }, []);
+  }, [customerPrivacy]);
 
   // identify() ante RudderStack en cuanto llegan los datos del cliente logueado
   // Y hay consentimiento — así el tráfico en vivo se fusiona con el grafo de
