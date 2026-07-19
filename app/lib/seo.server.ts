@@ -74,7 +74,8 @@ function home({url}: {url: Request['url']}): SeoConfig {
   return {
     title: 'Equipos de Gimnasio y Máquinas de Ejercicio',
     titleTemplate: '%s | Tienda Fitness',
-    description: 'Encuentra equipos de gimnasio, máquinas de ejercicio y accesorios fitness de las mejores marcas. Envíos a toda Colombia.',
+    description:
+      'Encuentra equipos de gimnasio, máquinas de ejercicio y accesorios fitness de las mejores marcas. Envíos a toda Colombia.',
     url,
     robots: {
       noIndex: false,
@@ -398,6 +399,42 @@ function blog({
   };
 }
 
+type CityRequiredFields = {
+  name: string;
+  department: string;
+  paragraph: string;
+};
+
+function city({
+  city,
+  url,
+}: {
+  city: CityRequiredFields;
+  url: Request['url'];
+}): SeoConfig {
+  const title = `Equipos de Gimnasio en ${city.name}`;
+  const description = truncate(
+    `Compra equipos de gimnasio, máquinas de ejercicio y accesorios fitness con envío a ${city.name}, ${city.department}. ${city.paragraph}`,
+  );
+  return {
+    title,
+    description,
+    titleTemplate: '%s | Tienda Fitness',
+    url,
+    robots: {
+      noIndex: false,
+      noFollow: false,
+    },
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: title,
+      description,
+      url,
+    },
+  };
+}
+
 function page({
   page,
   url,
@@ -475,6 +512,7 @@ function policies({
 export const seoPayload = {
   article,
   blog,
+  city,
   collection,
   home,
   listCollections,

@@ -6,6 +6,7 @@ import {
   EnvelopeIcon,
   InformationCircleIcon,
   MapPinIcon,
+  TruckIcon,
 } from '@heroicons/react/24/outline';
 import {useFetcher, useRouteLoaderData} from '@remix-run/react';
 import Input from './MyInput';
@@ -15,6 +16,7 @@ import SocialsList from './SocialsList';
 import {type AddSubscriberMutation} from 'storefrontapi.generated';
 import {FooterMenuDataWrap, HeaderMenuDataWrap} from './Layout';
 import type {RootLoader} from '~/root';
+import {CITIES} from '~/data/cities';
 
 interface FooterProps {}
 
@@ -80,17 +82,40 @@ const Footer: React.FC<FooterProps> = () => {
               </h2>
               <ul className="mt-4 space-y-3">
                 <li className="text-neutral-600">
-                  <span className="font-medium">Medellín:</span> Carrera 43 #30-91
+                  <span className="font-medium">Medellín:</span> Carrera 43
+                  #30-91
                 </li>
                 <li className="text-neutral-600">
-                  <span className="font-medium">Barranquilla:</span> Carrera 51B #93-25
+                  <span className="font-medium">Barranquilla:</span> Carrera 51B
+                  #93-25
                 </li>
                 <li className="text-neutral-600">
-                  <span className="font-medium">Llanogrande:</span> Km 4 Vía Rionegro
+                  <span className="font-medium">Llanogrande:</span> Km 4 Vía
+                  Rionegro
                 </li>
                 <li className="text-neutral-600">
-                  <span className="font-medium">Palmas:</span> Cr 38 # 18 - 101 Mall palmagrande local 121
+                  <span className="font-medium">Palmas:</span> Cr 38 # 18 - 101
+                  Mall palmagrande local 121
                 </li>
+              </ul>
+            </div>
+            {/* Shipping-to-city landing pages (app/data/cities.ts) */}
+            <div className="text-sm">
+              <h2 className="font-semibold text-neutral-700 dark:text-neutral-200 flex items-center gap-2">
+                <TruckIcon className="w-4 h-4" />
+                Envíos a tu ciudad
+              </h2>
+              <ul className="mt-4 space-y-3">
+                {CITIES.map((city) => (
+                  <li
+                    key={city.slug}
+                    className="text-neutral-600 hover:text-black"
+                  >
+                    <Link to={`/ciudad/${city.slug}.html`} prefetch="intent">
+                      Envíos a {city.name}
+                    </Link>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -164,7 +189,8 @@ export function WidgetAddSubscriberForm() {
 
       <div className="p-4 xl:p-5">
         <span className="mt-2 text-sm leading-6 text-neutral-600 dark:text-neutral-400">
-          Suscríbete a nuestro boletín para recibir las últimas actualizaciones y ofertas especiales.
+          Suscríbete a nuestro boletín para recibir las últimas actualizaciones
+          y ofertas especiales.
         </span>
         <div className="mt-4">
           <fetcher.Form
