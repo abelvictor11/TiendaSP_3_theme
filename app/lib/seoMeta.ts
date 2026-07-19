@@ -15,7 +15,7 @@ import {getSeoMeta, type SeoConfig} from '@shopify/hydrogen';
  */
 export function getSeoMetaTags(
   seoInputs: Array<SeoConfig | undefined>,
-  ogType: 'website' | 'product' = 'website',
+  ogType: 'website' | 'product' | 'article' = 'website',
 ): ReturnType<typeof getSeoMeta> {
   return [
     ...(getSeoMeta(...seoInputs) ?? []),

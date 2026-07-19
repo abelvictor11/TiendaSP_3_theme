@@ -76,7 +76,10 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(
+    matches.map((match) => (match.data as any).seo),
+    'article',
+  );
 };
 
 export default function Article() {
