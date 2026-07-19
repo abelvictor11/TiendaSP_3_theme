@@ -124,6 +124,21 @@ function rsTrack(event: string, properties?: Record<string, unknown>) {
   window.rudderanalytics.track(event, properties as any);
 }
 
+// identify() ata el visitante anónimo (anonymousId) al grafo de identidad
+// existente (116k clientes, resuelto Klaviyo+Shopify). userId = email en
+// minúsculas/recortado — misma convención que el backfill histórico
+// (scripts/backfill_rudderstack.py en klaviyo-migration), necesaria para que
+// esto se fusione con ese grafo en vez de crear una identidad separada.
+export function rsIdentify(userId: string, traits?: Record<string, unknown>) {
+  if (
+    typeof window === 'undefined' ||
+    !window.rudderanalytics ||
+    !analyticsAllowed()
+  )
+    return;
+  window.rudderanalytics.identify(userId, traits as any);
+}
+
 // ── Componente ───────────────────────────────────────────────────────────────
 
 export function CustomAnalytics({gtmOwnsTags = false}: {gtmOwnsTags?: boolean}) {

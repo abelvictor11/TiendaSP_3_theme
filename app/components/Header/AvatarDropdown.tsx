@@ -1,5 +1,5 @@
 import {Popover, Transition} from '@headlessui/react';
-import {Fragment, Suspense, useEffect, useState} from 'react';
+import {Fragment, Suspense, useEffect, useRef} from 'react';
 import Avatar from '@/components/Avatar';
 import {Link} from '../Link';
 import {
@@ -20,13 +20,12 @@ import {
 import {type CustomerShortDetailsQuery} from 'customer-accountapi.generated';
 import {usePrefixPathWithLocale} from '~/lib/utils';
 import type {RootLoader} from '~/root';
+import {rsIdentify} from '~/components/CustomAnalytics';
 
 export default function AvatarDropdown() {
   const rootData = useRouteLoaderData<RootLoader>('root');
   const isLoggedInPromise = rootData?.isLoggedInPromise;
   const {state} = useNavigation();
-
-  const [isClicked, setIsClicked] = useState(false);
 
   // Fetch customer short details
   const {load, data: customerShort} = useFetcher<{
@@ -36,7 +35,7 @@ export default function AvatarDropdown() {
     `/api/customer-short-detail`,
   );
   useEffect(() => {
-    if (!isLoggedInPromise || customerShort?.customer || !isClicked) {
+    if (!isLoggedInPromise || customerShort?.customer) {
       return;
     }
     const getCustomerShortDetai = async () => {
@@ -46,13 +45,37 @@ export default function AvatarDropdown() {
       }
     };
     getCustomerShortDetai();
-  }, [
-    load,
-    customerShortDetailApiPath,
-    customerShort,
-    isLoggedInPromise,
-    isClicked,
-  ]);
+  }, [load, customerShortDetailApiPath, customerShort, isLoggedInPromise]);
+
+  // identify() ante RudderStack en cuanto llegan los datos del cliente logueado
+  // — así el tráfico en vivo se fusiona con el grafo de identidad existente
+  // (116k clientes, Klaviyo+Shopify) en vez de quedar completamente desconectado
+  // de él. Un ref evita reenviar el mismo identify() en cada re-render.
+  const identifiedRef = useRef(false);
+  useEffect(() => {
+    const customer = customerShort?.customer;
+    const email = customer?.emailAddress?.emailAddress;
+    if (!email || identifiedRef.current) return;
+    identifiedRef.current = true;
+
+    const normalizedEmail = email.toLowerCase().trim();
+    const addr = customer.defaultAddress;
+    rsIdentify(normalizedEmail, {
+      email: normalizedEmail,
+      phone: customer.phoneNumber?.phoneNumber,
+      firstName: customer.firstName,
+      lastName: customer.lastName,
+      ...(addr && {
+        address: {
+          city: addr.city,
+          country: addr.country,
+          postalCode: addr.zip,
+          state: addr.zoneCode,
+          street: addr.address1,
+        },
+      }),
+    });
+  }, [customerShort]);
   //
 
   const className =
@@ -79,10 +102,7 @@ export default function AvatarDropdown() {
               <Popover className="relative">
                 {({open, close}) => (
                   <>
-                    <Popover.Button
-                      className={className}
-                      onClick={() => setIsClicked(true)}
-                    >
+                    <Popover.Button className={className}>
                       <MyUserIcon />
                     </Popover.Button>
                     <Transition
