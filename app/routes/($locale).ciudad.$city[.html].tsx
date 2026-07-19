@@ -1,4 +1,4 @@
-import {json, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {json, redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {type MetaArgs, useLoaderData} from '@remix-run/react';
 import {getSeoMeta} from '@shopify/hydrogen';
 import {routeHeaders} from '~/data/cache';
@@ -24,6 +24,18 @@ const CITY_PAGE_COLLECTION_HANDLES = [
 ] as const;
 
 export async function loader({params, request, context}: LoaderFunctionArgs) {
+  // This page is hard-coded Spanish/Colombia content — not localized per
+  // the ($locale) prefix like other routes. Unlike e.g. ($locale)._index.tsx,
+  // which 404s only on prefixes that don't match the resolved storefront
+  // locale (so valid country prefixes like /en-de fall through and render),
+  // ANY locale prefix here — valid country/language pair or not — would
+  // serve the same Spanish/Colombia content as a separate indexable
+  // canonical URL. Redirect every prefixed variant to the historical
+  // unprefixed URL instead of rendering a duplicate.
+  if (params.locale) {
+    return redirect(`/ciudad/${params.city}.html`, 301);
+  }
+
   const city = getCityBySlug(params.city);
 
   if (!city) {
