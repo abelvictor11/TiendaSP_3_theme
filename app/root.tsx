@@ -16,17 +16,13 @@ import {
   type ShouldRevalidateFunction,
   useRouteLoaderData,
 } from '@remix-run/react';
-import {
-  useNonce,
-  getSeoMeta,
-  Analytics,
-  getShopAnalytics,
-} from '@shopify/hydrogen';
+import {useNonce, Analytics, getShopAnalytics} from '@shopify/hydrogen';
 import {Layout} from '~/components/Layout';
 import {CustomAnalytics} from '~/components/CustomAnalytics';
 import {GtmLoader} from '~/components/GtmLoader';
 import {RudderStackLoader} from '~/components/RudderStackLoader';
 import {seoPayload} from '~/lib/seo.server';
+import {getSeoMetaTags} from '~/lib/seoMeta';
 import {storeConfig} from '~/config/store';
 import {GenericError} from './components/GenericError';
 import {NotFound} from './components/NotFound';
@@ -71,8 +67,15 @@ export const links: LinksFunction = () => {
     {rel: 'preconnect', href: 'https://cdn.shopify.com'},
     {rel: 'preconnect', href: 'https://shop.app'},
     {rel: 'preconnect', href: 'https://fonts.googleapis.com'},
-    {rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' as const},
-    {rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap'},
+    {
+      rel: 'preconnect',
+      href: 'https://fonts.gstatic.com',
+      crossOrigin: 'anonymous' as const,
+    },
+    {
+      rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap',
+    },
     {rel: 'icon', href: storeConfig.faviconUrl},
   ];
 };
@@ -200,7 +203,7 @@ export type RootLoader = typeof loader;
 
 export const meta: MetaFunction<RootLoader> = ({data, matches}) => {
   // Pass one or more arguments, preserving properties from parent routes
-  return getSeoMeta(...matches.map((match) => (match?.data as any)?.seo));
+  return getSeoMetaTags(matches.map((match) => (match?.data as any)?.seo));
 };
 
 function MainLayout({children}: {children?: React.ReactNode}) {
@@ -208,11 +211,17 @@ function MainLayout({children}: {children?: React.ReactNode}) {
   const data = useRouteLoaderData<RootLoader>('root');
   const locale = data?.selectedLocale ?? DEFAULT_LOCALE;
   const gtmId = data?.publicGtmId as string | null | undefined;
-  const gaMeasurementId = data?.publicGaMeasurementId as string | null | undefined;
+  const gaMeasurementId = data?.publicGaMeasurementId as
+    | string
+    | null
+    | undefined;
   const googleAdsId = data?.publicGoogleAdsId as string | null | undefined;
   const metaPixelId = data?.publicMetaPixelId as string | null | undefined;
   const tiktokPixelId = data?.publicTiktokPixelId as string | null | undefined;
-  const checkoutDomain = data?.publicCheckoutDomain as string | null | undefined;
+  const checkoutDomain = data?.publicCheckoutDomain as
+    | string
+    | null
+    | undefined;
   const rudderstackWriteKey = data?.publicRudderstackWriteKey as
     | string
     | null
@@ -221,7 +230,8 @@ function MainLayout({children}: {children?: React.ReactNode}) {
     | string
     | null
     | undefined;
-  const gtmOwnsTags = (data?.publicGtmOwnsTags as string | undefined) === 'true';
+  const gtmOwnsTags =
+    (data?.publicGtmOwnsTags as string | undefined) === 'true';
 
   return (
     <html lang={locale.language}>

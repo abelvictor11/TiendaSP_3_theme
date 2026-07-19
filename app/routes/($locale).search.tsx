@@ -4,8 +4,9 @@ import {
   type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
 import {Await, Form, useLoaderData} from '@remix-run/react';
-import {Pagination, Analytics, getSeoMeta} from '@shopify/hydrogen';
+import {Pagination, Analytics} from '@shopify/hydrogen';
 import {seoPayload} from '~/lib/seo.server';
+import {getSeoMetaTags} from '~/lib/seoMeta';
 import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import {
@@ -109,7 +110,7 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMeta(...matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
 };
 
 export default function Search() {

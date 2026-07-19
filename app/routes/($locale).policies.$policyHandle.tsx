@@ -9,7 +9,7 @@ import {routeHeaders} from '~/data/cache';
 import {seoPayload} from '~/lib/seo.server';
 import Heading from '~/components/Heading/Heading';
 import {Link} from '~/components/Link';
-import {getSeoMeta} from '@shopify/hydrogen';
+import {getSeoMetaTags} from '~/lib/seoMeta';
 
 export const headers = routeHeaders;
 
@@ -45,7 +45,7 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMeta(...matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
 };
 
 export default function Policies() {

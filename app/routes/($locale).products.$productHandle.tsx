@@ -52,7 +52,7 @@ import {
 import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
 import {SnapSliderProducts} from '~/components/SnapSliderProducts';
 import {RouteContent} from '~/sections/RouteContent';
-import {getSeoMeta} from '@shopify/hydrogen';
+import {getSeoMetaTags} from '~/lib/seoMeta';
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
 import type {RootLoader} from '~/root';
 import {useAside} from '~/components/Aside';
@@ -163,7 +163,10 @@ function loadDeferredData(args: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMeta(...matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(
+    matches.map((match) => (match.data as any).seo),
+    'product',
+  );
 };
 
 export default function Product() {
