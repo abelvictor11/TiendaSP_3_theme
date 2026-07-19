@@ -1,6 +1,7 @@
 import {Suspense, useState, useEffect, useRef} from 'react';
 import {
   defer,
+  redirect,
   type MetaArgs,
   type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
@@ -65,6 +66,7 @@ import {ComplementaryProducts} from '~/components/ComplementaryProducts';
 import {PdpEnhancedSection, parsePdpEnhancedData} from '~/components/PdpEnhancedSection';
 import {ProductDescriptionBlock} from '~/components/ProductDescriptionBlock';
 import {ProductFeatureBlocks, parseFeatureBlocks} from '~/components/ProductFeatureBlocks';
+import {getLegacyRedirectTarget} from '~/lib/legacyRedirects.server';
 
 export const headers = routeHeaders;
 
@@ -115,6 +117,15 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
   ]);
 
   if (!product?.id) {
+    // Fall back to legacyRedirects.json before 404ing: this route is more
+    // specific than the $.tsx catch-all, so Remix matches it first for
+    // canonical-shaped legacy paths (e.g. /products/producto-antiguo) and
+    // $.tsx never gets a chance to consult the redirect map for them.
+    const target = getLegacyRedirectTarget(new URL(request.url).pathname);
+    if (target) {
+      throw redirect(target, 301);
+    }
+
     throw new Response('product', {status: 404});
   }
 

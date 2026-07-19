@@ -1,5 +1,6 @@
 import {
   json,
+  redirect,
   type MetaArgs,
   type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
@@ -10,6 +11,7 @@ import PageHeader from '~/components/PageHeader';
 import {routeHeaders} from '~/data/cache';
 import {seoPayload} from '~/lib/seo.server';
 import {getSeoMetaTags} from '~/lib/seoMeta';
+import {getLegacyRedirectTarget} from '~/lib/legacyRedirects.server';
 
 export const headers = routeHeaders;
 
@@ -24,6 +26,15 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
   });
 
   if (!page) {
+    // Fall back to legacyRedirects.json before 404ing: this route is more
+    // specific than the $.tsx catch-all, so Remix matches it first for
+    // canonical-shaped legacy paths (e.g. /pages/pagina-antigua) and $.tsx
+    // never gets a chance to consult the redirect map for them.
+    const target = getLegacyRedirectTarget(new URL(request.url).pathname);
+    if (target) {
+      return redirect(target, 301);
+    }
+
     throw new Response(null, {status: 404});
   }
 
