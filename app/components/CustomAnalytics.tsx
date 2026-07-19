@@ -139,6 +139,17 @@ export function rsIdentify(userId: string, traits?: Record<string, unknown>) {
   window.rudderanalytics.identify(userId, traits as any);
 }
 
+// Limpia el userId/traits persistidos localmente por el SDK (localStorage) al
+// cerrar sesión — sin esto, la identidad del cliente anterior queda pegada al
+// dispositivo/navegador y los eventos post-logout (incl. de otro cliente en un
+// equipo compartido) seguirían atribuyéndose a él hasta el siguiente identify().
+// No gateado por analyticsAllowed(): limpiar identidad debe poder ocurrir aunque
+// el consentimiento se haya revocado entretanto.
+export function rsReset() {
+  if (typeof window === 'undefined' || !window.rudderanalytics) return;
+  window.rudderanalytics.reset();
+}
+
 // ── Componente ───────────────────────────────────────────────────────────────
 
 export function CustomAnalytics({gtmOwnsTags = false}: {gtmOwnsTags?: boolean}) {
