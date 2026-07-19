@@ -10,9 +10,10 @@
  * doorway-page SEO risk), this app has ONE reusable route
  * (`app/routes/($locale).ciudad.$city[.html].tsx`) driven by this config.
  *
- * Seeded with only the 4 cities with the strongest historical GSC traffic
- * signal: Bogotá, Medellín, Bucaramanga, Barranquilla. To add a 5th city,
- * add one entry below — no route or component changes needed. Keep the
+ * Seeded with the cities with confirmed historical GSC traffic signal:
+ * Bogotá, Medellín, Bucaramanga, Barranquilla, Pasto, Ibagué, Pereira,
+ * Tunja, Popayán. To add another city, add one entry below — no route or
+ * component changes needed. Keep the
  * `paragraph` copy honest: reference the city name, its real metro-area
  * municipalities (verifiable facts, not marketing invention), and the
  * store's actual *national* free-shipping policy. Do not invent
@@ -59,6 +60,41 @@ export const CITIES: CityConfig[] = [
     department: 'Atlántico',
     paragraph:
       'Enviamos a Barranquilla y a los municipios de su área metropolitana (Soledad, Puerto Colombia, Malambo y Galapa). Como en el resto de Colombia, el envío es gratis en pedidos mayores a $200.000.',
+  },
+  {
+    slug: 'pasto',
+    name: 'Pasto',
+    department: 'Nariño',
+    paragraph:
+      'Enviamos a todo Pasto y su área metropolitana. Como en el resto de Colombia, el envío es gratis en pedidos mayores a $200.000.',
+  },
+  {
+    slug: 'ibague',
+    name: 'Ibagué',
+    department: 'Tolima',
+    paragraph:
+      'Enviamos a todo Ibagué y su área metropolitana. Como en el resto de Colombia, el envío es gratis en pedidos mayores a $200.000.',
+  },
+  {
+    slug: 'pereira',
+    name: 'Pereira',
+    department: 'Risaralda',
+    paragraph:
+      'Enviamos a Pereira y a los municipios de su área metropolitana (Dosquebradas y La Virginia). Como en el resto de Colombia, el envío es gratis en pedidos mayores a $200.000.',
+  },
+  {
+    slug: 'tunja',
+    name: 'Tunja',
+    department: 'Boyacá',
+    paragraph:
+      'Enviamos a todo Tunja y su área metropolitana. Como en el resto de Colombia, el envío es gratis en pedidos mayores a $200.000.',
+  },
+  {
+    slug: 'popayan',
+    name: 'Popayán',
+    department: 'Cauca',
+    paragraph:
+      'Enviamos a todo Popayán y su área metropolitana. Como en el resto de Colombia, el envío es gratis en pedidos mayores a $200.000.',
   },
 ];
 
