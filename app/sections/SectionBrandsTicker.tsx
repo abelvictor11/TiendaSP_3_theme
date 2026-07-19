@@ -1,13 +1,23 @@
 import {Link} from '@remix-run/react';
 import {useMemo} from 'react';
+import {normalizeBrandKey} from '~/utils/brandKey';
+
+// Brands whose Shopify metaobject doesn't have its `url` field populated yet
+// (confirmed via live DOM inspection: CSFITNESS already links to
+// /collections/csfitness, but Evolution, Sportfitness, and UFC render as
+// bare, unlinked <img> tags). This keeps the metaobject `url` field as the
+// source of truth — it's only consulted when that field is empty — while
+// still sending shoppers to the matching Shopify collection for the brands
+// that have one. Keyed by a normalized version of the metaobject's `name`
+// field (lowercased, trailing numeric suffix like "-1" stripped).
+const BRAND_URL_FALLBACKS: Record<string, string> = {
+  evolution: '/collections/evolution',
+  sportfitness: '/collections/sportfitness',
+  ufc: '/collections/ufc',
+};
 
 export function SectionBrandsTicker(props: any) {
-  const {
-    title,
-    brands,
-    background_color,
-    speed,
-  } = props;
+  const {title, brands, background_color, speed} = props;
 
   const bgColor = background_color?.value || '#ffffff';
   const animationSpeed = speed?.value || '30'; // seconds
@@ -23,8 +33,11 @@ export function SectionBrandsTicker(props: any) {
   // Each brand takes ~160px (128px width + 32px gap)
   // We need at least 2 full sets for seamless loop, but more if there are few brands
   const minBrandsForFullWidth = 12; // Minimum brands to fill ~1920px screen
-  const repeatCount = Math.max(2, Math.ceil(minBrandsForFullWidth / brandsData.length) * 2);
-  
+  const repeatCount = Math.max(
+    2,
+    Math.ceil(minBrandsForFullWidth / brandsData.length) * 2,
+  );
+
   // Create repeated brands array
   const repeatedBrands = useMemo(() => {
     const result = [];
@@ -37,31 +50,34 @@ export function SectionBrandsTicker(props: any) {
   const renderBrandItem = (brand: any, index: number) => {
     const svgContent = brand.svg_logo?.value;
     const imageUrl = brand.image_logo?.reference?.image?.url;
-    const brandUrl = brand.url?.value;
     const brandName = brand.name?.value || `Brand ${index}`;
+    const brandUrl =
+      brand.url?.value || BRAND_URL_FALLBACKS[normalizeBrandKey(brandName)];
 
     const BrandContent = () => (
       <div className="flex-shrink-0 w-32 h-16 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity">
         {svgContent ? (
-          <div 
+          <div
             className="w-full h-full flex items-center justify-center [&>svg]:max-w-full [&>svg]:max-h-full [&>svg]:w-auto [&>svg]:h-auto"
             dangerouslySetInnerHTML={{__html: svgContent}}
           />
         ) : imageUrl ? (
-          <img 
-            src={imageUrl} 
+          <img
+            src={imageUrl}
             alt={brandName}
             className="max-w-full max-h-full object-contain"
             loading="lazy"
           />
         ) : (
-          <span className="text-sm font-medium text-slate-500">{brandName}</span>
+          <span className="text-sm font-medium text-slate-500">
+            {brandName}
+          </span>
         )}
       </div>
     );
 
     return brandUrl ? (
-      <Link 
+      <Link
         key={`${brand.id}-${index}`}
         to={brandUrl}
         className="flex-shrink-0"
@@ -79,10 +95,11 @@ export function SectionBrandsTicker(props: any) {
   // Calculate animation duration based on number of brands
   // More brands = longer duration to maintain consistent speed
   const baseDuration = Number(animationSpeed);
-  const adjustedDuration = baseDuration * (repeatedBrands.length / (brandsData.length * 2));
+  const adjustedDuration =
+    baseDuration * (repeatedBrands.length / (brandsData.length * 2));
 
   return (
-    <section 
+    <section
       className="nc-SectionBrandsTicker py-8 lg:py-12 overflow-hidden"
       style={{backgroundColor: bgColor}}
     >
@@ -98,13 +115,15 @@ export function SectionBrandsTicker(props: any) {
 
       {/* Ticker Container */}
       <div className="relative w-full">
-        <div 
+        <div
           className="flex items-center gap-8 md:gap-12 lg:gap-16 animate-ticker"
           style={{
             animationDuration: `${adjustedDuration}s`,
           }}
         >
-          {repeatedBrands.map((brand: any, index: number) => renderBrandItem(brand, index))}
+          {repeatedBrands.map((brand: any, index: number) =>
+            renderBrandItem(brand, index),
+          )}
         </div>
       </div>
 
@@ -115,7 +134,7 @@ export function SectionBrandsTicker(props: any) {
             transform: translateX(0);
           }
           100% {
-            transform: translateX(-${100 / repeatCount * (repeatCount / 2)}%);
+            transform: translateX(-${(100 / repeatCount) * (repeatCount / 2)}%);
           }
         }
         .animate-ticker {

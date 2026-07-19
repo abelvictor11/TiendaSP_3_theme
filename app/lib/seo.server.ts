@@ -74,7 +74,8 @@ function home({url}: {url: Request['url']}): SeoConfig {
   return {
     title: 'Equipos de Gimnasio y Máquinas de Ejercicio',
     titleTemplate: '%s | Tienda Fitness',
-    description: 'Encuentra equipos de gimnasio, máquinas de ejercicio y accesorios fitness de las mejores marcas. Envíos a toda Colombia.',
+    description:
+      'Encuentra equipos de gimnasio, máquinas de ejercicio y accesorios fitness de las mejores marcas. Envíos a toda Colombia.',
     url,
     robots: {
       noIndex: false,
@@ -418,6 +419,27 @@ function page({
   };
 }
 
+function brands({url}: {url: Request['url']}): SeoConfig {
+  return {
+    title: 'Marcas',
+    titleTemplate: '%s | Tienda Fitness',
+    description:
+      'Explora las marcas disponibles en Tienda Fitness: Sportfitness, Evolution, UFC y más equipos de gimnasio y accesorios de entrenamiento.',
+    url,
+    robots: {
+      noIndex: false,
+      noFollow: false,
+    },
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: 'Marcas',
+      description: 'Todas las marcas de Tienda Fitness.',
+      url,
+    },
+  };
+}
+
 function policy({
   policy,
   url,
@@ -475,6 +497,7 @@ function policies({
 export const seoPayload = {
   article,
   blog,
+  brands,
   collection,
   home,
   listCollections,
