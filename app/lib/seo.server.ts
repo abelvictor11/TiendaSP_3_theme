@@ -1,8 +1,10 @@
 import {type SeoConfig} from '@shopify/hydrogen';
 import type {
   Article,
+  ArticleAuthor,
   Blog,
   Collection,
+  Metafield,
   Page,
   Product,
   ProductVariant,
@@ -10,6 +12,7 @@ import type {
   Image,
 } from '@shopify/hydrogen/storefront-api-types';
 import type {
+  AggregateRating,
   Article as SeoArticle,
   BreadcrumbList,
   Blog as SeoBlog,
@@ -21,6 +24,19 @@ import type {
 } from 'schema-dts';
 
 import type {ShopFragment} from 'storefrontapi.generated';
+
+/**
+ * Shared store identity used across JSON-LD blocks that need to describe
+ * "who publishes this" (root Organization, Article publisher/author
+ * fallback) without re-deriving it or drifting out of sync.
+ */
+const SHOP_NAME = 'Tienda Fitness';
+const SHOP_SOCIAL_LINKS = [
+  'https://www.instagram.com/tiendafitness.co/',
+  'https://www.facebook.com/profile.php?id=61581462937015',
+  'https://www.youtube.com/channel/UCNel96H1em3ZaArATLx9VFg',
+  'https://www.tiktok.com/@tiendafitness.co',
+];
 
 function root({
   shop,
@@ -47,12 +63,7 @@ function root({
         '@type': 'Organization',
         name: shop.name,
         logo: shop.brand?.logo?.image?.url,
-        sameAs: [
-          'https://www.instagram.com/tiendafitness.co/',
-          'https://www.facebook.com/profile.php?id=61581462937015',
-          'https://www.youtube.com/channel/UCNel96H1em3ZaArATLx9VFg',
-          'https://www.tiktok.com/@tiendafitness.co',
-        ],
+        sameAs: SHOP_SOCIAL_LINKS,
         url: siteUrl,
       },
       {
@@ -103,7 +114,71 @@ type ProductRequiredFields = Pick<
       'sku' | 'price' | 'selectedOptions' | 'availableForSale'
     >
   >;
+  // Structured rating metafields (namespace "reviews") — a plain Shopify
+  // "rating" metafield type, distinct from the Okendo `okendoStarRatingSnippet`
+  // / `okendoReviewsSnippet` metafields (namespace "okendo") also loaded on
+  // this route. The Okendo snippets are opaque pre-rendered widget markup
+  // consumed via `dangerouslySetInnerHTML` by Okendo's client-side script
+  // (see node_modules/@okendo/shopify-hydrogen/dist/esm/index.js) — there's
+  // no rating value or review count to extract from them. These
+  // `reviews_rating`/`reviews_rating_count` metafields, already fetched by
+  // PRODUCT_FRAGMENT but previously unused, hold the structured data instead.
+  reviews_rating?: null | Pick<Metafield, 'value'>;
+  reviews_rating_count?: null | Pick<Metafield, 'value'>;
 };
+
+/**
+ * Parses the store's structured `reviews_rating` (Shopify "rating" metafield
+ * type — a JSON string like `{"scale_min":"1.0","scale_max":"5.0","value":"4.8"}`)
+ * and `reviews_rating_count` (plain integer string) metafields into an
+ * AggregateRating-shaped value. Returns null (skip emitting the schema
+ * entirely) when either metafield is missing, malformed, or the review
+ * count is zero — never fabricates a placeholder rating.
+ */
+function parseAggregateRating(product: {
+  reviews_rating?: null | {value: string};
+  reviews_rating_count?: null | {value: string};
+}): {
+  ratingValue: number;
+  reviewCount: number;
+  bestRating?: number;
+  worstRating?: number;
+} | null {
+  const ratingRaw = product?.reviews_rating?.value;
+  const countRaw = product?.reviews_rating_count?.value;
+  if (!ratingRaw || !countRaw) return null;
+
+  let parsed: {value?: string; scale_min?: string; scale_max?: string};
+  try {
+    parsed = JSON.parse(ratingRaw) as {
+      value?: string;
+      scale_min?: string;
+      scale_max?: string;
+    };
+  } catch {
+    return null;
+  }
+
+  const ratingValue = parseFloat(parsed?.value ?? '');
+  const reviewCount = parseInt(countRaw, 10);
+  if (
+    !Number.isFinite(ratingValue) ||
+    !Number.isFinite(reviewCount) ||
+    reviewCount <= 0
+  ) {
+    return null;
+  }
+
+  const bestRating = parseFloat(parsed?.scale_max ?? '');
+  const worstRating = parseFloat(parsed?.scale_min ?? '');
+
+  return {
+    ratingValue,
+    reviewCount,
+    ...(Number.isFinite(bestRating) ? {bestRating} : {}),
+    ...(Number.isFinite(worstRating) ? {worstRating} : {}),
+  };
+}
 
 function productJsonLd({
   product,
@@ -119,6 +194,7 @@ function productJsonLd({
   const description = truncate(
     product?.seo?.description ?? product?.description,
   );
+  const aggregateRating = parseAggregateRating(product);
   const offers: Offer[] = (variants || []).map((variant) => {
     const variantUrl = new URL(url);
     for (const option of variant.selectedOptions) {
@@ -169,6 +245,21 @@ function productJsonLd({
       offers,
       sku: selectedVariant?.sku ?? '',
       url,
+      ...(aggregateRating
+        ? {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: aggregateRating.ratingValue,
+              reviewCount: aggregateRating.reviewCount,
+              ...(aggregateRating.bestRating !== undefined
+                ? {bestRating: aggregateRating.bestRating}
+                : {}),
+              ...(aggregateRating.worstRating !== undefined
+                ? {worstRating: aggregateRating.worstRating}
+                : {}),
+            } satisfies AggregateRating,
+          }
+        : {}),
     },
   ];
 }
@@ -266,7 +357,7 @@ function collection({
   url: Request['url'];
 }): SeoConfig {
   return {
-    title: collection?.seo?.title,
+    title: collection?.seo?.title ?? collection?.title,
     description: truncate(
       collection?.seo?.description ?? collection?.description ?? '',
     ),
@@ -308,8 +399,8 @@ function collectionsJsonLd({
   return {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: 'Collections',
-    description: 'All collections',
+    name: 'Colecciones',
+    description: 'Todas las colecciones',
     url,
     mainEntity: {
       '@type': 'ItemList',
@@ -326,9 +417,9 @@ function listCollections({
   url: Request['url'];
 }): SeoConfig {
   return {
-    title: 'Collections',
+    title: 'Colecciones',
     titleTemplate: '%s | Tienda Fitness',
-    description: 'All hydrogen collections',
+    description: 'Todas las colecciones de Tienda Fitness.',
     url,
     jsonLd: collectionsJsonLd({collections, url}),
   };
@@ -346,9 +437,15 @@ function article({
       NonNullable<Article['image']>,
       'url' | 'height' | 'width' | 'altText'
     >;
+    // Aliased from `authorV2` in ARTICLE_QUERY (news.$newsHandle.tsx) —
+    // already fetched and rendered on the article page, just not
+    // schema-marked until now.
+    author?: null | Pick<ArticleAuthor, 'name'>;
   };
   url: Request['url'];
 }): SeoConfig {
+  const origin = new URL(url).origin;
+  const siteUrl = `${origin}/`;
   return {
     title: article?.seo?.title ?? article?.title,
     description: truncate(article?.seo?.description ?? ''),
@@ -367,12 +464,26 @@ function article({
       alternativeHeadline: article.title,
       articleBody: article.contentHtml,
       datePublished: article?.publishedAt,
+      // The Storefront API's Article type has no separate "updated at"
+      // field (only `publishedAt`), so there's no real modified date to
+      // report — using publishedAt for both satisfies Article rich-result
+      // guidelines (dateModified >= datePublished) without fabricating data.
+      dateModified: article?.publishedAt,
       description: truncate(
         article?.seo?.description || article?.excerpt || '',
       ),
       headline: article?.seo?.title || '',
       image: article?.image?.url,
       url,
+      author: article?.author?.name
+        ? {'@type': 'Person', name: article.author.name}
+        : {'@type': 'Organization', name: SHOP_NAME},
+      publisher: {
+        '@type': 'Organization',
+        name: SHOP_NAME,
+        sameAs: SHOP_SOCIAL_LINKS,
+        url: siteUrl,
+      },
     },
   };
 }
@@ -442,20 +553,63 @@ function page({
   page: Pick<Page, 'title' | 'seo'>;
   url: Request['url'];
 }): SeoConfig {
+  const description = truncate(page?.seo?.description || '');
+  const title = page?.seo?.title ?? page?.title;
   return {
-    description: truncate(page?.seo?.description || ''),
-    title: page?.seo?.title ?? page?.title,
+    description,
+    title,
     titleTemplate: '%s | Tienda Fitness',
     url,
     jsonLd: {
       '@context': 'https://schema.org',
       '@type': 'WebPage',
-      name: page.title,
+      name: title,
+      description,
+      url,
     },
   };
 }
 
-function brands({url}: {url: Request['url']}): SeoConfig {
+type BrandListRequiredFields = Array<{handle: string; title: string}>;
+
+function brandsJsonLd({
+  url,
+  brands,
+}: {
+  url: Request['url'];
+  brands: BrandListRequiredFields;
+}): SeoConfig['jsonLd'] {
+  const origin = new URL(url).origin;
+  const itemListElement: CollectionPage['mainEntity'] = brands.map(
+    (brand, index) => {
+      return {
+        '@type': 'ListItem',
+        position: index + 1,
+        url: `${origin}/collections/${brand.handle}`,
+      };
+    },
+  );
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Marcas',
+    description: 'Todas las marcas de Tienda Fitness.',
+    url,
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement,
+    },
+  };
+}
+
+function brands({
+  url,
+  brands,
+}: {
+  url: Request['url'];
+  brands: BrandListRequiredFields;
+}): SeoConfig {
   return {
     title: 'Marcas',
     titleTemplate: '%s | Tienda Fitness',
@@ -466,13 +620,7 @@ function brands({url}: {url: Request['url']}): SeoConfig {
       noIndex: false,
       noFollow: false,
     },
-    jsonLd: {
-      '@context': 'https://schema.org',
-      '@type': 'CollectionPage',
-      name: 'Marcas',
-      description: 'Todas las marcas de Tienda Fitness.',
-      url,
-    },
+    jsonLd: brandsJsonLd({url, brands}),
   };
 }
 
@@ -483,11 +631,19 @@ function policy({
   policy: Pick<ShopPolicy, 'title' | 'body'>;
   url: Request['url'];
 }): SeoConfig {
+  const description = truncate(policy?.body ?? '');
   return {
-    description: truncate(policy?.body ?? ''),
+    description,
     title: policy?.title,
     titleTemplate: '%s | Tienda Fitness',
     url,
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: policy?.title ?? '',
+      description,
+      url,
+    },
   };
 }
 
@@ -510,9 +666,9 @@ function policies({
       };
     });
   return {
-    title: 'Policies',
+    title: 'Políticas',
     titleTemplate: '%s | Tienda Fitness',
-    description: 'Hydroge store policies',
+    description: 'Políticas de la tienda',
     jsonLd: [
       {
         '@context': 'https://schema.org',
@@ -522,8 +678,8 @@ function policies({
       {
         '@context': 'https://schema.org',
         '@type': 'WebPage',
-        description: 'Hydrogen store policies',
-        name: 'Policies',
+        description: 'Políticas de la tienda',
+        name: 'Políticas',
         url,
       },
     ],

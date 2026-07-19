@@ -113,7 +113,12 @@ export async function loader({
     };
   });
 
-  const seo = seoPayload.brands({url: request.url});
+  const seo = seoPayload.brands({
+    url: request.url,
+    brands: brands
+      .filter((brand) => brand.exists)
+      .map(({handle, title}) => ({handle, title})),
+  });
 
   return json({brands, seo});
 }
