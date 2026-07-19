@@ -4,12 +4,9 @@ import {
   type MetaArgs,
 } from '@shopify/remix-oxygen';
 import {Await, useLoaderData} from '@remix-run/react';
-import {
-  getPaginationVariables,
-  Pagination,
-  getSeoMeta,
-} from '@shopify/hydrogen';
+import {getPaginationVariables, Pagination} from '@shopify/hydrogen';
 import {seoPayload} from '~/lib/seo.server';
+import {getSeoMetaTags} from '~/lib/seoMeta';
 import {routeHeaders} from '~/data/cache';
 import PageHeader from '~/components/PageHeader';
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
@@ -58,7 +55,7 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMeta(...matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
 };
 
 export default function News() {

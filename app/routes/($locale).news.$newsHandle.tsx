@@ -5,9 +5,10 @@ import {
   type MetaArgs,
 } from '@shopify/remix-oxygen';
 import {Await, useLoaderData} from '@remix-run/react';
-import {Image, getSeoMeta} from '@shopify/hydrogen';
+import {Image} from '@shopify/hydrogen';
 import invariant from 'tiny-invariant';
 import {seoPayload} from '~/lib/seo.server';
+import {getSeoMetaTags} from '~/lib/seoMeta';
 import {routeHeaders} from '~/data/cache';
 import Avatar from '~/components/Avatar';
 import {Badge} from '~/components/badge';
@@ -75,7 +76,7 @@ export async function loader({request, params, context}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMeta(...matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
 };
 
 export default function Article() {

@@ -1,6 +1,6 @@
 import {json, redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {type MetaArgs, useLoaderData} from '@remix-run/react';
-import {getSeoMeta} from '@shopify/hydrogen';
+import {getSeoMetaTags} from '~/lib/seoMeta';
 import {routeHeaders} from '~/data/cache';
 import {getCityBySlug} from '~/data/cities';
 import {seoPayload} from '~/lib/seo.server';
@@ -70,7 +70,7 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMeta(...matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
 };
 
 export default function CityPage() {

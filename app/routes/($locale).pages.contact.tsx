@@ -5,8 +5,8 @@ import {
   type MetaArgs,
 } from '@shopify/remix-oxygen';
 import {useFetcher, useLoaderData} from '@remix-run/react';
-import {getSeoMeta} from '@shopify/hydrogen';
 import {seoPayload} from '~/lib/seo.server';
+import {getSeoMetaTags} from '~/lib/seoMeta';
 import {routeHeaders} from '~/data/cache';
 import PageHeader from '~/components/PageHeader';
 import {
@@ -34,7 +34,7 @@ export async function loader({request}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMeta(...matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
 };
 
 export async function action({request, context}: ActionFunctionArgs) {

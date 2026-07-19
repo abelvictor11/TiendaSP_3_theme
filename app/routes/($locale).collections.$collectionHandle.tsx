@@ -5,10 +5,11 @@ import {
 } from '@shopify/remix-oxygen';
 import {Await, useLoaderData, Link} from '@remix-run/react';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
-import {Pagination, Analytics, getSeoMeta} from '@shopify/hydrogen';
+import {Pagination, Analytics} from '@shopify/hydrogen';
 import invariant from 'tiny-invariant';
 import {routeHeaders} from '~/data/cache';
 import {seoPayload} from '~/lib/seo.server';
+import {getSeoMetaTags} from '~/lib/seoMeta';
 import {SortFilter} from '~/components/SortFilter';
 import FiltersSidebar from '~/components/FiltersSidebar';
 import {useSearchParams, useLocation} from '@remix-run/react';
@@ -84,7 +85,7 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMeta(...matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
 };
 
 export default function Collection() {

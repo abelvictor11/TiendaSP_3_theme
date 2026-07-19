@@ -5,12 +5,9 @@ import {
 } from '@shopify/remix-oxygen';
 import {useLoaderData} from '@remix-run/react';
 import invariant from 'tiny-invariant';
-import {
-  Pagination,
-  getPaginationVariables,
-  getSeoMeta,
-} from '@shopify/hydrogen';
+import {Pagination, getPaginationVariables} from '@shopify/hydrogen';
 import {seoPayload} from '~/lib/seo.server';
+import {getSeoMetaTags} from '~/lib/seoMeta';
 import {routeHeaders} from '~/data/cache';
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import {COMMON_PRODUCT_CARD_FRAGMENT} from '~/data/commonFragments';
@@ -64,7 +61,7 @@ export async function loader({
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMeta(...matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
 };
 
 export default function AllProducts() {

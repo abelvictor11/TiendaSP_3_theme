@@ -4,13 +4,10 @@ import {
   type MetaArgs,
 } from '@shopify/remix-oxygen';
 import {useLoaderData} from '@remix-run/react';
-import {
-  Pagination,
-  getPaginationVariables,
-  getSeoMeta,
-} from '@shopify/hydrogen';
+import {Pagination, getPaginationVariables} from '@shopify/hydrogen';
 import {getImageLoadingPriority} from '~/lib/const';
 import {seoPayload} from '~/lib/seo.server';
+import {getSeoMetaTags} from '~/lib/seoMeta';
 import {routeHeaders} from '~/data/cache';
 import CollectionCard4 from '@/components/CollectionCards/CollectionCard4';
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
@@ -47,7 +44,7 @@ export const loader = async ({
 };
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMeta(...matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
 };
 
 export default function Collections() {
