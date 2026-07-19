@@ -17,20 +17,23 @@ import {SECTION_BRANDS_TICKER_FRAGMENT} from '~/sections/SectionBrandsTicker';
 export const headers = routeHeaders;
 
 /**
- * Brand collections (created live in Shopify July 2026): sportfitness,
- * movifit, evolution, ufc, inspire-fitness, sole-fitness, collarines.
- *
- * `collarines` is intentionally excluded here — it's a product
+ * Brand collections: sportfitness, movifit, evolution, ufc, inspire-fitness,
+ * sole-fitness (created live in Shopify July 2026), plus csfitness and k6
+ * (pre-existing collections, already live before this page was built —
+ * included here too so this is a complete brand index, not just the newly
+ * created ones). `collarines` is intentionally excluded — it's a product
  * category/tag (collars/leashes-style accessory grouping), not a brand,
  * so it doesn't belong on a brand-focused "Marcas" index. It's still a
  * normal collection and reachable at /collections/collarines.
  */
 const BRAND_COLLECTIONS: Array<{handle: string; alias: string; title: string}> =
   [
+    {handle: 'csfitness', alias: 'csfitness', title: 'CSfitness'},
     {handle: 'sportfitness', alias: 'sportfitness', title: 'Sportfitness'},
     {handle: 'evolution', alias: 'evolution', title: 'Evolution'},
     {handle: 'ufc', alias: 'ufc', title: 'UFC'},
     {handle: 'movifit', alias: 'movifit', title: 'MoviFit'},
+    {handle: 'k6', alias: 'k6', title: 'K6'},
     {
       handle: 'inspire-fitness',
       alias: 'inspireFitness',
@@ -50,10 +53,12 @@ export async function loader({
       variables: {
         country,
         language,
+        csfitness: 'csfitness',
         sportfitness: 'sportfitness',
         evolution: 'evolution',
         ufc: 'ufc',
         movifit: 'movifit',
+        k6: 'k6',
         inspireFitness: 'inspire-fitness',
         soleFitness: 'sole-fitness',
       },
@@ -174,13 +179,18 @@ const BRAND_COLLECTIONS_QUERY = `#graphql
   query MarcasBrandCollections(
     $country: CountryCode
     $language: LanguageCode
+    $csfitness: String!
     $sportfitness: String!
     $evolution: String!
     $ufc: String!
     $movifit: String!
+    $k6: String!
     $inspireFitness: String!
     $soleFitness: String!
   ) @inContext(country: $country, language: $language) {
+    csfitness: collection(handle: $csfitness) {
+      ...MarcasCollectionItem
+    }
     sportfitness: collection(handle: $sportfitness) {
       ...MarcasCollectionItem
     }
@@ -191,6 +201,9 @@ const BRAND_COLLECTIONS_QUERY = `#graphql
       ...MarcasCollectionItem
     }
     movifit: collection(handle: $movifit) {
+      ...MarcasCollectionItem
+    }
+    k6: collection(handle: $k6) {
       ...MarcasCollectionItem
     }
     inspireFitness: collection(handle: $inspireFitness) {
