@@ -27,7 +27,7 @@ const STORE_LOCATIONS = [
 
 export async function loader({request}: LoaderFunctionArgs) {
   const seo = seoPayload.page({
-    page: {title: 'Contacto', seo: {title: 'Contacto | Tienda N-Fitness', description: 'Contáctanos para cualquier consulta sobre nuestros productos de fitness y deporte. Sedes en Medellín, Barranquilla y Llanogrande.'}},
+    page: {title: 'Contacto', seo: {title: 'Contacto', description: 'Contáctanos para cualquier consulta sobre nuestros productos de fitness y deporte. Sedes en Medellín, Barranquilla y Llanogrande.'}},
     url: request.url,
   });
   return json({seo});
