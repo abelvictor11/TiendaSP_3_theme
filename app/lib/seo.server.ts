@@ -180,6 +180,29 @@ function parseAggregateRating(product: {
   };
 }
 
+/**
+ * Resolves the description used for both the meta tag and the Product
+ * JSON-LD. Falls back to a generated line when there's no seo.description
+ * AND no raw body description to truncate (confirmed 2026-07-20: true for
+ * 10 of 520 active products) -- otherwise those pages would ship an empty
+ * <meta name="description"> and an empty JSON-LD description field. Never
+ * invents product specifics, only states what's already known (title,
+ * vendor).
+ */
+function productDescription(product: {
+  title: string;
+  vendor?: string | null;
+  seo?: null | {description?: string | null};
+  description?: string | null;
+}): string {
+  const raw = product?.seo?.description ?? product?.description ?? '';
+  if (raw.trim().length > 0) return truncate(raw);
+  const vendorPart = product.vendor ? ` de ${product.vendor}` : '';
+  return truncate(
+    `${product.title}${vendorPart}, disponible en Tienda Fitness con envío a toda Colombia.`,
+  );
+}
+
 function productJsonLd({
   product,
   selectedVariant,
@@ -191,9 +214,7 @@ function productJsonLd({
 }): SeoConfig['jsonLd'] {
   const origin = new URL(url).origin;
   const variants = product.variants;
-  const description = truncate(
-    product?.seo?.description ?? product?.description,
-  );
+  const description = productDescription(product);
   const aggregateRating = parseAggregateRating(product);
   const offers: Offer[] = (variants || []).map((variant) => {
     const variantUrl = new URL(url);
@@ -273,9 +294,7 @@ function product({
   selectedVariant: SelectedVariantRequiredFields;
   url: Request['url'];
 }): SeoConfig {
-  const description = truncate(
-    product?.seo?.description ?? product?.description ?? '',
-  );
+  const description = productDescription(product);
   return {
     title: product?.seo?.title ?? product?.title,
     description,
