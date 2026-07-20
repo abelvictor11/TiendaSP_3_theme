@@ -195,7 +195,13 @@ function productDescription(product: {
   seo?: null | {description?: string | null};
   description?: string | null;
 }): string {
-  const raw = product?.seo?.description ?? product?.description ?? '';
+  // ?? only falls through on null/undefined -- if a merchant clears
+  // seo.description in Admin and Shopify stores that as '' rather than
+  // null, `??` would pick the blank string and discard a populated body
+  // description. Prefer the first non-blank value explicitly instead.
+  const seoDescription = product?.seo?.description ?? '';
+  const raw =
+    seoDescription.trim().length > 0 ? seoDescription : product?.description ?? '';
   if (raw.trim().length > 0) return truncate(raw);
   const vendorPart = product.vendor ? ` de ${product.vendor}` : '';
   return truncate(
