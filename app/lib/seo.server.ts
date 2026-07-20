@@ -702,13 +702,15 @@ export const seoPayload = {
 };
 
 /**
- * Truncate a string to a given length, adding an ellipsis if it was truncated
+ * Truncate a string to a given length, adding an ellipsis if it was
+ * truncated. Cuts at the last whole word before the limit rather than
+ * mid-word (previously produced meta descriptions like "...que se a...").
  * @param str - The string to truncate
  * @param num - The maximum length of the string
  * @returns The truncated string
  * @example
  * ```js
- * truncate('Hello world', 5) // 'Hello...'
+ * truncate('Hello world', 8) // 'Hello...'
  * ```
  */
 function truncate(str: string, num = 155): string {
@@ -716,5 +718,8 @@ function truncate(str: string, num = 155): string {
   if (str.length <= num) {
     return str;
   }
-  return str.slice(0, num - 3) + '...';
+  const sliced = str.slice(0, num - 3);
+  const lastSpace = sliced.lastIndexOf(' ');
+  const cut = lastSpace > 0 ? sliced.slice(0, lastSpace) : sliced;
+  return cut + '...';
 }
