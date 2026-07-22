@@ -60,7 +60,7 @@ export function SectionCategoryCardsCarousel(
         to={ctaLink}
         className={`group relative overflow-hidden rounded-2xl block ${
           isLarge
-            ? 'col-span-2 row-span-2 aspect-[4/5] sm:aspect-auto'
+            ? 'aspect-[4/5] sm:aspect-auto sm:col-span-2 sm:row-span-2'
             : 'aspect-square'
         }`}
       >
