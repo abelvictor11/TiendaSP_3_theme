@@ -10,6 +10,7 @@ import {type Article} from '@shopify/hydrogen/storefront-api-types';
 import {Empty} from '~/components/Empty';
 import {Link} from '~/components/Link';
 import {Image} from '@shopify/hydrogen';
+import {NewspaperIcon} from '@heroicons/react/24/outline';
 
 export function SectionBlogCarousel(props: SectionBlogCarouselFragment) {
   const section = parseSection<
@@ -109,13 +110,20 @@ function BlogCarouselCard({article}: {article: Article}) {
       className="flex-none w-[280px] md:w-[320px] lg:w-[360px] snap-start group"
     >
       <div className="bg-white dark:bg-slate-800 rounded-2xl overflow-hidden border border-[#e5e7eb] hover:border-black dark:border-slate-700 dark:hover:border-white transition-colors duration-300">
-        {image && (
+        {image ? (
           <div className="aspect-[16/10] overflow-hidden">
             <Image
               data={image}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               sizes="(max-width: 768px) 280px, (max-width: 1024px) 320px, 360px"
             />
+          </div>
+        ) : (
+          // Varios artículos del blog todavía no tienen imagen destacada en
+          // Shopify — sin este placeholder, esas cards salían más cortas
+          // que las demás, dejando el carrusel con un hueco visual.
+          <div className="aspect-[16/10] flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-800">
+            <NewspaperIcon className="w-10 h-10 text-slate-400 dark:text-slate-500" />
           </div>
         )}
         <div className="p-4 md:p-5">
