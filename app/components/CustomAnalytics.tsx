@@ -463,7 +463,10 @@ export function CustomAnalytics({gtmOwnsTags = false}: {gtmOwnsTags?: boolean}) 
             item_id: merch?.id,
             item_name: merch?.product?.title,
             item_variant: merch?.title,
-            price: parseFloat(line.cost?.totalAmount?.amount ?? '0'),
+            // amountPerQuantity (unitario), no totalAmount — ese ya viene
+            // multiplicado por quantity (mismo bug que Checkout Started,
+            // ver trackCheckoutStarted más arriba).
+            price: parseFloat(line.cost?.amountPerQuantity?.amount ?? '0'),
             quantity: line.quantity,
           };
         }) ?? [];
