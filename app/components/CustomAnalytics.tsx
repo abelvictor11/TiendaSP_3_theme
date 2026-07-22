@@ -125,6 +125,31 @@ export function rsTrack(event: string, properties?: Record<string, unknown>) {
   window.rudderanalytics.track(event, properties as any);
 }
 
+// Payload de "Checkout Started" compartido entre el /cart completo
+// (routes/($locale).cart.tsx) y el drawer del carrito (components/Cart.tsx),
+// para que iniciar checkout desde cualquiera de los dos dispare el mismo
+// evento con el mismo mapeo. `price` usa `amountPerQuantity` (unitario), no
+// `totalAmount` de la línea — ese ya viene multiplicado por `quantity`.
+export function trackCheckoutStarted(
+  cost: {totalAmount?: {amount?: string; currencyCode?: string}} | undefined,
+  lines: Array<{
+    merchandise?: {id?: string; title?: string; product?: {title?: string}};
+    cost?: {amountPerQuantity?: {amount?: string}};
+    quantity?: number;
+  }>,
+): void {
+  const currency = cost?.totalAmount?.currencyCode ?? 'COP';
+  const value = parseFloat(cost?.totalAmount?.amount ?? '0');
+  const products = (lines ?? []).map((line) => ({
+    product_id: line?.merchandise?.id,
+    name: line?.merchandise?.product?.title,
+    variant: line?.merchandise?.title,
+    price: parseFloat(line?.cost?.amountPerQuantity?.amount ?? '0'),
+    quantity: line?.quantity,
+  }));
+  rsTrack('Checkout Started', {currency, value, products});
+}
+
 // identify() ata el visitante anónimo (anonymousId) al grafo de identidad
 // existente (116k clientes, resuelto Klaviyo+Shopify). userId = email en
 // minúsculas/recortado — misma convención que el backfill histórico

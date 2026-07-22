@@ -24,6 +24,7 @@ import {useVariantUrl} from '~/lib/variants';
 import {useAside} from './Aside';
 import type {MouseEvent} from 'react';
 import {decorateCheckoutUrl} from '~/lib/checkoutContinuity';
+import {trackCheckoutStarted} from '~/components/CustomAnalytics';
 
 export function Cart({
   onClose,
@@ -65,6 +66,7 @@ function CartDetails({
           cost={cart.cost}
           discountCodes={cart.discountCodes}
           checkoutUrl={cart.checkoutUrl}
+          lines={cart?.lines ? flattenConnection(cart.lines) : []}
           onClose={onClose}
         />
       )}
@@ -94,12 +96,14 @@ function CartSummary({
   children = null,
   checkoutUrl,
   discountCodes,
+  lines,
   onClose,
 }: {
   children?: React.ReactNode;
   cost?: CartCost;
   discountCodes?: CartDiscountCode[];
   checkoutUrl?: string;
+  lines?: OptimisticCartLine[];
   onClose?: () => void;
 }) {
   function handleCheckoutClick(event: MouseEvent<HTMLAnchorElement>) {
@@ -113,6 +117,12 @@ function CartSummary({
     ) {
       return;
     }
+
+    // Igual que el /cart completo (routes/($locale).cart.tsx): quien inicia
+    // checkout desde el drawer también dispara "Checkout Started" — antes
+    // solo el /cart completo lo hacía, dejando este flujo (el más común, ya
+    // que el drawer se abre desde cualquier "Agregar al carrito") sin trackear.
+    trackCheckoutStarted(cost, (lines ?? []) as any);
 
     event.currentTarget.href = decorateCheckoutUrl(checkoutUrl);
   }

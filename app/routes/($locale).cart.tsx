@@ -20,7 +20,7 @@ import {isLocalPath} from '~/lib/utils';
 import {getFbCookies} from '~/lib/fbCookies';
 import {getGaCookies} from '~/lib/gaCookies';
 import {analyticsAllowed} from '~/lib/consent';
-import {rsTrack} from '~/components/CustomAnalytics';
+import {trackCheckoutStarted} from '~/components/CustomAnalytics';
 import {markRealCartAdd} from '~/lib/cartActionSignal';
 import {decorateCheckoutUrl} from '~/lib/checkoutContinuity';
 import {Link} from '~/components/Link';
@@ -361,16 +361,11 @@ function CartSummary({
     }
     // RudderStack (CDP propio) — spec ecommerce "Checkout Started". No
     // gateado por gtmOwns: RudderStack es independiente del stack de pixels
-    // de ads/GTM, así que siempre se envía (rsTrack ya chequea
-    // analyticsAllowed() internamente).
-    const rsProducts = items.map((item) => ({
-      product_id: item.item_id,
-      name: item.item_name,
-      variant: item.item_variant,
-      price: item.price,
-      quantity: item.quantity,
-    }));
-    rsTrack('Checkout Started', {currency, value, products: rsProducts});
+    // de ads/GTM, así que siempre se envía (trackCheckoutStarted llama a
+    // rsTrack, que chequea analyticsAllowed() internamente). Compartido con
+    // el drawer del carrito (components/Cart.tsx) para que ambos flujos de
+    // checkout disparen el mismo evento.
+    trackCheckoutStarted(cost, lines ?? []);
 
     // GTM dataLayer (solo cuando el contenedor GTM es dueño de los tags y
     // hay consentimiento — evita encolar eventos pre-consentimiento)
