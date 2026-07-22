@@ -95,7 +95,7 @@ function InstagramPostCard({post}: {post: InstagramPost}) {
       rel="noopener noreferrer"
       className="group block"
     >
-      <div className="aspect-square rounded-2xl overflow-hidden bg-slate-100 relative">
+      <div className="aspect-[1/1] rounded-2xl overflow-hidden bg-slate-100 relative">
         <img
           src={post.imageUrl}
           alt={caption || 'Publicación de Instagram'}
