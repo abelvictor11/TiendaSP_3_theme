@@ -75,6 +75,10 @@ import {
   SECTION_SEO_TEXT_FRAGMENT,
   SectionSeoText,
 } from './SectionSeoText';
+import {
+  SECTION_INSTAGRAM_FEED_FRAGMENT,
+  SectionInstagramFeed,
+} from './SectionInstagramFeed';
 import clsx from 'clsx';
 import {SECTION_HERO_FRAGMENT, SectionHero} from './SectionHero';
 import {OKENDO_PRODUCT_STAR_RATING_FRAGMENT} from '@okendo/shopify-hydrogen';
@@ -107,7 +111,8 @@ export type CisecoSectionType =
   | 'section_intro_feature'
   | 'section_shop_by_category'
   | 'ciseco--section_blog_carousel'
-  | 'ciseco--section_seo_text';
+  | 'ciseco--section_seo_text'
+  | 'ciseco--section_instagram_feed';
 
 export function Sections({
   sections,
@@ -247,6 +252,14 @@ export function Sections({
                 <SectionSeoText {...section} key={section.id} />
               </WrapSection>
             );
+          case 'ciseco--section_instagram_feed':
+            return (
+              <WrapSection key={section.id} index={index} {...args}>
+                <ClientOnly>
+                  <SectionInstagramFeed {...section} key={section.id} />
+                </ClientOnly>
+              </WrapSection>
+            );
 
           // case 'section_another':
           //   return <AnotherSection />;
@@ -319,6 +332,7 @@ export const SECTIONS_FRAGMENT = `#graphql
             ...SectionShopByCategory
             ...SectionBlogCarousel
             ...SectionSeoText
+            ...SectionInstagramFeed
           }
         }
       }
@@ -344,6 +358,7 @@ export const SECTIONS_FRAGMENT = `#graphql
   ${SECTION_SHOP_BY_CATEGORY_FRAGMENT}
   ${SECTION_BLOG_CAROUSEL_FRAGMENT}
   ${SECTION_SEO_TEXT_FRAGMENT}
+  ${SECTION_INSTAGRAM_FEED_FRAGMENT}
 
   # All common fragments
   ${COMMON_PRODUCT_CARD_FRAGMENT}

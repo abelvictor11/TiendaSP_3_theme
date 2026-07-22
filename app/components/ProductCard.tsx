@@ -24,6 +24,7 @@ import {OkendoStarRating} from '@okendo/shopify-hydrogen';
 import {useAside} from './Aside';
 import {getVariantUrl, useVariantUrl} from '~/lib/variants';
 import {ClientOnly} from './client-only';
+import {getVendorCollectionUrl} from '~/utils/vendorCollectionUrl';
 
 export interface ProductCardProps {
   className?: string;
@@ -76,6 +77,8 @@ const ProductCard: FC<ProductCardProps> = ({
   
   // Verificar envío gratis (puede ser "true" o "1")
   const hasEnvioGratis = envio_gratis?.value === 'true' || envio_gratis?.value === '1';
+
+  const vendorUrl = getVendorCollectionUrl(vendor);
 
   const firstVariant = variants?.nodes?.[0];
 
@@ -270,13 +273,15 @@ const ProductCard: FC<ProductCardProps> = ({
                   loading={loading}
                 />
               )}
-              {/* Imagen secundaria en hover (producto en uso) */}
+              {/* Imagen secundaria en hover (producto en uso) — sin
+                  `loading="lazy"`: la card ya está en pantalla cuando el
+                  cursor la sobrevuela, así que retrasar la carga solo
+                  agrega un parpadeo en blanco antes de que aparezca. */}
               {secondImage && (
                 <Image
                   data={{...secondImage, width: undefined, height: undefined}}
                   className="object-contain absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                   sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 40vw"
-                  loading="lazy"
                 />
               )}
             </div>
@@ -308,6 +313,16 @@ const ProductCard: FC<ProductCardProps> = ({
             {/* Shipping Badge (metaobject: ej. "Llega en 24 horas") */}
             {shippingBadgeMetaobject && (
               <ShippingBadge metaobject={shippingBadgeMetaobject} size="sm" />
+            )}
+            {/* Envío Gratis — antes vivía como texto suelto en la línea de
+                specs; unificado acá con el mismo estilo de pill que
+                ShippingBadge para que ambas señales de envío (velocidad vs.
+                costo) se vean consistentes, aunque sigan siendo dos campos
+                de datos distintos (shipping_badge vs. envio_gratis). */}
+            {hasEnvioGratis && (
+              <span className="inline-flex items-center rounded-full font-bold uppercase tracking-wide shadow-sm ring-1 ring-inset ring-[#21387533] gap-1 px-2.5 py-1 text-xs bg-[#28faa5] text-[#213875]">
+                Envío Gratis
+              </span>
             )}
           </div>
           {renderWishlistButton()}
@@ -348,11 +363,29 @@ const ProductCard: FC<ProductCardProps> = ({
 
           <div className="flex-grow mt-1">
             {/* Marca */}
-          {vendor && (
-            <span className="text-[8px] font-body uppercase tracking-wide" style={{ color: '#000000' }}>
-              {vendor}
-            </span>
-          )}
+            {vendor &&
+              (vendorUrl ? (
+                // relative z-10 lifts this above the full-card overlay Link
+                // (line ~257) in stacking order, same technique already
+                // used by the wishlist button below, so this click isn't
+                // swallowed by the card-wide link to the product itself.
+                <Link
+                  to={vendorUrl}
+                  className="relative z-10 inline-block text-[8px] font-body uppercase tracking-wide hover:underline"
+                  style={{color: '#000000'}}
+                  onClick={(e) => e.stopPropagation()}
+                  prefetch="intent"
+                >
+                  {vendor}
+                </Link>
+              ) : (
+                <span
+                  className="text-[8px] font-body uppercase tracking-wide"
+                  style={{color: '#000000'}}
+                >
+                  {vendor}
+                </span>
+              ))}
             <h5
               className="nc-ProductCard__title transition-colors"
               style={{
@@ -367,22 +400,19 @@ const ProductCard: FC<ProductCardProps> = ({
             </h5>
             
             {/* Atributos técnicos con separador | */}
-            {(peso_maximo_usuario?.value || materialValue || hasEnvioGratis) && (
-              <p className="text-xs flex items-center flex-wrap mt-1" style={{ color: '#000000' }}>
-                {materialValue && (
-                  <span>{materialValue}</span>
-                )}
+            {(peso_maximo_usuario?.value || materialValue) && (
+              <p
+                className="text-xs flex items-center flex-wrap mt-1"
+                style={{color: '#000000'}}
+              >
+                {materialValue && <span>{materialValue}</span>}
                 {materialValue && peso_maximo_usuario?.value && (
-                  <span className="mx-1.5" style={{ color: '#000000' }}>|</span>
+                  <span className="mx-1.5" style={{color: '#000000'}}>
+                    |
+                  </span>
                 )}
                 {peso_maximo_usuario?.value && (
                   <span>Max {peso_maximo_usuario.value}kg</span>
-                )}
-                {(materialValue || peso_maximo_usuario?.value) && hasEnvioGratis && (
-                  <span className="mx-1.5" style={{ color: '#000000' }}>|</span>
-                )}
-                {hasEnvioGratis && (
-                  <span className="bg-[#28faa5] text-[#213875] font-medium px-2 py-0.5 rounded-md text-xs">Envío Gratis</span>
                 )}
               </p>
             )}

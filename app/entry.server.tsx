@@ -79,6 +79,11 @@ export default async function handleRequest(
       'https://dov7r31oq5dkj.cloudfront.net',
       'https://cdn-static.okendo.io',
       'https://surveys.okendo.io',
+      // Instagram media CDN (SectionInstagramFeed, via Instafeed's API) —
+      // wildcard because Instagram serves from many scontent-*/fbcdn hosts,
+      // not one fixed subdomain.
+      'https://*.cdninstagram.com',
+      'https://*.fbcdn.net',
       // Meta Pixel tracking beacons
       'https://www.facebook.com',
       'https://connect.facebook.net',
