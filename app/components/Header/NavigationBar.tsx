@@ -1,8 +1,10 @@
 import {ChevronDownIcon} from '@heroicons/react/24/solid';
 import {useState, useRef} from 'react';
 import {Link} from '@remix-run/react';
+import {Image} from '@shopify/hydrogen';
 import type {ParentEnhancedMenuItem, ChildEnhancedMenuItem} from '~/lib/utils';
 import CollectionItem from '../CollectionItem';
+import Prices from '../Prices';
 import type {HeaderMenuQuery} from 'storefrontapi.generated';
 
 interface NavigationBarProps {
@@ -10,7 +12,10 @@ interface NavigationBarProps {
   headerData?: HeaderMenuQuery;
 }
 
-export default function NavigationBar({headerMenu, headerData}: NavigationBarProps) {
+export default function NavigationBar({
+  headerMenu,
+  headerData,
+}: NavigationBarProps) {
   // Early return if no menu
   if (!headerMenu || !Array.isArray(headerMenu) || headerMenu.length === 0) {
     return null;
@@ -44,6 +49,12 @@ function NavItem({
 }) {
   const hasChildren = menuItem.items && menuItem.items.length > 0;
 
+  // Hooks must run unconditionally on every render (rules-of-hooks) — moved
+  // above the leaf-item early return below, which previously skipped them
+  // for items with no dropdown.
+  const [isHovered, setIsHovered] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   if (!hasChildren) {
     // Simple link without dropdown
     return (
@@ -71,8 +82,6 @@ function NavItem({
   }
 
   // Dropdown with megamenu - hover to open, click to navigate
-  const [isHovered, setIsHovered] = useState(false);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handleMouseEnter = () => {
     if (hoverTimeoutRef.current) {
@@ -88,7 +97,7 @@ function NavItem({
   };
 
   return (
-    <li 
+    <li
       className="group/nav static"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -99,7 +108,11 @@ function NavItem({
           to={menuItem.to}
           prefetch="intent"
           className={`
-            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-[#F9F7F7] dark:bg-slate-800' : 'text-[#131210] dark:text-slate-300'}
+            ${
+              isHovered
+                ? 'text-slate-900 dark:text-slate-100 bg-[#F9F7F7] dark:bg-slate-800'
+                : 'text-[#131210] dark:text-slate-300'
+            }
             group inline-flex items-center text-sm font-medium py-4 px-4 hover:bg-[#F9F7F7] dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
           <span>{menuItem.title}</span>
@@ -114,7 +127,11 @@ function NavItem({
           href={menuItem.to}
           target={menuItem.target}
           className={`
-            ${isHovered ? 'text-slate-900 dark:text-slate-100 bg-[#F9F7F7] dark:bg-slate-800' : 'text-[#131210] dark:text-slate-300'}
+            ${
+              isHovered
+                ? 'text-slate-900 dark:text-slate-100 bg-[#F9F7F7] dark:bg-slate-800'
+                : 'text-[#131210] dark:text-slate-300'
+            }
             group inline-flex items-center text-sm font-medium py-4 px-4 hover:bg-[#F9F7F7] dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 rounded-lg focus:outline-none transition-colors`}
         >
           <span>{menuItem.title}</span>
@@ -128,18 +145,19 @@ function NavItem({
 
       {/* Megamenu Panel - Shows on hover */}
       {isHovered && (
-        <div 
+        <div
           className="absolute z-50 left-0 right-0 top-full pt-3"
           style={{position: 'absolute'}}
         >
-            <div className="container">
-              <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl overflow-hidden">
-                <div className="relative px-6 py-8 lg:px-8 lg:py-10">
-                  <div className="flex gap-8">
-                    {/* Menu Items Grid */}
-                    <div className="flex-1">
-                      <div className="grid grid-cols-4 gap-6 xl:gap-8">
-                        {menuItem.items?.map((subItem: ChildEnhancedMenuItem, idx) => (
+          <div className="container">
+            <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl overflow-hidden">
+              <div className="relative px-6 py-8 lg:px-8 lg:py-10">
+                <div className="flex gap-8">
+                  {/* Menu Items Grid */}
+                  <div className="flex-1">
+                    <div className="grid grid-cols-4 gap-6 xl:gap-8">
+                      {menuItem.items?.map(
+                        (subItem: ChildEnhancedMenuItem, idx) => (
                           <div key={subItem.id + '-' + idx}>
                             {!subItem.to.startsWith('http') ? (
                               <Link
@@ -164,49 +182,68 @@ function NavItem({
                               </a>
                             )}
                           </div>
-                        ))}
-                      </div>
+                        ),
+                      )}
                     </div>
-
-                    {/* Featured Collection - matched to this menu item */}
-                    {(() => {
-                      const collections = headerData?.featuredCollections?.nodes;
-                      if (!collections?.length) return null;
-                      // Strategy 1: Extract handle from /collections/{handle} path
-                      const collectionsMatch = menuItem.to.match(/\/collections\/([^/?#]+)/);
-                      let matched = collectionsMatch
-                        ? collections.find((c) => c.handle === collectionsMatch[1])
-                        : null;
-
-                      // Strategy 2: Try matching the last URL segment as a handle
-                      if (!matched) {
-                        const lastSegment = menuItem.to.replace(/\/$/, '').split('/').pop();
-                        if (lastSegment) {
-                          matched = collections.find((c) => c.handle === lastSegment);
-                        }
-                      }
-
-                      // Strategy 3: Try matching by title (case-insensitive)
-                      if (!matched) {
-                        const menuTitle = menuItem.title.toLowerCase();
-                        matched = collections.find((c) => c.title.toLowerCase() === menuTitle);
-                      }
-
-                      if (!matched) return null;
-                      return (
-                        <div className="hidden xl:block w-[300px]">
-                          <CollectionItem
-                            onClick={() => setIsHovered(false)}
-                            item={matched}
-                          />
-                        </div>
-                      );
-                    })()}
                   </div>
+
+                  {/* Colección e imagen resueltas directamente del `resource` del
+                        menu item vía Storefront API — nada de adivinar por
+                        handle/título contra una lista separada de "featured
+                        collections"; si el item de menú apunta a una Collection,
+                        Shopify ya nos da su imagen y productos reales. */}
+                  {menuItem.resource?.__typename === 'Collection' && (
+                    <div className="hidden xl:flex gap-6 flex-shrink-0">
+                      <div className="w-[220px]">
+                        <CollectionItem
+                          onClick={() => setIsHovered(false)}
+                          item={menuItem.resource}
+                        />
+                      </div>
+                      {!!menuItem.resource.megamenu_products?.nodes?.length && (
+                        <div className="w-[220px]">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
+                            Más vendidos
+                          </p>
+                          <div className="space-y-3">
+                            {menuItem.resource.megamenu_products.nodes.map(
+                              (product) => (
+                                <Link
+                                  key={product.id}
+                                  to={`/products/${product.handle}`}
+                                  prefetch="intent"
+                                  className="flex items-center gap-3 group"
+                                  onClick={() => setIsHovered(false)}
+                                >
+                                  {product.featuredImage && (
+                                    <Image
+                                      data={product.featuredImage}
+                                      className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
+                                      sizes="48px"
+                                    />
+                                  )}
+                                  <div className="min-w-0">
+                                    <p className="text-sm text-[#131210] dark:text-neutral-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                      {product.title}
+                                    </p>
+                                    <Prices
+                                      price={product.priceRange.minVariantPrice}
+                                      className="text-xs"
+                                    />
+                                  </div>
+                                </Link>
+                              ),
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
+        </div>
       )}
     </li>
   );
