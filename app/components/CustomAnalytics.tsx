@@ -34,6 +34,7 @@ import {useEffect} from 'react';
 import {captureFbclid} from '~/lib/fbCookies';
 import {analyticsAllowed, marketingAllowed} from '~/lib/consent';
 import {captureMarketingParams} from '~/lib/checkoutContinuity';
+import {wasRecentRealCartAdd} from '~/lib/cartActionSignal';
 
 // ── Tipos globales para fbq (Meta Pixel) y gtag (Google Analytics) ──────────
 // Nota: `window.rudderanalytics` ya viene tipado globalmente por el propio
@@ -118,10 +119,35 @@ function rsPage(properties?: Record<string, unknown>) {
   window.rudderanalytics.page(properties as any);
 }
 
-function rsTrack(event: string, properties?: Record<string, unknown>) {
+export function rsTrack(event: string, properties?: Record<string, unknown>) {
   if (typeof window === 'undefined' || !window.rudderanalytics || !analyticsAllowed())
     return;
   window.rudderanalytics.track(event, properties as any);
+}
+
+// Payload de "Checkout Started" compartido entre el /cart completo
+// (routes/($locale).cart.tsx) y el drawer del carrito (components/Cart.tsx),
+// para que iniciar checkout desde cualquiera de los dos dispare el mismo
+// evento con el mismo mapeo. `price` usa `amountPerQuantity` (unitario), no
+// `totalAmount` de la línea — ese ya viene multiplicado por `quantity`.
+export function trackCheckoutStarted(
+  cost: {totalAmount?: {amount?: string; currencyCode?: string}} | undefined,
+  lines: Array<{
+    merchandise?: {id?: string; title?: string; product?: {title?: string}};
+    cost?: {amountPerQuantity?: {amount?: string}};
+    quantity?: number;
+  }>,
+): void {
+  const currency = cost?.totalAmount?.currencyCode ?? 'COP';
+  const value = parseFloat(cost?.totalAmount?.amount ?? '0');
+  const products = (lines ?? []).map((line) => ({
+    product_id: line?.merchandise?.id,
+    name: line?.merchandise?.product?.title,
+    variant: line?.merchandise?.title,
+    price: parseFloat(line?.cost?.amountPerQuantity?.amount ?? '0'),
+    quantity: line?.quantity,
+  }));
+  rsTrack('Checkout Started', {currency, value, products});
 }
 
 // identify() ata el visitante anónimo (anonymousId) al grafo de identidad
@@ -261,6 +287,13 @@ export function CustomAnalytics({gtmOwnsTags = false}: {gtmOwnsTags?: boolean}) 
       (payload: CartLineUpdatePayload) => {
         const line = payload.currentLine;
         if (!line) return;
+
+        // CartAnalytics (dentro de @shopify/hydrogen) publica este mismo
+        // evento en la primera resolución del carrito de una sesión nueva
+        // para cada línea ya existente en un carrito retomado, no solo para
+        // adiciones reales — se descarta salvo que un clic real en
+        // AddToCartButton haya ocurrido recientemente.
+        if (!wasRecentRealCartAdd()) return;
 
         const merchandise = line.merchandise as Record<string, unknown>;
         const productData = merchandise?.product as Record<string, unknown>;

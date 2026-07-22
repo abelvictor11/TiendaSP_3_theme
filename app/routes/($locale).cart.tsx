@@ -20,6 +20,8 @@ import {isLocalPath} from '~/lib/utils';
 import {getFbCookies} from '~/lib/fbCookies';
 import {getGaCookies} from '~/lib/gaCookies';
 import {analyticsAllowed} from '~/lib/consent';
+import {trackCheckoutStarted} from '~/components/CustomAnalytics';
+import {markRealCartAdd} from '~/lib/cartActionSignal';
 import {decorateCheckoutUrl} from '~/lib/checkoutContinuity';
 import {Link} from '~/components/Link';
 import {FeaturedProducts} from '~/components/FeaturedProducts';
@@ -357,6 +359,14 @@ function CartSummary({
         event_id: eventId,
       });
     }
+    // RudderStack (CDP propio) — spec ecommerce "Checkout Started". No
+    // gateado por gtmOwns: RudderStack es independiente del stack de pixels
+    // de ads/GTM, así que siempre se envía (trackCheckoutStarted llama a
+    // rsTrack, que chequea analyticsAllowed() internamente). Compartido con
+    // el drawer del carrito (components/Cart.tsx) para que ambos flujos de
+    // checkout disparen el mismo evento.
+    trackCheckoutStarted(cost, lines ?? []);
+
     // GTM dataLayer (solo cuando el contenedor GTM es dueño de los tags y
     // hay consentimiento — evita encolar eventos pre-consentimiento)
     if (gtmOwns && analyticsAllowed()) {
@@ -542,6 +552,15 @@ function CartLineQuantityAdjust({line}: {line: OptimisticCartLine}) {
             name="increase-quantity"
             value={nextQuantity}
             aria-label="Aumentar cantidad"
+            onClick={() => {
+              // CartAnalytics (@shopify/hydrogen) también publica
+              // product_added_to_cart al subir la cantidad de una línea
+              // existente, igual que un add nuevo desde AddToCartButton — se
+              // marca acá también, o el guard de "add real reciente" de
+              // CustomAnalytics descartaría esta acción genuina por error.
+              // Ver cartActionSignal.ts.
+              markRealCartAdd();
+            }}
           >
             <span>&#43;</span>
           </button>

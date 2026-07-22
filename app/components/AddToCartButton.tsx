@@ -1,4 +1,5 @@
 import {CartForm, type OptimisticCartLineInput} from '@shopify/hydrogen';
+import {markRealCartAdd} from '~/lib/cartActionSignal';
 
 export function AddToCartButton({
   analytics,
@@ -30,7 +31,13 @@ export function AddToCartButton({
             type="submit"
             className={className}
             disabled={disabled ?? fetcher.state !== 'idle'}
-            onClick={onClick}
+            onClick={() => {
+              // Marks this as a real add so CustomAnalytics can tell it apart
+              // from CartAnalytics' first-render false positive for a
+              // resumed cart — see cartActionSignal.ts.
+              markRealCartAdd();
+              onClick?.();
+            }}
             {...props}
           >
             {children}
