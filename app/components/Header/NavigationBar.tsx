@@ -152,10 +152,10 @@ function NavItem({
           <div className="container">
             <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl overflow-hidden">
               <div className="relative px-6 py-8 lg:px-8 lg:py-10">
-                <div className="flex gap-8">
+                <div className="flex gap-6">
                   {/* Menu Items Grid */}
-                  <div className="flex-1">
-                    <div className="grid grid-cols-4 gap-6 xl:gap-8">
+                  <div className="flex-1 min-w-0">
+                    <div className="grid grid-cols-3 gap-6 xl:gap-8">
                       {menuItem.items?.map(
                         (subItem: ChildEnhancedMenuItem, idx) => (
                           <div key={subItem.id + '-' + idx}>
@@ -193,15 +193,15 @@ function NavItem({
                         collections"; si el item de menú apunta a una Collection,
                         Shopify ya nos da su imagen y productos reales. */}
                   {menuItem.resource?.__typename === 'Collection' && (
-                    <div className="hidden xl:flex gap-6 flex-shrink-0">
-                      <div className="w-[220px]">
+                    <div className="hidden xl:flex gap-4 flex-shrink-0">
+                      <div className="w-[180px] flex-shrink-0">
                         <CollectionItem
                           onClick={() => setIsHovered(false)}
                           item={menuItem.resource}
                         />
                       </div>
                       {!!menuItem.resource.megamenu_products?.nodes?.length && (
-                        <div className="w-[220px]">
+                        <div className="w-[180px] flex-shrink-0">
                           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
                             Más vendidos
                           </p>
@@ -218,12 +218,12 @@ function NavItem({
                                   {product.featuredImage && (
                                     <Image
                                       data={product.featuredImage}
-                                      className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
-                                      sizes="48px"
+                                      className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                                      sizes="40px"
                                     />
                                   )}
-                                  <div className="min-w-0">
-                                    <p className="text-sm text-[#131210] dark:text-neutral-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-xs text-[#131210] dark:text-neutral-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                                       {product.title}
                                     </p>
                                     <Prices
