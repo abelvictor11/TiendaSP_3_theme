@@ -32,17 +32,6 @@ const CollectionItem: FC<CollectionItemProps> = ({
   const hImage = horizontal_image?.reference?.image;
   const mainImage = image;
 
-  // DEBUG: Ver qué datos llegan de la colección
-  console.log('CollectionItem data:', {
-    title, 
-    horizontal_image, 
-    image,
-    hImage,
-    mainImage,
-    horizontal_image_type: typeof horizontal_image,
-    image_type: typeof image
-  });
-
   return (
     <Link
       to={'/collections/' + handle}

@@ -361,6 +361,39 @@ const MENU_FRAGMENT = `#graphql
     items {
       ...ChildMenuItem
     }
+    resource {
+      __typename
+      ... on Collection {
+        id
+        handle
+        title
+        image {
+          altText
+          url
+          width
+          height
+        }
+        megamenu_products: products(first: 3, sortKey: BEST_SELLING) {
+          nodes {
+            id
+            title
+            handle
+            featuredImage {
+              altText
+              url
+              width
+              height
+            }
+            priceRange {
+              minVariantPrice {
+                amount
+                currencyCode
+              }
+            }
+          }
+        }
+      }
+    }
   }
   fragment Menu on Menu {
     id
