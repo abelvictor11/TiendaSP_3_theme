@@ -65,9 +65,15 @@ export function SnapSliderProducts(props: Props) {
               className={clsx(
                 `mySnapItem snap-start shrink-0 px-2`,
                 cardStyle !== '2'
-                  ? columnsDesktop === 3
-                    ? 'w-[17rem] lg:w-80 xl:w-[33.33%]'
-                    : 'w-[17rem] lg:w-80 xl:w-[25%]'
+                  ? // Mismas proporciones de columna que ProductsGrid/
+                    // SectionGridProductsAndFilter (sm:2 cols, lg:3 o 4
+                    // cols) — antes esta carrusel usaba anchos fijos en
+                    // rem/px que no correspondían a ninguna cuadrícula real,
+                    // dando cards de tamaño distinto a los resultados de
+                    // colección/búsqueda con el mismo ProductCard.
+                    columnsDesktop === 3
+                    ? 'w-[85%] sm:w-1/2 lg:w-1/3'
+                    : 'w-[85%] sm:w-1/2 lg:w-1/4'
                   : 'w-full sm:w-96 lg:w-[50%] xl:w-[33.33%]', // card style 2 large
               )}
             >
@@ -82,9 +88,15 @@ export function SnapSliderProducts(props: Props) {
               className={clsx(
                 `mySnapItem snap-start shrink-0 px-2`,
                 cardStyle !== '2'
-                  ? columnsDesktop === 3
-                    ? 'w-[17rem] lg:w-80 xl:w-[33.33%]'
-                    : 'w-[17rem] lg:w-80 xl:w-[25%]'
+                  ? // Mismas proporciones de columna que ProductsGrid/
+                    // SectionGridProductsAndFilter (sm:2 cols, lg:3 o 4
+                    // cols) — antes esta carrusel usaba anchos fijos en
+                    // rem/px que no correspondían a ninguna cuadrícula real,
+                    // dando cards de tamaño distinto a los resultados de
+                    // colección/búsqueda con el mismo ProductCard.
+                    columnsDesktop === 3
+                    ? 'w-[85%] sm:w-1/2 lg:w-1/3'
+                    : 'w-[85%] sm:w-1/2 lg:w-1/4'
                   : 'w-full sm:w-96 lg:w-[50%] xl:w-[33.33%]', // card style 2 large
               )}
             >
