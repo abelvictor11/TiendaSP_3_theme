@@ -53,6 +53,10 @@ declare global {
     GA4_API_SECRET?: string;
     TIKTOK_EVENTS_TOKEN?: string;
     SHOPIFY_WEBHOOK_SECRET?: string;
+    // Instafeed (Shopify app already installed) headless "Feed API" — pulls
+    // the store's real Instagram posts without us touching Meta's Graph API
+    // or managing any token refresh ourselves.
+    INSTAFEED_API_KEY?: string;
   }
 }
 
