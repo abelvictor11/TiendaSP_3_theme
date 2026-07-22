@@ -198,6 +198,7 @@ function NavItem({
                         <CollectionItem
                           onClick={() => setIsHovered(false)}
                           item={menuItem.resource}
+                          compact
                         />
                       </div>
                       {!!menuItem.resource.megamenu_products?.nodes?.length && (
