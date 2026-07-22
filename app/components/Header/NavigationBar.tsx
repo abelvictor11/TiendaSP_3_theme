@@ -219,6 +219,15 @@ function NavItem({
                                   {product.featuredImage && (
                                     <Image
                                       data={product.featuredImage}
+                                      // Sin width/height explícitos, Hydrogen's
+                                      // <Image> no tiene de dónde derivar su
+                                      // aspect ratio y termina estirándose al
+                                      // 100% del contenedor flex (180px en vez
+                                      // de 40px), reventando toda la fila —
+                                      // confirmado en vivo: w-10/h-10 solas no
+                                      // alcanzan a restringirla.
+                                      width={40}
+                                      height={40}
                                       className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
                                       sizes="40px"
                                     />
