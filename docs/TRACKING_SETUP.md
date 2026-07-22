@@ -295,6 +295,82 @@ Instala [TikTok Pixel Helper](https://chromewebstore.google.com/detail/tiktok-pi
 
 ---
 
+## RudderStack (CDP propio) — solo tienda-sportfitness
+
+A diferencia de GTM/GA4/Meta/TikTok (compartidos por las 4 tiendas), RudderStack
+es específico de esta tienda: alimenta un CDP self-hosted
+(RudderStack + Notifuse, ver memoria del proyecto) sentado sobre un grafo de
+identidad de ~116k clientes (Klaviyo+Shopify resueltos históricamente).
+
+### Dos integraciones independientes — no confundir
+
+1. **Esta app Hydrogen** (`RudderStackLoader.tsx` + `CustomAnalytics.tsx`,
+   SDK npm `@rudderstack/analytics-js`) — corre en el dominio principal
+   (`tienda-sportfitness.com`), dispara `page`, `Product Viewed`,
+   `Product Added`, `Product Removed`, `Product List Viewed`,
+   `Products Searched`, `Cart Viewed`, `Checkout Started` (al hacer clic en
+   "Ir a pagar", antes del redirect) e `identify()` (al login, ver abajo).
+2. **App "RudderStack Pixel" instalada en Shopify Admin** (Settings →
+   Customer events), independiente de este repo — corre en el dominio de
+   checkout (`checkout.tienda-sportfitness.com`) vía Shopify Web Pixels API,
+   usando el mismo write key que la fuente "Shopify Tienda Fitness Prod" en
+   RudderStack. Ya envía `Checkout Started` (al cargar la página de
+   checkout) y **`Order Completed` con email real** (confirmado
+   `context_traits_email` poblado en la tabla `shopify_events.order_completed`
+   del Postgres Archive) — este es el mecanismo real de purchase-tracking,
+   no algo que este repo controle o necesite replicar.
+
+El "Checkout Started" de esta app y el de la app de Shopify representan
+momentos distintos del funnel (clic en nuestro carrito vs. carga real de la
+página de checkout), no son duplicados — ambos son válidos.
+
+### `identify()` — solo para clientes logueados
+
+`rsIdentify()` (`CustomAnalytics.tsx`) se llama una vez por sesión desde
+`AvatarDropdown.tsx` cuando resuelve el email del cliente logueado.
+`userId` = email en minúsculas/recortado (misma convención del backfill
+histórico Klaviyo→RudderStack). **No hay `identify()` en checkout de
+invitado ni en newsletter** (esos flows no existen en este repo) — los
+eventos de navegación anónima (invitado, no logueado) nunca llevan email y
+por lo tanto nunca llegan a Notifuse (su API exige email). El purchase-
+tracking no depende de esto: la app de Shopify captura el email
+directamente del estado del checkout, sin importar si el visitante estaba
+logueado en el sitio principal.
+
+### 🐛 Bug conocido y corregido: phantom `Product Added`
+
+`CartAnalytics` (interno de `@shopify/hydrogen@2025.1.2`) publica
+`PRODUCT_ADD_TO_CART` para **cada línea ya existente en un carrito
+retomado**, en la primera resolución del carrito de una sesión nueva (con
+`prevCart` aún `undefined`, cualquier línea existente se lee como "recién
+agregada"). El único guard de Hydrogen es un timestamp en localStorage, que
+no sobrevive storage limpiado, dispositivo nuevo, o una sesión de
+in-app-browser fresca — todos comunes para alguien que vuelve por un anuncio
+de retargeting con productos ya en su carrito (persistido 10 días).
+
+Confirmado en **cyclewear** (mismo monorepo, otra tienda, mismo
+`@shopify/hydrogen@2025.1.2`): GA4 mostraba `add_to_cart` en 99.6% de las
+sesiones de junio — imposible como comportamiento real. Fix ya mergeado ahí
+(`origin/cyclewear`, commit `dd0c8c0`, PR #39): un guard
+`wasRecentRealCartAdd()` (`app/lib/cartActionSignal.ts`, ventana de 8s)
+marcado desde los 3 puntos de entrada reales (`AddToCartButton.tsx`, el
+stepper de cantidad en `cart.tsx`, y "Buy again" en
+`account.orders.$id.tsx`).
+
+**Confirmado que tienda tenía el mismo código vulnerable** (mismo subscriber
+`PRODUCT_ADD_TO_CART` sin guard, mismos 3 puntos de entrada) — y acá pesaba
+más que en cyclewear: el evento fantasma también sale por
+`rsTrack('Product Added', ...)` hacia RudderStack/Notifuse, contaminando
+perfiles de comportamiento real (no solo métricas de reporting). Podría
+disparar un flow de abandono de carrito para alguien que no hizo nada esta
+sesión, o sesgar scoring de afinidad/segmentos. **Portado a tienda** — mismo
+guard `wasRecentRealCartAdd()` (`app/lib/cartActionSignal.ts`, ventana de 8s)
+marcado desde los mismos 3 puntos de entrada (`AddToCartButton.tsx`, el
+stepper de cantidad en `cart.tsx`, y "Comprar de nuevo" en
+`account.orders.$id.tsx`).
+
+---
+
 ## Validación y troubleshooting
 
 ### 🧪 Checklist de validación por tienda

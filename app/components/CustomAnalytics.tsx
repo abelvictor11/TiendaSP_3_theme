@@ -34,6 +34,7 @@ import {useEffect} from 'react';
 import {captureFbclid} from '~/lib/fbCookies';
 import {analyticsAllowed, marketingAllowed} from '~/lib/consent';
 import {captureMarketingParams} from '~/lib/checkoutContinuity';
+import {wasRecentRealCartAdd} from '~/lib/cartActionSignal';
 
 // ── Tipos globales para fbq (Meta Pixel) y gtag (Google Analytics) ──────────
 // Nota: `window.rudderanalytics` ya viene tipado globalmente por el propio
@@ -118,7 +119,7 @@ function rsPage(properties?: Record<string, unknown>) {
   window.rudderanalytics.page(properties as any);
 }
 
-function rsTrack(event: string, properties?: Record<string, unknown>) {
+export function rsTrack(event: string, properties?: Record<string, unknown>) {
   if (typeof window === 'undefined' || !window.rudderanalytics || !analyticsAllowed())
     return;
   window.rudderanalytics.track(event, properties as any);
@@ -261,6 +262,13 @@ export function CustomAnalytics({gtmOwnsTags = false}: {gtmOwnsTags?: boolean}) 
       (payload: CartLineUpdatePayload) => {
         const line = payload.currentLine;
         if (!line) return;
+
+        // CartAnalytics (dentro de @shopify/hydrogen) publica este mismo
+        // evento en la primera resolución del carrito de una sesión nueva
+        // para cada línea ya existente en un carrito retomado, no solo para
+        // adiciones reales — se descarta salvo que un clic real en
+        // AddToCartButton haya ocurrido recientemente.
+        if (!wasRecentRealCartAdd()) return;
 
         const merchandise = line.merchandise as Record<string, unknown>;
         const productData = merchandise?.product as Record<string, unknown>;
