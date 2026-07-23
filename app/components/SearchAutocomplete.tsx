@@ -86,13 +86,20 @@ export function SearchAutocomplete({
   const collectionResults = predictiveResults?.collections || [];
   const hasResults = productResults.length > 0 || collectionResults.length > 0;
 
-  // Fires once per completed query that returns results — this is the only
-  // signal that the dropdown (as opposed to the full /search page, tracked
-  // separately via Analytics.SearchView) was ever shown with something in
-  // it, since a user can select a result directly without ever navigating
-  // to /search.
+  // Fires once per completed query that returns results while the dropdown
+  // is actually open — this is the only signal that the dropdown (as
+  // opposed to the full /search page, tracked separately via
+  // Analytics.SearchView) was ever shown with something in it, since a
+  // user can select a result directly without ever navigating to /search.
+  //
+  // Gated on `isOpen` too, not just predictiveResults/hasResults: the fetch
+  // is debounced, so a user can close the dropdown (click outside, or
+  // clear the query) before the response for an already-in-flight request
+  // arrives. Without this gate, that abandoned request would still count
+  // as a "view" once fetcher.data eventually resolves, even though nothing
+  // was ever rendered.
   useEffect(() => {
-    if (!predictiveResults || !hasResults) return;
+    if (!predictiveResults || !hasResults || !isOpen) return;
     publish(
       'custom_predictive_search_viewed' as typeof AnalyticsEvent.CUSTOM_EVENT,
       {
@@ -100,11 +107,12 @@ export function SearchAutocomplete({
         resultCount: productResults.length + collectionResults.length,
       },
     );
-    // Only re-fire when a genuinely new results payload arrives, not on
-    // every render — productResults/collectionResults/hasResults are all
-    // derived from predictiveResults itself.
+    // Only re-fire when a genuinely new results payload arrives or the
+    // dropdown re-opens on the same results, not on every render —
+    // productResults/collectionResults/hasResults are all derived from
+    // predictiveResults itself.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [predictiveResults]);
+  }, [predictiveResults, isOpen]);
 
   const showPredictive = isOpen && query.length >= 2;
 
