@@ -40,18 +40,28 @@
  * docs.perplexity.ai/docs/resources/perplexity-crawlers ·
  * commoncrawl.org/ccbot · developer.amazon.com/amazonbot ·
  * w3.org/TR/webdriver2 (navigator.webdriver) ·
- * github.com/omrilotan/isbot (generic bot/spider pattern, including its
- * own negative-lookbehind fix for brand names like the CUBOT phone that
- * would otherwise false-positive on a bare "bot" substring match).
+ * github.com/omrilotan/isbot (generic bot/spider pattern — its own
+ * negative-lookbehind fix for brand names like the CUBOT phone that would
+ * otherwise false-positive on a bare "bot" substring match is reimplemented
+ * below without lookbehind — see CUBOT_PATTERN).
  */
 const NAMED_AI_CRAWLER_PATTERN =
-  /gptbot|chatgpt-user|oai-searchbot|claudebot|claude-user|claude-searchbot|perplexitybot|perplexity-user|ccbot|bytespider|google-extended|amazonbot|meta-externalagent|meta-externalfetcher|meta-webindexer|facebookexternalhit/i;
+  /gptbot|chatgpt-user|oai-searchbot|claudebot|claude-user|claude-searchbot|perplexitybot|perplexity-user|ccbot|bytespider|google-extended|googleother|amazonbot|meta-externalagent|meta-externalfetcher|meta-webindexer|facebookexternalhit/i;
 
-// Borrowed from isbot (github.com/omrilotan/isbot, src/patterns.json) —
-// already carries the negative lookbehind that excludes "CUBOT" (a real
-// Android phone brand) from matching the bare "bot" suffix.
-const GENERIC_BOT_PATTERN =
-  /(?<! cu)bots?(?:\b|_)|crawl|spider|slurp|fetcher|prerender/i;
+// crawl/spider/etc are unambiguous — no brand collides with them, so they
+// don't need the same exclusion bare "bot" does.
+const GENERIC_BOT_PATTERN = /crawl|spider|slurp|fetcher|prerender/i;
+
+// A bare "bot"/"bots" substring, checked separately from GENERIC_BOT_PATTERN
+// so it can be excluded when it's actually just "CUBOT" (a real Android
+// phone brand, not automation) — done via two plain regex tests instead of
+// a negative lookbehind: lookbehind assertions aren't supported in Safari
+// before 16.4 (this file is imported from the root layout, so a
+// SyntaxError here would fail before hydration for any visitor on an
+// older Safari/iOS Safari, since Vite's default browser target includes
+// versions well below that).
+const BARE_BOT_PATTERN = /bots?(?:\b|_)/i;
+const CUBOT_PATTERN = /cubot/i;
 
 const AUTOMATION_FRAMEWORK_PATTERN =
   /headlesschrome|puppeteer|playwright|phantomjs|selenium/i;
@@ -62,6 +72,7 @@ function hasBotUserAgent(): boolean {
   return (
     NAMED_AI_CRAWLER_PATTERN.test(ua) ||
     GENERIC_BOT_PATTERN.test(ua) ||
+    (BARE_BOT_PATTERN.test(ua) && !CUBOT_PATTERN.test(ua)) ||
     AUTOMATION_FRAMEWORK_PATTERN.test(ua)
   );
 }
