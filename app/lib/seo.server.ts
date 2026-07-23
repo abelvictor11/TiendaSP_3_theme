@@ -678,15 +678,17 @@ function policy({
   url: Request['url'];
 }): SeoConfig {
   const description = truncate(policy?.body ?? '');
+  const rawTitle = policy?.title;
+  const title = rawTitle ? stripBrandSuffix(rawTitle) : rawTitle;
   return {
     description,
-    title: policy?.title,
+    title,
     titleTemplate: '%s | Tienda Fitness',
     url,
     jsonLd: {
       '@context': 'https://schema.org',
       '@type': 'WebPage',
-      name: policy?.title ?? '',
+      name: title ?? '',
       description,
       url,
     },
