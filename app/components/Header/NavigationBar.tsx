@@ -5,7 +5,50 @@ import {Image} from '@shopify/hydrogen';
 import type {ParentEnhancedMenuItem, ChildEnhancedMenuItem} from '~/lib/utils';
 import CollectionItem from '../CollectionItem';
 import Prices from '../Prices';
+import {normalizeBrandKey} from '~/utils/brandKey';
+import {getVendorCollectionUrl} from '~/utils/vendorCollectionUrl';
 import type {HeaderMenuQuery} from 'storefrontapi.generated';
+
+const MAX_MEGAMENU_BRANDS = 6;
+
+/**
+ * Cruza los vendors reales presentes en la colección (vía el filtro nativo
+ * filter.p.vendor de Shopify, sin traer cada producto) contra los logos
+ * curados en ciseco--brand_item, para mostrar solo marcas que de verdad
+ * venden algo en esta categoría — no una lista fija por categoría, así que
+ * se mantiene correcta sola cuando cambia el catálogo.
+ */
+function getMegamenuBrands(
+  menuItem: ParentEnhancedMenuItem,
+  brandItems: HeaderMenuQuery['brandItems'] | undefined,
+) {
+  const resource = menuItem.resource;
+  if (resource?.__typename !== 'Collection') return [];
+
+  const vendorFilter = resource.megamenu_brand_filters?.filters?.find(
+    (f) => f.id === 'filter.p.vendor',
+  );
+  const vendorValues = vendorFilter?.values ?? [];
+  if (!vendorValues.length) return [];
+
+  const brandNodes = brandItems?.nodes ?? [];
+
+  return [...vendorValues]
+    .sort((a, b) => (b.count ?? 0) - (a.count ?? 0))
+    .slice(0, MAX_MEGAMENU_BRANDS)
+    .map((v) => {
+      const key = normalizeBrandKey(v.label);
+      const matched = brandNodes.find(
+        (b) => b.name?.value && normalizeBrandKey(b.name.value) === key,
+      );
+      return {
+        label: v.label,
+        url: matched?.url?.value || getVendorCollectionUrl(v.label) || '#',
+        svgLogo: matched?.svg_logo?.value,
+        imageLogo: matched?.image_logo?.reference?.image,
+      };
+    });
+}
 
 interface NavigationBarProps {
   headerMenu?: ParentEnhancedMenuItem[] | null;
@@ -83,6 +126,8 @@ function NavItem({
 
   // Dropdown with megamenu - hover to open, click to navigate
 
+  const megamenuBrands = getMegamenuBrands(menuItem, headerData?.brandItems);
+
   const handleMouseEnter = () => {
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
@@ -155,6 +200,16 @@ function NavItem({
                 <div className="flex gap-6">
                   {/* Menu Items Grid */}
                   <div className="flex-1 min-w-0">
+                    {!menuItem.to.startsWith('http') && (
+                      <Link
+                        to={menuItem.to}
+                        prefetch="intent"
+                        className="inline-block font-semibold text-[#131210] dark:text-neutral-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-4"
+                        onClick={() => setIsHovered(false)}
+                      >
+                        Ver todo {menuItem.title}
+                      </Link>
+                    )}
                     <div className="grid grid-cols-3 gap-6 xl:gap-8">
                       {menuItem.items?.map(
                         (subItem: ChildEnhancedMenuItem, idx) => (
@@ -244,6 +299,46 @@ function NavItem({
                                 </Link>
                               ),
                             )}
+                          </div>
+                        </div>
+                      )}
+                      {!!megamenuBrands.length && (
+                        <div className="w-[140px] flex-shrink-0">
+                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
+                            Marcas
+                          </p>
+                          <div className="space-y-2.5">
+                            {megamenuBrands.map((brand) => (
+                              <Link
+                                key={brand.label}
+                                to={brand.url}
+                                prefetch="intent"
+                                className="flex items-center h-6 group"
+                                aria-label={brand.label}
+                                onClick={() => setIsHovered(false)}
+                              >
+                                {brand.imageLogo ? (
+                                  <Image
+                                    data={brand.imageLogo}
+                                    width={80}
+                                    height={24}
+                                    className="max-h-6 w-auto object-contain grayscale group-hover:grayscale-0 transition-[filter]"
+                                    sizes="80px"
+                                  />
+                                ) : brand.svgLogo ? (
+                                  <span
+                                    className="max-h-6 w-auto [&_svg]:h-6 [&_svg]:w-auto grayscale group-hover:grayscale-0 transition-[filter]"
+                                    dangerouslySetInnerHTML={{
+                                      __html: brand.svgLogo,
+                                    }}
+                                  />
+                                ) : (
+                                  <span className="text-xs text-[#131210] dark:text-neutral-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                                    {brand.label}
+                                  </span>
+                                )}
+                              </Link>
+                            ))}
                           </div>
                         </div>
                       )}

@@ -382,6 +382,15 @@ export type ParentMenuItemFragment = Pick<
               }
             >;
           };
+          megamenu_brand_filters: {
+            filters: Array<
+              Pick<StorefrontAPI.Filter, 'id'> & {
+                values: Array<
+                  Pick<StorefrontAPI.FilterValue, 'label' | 'count' | 'input'>
+                >;
+              }
+            >;
+          };
         })
   >;
 };
@@ -433,6 +442,18 @@ export type MenuFragment = Pick<StorefrontAPI.Menu, 'id' | 'title'> & {
                         'amount' | 'currencyCode'
                       >;
                     };
+                  }
+                >;
+              };
+              megamenu_brand_filters: {
+                filters: Array<
+                  Pick<StorefrontAPI.Filter, 'id'> & {
+                    values: Array<
+                      Pick<
+                        StorefrontAPI.FilterValue,
+                        'label' | 'count' | 'input'
+                      >
+                    >;
                   }
                 >;
               };
@@ -542,6 +563,18 @@ export type FooterMenuQuery = {
                       }
                     >;
                   };
+                  megamenu_brand_filters: {
+                    filters: Array<
+                      Pick<StorefrontAPI.Filter, 'id'> & {
+                        values: Array<
+                          Pick<
+                            StorefrontAPI.FilterValue,
+                            'label' | 'count' | 'input'
+                          >
+                        >;
+                      }
+                    >;
+                  };
                 })
           >;
         }
@@ -607,6 +640,18 @@ export type HeaderMenuQuery = {
                             'amount' | 'currencyCode'
                           >;
                         };
+                      }
+                    >;
+                  };
+                  megamenu_brand_filters: {
+                    filters: Array<
+                      Pick<StorefrontAPI.Filter, 'id'> & {
+                        values: Array<
+                          Pick<
+                            StorefrontAPI.FilterValue,
+                            'label' | 'count' | 'input'
+                          >
+                        >;
                       }
                     >;
                   };
@@ -741,6 +786,26 @@ export type HeaderMenuQuery = {
             >;
           }>;
         }>;
+      }
+    >;
+  };
+  brandItems: {
+    nodes: Array<
+      Pick<StorefrontAPI.Metaobject, 'id'> & {
+        name?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.MetaobjectField, 'value'>
+        >;
+        svg_logo?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.MetaobjectField, 'value'>
+        >;
+        image_logo?: StorefrontAPI.Maybe<{
+          reference?: StorefrontAPI.Maybe<{
+            image?: StorefrontAPI.Maybe<
+              Pick<StorefrontAPI.Image, 'url' | 'altText' | 'width' | 'height'>
+            >;
+          }>;
+        }>;
+        url?: StorefrontAPI.Maybe<Pick<StorefrontAPI.MetaobjectField, 'value'>>;
       }
     >;
   };
@@ -8228,11 +8293,11 @@ interface GeneratedQueryTypes {
     return: LayoutQuery;
     variables: LayoutQueryVariables;
   };
-  '#graphql\n  query FooterMenu(\n    $language: LanguageCode\n    $country: CountryCode\n    $footerMenuHandle: String!\n  ) @inContext(language: $language, country: $country) {\n    footerMenu: menu(handle: $footerMenuHandle) {\n      ...Menu\n    }\n  }\n  #graphql\n  fragment MenuItem on MenuItem {\n    id\n    resourceId\n    tags\n    title\n    type\n    url\n  }\n  fragment ChildMenuItem on MenuItem {\n    ...MenuItem\n  }\n  fragment ParentMenuItem on MenuItem {\n    ...MenuItem\n    items {\n      ...ChildMenuItem\n    }\n    resource {\n      __typename\n      ... on Collection {\n        id\n        handle\n        title\n        image {\n          altText\n          url\n          width\n          height\n        }\n        megamenu_products: products(first: 3, sortKey: BEST_SELLING) {\n          nodes {\n            id\n            title\n            handle\n            featuredImage {\n              altText\n              url\n              width\n              height\n            }\n            priceRange {\n              minVariantPrice {\n                amount\n                currencyCode\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n  fragment Menu on Menu {\n    id\n    title\n    items {\n      ...ParentMenuItem\n    }\n  }\n\n': {
+  '#graphql\n  query FooterMenu(\n    $language: LanguageCode\n    $country: CountryCode\n    $footerMenuHandle: String!\n  ) @inContext(language: $language, country: $country) {\n    footerMenu: menu(handle: $footerMenuHandle) {\n      ...Menu\n    }\n  }\n  #graphql\n  fragment MenuItem on MenuItem {\n    id\n    resourceId\n    tags\n    title\n    type\n    url\n  }\n  fragment ChildMenuItem on MenuItem {\n    ...MenuItem\n  }\n  fragment ParentMenuItem on MenuItem {\n    ...MenuItem\n    items {\n      ...ChildMenuItem\n    }\n    resource {\n      __typename\n      ... on Collection {\n        id\n        handle\n        title\n        image {\n          altText\n          url\n          width\n          height\n        }\n        megamenu_products: products(first: 4, sortKey: BEST_SELLING) {\n          nodes {\n            id\n            title\n            handle\n            featuredImage {\n              altText\n              url\n              width\n              height\n            }\n            priceRange {\n              minVariantPrice {\n                amount\n                currencyCode\n              }\n            }\n          }\n        }\n        # first: 0 — solo queremos la faceta de filtros (vendor real\n        # presente en esta colección, con conteo), no productos. Mismo\n        # mecanismo nativo de Shopify que ya usa SectionGridProductsAndFilter\n        # para Categoría/Material/Color — el filtro de marca (filter.p.vendor)\n        # ya viene gratis, sin necesitar traer cada producto para deducirlo.\n        megamenu_brand_filters: products(first: 0) {\n          filters {\n            id\n            values {\n              label\n              count\n              input\n            }\n          }\n        }\n      }\n    }\n  }\n  fragment Menu on Menu {\n    id\n    title\n    items {\n      ...ParentMenuItem\n    }\n  }\n\n': {
     return: FooterMenuQuery;
     variables: FooterMenuQueryVariables;
   };
-  '#graphql\n  query HeaderMenu(\n    $language: LanguageCode\n    $country: CountryCode\n    $headerMenuHandle: String!\n    $featuredCollectionsFirst: Int!\n    $socialsFirst: Int!\n  ) @inContext(language: $language, country: $country) {\n    headerMenu: menu(handle: $headerMenuHandle) {\n      ...Menu\n    }\n    featuredCollections: collections(first: $featuredCollectionsFirst, sortKey: UPDATED_AT) {\n      nodes {\n        ...CommonCollectionItem\n      }\n    }\n    socials: metaobjects(type: "ciseco--social", first: $socialsFirst) {\n      edges {\n        node {\n          type\n          id\n          handle\n          title: field(key: "title") {\n            type\n            key\n            value\n          }\n          description: field(key: "description") {\n            type\n            key\n            value\n          }\n          icon: field(key: "icon") {\n            type\n            key\n            reference {\n              ... on MediaImage {\n                image {\n                  altText\n                  url\n                  width\n                  height\n                }\n              }\n            }\n          }\n          link: field(key: "link") {\n            type\n            key\n            value\n          }\n        }\n      }\n    }\n    topBarMarquee: metaobjects(type: "ciseco--top_bar_marquee", first: 1) {\n      nodes {\n        id\n        handle\n        text_content: field(key: "text_content") {\n          value\n        }\n        background_color: field(key: "background_color") {\n          value\n        }\n        text_color: field(key: "text_color") {\n          value\n        }\n        speed: field(key: "speed") {\n          value\n        }\n        enabled: field(key: "enabled") {\n          value\n        }\n        separator_icon: field(key: "separator_icon") {\n          value\n        }\n      }\n    }\n    headerQuickLinks: metaobjects(type: "ciseco--header_quick_links", first: 1) {\n      nodes {\n        id\n        handle\n        enabled: field(key: "enabled") {\n          value\n        }\n        items: field(key: "items") {\n          references(first: 5) {\n            nodes {\n              ... on Metaobject {\n                id\n                svg_icon: field(key: "svg_icon") {\n                  value\n                }\n                link: field(key: "link") {\n                  value\n                }\n                label: field(key: "label") {\n                  value\n                }\n                icon_color: field(key: "icon_color") {\n                  value\n                }\n                text_color: field(key: "text_color") {\n                  value\n                }\n                background_color: field(key: "background_color") {\n                  value\n                }\n                border_color: field(key: "border_color") {\n                  value\n                }\n                subitems: field(key: "subitems") {\n                  references(first: 10) {\n                    nodes {\n                      ... on Metaobject {\n                        id\n                        label: field(key: "label") {\n                          value\n                        }\n                        link: field(key: "link") {\n                          value\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n  #graphql\n  fragment MenuItem on MenuItem {\n    id\n    resourceId\n    tags\n    title\n    type\n    url\n  }\n  fragment ChildMenuItem on MenuItem {\n    ...MenuItem\n  }\n  fragment ParentMenuItem on MenuItem {\n    ...MenuItem\n    items {\n      ...ChildMenuItem\n    }\n    resource {\n      __typename\n      ... on Collection {\n        id\n        handle\n        title\n        image {\n          altText\n          url\n          width\n          height\n        }\n        megamenu_products: products(first: 3, sortKey: BEST_SELLING) {\n          nodes {\n            id\n            title\n            handle\n            featuredImage {\n              altText\n              url\n              width\n              height\n            }\n            priceRange {\n              minVariantPrice {\n                amount\n                currencyCode\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n  fragment Menu on Menu {\n    id\n    title\n    items {\n      ...ParentMenuItem\n    }\n  }\n\n  #graphql\n  fragment CommonCollectionItem on Collection {\n    id\n    title\n    updatedAt\n    description\n    handle\n    image {\n      altText\n      width\n      height\n      url\n    }\n    horizontal_image: metafield(key: "horizontal_image", namespace: "ciseco--collection") {\n      reference {\n        ... on MediaImage {\n          id\n          image {\n            altText\n            height\n            width\n            url\n          }\n        }\n      }\n    }\n    seo {\n      description\n      title\n    }\n  }\n\n': {
+  '#graphql\n  query HeaderMenu(\n    $language: LanguageCode\n    $country: CountryCode\n    $headerMenuHandle: String!\n    $featuredCollectionsFirst: Int!\n    $socialsFirst: Int!\n  ) @inContext(language: $language, country: $country) {\n    headerMenu: menu(handle: $headerMenuHandle) {\n      ...Menu\n    }\n    featuredCollections: collections(first: $featuredCollectionsFirst, sortKey: UPDATED_AT) {\n      nodes {\n        ...CommonCollectionItem\n      }\n    }\n    socials: metaobjects(type: "ciseco--social", first: $socialsFirst) {\n      edges {\n        node {\n          type\n          id\n          handle\n          title: field(key: "title") {\n            type\n            key\n            value\n          }\n          description: field(key: "description") {\n            type\n            key\n            value\n          }\n          icon: field(key: "icon") {\n            type\n            key\n            reference {\n              ... on MediaImage {\n                image {\n                  altText\n                  url\n                  width\n                  height\n                }\n              }\n            }\n          }\n          link: field(key: "link") {\n            type\n            key\n            value\n          }\n        }\n      }\n    }\n    topBarMarquee: metaobjects(type: "ciseco--top_bar_marquee", first: 1) {\n      nodes {\n        id\n        handle\n        text_content: field(key: "text_content") {\n          value\n        }\n        background_color: field(key: "background_color") {\n          value\n        }\n        text_color: field(key: "text_color") {\n          value\n        }\n        speed: field(key: "speed") {\n          value\n        }\n        enabled: field(key: "enabled") {\n          value\n        }\n        separator_icon: field(key: "separator_icon") {\n          value\n        }\n      }\n    }\n    headerQuickLinks: metaobjects(type: "ciseco--header_quick_links", first: 1) {\n      nodes {\n        id\n        handle\n        enabled: field(key: "enabled") {\n          value\n        }\n        items: field(key: "items") {\n          references(first: 5) {\n            nodes {\n              ... on Metaobject {\n                id\n                svg_icon: field(key: "svg_icon") {\n                  value\n                }\n                link: field(key: "link") {\n                  value\n                }\n                label: field(key: "label") {\n                  value\n                }\n                icon_color: field(key: "icon_color") {\n                  value\n                }\n                text_color: field(key: "text_color") {\n                  value\n                }\n                background_color: field(key: "background_color") {\n                  value\n                }\n                border_color: field(key: "border_color") {\n                  value\n                }\n                subitems: field(key: "subitems") {\n                  references(first: 10) {\n                    nodes {\n                      ... on Metaobject {\n                        id\n                        label: field(key: "label") {\n                          value\n                        }\n                        link: field(key: "link") {\n                          value\n                        }\n                      }\n                    }\n                  }\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n    # Logos de marca (mega-menu "Brands" column) — mismo metaobject type que\n    # ya alimenta la sección "Marcas" del footer/ticker, pero consultado\n    # directo por type en vez de indirectamente vía route-home →\n    # section_brands_ticker → brands, así no hace falta traer toda esa\n    # sección solo para tener los logos en el header.\n    brandItems: metaobjects(type: "ciseco--brand_item", first: 20) {\n      nodes {\n        id\n        name: field(key: "name") {\n          value\n        }\n        svg_logo: field(key: "svg_logo") {\n          value\n        }\n        image_logo: field(key: "image_logo") {\n          reference {\n            ... on MediaImage {\n              image {\n                url\n                altText\n                width\n                height\n              }\n            }\n          }\n        }\n        url: field(key: "url") {\n          value\n        }\n      }\n    }\n  }\n  #graphql\n  fragment MenuItem on MenuItem {\n    id\n    resourceId\n    tags\n    title\n    type\n    url\n  }\n  fragment ChildMenuItem on MenuItem {\n    ...MenuItem\n  }\n  fragment ParentMenuItem on MenuItem {\n    ...MenuItem\n    items {\n      ...ChildMenuItem\n    }\n    resource {\n      __typename\n      ... on Collection {\n        id\n        handle\n        title\n        image {\n          altText\n          url\n          width\n          height\n        }\n        megamenu_products: products(first: 4, sortKey: BEST_SELLING) {\n          nodes {\n            id\n            title\n            handle\n            featuredImage {\n              altText\n              url\n              width\n              height\n            }\n            priceRange {\n              minVariantPrice {\n                amount\n                currencyCode\n              }\n            }\n          }\n        }\n        # first: 0 — solo queremos la faceta de filtros (vendor real\n        # presente en esta colección, con conteo), no productos. Mismo\n        # mecanismo nativo de Shopify que ya usa SectionGridProductsAndFilter\n        # para Categoría/Material/Color — el filtro de marca (filter.p.vendor)\n        # ya viene gratis, sin necesitar traer cada producto para deducirlo.\n        megamenu_brand_filters: products(first: 0) {\n          filters {\n            id\n            values {\n              label\n              count\n              input\n            }\n          }\n        }\n      }\n    }\n  }\n  fragment Menu on Menu {\n    id\n    title\n    items {\n      ...ParentMenuItem\n    }\n  }\n\n  #graphql\n  fragment CommonCollectionItem on Collection {\n    id\n    title\n    updatedAt\n    description\n    handle\n    image {\n      altText\n      width\n      height\n      url\n    }\n    horizontal_image: metafield(key: "horizontal_image", namespace: "ciseco--collection") {\n      reference {\n        ... on MediaImage {\n          id\n          image {\n            altText\n            height\n            width\n            url\n          }\n        }\n      }\n    }\n    seo {\n      description\n      title\n    }\n  }\n\n': {
     return: HeaderMenuQuery;
     variables: HeaderMenuQueryVariables;
   };

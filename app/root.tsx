@@ -373,7 +373,7 @@ const MENU_FRAGMENT = `#graphql
           width
           height
         }
-        megamenu_products: products(first: 3, sortKey: BEST_SELLING) {
+        megamenu_products: products(first: 4, sortKey: BEST_SELLING) {
           nodes {
             id
             title
@@ -389,6 +389,21 @@ const MENU_FRAGMENT = `#graphql
                 amount
                 currencyCode
               }
+            }
+          }
+        }
+        # first: 0 — solo queremos la faceta de filtros (vendor real
+        # presente en esta colección, con conteo), no productos. Mismo
+        # mecanismo nativo de Shopify que ya usa SectionGridProductsAndFilter
+        # para Categoría/Material/Color — el filtro de marca (filter.p.vendor)
+        # ya viene gratis, sin necesitar traer cada producto para deducirlo.
+        megamenu_brand_filters: products(first: 0) {
+          filters {
+            id
+            values {
+              label
+              count
+              input
             }
           }
         }
@@ -582,6 +597,37 @@ const HEADER_QUERY = `#graphql
               }
             }
           }
+        }
+      }
+    }
+    # Logos de marca (mega-menu "Brands" column) — mismo metaobject type que
+    # ya alimenta la sección "Marcas" del footer/ticker, pero consultado
+    # directo por type en vez de indirectamente vía route-home →
+    # section_brands_ticker → brands, así no hace falta traer toda esa
+    # sección solo para tener los logos en el header.
+    brandItems: metaobjects(type: "ciseco--brand_item", first: 20) {
+      nodes {
+        id
+        name: field(key: "name") {
+          value
+        }
+        svg_logo: field(key: "svg_logo") {
+          value
+        }
+        image_logo: field(key: "image_logo") {
+          reference {
+            ... on MediaImage {
+              image {
+                url
+                altText
+                width
+                height
+              }
+            }
+          }
+        }
+        url: field(key: "url") {
+          value
         }
       }
     }
