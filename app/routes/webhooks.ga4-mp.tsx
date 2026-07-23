@@ -115,7 +115,14 @@ export async function action({request, context}: ActionFunctionArgs) {
   }));
 
   switch (topic) {
-    case 'orders/create':
+    // Solo orders/paid — a diferencia de meta-capi.tsx (que también escucha
+    // orders/create), GA4 Measurement Protocol NO deduplica por event_id
+    // entre hits server-to-server. Si ambos topics dispararan 'purchase'
+    // aquí, cada orden pagada se contaría 2 veces (revenue x2) en GA4, y en
+    // cualquier importación de conversiones de GA4 a Google Ads. orders/paid
+    // es el único topic que garantiza pago capturado (orders/create también
+    // dispara para pedidos que luego nunca se pagan, ej. COD/transferencia
+    // manual pendiente).
     case 'orders/paid':
       eventName = 'purchase';
       params.transaction_id = String(data.id);

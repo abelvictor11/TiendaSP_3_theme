@@ -95,8 +95,22 @@ export default async function handleRequest(
       'https://www.googletagmanager.com',
       'https://*.googletagmanager.com',
       'https://www.google.com',
-      // Google Ads dispara beacons de remarketing desde el dominio por país
+      // Google Ads dispara el pixel de cross-domain linking (gclid) desde el
+      // dominio Google del PAÍS del clic del anuncio, no siempre .com — GA4
+      // Tag Diagnostics lo reporta como "img-src https://www.google.*" (CSP
+      // no soporta wildcard de TLD, así que solo podemos enumerar dominios,
+      // no cubrir el 100%). Cubrimos LATAM + mercados de origen más probables.
       'https://www.google.com.co',
+      'https://www.google.com.mx',
+      'https://www.google.com.ar',
+      'https://www.google.cl',
+      'https://www.google.com.pe',
+      'https://www.google.com.ec',
+      'https://www.google.com.pa',
+      'https://www.google.co.cr',
+      'https://www.google.com.br',
+      'https://www.google.es',
+      'https://www.google.ca',
       'https://region1.google-analytics.com',
       'https://www.googleadservices.com',
       'https://googleads.g.doubleclick.net',

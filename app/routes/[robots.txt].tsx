@@ -25,6 +25,12 @@ Disallow: /checkouts/
 Disallow: /checkout
 Disallow: /carts
 Disallow: /account
+# Paginación de colecciones basada en cursor (Storefront API): el cursor
+# codifica una posición/timestamp que cambia con el catálogo, así que la
+# misma URL deja de ser válida con el tiempo — Google la indexaba y luego la
+# encontraba 404 en el siguiente crawl. Los productos ya están cubiertos por
+# /sitemap/products/*.xml independientemente de esta paginación.
+Disallow: /*cursor=*
 ${sitemapUrl ? `Sitemap: ${sitemapUrl}` : ''}
 
 # Google adsbot ignores robots.txt unless specifically named!
