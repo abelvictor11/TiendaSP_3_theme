@@ -155,17 +155,25 @@ function loadDeferredData(args: LoaderFunctionArgs) {
   invariant(productHandle, 'Missing productHandle param, check route filename');
 
   // 3. Query the route metaobject
+  // .catch() so a transient error here can't take down the whole PDP —
+  // RouteContent already no-ops on route: null via its `route?.sections &&`
+  // guard, so this degrades to "no extra route sections" instead of a 500.
   const routePromise = getLoaderRouteFromMetaobject({
     params,
     context,
     request,
     handle: 'route-product',
-  });
+  }).catch(() => ({route: null}));
 
   // Query PDP Help Banner
-  const helpBannerPromise = context.storefront.query(PDP_HELP_BANNER_QUERY, {
-    cache: context.storefront.CacheLong(),
-  });
+  // .catch() for the same reason — the consumer already optional-chains
+  // through bannerData?.pdpHelpBanner?.nodes?.[0], so null degrades to "no
+  // banner" instead of crashing the page.
+  const helpBannerPromise = context.storefront
+    .query(PDP_HELP_BANNER_QUERY, {
+      cache: context.storefront.CacheLong(),
+    })
+    .catch(() => null);
 
   return {
     routePromise,
@@ -377,16 +385,22 @@ export default function Product() {
               errorElement="Hubo un problema al cargar productos relacionados"
               resolve={recommended}
             >
-              {(products) => (
-                <>
+              {(products) => {
+                // SnapSliderProducts always renders its heading + nav
+                // arrows regardless of how many products it's given — on
+                // the empty-array fallback from a rejected recommended
+                // promise, that leaves a misleading empty carousel instead
+                // of no section at all.
+                if (!products.nodes.length) return null;
+                return (
                   <SnapSliderProducts
                     heading_bold={'Los clientes también compraron'}
                     products={products.nodes}
                     className=""
                     headingFontClass="text-2xl font-semibold"
                   />
-                </>
-              )}
+                );
+              }}
             </Await>
           </Suspense>
         </div>
@@ -1396,26 +1410,38 @@ async function getRecommendedProducts(
   storefront: Storefront,
   productId: string,
 ) {
-  const products = await storefront.query(RECOMMENDED_PRODUCTS_QUERY, {
-    variables: {productId, count: 12},
-  });
+  // try/catch here, not just the errorElement on some of its <Await> call
+  // sites in the route below — an uncaught rejection on a promise handed
+  // to defer() becomes an unhandled rejection that bubbles past this
+  // route's own ErrorBoundary to the root, turning the whole product page
+  // into a generic 500 instead of rendering normally with no
+  // recommendations. Confirmed reproducible on a sibling storefront
+  // (cyclewear, 2026-07-22) via a transient Storefront API error on this
+  // exact query.
+  try {
+    const products = await storefront.query(RECOMMENDED_PRODUCTS_QUERY, {
+      variables: {productId, count: 12},
+    });
 
-  invariant(products, 'No data returned from Shopify API');
+    invariant(products, 'No data returned from Shopify API');
 
-  const mergedProducts = (products.recommended ?? [])
-    .concat(products.additional.nodes)
-    .filter(
-      (value, index, array) =>
-        array.findIndex((value2) => value2.id === value.id) === index,
+    const mergedProducts = (products.recommended ?? [])
+      .concat(products.additional.nodes)
+      .filter(
+        (value, index, array) =>
+          array.findIndex((value2) => value2.id === value.id) === index,
+      );
+
+    const originalProduct = mergedProducts.findIndex(
+      (item) => item.id === productId,
     );
 
-  const originalProduct = mergedProducts.findIndex(
-    (item) => item.id === productId,
-  );
+    mergedProducts.splice(originalProduct, 1);
 
-  mergedProducts.splice(originalProduct, 1);
-
-  return {nodes: mergedProducts};
+    return {nodes: mergedProducts};
+  } catch {
+    return {nodes: []};
+  }
 }
 
 const PDP_HELP_BANNER_QUERY = `#graphql
