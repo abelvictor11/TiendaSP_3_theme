@@ -20,9 +20,16 @@
  *   Scripts con nonce en el <head> de React pueden ser bloqueados por CSP
  *   o eliminados durante la hidratación. Scripts cargados con createElement
  *   son siempre evaluados por el browser y detectados por Tag Assistant.
+ *
+ *   `isLikelyBot()` (ver app/lib/botDetection.ts) también bloquea la carga
+ *   de scripts aquí, independientemente del consentimiento — cubre
+ *   crawlers de IA (GPTBot, ClaudeBot, etc.) y frameworks de automatización
+ *   (Puppeteer, Playwright, Selenium) que sí ejecutan JavaScript y de otro
+ *   modo contaminarían GA4/Meta/Ads/TikTok como un visitante real.
  */
 import {useEffect, useState} from 'react';
 import {useAnalytics} from '@shopify/hydrogen';
+import {isLikelyBot} from '~/lib/botDetection';
 
 type ConsentState = {analytics: boolean; marketing: boolean};
 
@@ -156,7 +163,7 @@ export function GtmLoader({
 
   // ── A. Analytics permitido → GTM + GA4 ──────────────────────────────────
   useEffect(() => {
-    if (!consent.analytics) return;
+    if (!consent.analytics || isLikelyBot()) return;
     const w = window as any;
     const linker = checkoutHostname
       ? {linker: {domains: [checkoutHostname], accept_incoming: true}}
@@ -208,7 +215,7 @@ export function GtmLoader({
 
   // ── B. Marketing permitido → Google Ads + Meta + TikTok ─────────────────
   useEffect(() => {
-    if (!consent.marketing) return;
+    if (!consent.marketing || isLikelyBot()) return;
     const w = window as any;
     const linker = checkoutHostname
       ? {linker: {domains: [checkoutHostname], accept_incoming: true}}
