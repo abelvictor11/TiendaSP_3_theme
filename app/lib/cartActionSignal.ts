@@ -15,8 +15,25 @@
  * phantom page-load firing regardless of how long the network round trip
  * runs. The grace window only starts counting once the mutation settles,
  * covering CartAnalytics' own async resolve+diff cycle that follows.
+ *
+ * Known residual gap (Codex review, #63): CartAnalytics doesn't actually
+ * diff against this fetcher at all — it watches the `cart` prop root.tsx
+ * passes to <Analytics.Provider>, which is root's OWN loader cart, deferred
+ * and re-fetched by Remix's automatic revalidation after ANY fetcher
+ * action settles (confirmed directly in @shopify/hydrogen's CartAnalytics
+ * source: it Promise.resolve()s the `cart` prop and diffs on that
+ * resolution, not on this fetcher's state). So "this CartForm's fetcher
+ * went idle" and "root's cart promise has been re-fetched and resolved"
+ * are two separate async chains that merely tend to overlap — on a slow
+ * connection, root's revalidation round-trip (which only starts after
+ * this fetcher's own action completes) can still outlast the window
+ * below. A structurally correct fix would track root's own cart
+ * revalidation lifecycle directly, not this fetcher's — deferred pending
+ * a way to verify that against a live app (this fixed window is a
+ * pragmatic mitigation, not a guarantee). GRACE_MS is intentionally more
+ * generous than the original 8s for exactly this reason.
  */
-const GRACE_MS = 8000;
+const GRACE_MS = 15000;
 
 let pendingCount = 0;
 let settledAt = 0;
