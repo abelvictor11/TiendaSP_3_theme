@@ -6,10 +6,11 @@ import {
 } from '~/lib/utils';
 import SocialsList from '../SocialsList';
 import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/react';
-import {Form, Link, useRouteLoaderData} from '@remix-run/react';
+import {Link, useRouteLoaderData} from '@remix-run/react';
 import LangDropdown from './LangDropdown';
 import {HeaderMenuDataWrap} from '../Layout';
 import type {RootLoader} from '~/root';
+import {SearchAutocomplete} from '../SearchAutocomplete';
 
 export interface NavMobileProps {
   onClose?: () => void;
@@ -95,64 +96,11 @@ const NavMobile: React.FC<NavMobileProps> = ({onClose}) => {
     );
   };
 
-  const renderMagnifyingGlassIcon = () => {
-    return (
-      <svg
-        width={22}
-        height={22}
-        viewBox="0 0 24 24"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M11.5 21C16.7467 21 21 16.7467 21 11.5C21 6.25329 16.7467 2 11.5 2C6.25329 2 2 6.25329 2 11.5C2 16.7467 6.25329 21 11.5 21Z"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M22 22L20 20"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    );
-  };
-
   const renderSearchForm = () => {
-    if (typeof window === 'undefined') return null;
-
-    const searchParams = new URLSearchParams(window.location.search);
-    const searchTerm = searchParams.get('q')!;
-
     return (
-      <Form
-        action="/search"
-        method="get"
-        className="flex-1 text-slate-900 dark:text-slate-200"
-        onSubmit={() => {
-          onClose && onClose();
-        }}
-      >
-        <div className="bg-slate-50 dark:bg-slate-800 flex space-x-1 p-2 rounded-xl h-full">
-          <input
-            name="q"
-            defaultValue={searchTerm}
-            type="search"
-            placeholder="Escribe y presiona enter"
-            className="border-none bg-transparent focus:outline-none focus:ring-0 w-full text-sm "
-          />
-          <button
-            className="flex items-center justify-center px-2"
-            type="submit"
-          >
-            {renderMagnifyingGlassIcon()}
-          </button>
-        </div>
-      </Form>
+      <div className="flex-1 text-slate-900 dark:text-slate-200">
+        <SearchAutocomplete variant="mobile" onSelect={onClose} />
+      </div>
     );
   };
 

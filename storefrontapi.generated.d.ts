@@ -828,6 +828,37 @@ export type SeoCollectionContentQuery = {
   shop: Pick<StorefrontAPI.Shop, 'name' | 'description'>;
 };
 
+export type PredictiveSearchQueryVariables = StorefrontAPI.Exact<{
+  searchTerm: StorefrontAPI.Scalars['String']['input'];
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+}>;
+
+export type PredictiveSearchQuery = {
+  predictiveSearch?: StorefrontAPI.Maybe<{
+    products: Array<
+      Pick<StorefrontAPI.Product, 'id' | 'title' | 'handle' | 'vendor'> & {
+        featuredImage?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.Image, 'url' | 'altText' | 'width' | 'height'>
+        >;
+        priceRange: {
+          minVariantPrice: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+        };
+      }
+    >;
+    collections: Array<
+      Pick<StorefrontAPI.Collection, 'id' | 'title' | 'handle'> & {
+        image?: StorefrontAPI.Maybe<
+          Pick<StorefrontAPI.Image, 'url' | 'altText' | 'width' | 'height'>
+        >;
+      }
+    >;
+  }>;
+};
+
 export type ApiAllProductsQueryVariables = StorefrontAPI.Exact<{
   query?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']['input']>;
   count?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
@@ -8308,6 +8339,10 @@ interface GeneratedQueryTypes {
   '#graphql\n  query seoCollectionContent($country: CountryCode, $language: LanguageCode)\n  @inContext(country: $country, language: $language) {\n    shop {\n      name\n      description\n    }\n  }\n': {
     return: SeoCollectionContentQuery;
     variables: SeoCollectionContentQueryVariables;
+  };
+  '#graphql\n  query PredictiveSearch(\n    $searchTerm: String!\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(country: $country, language: $language) {\n    predictiveSearch(\n      query: $searchTerm,\n      types: [PRODUCT, COLLECTION],\n      limit: 6,\n      limitScope: EACH,\n      searchableFields: [TITLE, VARIANTS_TITLE, VARIANTS_SKU, VARIANTS_BARCODE, PRODUCT_TYPE, VENDOR, TAG]\n    ) {\n      products {\n        id\n        title\n        handle\n        vendor\n        featuredImage {\n          url\n          altText\n          width\n          height\n        }\n        priceRange {\n          minVariantPrice {\n            amount\n            currencyCode\n          }\n        }\n      }\n      collections {\n        id\n        title\n        handle\n        image {\n          url\n          altText\n          width\n          height\n        }\n      }\n    }\n  }\n': {
+    return: PredictiveSearchQuery;
+    variables: PredictiveSearchQueryVariables;
   };
   '#graphql\n  query ApiAllProducts(\n    $query: String\n    $count: Int\n    $reverse: Boolean\n    $country: CountryCode\n    $language: LanguageCode\n    $sortKey: ProductSortKeys\n  ) @inContext(country: $country, language: $language) {\n    products(first: $count, sortKey: $sortKey, reverse: $reverse, query: $query) {\n      nodes {\n        ...CommonProductCard\n      }\n    }\n  }\n  #graphql\n  fragment CommonProductCardVariant on ProductVariant {\n    id\n    title\n    availableForSale\n    price {\n      amount\n      currencyCode\n    }\n    image {\n      url\n      altText\n      width\n      height\n    }\n    selectedOptions {\n      name\n      value\n    }\n    product {\n      title\n      handle\n    }\n  }\n\n  fragment CommonProductCard on Product {\n    id\n    title\n    handle\n    publishedAt\n    availableForSale\n    vendor\n    tags\n    options {\n      name\n      values\n    }\n    featuredImage {\n      url\n      altText\n      width\n      height\n    }\n    # Need to 4 images, so we can display the productCardLarge component correctly, which requires 4 images\n    images(first: 4) {\n      edges {\n        node {\n          url\n          altText\n          width\n          height\n        }\n      }\n    }\n    variants(first: 1) {\n      nodes {\n        ...CommonProductCardVariant\n      }\n    }\n    priceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    compareAtPriceRange {\n      minVariantPrice {\n        amount\n        currencyCode\n      }\n    }\n    reviews_rating_count: metafield(namespace: "reviews", key:"rating_count") {\n      type\n      id\n      value\n      namespace\n      key\n    }\n    reviews_rating: metafield(namespace: "reviews", key:"rating") {\n      type\n      id\n      value\n      namespace\n      key\n    }\n    outstanding_features: metafield(namespace: "ciseco--product", key:"outstanding_features") {\n      type\n      id\n      value\n      namespace\n      key\n    }\n    okendoStarRatingSnippet: metafield(\n\t\t\tnamespace: "okendo"\n\t\t\tkey: "StarRatingSnippet"\n\t\t) {\n\t\t\tvalue\n\t\t}\n    # Metafields para tarjeta enriquecida de fitness\n    uso_tipo: metafield(namespace: "custom", key: "uso_tipo") {\n      value\n    }\n    peso_maximo_usuario: metafield(namespace: "custom", key: "peso_maximo_usuario") {\n      value\n    }\n    material: metafield(namespace: "custom", key: "material") {\n      value\n    }\n    envio_gratis: metafield(namespace: "custom", key: "envio_gratis") {\n      value\n    }\n    # Badge de envío (metaobject reference)\n    shipping_badge: metafield(namespace: "custom", key: "shipping_badge") {\n      reference {\n        ... on Metaobject {\n          type\n          label: field(key: "label") { value }\n          icon_emoji: field(key: "icon_emoji") { value }\n          background_color: field(key: "background_color") { value }\n          text_color: field(key: "text_color") { value }\n          priority: field(key: "priority") { value }\n        }\n      }\n    }\n  } \n\n': {
     return: ApiAllProductsQuery;
