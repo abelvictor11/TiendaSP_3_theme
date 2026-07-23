@@ -2,7 +2,12 @@
  * Derives the Shopify collection URL for a product's vendor, assuming a
  * VENDOR-rule smart collection exists at /collections/<normalized-vendor>
  * (confirmed for the store's main brands: csfitness, evolution, k6, movifit,
- * sportfitness, ufc). Returns null when there's no vendor to link.
+ * sportfitness, ufc, inspire-fitness, sole-fitness). Returns null when
+ * there's no vendor to link.
+ *
+ * Hyphenates spaces instead of stripping them (matching Shopify's own handle
+ * generation) — multi-word vendors like "Inspire Fitness" and "Sole Fitness"
+ * have real handles "inspire-fitness"/"sole-fitness", not "inspirefitness".
  *
  * Deliberately NOT reusing brandKey.ts's normalizeBrandKey() here — that
  * helper strips a trailing numeric *suffix* (e.g. a metaobject named
@@ -19,7 +24,8 @@ export function getVendorCollectionUrl(
   const key = vendor
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]/g, '');
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9-]/g, '');
   if (!key) return null;
   return `/collections/${key}`;
 }

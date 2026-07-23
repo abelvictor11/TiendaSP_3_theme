@@ -314,6 +314,7 @@ function NavItem({
                                 to={brand.url}
                                 prefetch="intent"
                                 className="flex items-center h-6 group"
+                                aria-label={brand.label}
                                 onClick={() => setIsHovered(false)}
                               >
                                 {brand.imageLogo ? (
