@@ -1,5 +1,6 @@
 import {useState, useRef, useEffect, useCallback} from 'react';
 import {Form, useFetcher, useParams} from '@remix-run/react';
+import {useAnalytics, type AnalyticsEvent} from '@shopify/hydrogen';
 import {Link} from '~/components/Link';
 import {usePrefixPathWithLocale} from '~/lib/utils';
 
@@ -22,6 +23,7 @@ export function SearchAutocomplete({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const params = useParams();
+  const {publish} = useAnalytics();
 
   // Only trust fetcher.data once it reports having answered the query
   // that's currently typed — otherwise a slower-arriving response for a
@@ -84,9 +86,46 @@ export function SearchAutocomplete({
   const collectionResults = predictiveResults?.collections || [];
   const hasResults = productResults.length > 0 || collectionResults.length > 0;
 
+  // Fires once per completed query that returns results — this is the only
+  // signal that the dropdown (as opposed to the full /search page, tracked
+  // separately via Analytics.SearchView) was ever shown with something in
+  // it, since a user can select a result directly without ever navigating
+  // to /search.
+  useEffect(() => {
+    if (!predictiveResults || !hasResults) return;
+    publish(
+      'custom_predictive_search_viewed' as typeof AnalyticsEvent.CUSTOM_EVENT,
+      {
+        searchTerm: predictiveResults.query,
+        resultCount: productResults.length + collectionResults.length,
+      },
+    );
+    // Only re-fire when a genuinely new results payload arrives, not on
+    // every render — productResults/collectionResults/hasResults are all
+    // derived from predictiveResults itself.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [predictiveResults]);
+
   const showPredictive = isOpen && query.length >= 2;
 
-  const handleItemClick = () => {
+  const handleItemClick = (result?: {
+    type: 'product' | 'collection';
+    id: string;
+    title: string;
+    position: number;
+  }) => {
+    if (result) {
+      publish(
+        'custom_predictive_search_select' as typeof AnalyticsEvent.CUSTOM_EVENT,
+        {
+          searchTerm: query,
+          resultType: result.type,
+          resultId: result.id,
+          resultTitle: result.title,
+          position: result.position,
+        },
+      );
+    }
     setIsOpen(false);
     onSelect?.();
   };
@@ -286,12 +325,19 @@ export function SearchAutocomplete({
                     Colecciones
                   </h3>
                   <div className="space-y-1">
-                    {collectionResults.map((collection: any) => (
+                    {collectionResults.map((collection: any, index: number) => (
                       <Link
                         key={collection.id}
                         to={`/collections/${collection.handle}`}
                         className="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
-                        onClick={handleItemClick}
+                        onClick={() =>
+                          handleItemClick({
+                            type: 'collection',
+                            id: collection.id,
+                            title: collection.title,
+                            position: index,
+                          })
+                        }
                       >
                         {collection.image?.url && (
                           <div className="w-10 h-10 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0">
@@ -318,12 +364,19 @@ export function SearchAutocomplete({
                     Productos
                   </h3>
                   <div className="space-y-1">
-                    {productResults.map((product: any) => (
+                    {productResults.map((product: any, index: number) => (
                       <Link
                         key={product.id}
                         to={`/products/${product.handle}`}
                         className="flex items-center gap-3 p-2 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
-                        onClick={handleItemClick}
+                        onClick={() =>
+                          handleItemClick({
+                            type: 'product',
+                            id: product.id,
+                            title: product.title,
+                            position: index,
+                          })
+                        }
                       >
                         {product.featuredImage?.url && (
                           <div className="w-12 h-12 rounded-lg overflow-hidden bg-neutral-100 flex-shrink-0">
