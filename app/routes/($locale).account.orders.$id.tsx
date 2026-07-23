@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import {json, redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {useLoaderData, type MetaFunction} from '@remix-run/react';
 import {Money, Image, flattenConnection, CartForm} from '@shopify/hydrogen';
-import {markRealCartAdd} from '~/lib/cartActionSignal';
+import {CartActionTracker} from '~/components/CartActionTracker';
 import type {FulfillmentStatus} from '@shopify/hydrogen/customer-account-api-types';
 import type {OrderFragment} from 'customer-accountapi.generated';
 import {statusMessage} from '~/lib/utils';
@@ -203,18 +203,13 @@ export default function OrderRoute() {
             >
               {(fetcher) => (
                 <>
+                  <CartActionTracker state={fetcher.state} />
                   <ButtonPrimary
                     type="submit"
                     fontSize="text-sm font-medium"
                     sizeClass="py-2 px-3 lg:py-2.5 lg:px-5"
                     disabled={fetcher.state !== 'idle'}
-                    onClick={() => {
-                      // Misma mutación LinesAdd que AddToCartButton, así que
-                      // necesita la misma marca de "add real" — ver
-                      // cartActionSignal.ts / CustomAnalytics.tsx.
-                      markRealCartAdd();
-                      openAside('cart');
-                    }}
+                    onClick={() => openAside('cart')}
                   >
                     Comprar de nuevo
                   </ButtonPrimary>
