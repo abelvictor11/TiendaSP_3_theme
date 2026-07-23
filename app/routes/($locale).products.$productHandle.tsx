@@ -385,16 +385,22 @@ export default function Product() {
               errorElement="Hubo un problema al cargar productos relacionados"
               resolve={recommended}
             >
-              {(products) => (
-                <>
+              {(products) => {
+                // SnapSliderProducts always renders its heading + nav
+                // arrows regardless of how many products it's given — on
+                // the empty-array fallback from a rejected recommended
+                // promise, that leaves a misleading empty carousel instead
+                // of no section at all.
+                if (!products.nodes.length) return null;
+                return (
                   <SnapSliderProducts
                     heading_bold={'Los clientes también compraron'}
                     products={products.nodes}
                     className=""
                     headingFontClass="text-2xl font-semibold"
                   />
-                </>
-              )}
+                );
+              }}
             </Await>
           </Suspense>
         </div>
