@@ -16,24 +16,23 @@
  * runs. The grace window only starts counting once the mutation settles,
  * covering CartAnalytics' own async resolve+diff cycle that follows.
  *
- * Known residual gap (Codex review, #63): CartAnalytics doesn't actually
- * diff against this fetcher at all — it watches the `cart` prop root.tsx
- * passes to <Analytics.Provider>, which is root's OWN loader cart, deferred
- * and re-fetched by Remix's automatic revalidation after ANY fetcher
- * action settles (confirmed directly in @shopify/hydrogen's CartAnalytics
- * source: it Promise.resolve()s the `cart` prop and diffs on that
- * resolution, not on this fetcher's state). So "this CartForm's fetcher
- * went idle" and "root's cart promise has been re-fetched and resolved"
- * are two separate async chains that merely tend to overlap — on a slow
- * connection, root's revalidation round-trip (which only starts after
- * this fetcher's own action completes) can still outlast the window
- * below. A structurally correct fix would track root's own cart
- * revalidation lifecycle directly, not this fetcher's — deferred pending
- * a way to verify that against a live app (this fixed window is a
- * pragmatic mitigation, not a guarantee). GRACE_MS is intentionally more
- * generous than the original 8s for exactly this reason.
+ * Codex review (#63) raised a theoretical gap: CartAnalytics diffs against
+ * the `cart` prop root.tsx passes to <Analytics.Provider> — root's own
+ * deferred loader cart, re-fetched by Remix's automatic revalidation after
+ * this fetcher's action — not against this fetcher directly, so in
+ * principle "this fetcher went idle" and "root's cart promise resolved"
+ * looked like two independent async chains. Verified live against a running
+ * dev server (2026-07-23) that this isn't actually a gap in practice: with
+ * an artificial 8s delay injected into root's deferred cart resolution,
+ * this fetcher's `state` stayed non-idle for the entire ~9s span (click to
+ * settle) — confirming the browser doesn't consider fetcher revalidation
+ * "done" until the full streamed response, deferred chunks included, has
+ * arrived, even though React Router's loaderData is technically populated
+ * with the still-pending promise before that. So CartActionTracker's
+ * fetcher-state tracking already covers root's cart revalidation window;
+ * no additional tracking needed.
  */
-const GRACE_MS = 15000;
+const GRACE_MS = 8000;
 
 let pendingCount = 0;
 let settledAt = 0;

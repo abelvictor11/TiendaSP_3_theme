@@ -7,9 +7,9 @@ import {
 /**
  * Mount inside a CartForm's fetcher render-prop (`{(fetcher) => ...}`) to
  * track its lifecycle for cartActionSignal — see that file for why this
- * tracks the actual mutation instead of a fixed timestamp, and for a known
- * residual gap: this fetcher going idle isn't the same event as
- * CartAnalytics actually seeing the update (see cartActionSignal.ts).
+ * tracks the actual mutation instead of a fixed timestamp, and for how this
+ * was verified live to also cover root's deferred cart re-fetch, not just
+ * this fetcher's own action.
  */
 export function CartActionTracker({
   state,
