@@ -48,7 +48,7 @@ function root({
   const origin = new URL(url).origin;
   const siteUrl = `${origin}/`;
   return {
-    title: shop?.name,
+    title: shop?.name ? stripBrandSuffix(shop.name) : shop?.name,
     titleTemplate: '%s | Tienda Fitness',
     description: truncate(shop?.description ?? ''),
     handle: '@tiendafitness.co',
@@ -301,8 +301,9 @@ function product({
   url: Request['url'];
 }): SeoConfig {
   const description = productDescription(product);
+  const rawTitle = product?.seo?.title ?? product?.title;
   return {
-    title: product?.seo?.title ?? product?.title,
+    title: rawTitle ? stripBrandSuffix(rawTitle) : rawTitle,
     description,
     url,
     media: selectedVariant?.image,
@@ -320,6 +321,26 @@ type CollectionRequiredFields = Omit<
   updatedAt?: null | Collection['updatedAt'];
   metafields?: null | Collection['metafields'];
 };
+
+/**
+ * Same non-blank-preferring logic as productDescription() above — `??`
+ * alone would pick an empty seo.description over a populated body
+ * description whenever a merchant clears the SEO field in Admin (Shopify
+ * stores that as '' rather than null). Product pages already got this fix
+ * on 2026-07-20; this extends the same logic to collections, which had
+ * been missed.
+ */
+function collectionDescription(collection: {
+  description?: string | null;
+  seo?: null | {description?: string | null};
+}): string {
+  const seoDescription = collection?.seo?.description ?? '';
+  return truncate(
+    seoDescription.trim().length > 0
+      ? seoDescription
+      : collection?.description ?? '',
+  );
+}
 
 function collectionJsonLd({
   url,
@@ -361,9 +382,7 @@ function collectionJsonLd({
       '@context': 'https://schema.org',
       '@type': 'CollectionPage',
       name: collection?.seo?.title ?? collection?.title ?? '',
-      description: truncate(
-        collection?.seo?.description ?? collection?.description ?? '',
-      ),
+      description: collectionDescription(collection),
       image: collection?.image?.url,
       url: `${siteUrl.origin}/collections/${collection.handle}`,
       mainEntity: {
@@ -381,11 +400,10 @@ function collection({
   collection: CollectionRequiredFields;
   url: Request['url'];
 }): SeoConfig {
+  const rawTitle = collection?.seo?.title ?? collection?.title;
   return {
-    title: collection?.seo?.title ?? collection?.title,
-    description: truncate(
-      collection?.seo?.description ?? collection?.description ?? '',
-    ),
+    title: rawTitle ? stripBrandSuffix(rawTitle) : rawTitle,
+    description: collectionDescription(collection),
     titleTemplate: '%s | Tienda Fitness',
     url,
     media: {
@@ -471,8 +489,9 @@ function article({
 }): SeoConfig {
   const origin = new URL(url).origin;
   const siteUrl = `${origin}/`;
+  const rawTitle = article?.seo?.title ?? article?.title;
   return {
-    title: article?.seo?.title ?? article?.title,
+    title: rawTitle ? stripBrandSuffix(rawTitle) : rawTitle,
     description: truncate(article?.seo?.description ?? ''),
     titleTemplate: '%s | Tienda Fitness',
     url,
@@ -520,8 +539,9 @@ function blog({
   blog: Pick<Blog, 'seo' | 'title'>;
   url: Request['url'];
 }): SeoConfig {
+  const rawTitle = blog?.seo?.title;
   return {
-    title: blog?.seo?.title,
+    title: rawTitle ? stripBrandSuffix(rawTitle) : rawTitle,
     description: truncate(blog?.seo?.description || ''),
     titleTemplate: '%s | Tienda Fitness',
     url,
@@ -579,7 +599,8 @@ function page({
   url: Request['url'];
 }): SeoConfig {
   const description = truncate(page?.seo?.description || '');
-  const title = page?.seo?.title ?? page?.title;
+  const rawTitle = page?.seo?.title ?? page?.title;
+  const title = rawTitle ? stripBrandSuffix(rawTitle) : rawTitle;
   return {
     description,
     title,
@@ -747,4 +768,16 @@ function truncate(str: string, num = 155): string {
   const lastSpace = sliced.lastIndexOf(' ');
   const cut = lastSpace > 0 ? sliced.slice(0, lastSpace) : sliced;
   return cut + '...';
+}
+
+/**
+ * Strips a trailing brand suffix a merchant may have already typed into a
+ * seo.title / shop name field (e.g. "... | Tienda Fitness") before
+ * titleTemplate appends it again — otherwise search results show
+ * "... | Tienda Fitness | Tienda Fitness".
+ */
+function stripBrandSuffix(title: string, brand = SHOP_NAME): string {
+  return title
+    .replace(new RegExp(`\\s*[|\\-–]\\s*${brand}\\s*$`, 'i'), '')
+    .trim();
 }
