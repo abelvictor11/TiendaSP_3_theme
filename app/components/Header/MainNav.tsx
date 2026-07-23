@@ -8,7 +8,7 @@ import clsx from 'clsx';
 import {Bars3Icon} from '@heroicons/react/24/outline';
 import {Link} from '../Link';
 import {useAside} from '../Aside';
-import {Form, useParams} from '@remix-run/react';
+import {SearchAutocomplete} from '../SearchAutocomplete';
 
 interface QuickLinksConfig {
   enabled: boolean;
@@ -23,7 +23,6 @@ export interface Props {
 
 const MainNav: FC<Props> = ({className = '', isHome, quickLinks}) => {
   const {type: activeType, close, open} = useAside();
-  const params = useParams();
 
   return (
     <div
@@ -53,23 +52,7 @@ const MainNav: FC<Props> = ({className = '', isHome, quickLinks}) => {
 
           {/* Desktop Search Input - Hidden on mobile */}
           <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
-            <Form
-              method="get"
-              action={params.locale ? `/${params.locale}/search` : '/search'}
-              className="relative w-full"
-            >
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-black">
-                  <MagnifyingGlassIcon />
-                </span>
-                <input
-                  type="search"
-                  name="q"
-                  placeholder="Buscar productos..."
-                  className="w-full h-11 pl-12 pr-4 text-sm bg-[#F9F7F7] dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent placeholder:text-black dark:placeholder:text-slate-500 text-slate-900 dark:text-slate-100"
-                />
-              </div>
-            </Form>
+            <SearchAutocomplete variant="header" />
           </div>
 
           {/* Right side actions */}
