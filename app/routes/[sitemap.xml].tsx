@@ -2,33 +2,23 @@ import type {LoaderFunctionArgs} from '@shopify/remix-oxygen';
 
 import {getSitemapIndex} from 'app/lib/sitemap';
 
-const SHOP_PRIMARY_DOMAIN_QUERY = `#graphql
-  query ShopPrimaryDomainIndex {
-    shop {
-      primaryDomain {
-        url
-      }
-    }
-  }
-` as const;
-
 export async function loader({
   request,
   context: {storefront},
 }: LoaderFunctionArgs) {
-  // Usar el dominio canónico del shop, no el myshopify.com de Oxygen
-  let baseUrl = new URL(request.url).origin;
-  try {
-    const {shop} = await storefront.query(SHOP_PRIMARY_DOMAIN_QUERY, {
-      cache: storefront.CacheLong(),
-    });
-    const primaryUrl = shop?.primaryDomain?.url;
-    if (primaryUrl && !primaryUrl.includes('myshopify.com')) {
-      baseUrl = primaryUrl.replace(/\/$/, '');
-    }
-  } catch {
-    // Fallback al origin del request
-  }
+  // El origin del request ES el dominio público correcto: Google siempre
+  // pide este sitemap sobre tienda-sportfitness.com (el dominio submitteado
+  // en Search Console), y Oxygen preserva el Host original del cliente.
+  //
+  // Antes se sobreescribía con shop.primaryDomain.url (Storefront API) para
+  // evitar que un myshopify.dev/oxygen leakeara al sitemap — pero ese campo
+  // refleja el dominio Primary del canal "Online Store" clásico de Shopify,
+  // que en esta tienda es checkout.tienda-sportfitness.com (un canal
+  // completamente distinto al storefront Hydrogen). Cada dominio que se
+  // intentó excluir a mano (myshopify.com, luego el de checkout) confirmó
+  // que la lista nunca es exhaustiva — el origin del request ya es correcto
+  // por construcción y no depende de qué canal Shopify considere "Primary".
+  const baseUrl = new URL(request.url).origin;
 
   const response = await getSitemapIndex({
     storefront,
