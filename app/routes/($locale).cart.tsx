@@ -21,7 +21,7 @@ import {getFbCookies} from '~/lib/fbCookies';
 import {getGaCookies} from '~/lib/gaCookies';
 import {analyticsAllowed} from '~/lib/consent';
 import {trackCheckoutStarted} from '~/components/CustomAnalytics';
-import {markRealCartAdd} from '~/lib/cartActionSignal';
+import {CartActionTracker} from '~/components/CartActionTracker';
 import {decorateCheckoutUrl} from '~/lib/checkoutContinuity';
 import {Link} from '~/components/Link';
 import {FeaturedProducts} from '~/components/FeaturedProducts';
@@ -501,9 +501,15 @@ function CartSummary({
 function UpdateCartButton({
   children,
   lines,
+  trackAsCartAdd = false,
 }: {
   children: React.ReactNode;
   lines: CartLineUpdateInput[];
+  // A quantity increase publica el mismo evento product_added_to_cart que un
+  // add nuevo desde AddToCartButton (ver CartAnalytics de @shopify/hydrogen)
+  // — necesita el mismo CartActionTracker o el guard de "add real reciente"
+  // de CustomAnalytics lo descartaría por error. Ver cartActionSignal.ts.
+  trackAsCartAdd?: boolean;
 }) {
   return (
     <CartForm
@@ -513,7 +519,12 @@ function UpdateCartButton({
         lines,
       }}
     >
-      {children}
+      {(fetcher) => (
+        <>
+          {trackAsCartAdd && <CartActionTracker state={fetcher.state} />}
+          {children}
+        </>
+      )}
     </CartForm>
   );
 }
@@ -546,21 +557,15 @@ function CartLineQuantityAdjust({line}: {line: OptimisticCartLine}) {
           {quantity}
         </div>
 
-        <UpdateCartButton lines={[{id: lineId, quantity: nextQuantity}]}>
+        <UpdateCartButton
+          lines={[{id: lineId, quantity: nextQuantity}]}
+          trackAsCartAdd
+        >
           <button
             className="w-8 h-8 sm:w-10 sm:h-10 transition text-primary/50 hover:text-primary"
             name="increase-quantity"
             value={nextQuantity}
             aria-label="Aumentar cantidad"
-            onClick={() => {
-              // CartAnalytics (@shopify/hydrogen) también publica
-              // product_added_to_cart al subir la cantidad de una línea
-              // existente, igual que un add nuevo desde AddToCartButton — se
-              // marca acá también, o el guard de "add real reciente" de
-              // CustomAnalytics descartaría esta acción genuina por error.
-              // Ver cartActionSignal.ts.
-              markRealCartAdd();
-            }}
           >
             <span>&#43;</span>
           </button>
