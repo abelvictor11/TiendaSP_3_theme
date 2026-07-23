@@ -14,16 +14,25 @@ const SHOP_PRIMARY_DOMAIN_QUERY = `#graphql
 
 export async function loader({
   request,
-  context: {storefront},
+  context: {storefront, env},
 }: LoaderFunctionArgs) {
-  // Usar el dominio canónico del shop, no el myshopify.com de Oxygen
+  // Usar el dominio canónico del shop, no el myshopify.com de Oxygen.
+  //
+  // shop.primaryDomain puede resolver al dominio Primary del canal "Online
+  // Store" clásico (checkout.tienda-sportfitness.com en esta tienda, ver
+  // misma nota en sitemap.$type.$page[.xml].tsx) en vez del dominio del
+  // storefront Hydrogen — se excluye igual que en esa ruta.
   let baseUrl = new URL(request.url).origin;
   try {
     const {shop} = await storefront.query(SHOP_PRIMARY_DOMAIN_QUERY, {
       cache: storefront.CacheLong(),
     });
     const primaryUrl = shop?.primaryDomain?.url;
-    if (primaryUrl && !primaryUrl.includes('myshopify.com')) {
+    const checkoutDomain = env.PUBLIC_CHECKOUT_DOMAIN;
+    const isMyshopify = primaryUrl?.includes('myshopify.com');
+    const isCheckoutDomain =
+      checkoutDomain && primaryUrl?.includes(checkoutDomain);
+    if (primaryUrl && !isMyshopify && !isCheckoutDomain) {
       baseUrl = primaryUrl.replace(/\/$/, '');
     }
   } catch {
