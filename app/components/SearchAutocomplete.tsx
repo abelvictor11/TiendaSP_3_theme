@@ -1,5 +1,7 @@
 import {useState, useRef, useEffect, useCallback} from 'react';
-import {Form, Link, useFetcher, useParams} from '@remix-run/react';
+import {Form, useFetcher, useParams} from '@remix-run/react';
+import {Link} from '~/components/Link';
+import {usePrefixPathWithLocale} from '~/lib/utils';
 
 interface SearchAutocompleteProps {
   defaultValue?: string;
@@ -21,17 +23,27 @@ export function SearchAutocomplete({
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const params = useParams();
 
-  const predictiveResults = fetcher.data;
+  // Only trust fetcher.data once it reports having answered the query
+  // that's currently typed — otherwise a slower-arriving response for a
+  // previous, shorter query can render as if it matched what's on screen
+  // now (the fetch is debounced, but responses can still resolve out of
+  // order across two overlapping loads).
+  const predictiveResults =
+    fetcher.data?.query === query ? fetcher.data : undefined;
   const isLoading = fetcher.state === 'loading';
+
+  const predictiveSearchPath = usePrefixPathWithLocale(
+    '/api/predictive-search',
+  );
 
   const fetchPredictiveResults = useCallback(
     (searchQuery: string) => {
       if (searchQuery.length < 2) return;
       fetcher.load(
-        `/api/predictive-search?q=${encodeURIComponent(searchQuery)}`,
+        `${predictiveSearchPath}?q=${encodeURIComponent(searchQuery)}`,
       );
     },
-    [fetcher],
+    [fetcher, predictiveSearchPath],
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

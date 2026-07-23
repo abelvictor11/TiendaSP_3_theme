@@ -1,11 +1,17 @@
 import {json, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 
+// Filename is ($locale)-prefixed (not plain api.predictive-search) so a
+// request to /en-gb/api/predictive-search resolves to this same loader with
+// context.storefront.i18n already set to that market — server.ts derives
+// i18n purely from the request path's first segment (getLocaleFromRequest),
+// so an unprefixed route would always answer in the default market
+// regardless of which one the caller is actually browsing.
 export async function loader({request, context}: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const searchTerm = url.searchParams.get('q') || '';
 
   if (searchTerm.length < 2) {
-    return json({products: [], collections: []});
+    return json({query: searchTerm, products: [], collections: []});
   }
 
   const {storefront} = context;
@@ -38,7 +44,10 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     }),
   );
 
-  return json({products, collections});
+  // Echoes the query back so the dropdown can tell a fresh response from a
+  // stale one arriving after the user has already typed something else —
+  // see the comparison in SearchAutocomplete.tsx.
+  return json({query: searchTerm, products, collections});
 }
 
 // Uses the dedicated `predictiveSearch` field (not the generic `products`/
