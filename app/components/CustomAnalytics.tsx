@@ -448,6 +448,67 @@ export function CustomAnalytics({gtmOwnsTags = false}: {gtmOwnsTags?: boolean}) 
       rsTrack('Products Searched', {query: term});
     });
 
+    // ── PREDICTIVE SEARCH (header/mobile dropdown) ──────────────────────────
+    // Separate from SEARCH_VIEWED above, which only fires on the full /search
+    // results page — a user can open the dropdown and click straight into a
+    // product/collection without ever landing there, so without this the
+    // dropdown's usage was completely invisible to analytics.
+    subscribe(
+      'custom_predictive_search_viewed' as typeof AnalyticsEvent.CUSTOM_EVENT,
+      (rawPayload) => {
+        const payload = rawPayload as unknown as {
+          searchTerm: string;
+          resultCount: number;
+        };
+        gtagEvent('predictive_search_viewed', {
+          search_term: payload.searchTerm,
+          result_count: payload.resultCount,
+        });
+        pushDataLayer('predictive_search_viewed', {
+          search_term: payload.searchTerm,
+          result_count: payload.resultCount,
+        });
+        rsTrack('Predictive Search Viewed', {
+          query: payload.searchTerm,
+          result_count: payload.resultCount,
+        });
+      },
+    );
+
+    subscribe(
+      'custom_predictive_search_select' as typeof AnalyticsEvent.CUSTOM_EVENT,
+      (rawPayload) => {
+        const payload = rawPayload as unknown as {
+          searchTerm: string;
+          resultType: 'product' | 'collection';
+          resultId: string;
+          resultTitle: string;
+          position: number;
+        };
+        gtagEvent('predictive_search_select', {
+          search_term: payload.searchTerm,
+          result_type: payload.resultType,
+          result_id: payload.resultId,
+          result_title: payload.resultTitle,
+          position: payload.position,
+        });
+        pushDataLayer('predictive_search_select', {
+          search_term: payload.searchTerm,
+          result_type: payload.resultType,
+          result_id: payload.resultId,
+          result_title: payload.resultTitle,
+          position: payload.position,
+        });
+        rsTrack('Predictive Search Result Selected', {
+          query: payload.searchTerm,
+          result_type: payload.resultType,
+          result_id: payload.resultId,
+          result_title: payload.resultTitle,
+          position: payload.position,
+        });
+      },
+    );
+
     // ── CART VIEW ─────────────────────────────────────────────────────────
     subscribe(AnalyticsEvent.CART_VIEWED, (payload: CartViewPayload) => {
       const cartData = payload.cart;
