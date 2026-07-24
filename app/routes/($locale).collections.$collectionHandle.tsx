@@ -4,7 +4,13 @@ import {
   type LoaderFunctionArgs,
   type MetaArgs,
 } from '@shopify/remix-oxygen';
-import {Await, useLoaderData, Link} from '@remix-run/react';
+import {
+  Await,
+  useLoaderData,
+  Link,
+  useRouteError,
+  isRouteErrorResponse,
+} from '@remix-run/react';
 import type {Filter} from '@shopify/hydrogen/storefront-api-types';
 import {Pagination, Analytics} from '@shopify/hydrogen';
 import invariant from 'tiny-invariant';
@@ -30,6 +36,8 @@ import {getLegacyRedirectTarget} from '~/lib/legacyRedirects.server';
 import {ProductsGrid} from '~/components/ProductsGrid';
 import clsx from 'clsx';
 import {Suspense, useState} from 'react';
+import {GenericError} from '~/components/GenericError';
+import {NotFound} from '~/components/NotFound';
 
 export const headers = routeHeaders;
 
@@ -40,12 +48,17 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   invariant(collectionHandle, 'Missing collectionHandle param');
 
   // Query the route metaobject
+  // .catch() — sin esto, un error transitorio aquí es una promesa dentro de
+  // defer() sin manejar, que se propaga como unhandled rejection hasta el
+  // ErrorBoundary de root.tsx en vez de degradar a "sin secciones extra" (ver
+  // mismo fix en products.$productHandle.tsx, confirmado reproducible en
+  // cyclewear 2026-07-22).
   const routePromise = getLoaderRouteFromMetaobject({
     params,
     context,
     request,
     handle: 'route-collection',
-  });
+  }).catch(() => ({route: null}));
 
   const {paginationVariables, filters, sortKey, reverse} =
     getPaginationAndFiltersFromRequest(request, 24);
@@ -96,7 +109,7 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match?.data as any)?.seo));
 };
 
 export default function Collection() {
@@ -562,3 +575,35 @@ const COLLECTION_QUERY = `#graphql
    # All common fragments
    ${COMMON_PRODUCT_CARD_FRAGMENT}
 ` as const;
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  // El loader lanza throw new Response('collection', {status: 404}) para
+  // handles desconocidos — sin este check, este boundary lo interceptaba
+  // ANTES de que el boundary de root.tsx pudiera renderizar el NotFound
+  // real, mostrando el genérico "No pudimos cargar esta colección" en vez
+  // del 404 esperado (encontrado por Codex en PR #77).
+  if (isRouteErrorResponse(error)) {
+    if (error.status === 404) {
+      return <NotFound type={error.data || 'collection'} />;
+    }
+    return (
+      <GenericError
+        heading="No pudimos cargar esta colección."
+        description={
+          typeof error.data === 'string' && error.data
+            ? error.data
+            : undefined
+        }
+      />
+    );
+  }
+
+  return (
+    <GenericError
+      heading="No pudimos cargar esta colección."
+      error={error instanceof Error ? error : undefined}
+    />
+  );
+}

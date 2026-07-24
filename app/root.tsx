@@ -331,8 +331,20 @@ export function ErrorBoundary({error}: {error: Error}) {
             {routeError.status === 404 ? (
               <NotFound type={pageType} />
             ) : (
+              // routeError.data es un Response body que nosotros mismos
+              // lanzamos (seguro de mostrar) — va por `description`, no por
+              // `error`, que GenericError reserva para excepciones reales y
+              // solo muestra en dev (ver GenericError.tsx). Solo lo
+              // mostramos si es un string no vacío — sin este check se
+              // mostraría el status code crudo o basura tipo "410 undefined"
+              // cuando data no es texto legible; GenericError ya cae al
+              // description genérico por defecto en ese caso.
               <GenericError
-                error={{message: `${routeError.status} ${routeError.data}`}}
+                description={
+                  typeof routeError.data === 'string' && routeError.data
+                    ? routeError.data
+                    : undefined
+                }
               />
             )}
           </>

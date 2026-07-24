@@ -10,11 +10,17 @@ export function GenericError({
   heading?: string;
   description?: string;
 }) {
-  // TODO hide error in prod?
+  // Los detalles de la excepción (mensaje + stack, con links a archivos del
+  // servidor) solo se muestran en dev — en prod solo queda la `description`
+  // genérica (o la que root.tsx pasó explícitamente para un Response propio,
+  // ver ErrorBoundary). Siempre se loguea server-side para debugging.
+  const isDev = import.meta.env.DEV;
   if (error) {
-    description += `\n${error.message}`;
     // eslint-disable-next-line no-console
     console.error(error);
+    if (isDev) {
+      description += `\n${error.message}`;
+    }
   }
 
   return (
@@ -26,7 +32,7 @@ export function GenericError({
           </h1>
 
           <p dangerouslySetInnerHTML={{__html: description}}></p>
-          {error?.stack && (
+          {isDev && error?.stack && (
             <pre
               style={{
                 padding: '2rem',

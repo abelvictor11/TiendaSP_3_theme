@@ -9,7 +9,7 @@ export async function loader({request}: LoaderFunctionArgs) {
     return redirect(target, 301);
   }
 
-  throw new Response('Not found', {status: 404});
+  throw new Response(null, {status: 404});
 }
 
 export default function Component() {

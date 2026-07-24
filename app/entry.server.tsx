@@ -239,7 +239,14 @@ export default async function handleRequest(
       onError(error) {
         // eslint-disable-next-line no-console
         console.error(error);
-        responseStatusCode = 500;
+        // No degradar un status ya correcto (ej. un 404 propio) si el error
+        // viene de un componente que renderiza en paralelo dentro de un
+        // Suspense (header/footer/cart diferidos) — onError se dispara para
+        // cualquier excepción durante el streaming, no solo las que rompen
+        // la página completa.
+        if (responseStatusCode < 400) {
+          responseStatusCode = 500;
+        }
       },
     },
   );

@@ -539,7 +539,7 @@ function blog({
   blog: Pick<Blog, 'seo' | 'title'>;
   url: Request['url'];
 }): SeoConfig {
-  const rawTitle = blog?.seo?.title;
+  const rawTitle = blog?.seo?.title ?? blog?.title;
   return {
     title: rawTitle ? stripBrandSuffix(rawTitle) : rawTitle,
     description: truncate(blog?.seo?.description || ''),

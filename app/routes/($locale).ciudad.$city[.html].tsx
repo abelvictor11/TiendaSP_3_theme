@@ -39,7 +39,7 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
   const city = getCityBySlug(params.city);
 
   if (!city) {
-    throw new Response('Not found', {status: 404});
+    throw new Response(null, {status: 404});
   }
 
   const {collections} = await context.storefront.query(
@@ -70,7 +70,7 @@ export async function loader({params, request, context}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match?.data as any)?.seo));
 };
 
 export default function CityPage() {

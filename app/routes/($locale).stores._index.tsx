@@ -26,7 +26,7 @@ export async function loader({context, params, request}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match?.data as any)?.seo));
 };
 
 export default function Stores() {

@@ -183,7 +183,7 @@ function loadDeferredData(args: LoaderFunctionArgs) {
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
   return getSeoMetaTags(
-    matches.map((match) => (match.data as any).seo),
+    matches.map((match) => (match?.data as any)?.seo),
     'product',
   );
 };
@@ -254,6 +254,7 @@ export default function Product() {
                 media={media.nodes}
                 className="w-full lg:col-span-2 lg:gap-7"
                 discountPercentage={discountPercentage}
+                selectedVariantImageUrl={selectedVariant?.image?.url}
               />
               <LikeButton
                 id={id}

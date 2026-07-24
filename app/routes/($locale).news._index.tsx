@@ -47,7 +47,7 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
   });
 
   if (!blog?.articles) {
-    throw new Response('Not found', {status: 404});
+    throw new Response(null, {status: 404});
   }
 
   const seo = seoPayload.blog({blog, url: request.url});
@@ -55,7 +55,7 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match?.data as any)?.seo));
 };
 
 export default function News() {

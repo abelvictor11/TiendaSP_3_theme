@@ -3,7 +3,13 @@ import {
   type MetaArgs,
   type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
-import {Await, Form, useLoaderData} from '@remix-run/react';
+import {
+  Await,
+  Form,
+  useLoaderData,
+  useRouteError,
+  isRouteErrorResponse,
+} from '@remix-run/react';
 import {Pagination, Analytics} from '@shopify/hydrogen';
 import {seoPayload} from '~/lib/seo.server';
 import {getSeoMetaTags} from '~/lib/seoMeta';
@@ -24,17 +30,24 @@ import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFilter
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
 import {ProductsGrid} from '~/components/ProductsGrid';
 import {Suspense} from 'react';
+import {GenericError} from '~/components/GenericError';
+import {NotFound} from '~/components/NotFound';
 
 export async function loader({request, context, params}: LoaderFunctionArgs) {
   const {storefront} = context;
 
   // Query the route metaobject
+  // .catch() — sin esto, un error transitorio aquí es una promesa dentro de
+  // defer() sin manejar, que se propaga como unhandled rejection hasta el
+  // ErrorBoundary de root.tsx en vez de degradar a "sin secciones extra" (ver
+  // mismo fix en products.$productHandle.tsx, confirmado reproducible en
+  // cyclewear 2026-07-22).
   const routePromise = getLoaderRouteFromMetaobject({
     params,
     context,
     request,
     handle: 'route-search',
-  });
+  }).catch(() => ({route: null}));
 
   const searchParams = new URL(request.url).searchParams;
   const searchTerm = searchParams.get('q')! || '';
@@ -110,7 +123,7 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
 }
 
 export const meta = ({matches}: MetaArgs<typeof loader>) => {
-  return getSeoMetaTags(matches.map((match) => (match.data as any).seo));
+  return getSeoMetaTags(matches.map((match) => (match?.data as any)?.seo));
 };
 
 export default function Search() {
@@ -325,3 +338,34 @@ const SEARCH_QUERY_2 = `#graphql
     }
   }
 ` as const;
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  // Mismo patrón que collections.$collectionHandle.tsx: si esta ruta alguna
+  // vez lanza un Response (404 u otro status) en vez de una excepción real,
+  // no lo tratamos como error genérico (encontrado por Codex en PR #77 para
+  // el caso análogo en collections).
+  if (isRouteErrorResponse(error)) {
+    if (error.status === 404) {
+      return <NotFound type={error.data || 'página'} />;
+    }
+    return (
+      <GenericError
+        heading="No pudimos cargar la búsqueda."
+        description={
+          typeof error.data === 'string' && error.data
+            ? error.data
+            : undefined
+        }
+      />
+    );
+  }
+
+  return (
+    <GenericError
+      heading="No pudimos cargar la búsqueda."
+      error={error instanceof Error ? error : undefined}
+    />
+  );
+}

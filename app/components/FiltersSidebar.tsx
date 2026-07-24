@@ -98,6 +98,20 @@ export default function FiltersSidebar({
                             af.label === option.label,
                         );
 
+                        // Oculta opciones sin resultados (count 0) una vez
+                        // que hay algún filtro aplicado — salvo la que ya
+                        // está marcada, para no hacerla desaparecer al
+                        // desactivarla. Sin esto, aplicar un filtro deja
+                        // visibles opciones que solo llevarían a un grid
+                        // vacío.
+                        if (
+                          option.count === 0 &&
+                          !isChecked &&
+                          appliedFilters.length > 0
+                        ) {
+                          return null;
+                        }
+
                         return (
                           <div 
                             key={`${index + option.id}`}

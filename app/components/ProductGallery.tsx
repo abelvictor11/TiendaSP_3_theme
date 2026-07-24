@@ -14,10 +14,12 @@ export function ProductGallery({
   media,
   className,
   discountPercentage,
+  selectedVariantImageUrl,
 }: {
   media: MediaFragment[];
   className?: string;
   discountPercentage?: number;
+  selectedVariantImageUrl?: string;
 }) {
   const [isOpenModal, setOpenModal] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -30,6 +32,23 @@ export function ProductGallery({
     setActiveIndex(index);
     setOpenModal(true);
   };
+
+  // Salta la galería a la imagen de la variante seleccionada (ej. al elegir
+  // color) — sin esto, cambiar de variante nunca cambia qué imagen se ve.
+  // Se compara sin query params porque Shopify puede devolver la misma
+  // imagen con distintos parámetros de transformación (?v=, tamaño, etc.)
+  // entre el media[] del producto y variant.image.
+  useEffect(() => {
+    if (!selectedVariantImageUrl) return;
+    const stripQuery = (url: string) => url.split('?')[0];
+    const targetUrl = stripQuery(selectedVariantImageUrl);
+    const index = media.findIndex((med) => {
+      const imageUrl =
+        med.__typename === 'MediaImage' ? med.image?.url : undefined;
+      return imageUrl && stripQuery(imageUrl) === targetUrl;
+    });
+    if (index >= 0) setActiveIndex(index);
+  }, [selectedVariantImageUrl, media]);
 
   if (!media.length) {
     return null;
