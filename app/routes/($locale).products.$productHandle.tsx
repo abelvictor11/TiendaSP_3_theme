@@ -453,7 +453,7 @@ export function ProductForm({
   storeDomain: string;
 }) {
   const {open} = useAside();
-  const {product} = useLoaderData<typeof loader>();
+  const {product, recommended} = useLoaderData<typeof loader>();
   const [quantity, setQuantity] = useState(1);
 
   const isOutOfStock = !selectedVariant?.availableForSale;
@@ -600,10 +600,38 @@ export function ProductForm({
       {selectedVariant && (
         <div className="grid items-stretch gap-4">
           {isOutOfStock ? (
-            <ButtonSecondary disabled>
-              <NoSymbolIcon className="w-5 h-5" />
-              <span className="ms-2">Agotado</span>
-            </ButtonSecondary>
+            <>
+              <ButtonSecondary disabled>
+                <NoSymbolIcon className="w-5 h-5" />
+                <span className="ms-2">Agotado</span>
+              </ButtonSecondary>
+
+              {/* Alternativas — sin esto el cliente llega a un callejón sin
+                  salida; el mismo mecanismo de "Equípate al completo" (más
+                  abajo, dentro de un accordion siempre colapsado) ya trae
+                  estos datos, solo lo mostramos de inmediato junto al botón
+                  deshabilitado en vez de exigir un click adicional. */}
+              <Suspense fallback={null}>
+                <Await resolve={recommended}>
+                  {(products) => {
+                    const alternatives = products.nodes.slice(0, 2);
+                    if (!alternatives.length) return null;
+                    return (
+                      <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <p className="px-4 pt-3 text-sm font-medium text-slate-600 dark:text-slate-300">
+                          ¿Buscas algo similar? Mira estas alternativas
+                          disponibles:
+                        </p>
+                        <ComplementaryProducts
+                          products={alternatives}
+                          hideHeader
+                        />
+                      </div>
+                    );
+                  }}
+                </Await>
+              </Suspense>
+            </>
           ) : (
             <div className="flex gap-2 sm:gap-3.5 items-stretch">
               <div className="flex items-center justify-center bg-[#F9F7F7]/70 dark:bg-secondary-700/70 p-2 sm:p-3 rounded-full">
@@ -1428,6 +1456,11 @@ async function getRecommendedProducts(
 
     const mergedProducts = (products.recommended ?? [])
       .concat(products.additional.nodes)
+      // `additional` is an unfiltered BEST_SELLING fallback — without this,
+      // an out-of-stock PDP's cross-sell/alternatives sections can recommend
+      // other sold-out products, defeating their whole purpose (Codex P1 on
+      // PR #83).
+      .filter((value) => value.availableForSale)
       .filter(
         (value, index, array) =>
           array.findIndex((value2) => value2.id === value.id) === index,
