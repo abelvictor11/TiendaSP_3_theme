@@ -18,6 +18,7 @@ import ButtonSecondary from './Button/ButtonSecondary';
 import ButtonPrimary from './Button/ButtonPrimary';
 import BagIcon from './BagIcon';
 import {NoSymbolIcon} from '@heroicons/react/24/outline';
+import {FREE_SHIPPING_THRESHOLD_COP} from '~/lib/const';
 import {getThumbnailSkeletonByIndex} from './ThumbnailSkeletons';
 import {getProductFeatureText} from '~/utils/getProductFeatureText';
 import {OkendoStarRating} from '@okendo/shopify-hydrogen';
@@ -75,8 +76,21 @@ const ProductCard: FC<ProductCardProps> = ({
   };
   const materialValue = parseMaterialValue(material?.value);
   
-  // Verificar envío gratis (puede ser "true" o "1")
-  const hasEnvioGratis = envio_gratis?.value === 'true' || envio_gratis?.value === '1';
+  // Verificar envío gratis (puede ser "true" o "1"). El metafield es un flag
+  // manual a nivel de PRODUCTO, no de variante — Shopify no tiene ningún
+  // descuento de envío por producto/colección (confirmado vía Admin API: el
+  // único mecanismo real es el Automatic Discount por subtotal de orden,
+  // FREE_SHIPPING_THRESHOLD_COP). Para productos multi-variante cuyo precio
+  // escala por peso/tamaño (ej. "Discos Bumper": 5KG a $130.000, 25KG a
+  // $512.000), el flag a nivel de producto puede quedar activado aunque la
+  // variante más barata no llegue al umbral real — mostrando "Envío Gratis"
+  // en un precio que en checkout SÍ cobra envío. Este guard hace que el
+  // badge nunca pueda prometer algo que el precio mostrado (desde
+  // priceRange.minVariantPrice) no respalda, sin importar qué producto sea.
+  const hasEnvioGratis =
+    (envio_gratis?.value === 'true' || envio_gratis?.value === '1') &&
+    Number(product.priceRange?.minVariantPrice?.amount || 0) >=
+      FREE_SHIPPING_THRESHOLD_COP;
 
   const vendorUrl = getVendorCollectionUrl(vendor);
 

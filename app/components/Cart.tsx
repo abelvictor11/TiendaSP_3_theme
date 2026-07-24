@@ -25,13 +25,16 @@ import {useAside} from './Aside';
 import type {MouseEvent} from 'react';
 import {decorateCheckoutUrl} from '~/lib/checkoutContinuity';
 import {trackCheckoutStarted} from '~/components/CustomAnalytics';
+import {FREE_SHIPPING_THRESHOLD_COP} from '~/lib/const';
 
 export function Cart({
   onClose,
   cart: originalCart,
+  freeShippingThreshold,
 }: {
   onClose?: () => void;
   cart: OptimisticCart | null | undefined | CartReturn;
+  freeShippingThreshold?: number;
 }) {
   // `useOptimisticCart` adds optimistic line items to the cart.
   // These line items are displayed in the cart until the server responds.
@@ -41,7 +44,11 @@ export function Cart({
   return (
     <>
       <CartEmpty hidden={linesCount} onClose={onClose} />
-      <CartDetails onClose={onClose} cart={cart as OptimisticCart} />
+      <CartDetails
+        onClose={onClose}
+        cart={cart as OptimisticCart}
+        freeShippingThreshold={freeShippingThreshold}
+      />
     </>
   );
 }
@@ -49,9 +56,11 @@ export function Cart({
 function CartDetails({
   cart,
   onClose,
+  freeShippingThreshold,
 }: {
   cart: OptimisticCart;
   onClose?: () => void;
+  freeShippingThreshold?: number;
 }) {
   // @todo: get optimistic cart cost
   const cartHasItems = (cart?.totalQuantity || 0) > 0;
@@ -68,6 +77,7 @@ function CartDetails({
           checkoutUrl={cart.checkoutUrl}
           lines={cart?.lines ? flattenConnection(cart.lines) : []}
           onClose={onClose}
+          freeShippingThreshold={freeShippingThreshold}
         />
       )}
     </div>
@@ -98,6 +108,7 @@ function CartSummary({
   discountCodes,
   lines,
   onClose,
+  freeShippingThreshold,
 }: {
   children?: React.ReactNode;
   cost?: CartCost;
@@ -105,6 +116,7 @@ function CartSummary({
   checkoutUrl?: string;
   lines?: OptimisticCartLine[];
   onClose?: () => void;
+  freeShippingThreshold?: number;
 }) {
   function handleCheckoutClick(event: MouseEvent<HTMLAnchorElement>) {
     if (
@@ -149,6 +161,10 @@ function CartSummary({
         <p className="mt-0.5 text-sm text-gray-500">
           Envío e impuestos calculados en el checkout.
         </p>
+        <FreeShippingProgress
+          cost={cost}
+          threshold={freeShippingThreshold}
+        />
         <div className="grid grid-cols-2 gap-2 mt-5">
           <ButtonSecondary
             href="/cart"
@@ -181,6 +197,63 @@ function CartSummary({
         </div>
       </div>
     </section>
+  );
+}
+
+// Barra de progreso hacia envío gratis. El umbral llega como prop, leído en
+// vivo del Automatic Discount "Envío gratis" en Shopify Admin (ver
+// root.tsx + lib/shipping.server.ts) — si cambia en Admin > Descuentos, se
+// refleja aquí sin deploy. FREE_SHIPPING_THRESHOLD_COP solo se usa si esa
+// lectura falla (token no configurado, Admin API caída, etc.). Solo aplica
+// en COP — si la tienda alguna vez vende en otra moneda, este umbral en
+// pesos no tendría sentido y el componente no renderiza nada.
+function FreeShippingProgress({
+  cost,
+  threshold,
+}: {
+  cost?: CartCost;
+  threshold?: number;
+}) {
+  const currencyCode = cost?.subtotalAmount?.currencyCode;
+  if (currencyCode && currencyCode !== 'COP') return null;
+
+  const subtotal = Number(cost?.subtotalAmount?.amount ?? 0);
+  if (!subtotal) return null;
+
+  const freeShippingThreshold = threshold || FREE_SHIPPING_THRESHOLD_COP;
+  const remaining = freeShippingThreshold - subtotal;
+  const pct = Math.min(
+    100,
+    Math.round((subtotal / freeShippingThreshold) * 100),
+  );
+
+  if (remaining <= 0) {
+    return (
+      <div className="mt-3 rounded-lg bg-green-50 dark:bg-green-900/20 px-3 py-2 text-sm font-medium text-green-700 dark:text-green-400">
+        ¡Tu pedido tiene envío gratis!
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-3">
+      <p className="text-sm text-slate-600 dark:text-slate-300">
+        Te faltan{' '}
+        <span className="font-semibold text-slate-900 dark:text-white">
+          <Money
+            data={{amount: String(remaining), currencyCode: currencyCode ?? 'COP'}}
+            withoutTrailingZeros
+          />
+        </span>{' '}
+        para envío gratis
+      </p>
+      <div className="mt-1.5 h-2 w-full rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+        <div
+          className="h-full rounded-full bg-primary-600 transition-all duration-300"
+          style={{width: `${pct}%`}}
+        />
+      </div>
+    </div>
   );
 }
 

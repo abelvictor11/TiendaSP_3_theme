@@ -1,5 +1,5 @@
 import {Await, useRouteLoaderData} from '@remix-run/react';
-import {Suspense} from 'react';
+import {Suspense, useMemo} from 'react';
 import type {
   FooterMenuQuery,
   HeaderMenuQuery,
@@ -118,12 +118,22 @@ function TopBarMarqueeWrap() {
 function CartAside() {
   const rootData = useRouteLoaderData<RootLoader>('root');
   const {close} = useAside();
+  const cartAndThreshold = useMemo(
+    () => Promise.all([rootData?.cart, rootData?.freeShippingThresholdPromise]),
+    [rootData?.cart, rootData?.freeShippingThresholdPromise],
+  );
   return (
     <Aside heading="Carrito de compras" openFrom="right" type="cart">
       <Suspense fallback={<CartLoading />}>
-        <Await resolve={rootData?.cart}>
-          {(cart) => {
-            return <Cart onClose={close} cart={cart || null} />;
+        <Await resolve={cartAndThreshold}>
+          {([cart, freeShippingThreshold]) => {
+            return (
+              <Cart
+                onClose={close}
+                cart={cart || null}
+                freeShippingThreshold={freeShippingThreshold}
+              />
+            );
           }}
         </Await>
       </Suspense>

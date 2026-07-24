@@ -33,6 +33,7 @@ import rcSliderStyle from 'rc-slider/assets/index.css?url';
 import {COMMON_COLLECTION_ITEM_FRAGMENT} from './data/commonFragments';
 import {OkendoProvider, getOkendoProviderData} from '@okendo/shopify-hydrogen';
 import invariant from 'tiny-invariant';
+import {getFreeShippingThreshold} from '~/lib/shipping.server';
 
 // This is important to avoid re-fetching root queries on sub-navigations
 export const shouldRevalidate: ShouldRevalidateFunction = ({
@@ -196,6 +197,10 @@ function loadDeferredData({context}: LoaderFunctionArgs) {
     cart: cart.get(),
     headerPromise,
     footerPromise,
+    // Umbral real de envío gratis leído del Automatic Discount en Shopify
+    // Admin (ver lib/shipping.server.ts) — diferido para no bloquear el TTFB;
+    // el fallback ante cualquier fallo ya vive dentro de getFreeShippingThreshold.
+    freeShippingThresholdPromise: getFreeShippingThreshold(context),
   };
 }
 
