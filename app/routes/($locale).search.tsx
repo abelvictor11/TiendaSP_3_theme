@@ -281,8 +281,13 @@ const SEARCH_QUERY = `#graphql
       types: PRODUCT,
       query: $searchTerm,
       productFilters: $filters,
-      sortKey: $sortKey,  
-      reverse: $reverse  
+      sortKey: $sortKey,
+      reverse: $reverse,
+      # Sin esto no hay partial match ni siquiera en la última palabra —
+      # "banda resistencia elast" no encontraba "elástica" antes de este
+      # cambio. LAST es la única opción real (además de NONE); el resto de
+      # la query ya coincide por término completo/prefijo del motor.
+      prefix: LAST
     ) {
       productFilters {
         id
@@ -323,6 +328,10 @@ const SEARCH_QUERY_2 = `#graphql
       first: 0,
       types: PRODUCT,
       query: $searchTerm,
+      # Debe coincidir con SEARCH_QUERY — si no, el rango del price slider
+      # se calcula sobre un set de productos distinto al que realmente se
+      # muestra.
+      prefix: LAST
     ) {
       productFilters {
         id
