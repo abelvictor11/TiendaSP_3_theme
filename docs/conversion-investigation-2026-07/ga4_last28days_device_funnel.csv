@@ -1,0 +1,11 @@
+device_category,event_name,active_users,sessions,bounce_rate_pct
+mobile,view_item,3801,4405,30.47
+mobile,add_to_cart,317,339,0.88
+mobile,begin_checkout,186,209,24.40
+mobile,purchase,23,24,4.17
+desktop,view_item,1066,1274,19.07
+desktop,add_to_cart,76,88,1.14
+desktop,begin_checkout,45,61,18.03
+desktop,purchase,7,7,0.00
+tablet,view_item,22,22,27.27
+tablet,add_to_cart,1,1,0.00

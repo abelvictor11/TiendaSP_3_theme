@@ -398,21 +398,45 @@ function CartSummary({
       attributes.push({key: '_ga_session_id', value: ga.sessionId});
     }
 
-    if (attributes.length > 0 && checkoutUrl) {
-      // Preventimos el redirect inmediato, guardamos attributes, y luego vamos.
+    if (checkoutUrl) {
       e.preventDefault();
-      const form = new FormData();
-      form.set(
-        '[CartForm]',
-        JSON.stringify({action: 'AttributesUpdateInput', inputs: {attributes}}),
-      );
-      fetch('/cart', {method: 'POST', body: form, keepalive: true})
-        .catch(() => {
+      const navigateToCheckout = () => {
+        // Propaga UTM/gclid/fbclid a la URL de checkout (otro dominio)
+        window.location.href = decorateCheckoutUrl(checkoutUrl);
+      };
+      if (attributes.length > 0) {
+        const form = new FormData();
+        form.set(
+          '[CartForm]',
+          JSON.stringify({
+            action: 'AttributesUpdateInput',
+            inputs: {attributes},
+          }),
+        );
+        // keepalive deja que esto sobreviva a la navegación si pierde la
+        // carrera de abajo. Handoff acotado (no bloqueo indefinido, no
+        // fire-and-forget puro): navegamos en cuanto el POST resuelva O
+        // pasen 400ms, lo que ocurra primero. Un fire-and-forget puro (sin
+        // el timeout) le gana la carrera al POST con conexiones lentas —
+        // checkout.shopify.com puede tomar el snapshot del carrito antes de
+        // que _client_event_id/_fbp/_fbc/GA ids lleguen, rompiendo la
+        // deduplicación de /webhooks/meta-capi y /webhooks/ga4-mp (Codex
+        // review, PR #96). Antes de esto: esperaba sin límite y un fetch
+        // colgado dejaba al cliente varado en /cart sin navegación ni error
+        // (ver FINDINGS.md sección 12) — este timeout acotado evita ambos
+        // extremos.
+        const persistAttributes = fetch('/cart', {
+          method: 'POST',
+          body: form,
+          keepalive: true,
+        }).catch(() => {
           // Si falla, no bloqueamos la compra
-        })
-        .finally(() => {
-          window.location.href = decorateCheckoutUrl(checkoutUrl);
         });
+        const timeout = new Promise((resolve) => setTimeout(resolve, 400));
+        Promise.race([persistAttributes, timeout]).then(navigateToCheckout);
+      } else {
+        navigateToCheckout();
+      }
     }
   };
   return (
