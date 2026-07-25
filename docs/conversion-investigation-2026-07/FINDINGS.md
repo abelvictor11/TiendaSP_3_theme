@@ -837,6 +837,70 @@ exists in this schema (event name suggests RudderStack-side event drops)
 and wasn't queried this session — worth checking for a systemic
 drop-pattern before trusting any of this data as complete.
 
+## 15. PageSpeed Insights — a real, quantified mobile performance problem, and a false alarm
+
+Quick detour requested mid-session: checked PageSpeed Insights for
+`tienda-sportfitness.com` (both form factors), plus a "client-side
+redirect" warning the user saw.
+
+**The redirect warning was a false alarm** — it came from testing a
+typo'd domain, `tienda-sportfitness.com.co` (not the real `.com` site).
+That domain resolves to a completely unrelated parked page whose entire
+body is `<script>window.onload=function(){window.location.href="/lander"}</script>`
+— confirmed directly via `curl`. Nothing to do with this codebase.
+
+**The real site's PageSpeed results are a genuine, quantified finding**,
+field data (real-user, latest 28-day CrUX period):
+
+| Metric | Mobile | Desktop |
+|---|---:|---:|
+| Core Web Vitals assessment | **Failed** | **Failed** (borderline) |
+| LCP | **4.8 s** (poor) | 2.6 s (marginal, just over the 2.5s "good" line) |
+| INP | 257 ms (needs improvement) | 99 ms (good) |
+| CLS | 0 (good) | 0 (good) |
+| FCP | 3.3 s (poor) | 2.0 s (marginal) |
+| TTFB | 2.0 s (poor) | 1.3 s (marginal) |
+| Performance score | 73 | 86 |
+| Accessibility / Best Practices / SEO | 80 / 96 / 100 | 80 / 96 / 100 |
+
+**Mobile fails Core Web Vitals mainly on LCP (4.8s vs. a 2.5s target) —
+this is a real, measurable performance problem, not a hypothesis**, and it
+directly corroborates the mobile-specific friction Shopify Sidekick
+flagged (section 11.2) and the traffic composition (88-96% mobile,
+section 5/11.2's Sidekick context): a large majority of visitors are
+hitting a page that's nearly twice as slow to become usable as it should
+be. Desktop is close to passing (LCP 2.6s, barely over target).
+
+**The single biggest lever on both device profiles is the same: images.**
+Lab diagnostics (Lighthouse, same run):
+
+| Opportunity | Mobile | Desktop |
+|---|---:|---:|
+| Improve image delivery | **1,420 KiB** potential savings | **1,748 KiB** potential savings |
+| Avoid enormous network payloads | 15,485 KiB total page weight | 16,018 KiB total page weight |
+| Reduce JavaScript execution time | 1.7 s | 1.7 s |
+| Minimise main-thread work | 3.0 s | 3.0 s |
+| Reduce unused JavaScript | 173 KiB | 176 KiB |
+| Render-blocking requests | 410 ms savings | 200 ms savings |
+| Long main-thread tasks | 9 found | 7 found |
+
+A **15-16 MB total page weight** for a homepage load is large, and image
+delivery is far and away the top opportunity on both profiles — almost
+certainly product/hero images not being served at appropriately
+compressed/responsive sizes. The JS execution time (1.7s) and
+main-thread work (3.0s) are also substantial and worth a follow-up look
+at what's contributing — this storefront loads five separate client-side
+tracking scripts (GTM, GA4, Meta Pixel, TikTok Pixel, RudderStack; see
+`GtmLoader.tsx`/`RudderStackLoader.tsx`), a plausible contributor not
+confirmed this session (PageSpeed's "Third parties" audit exists but
+wasn't drilled into).
+
+**Not investigated further this session** (flagging, not concluding):
+whether the LCP/image-weight problem is uniform across the site or
+concentrated on specific pages (only the homepage was tested here); the
+exact breakdown of the 15-16 MB payload by resource type; and the
+"Third parties" audit's script-by-script cost breakdown.
+
 ## 9. What this does and doesn't establish yet
 
 **Reasonably well-supported by multiple independent sources:**
