@@ -1,0 +1,176 @@
+# UX conversion signal framework (2026-07-25)
+
+Goal: systematically test what's driving conversion issues — UI/UX,
+traffic quality, or something else — using Shopify's own data + GA4 +
+events, cross-referenced against a real historical comparison, anchored
+on the top-selling products.
+
+## Correction: the store is not new — my first pass here was wrong
+
+An earlier version of this doc claimed the store was ~14 months old
+(based on `shop.createdAt` in the Admin API, 2025-05-21) and concluded a
+literal YoY comparison wasn't meaningful. **That was wrong** — `createdAt`
+is when this specific Shopify *instance* was created (part of a platform
+migration), not when the business started trading. Cross-referenced
+properly:
+
+- **Wayback Machine**: continuous, near-monthly crawl history of
+  tienda-sportfitness.com from **2018-04-30** through the present — a
+  7+ year operating business.
+- **`app/data/legacyRedirects.json`**: 634 entries with WordPress/
+  WooCommerce-style URLs (`/categoria/accesorios/agilidad/conos/`) — hard
+  evidence of a real prior platform with a full catalog, not a fresh
+  start.
+- **Google Search Console** (16-month max retention, domain property):
+  real organic search traffic visible back to at least 2026-03-23 (cut
+  off by GSC's display cap, not by actual history), with a sharp traffic
+  regime change — from a high, spiky ~400-500 clicks/day down to a
+  steady ~100-150/day — right around the platform migration window.
+- **Shopify order history**: order #1001 (Shopify's default starting
+  number) on 2025-05-24 confirms this *Shopify instance's* order ledger
+  starts there — consistent with a migration date, not a business launch
+  date.
+
+**Net: this is an established business that migrated platforms around
+April-May 2025, not a new store.** A real year-over-year comparison is
+valid and — as it turns out — extremely informative (see below).
+
+## The headline finding: a real, large, uniform YoY decline
+
+Pulled via GA4's native Compare feature (exact matching calendar range,
+Jul 1-25, both years, same property, same metric definitions — the
+cleanest possible comparison GA4 supports):
+
+| Step | Jul 1-25, 2026 | Jul 1-25, 2025 | Change |
+|---|---|---|---|
+| Active users (site-wide) | 8,323 | 26,517 | **-68.6%** |
+| view_item | 4,175 | 15,385 | **-72.9%** |
+| add_to_cart | 335 | 1,629 | **-79.4%** |
+| begin_checkout | 203 | 1,262 | **-83.9%** |
+| purchase | 25 | 207 | **-87.9%** |
+
+**The decline compounds at every step deeper into the funnel — this is
+not purely a traffic-volume story.** Implied step-to-step conversion
+rates:
+
+| Step conversion | 2026 | 2025 | Relative change |
+|---|---|---|---|
+| view_item → add_to_cart | 8.0% | 10.6% | **-24%** |
+| add_to_cart → begin_checkout | 60.6% | 77.5% | **-22%** |
+| begin_checkout → purchase | 12.3% | 16.4% | **-25%** |
+
+Every single step lost roughly a quarter of its conversion rate,
+uniformly. That uniformity is itself a signal: a *localized* UX problem
+(e.g., one broken filter, one confusing PDP layout) would typically show
+up as a disproportionate drop at *one* step, not an even ~22-25% haircut
+at every step from top to bottom. A uniform decline like this more
+commonly points to something global: traffic-quality/channel-mix shift
+(different acquisition sources bringing lower-intent visitors), a
+site-wide technical/performance regression, broader market conditions, or
+some combination — not necessarily "the menu is confusing" or "the search
+is bad" specifically, even though those remain worth checking.
+
+**This reframes the original hypothesis.** The request that started this
+investigation assumed "most issues are UI/UX." The data doesn't rule that
+out, but it doesn't point there first either — it points at "something
+changed broadly across the whole funnel, right around when this business
+migrated platforms." The migration itself (new domain-serving
+architecture, new theme/storefront, new tracking setup, likely different
+traffic-source mix as old bookmarks/backlinks/ad campaigns pointed at the
+old platform) is a far more parsimonious single explanation for a uniform
+cross-funnel decline than five separate, coincidentally-simultaneous UX
+regressions would be.
+
+## What this means for next steps
+Before building the menu/collection/search-specific framework from the
+original ask, the higher-value next step is diagnosing *why* the decline
+is uniform rather than concentrated:
+1. **Traffic-source/channel-mix comparison, 2025 vs 2026**: pull "First
+   user medium" (already available as a GA4 dimension, seen in this
+   session's Free-form report) for both periods. If the mix shifted
+   heavily (e.g., much more low-intent paid traffic, or organic collapse
+   from the GSC-visible post-migration SEO drop), that alone could
+   explain most of this without any on-site UX culprit.
+2. **GSC performance, pre- vs post-migration**: the same Compare
+   functionality exists in GSC — pull clicks/impressions/average position
+   for the equivalent windows to quantify how much of the traffic decline
+   is organic-search-specific (SEO impact of the migration) vs. broader.
+3. **Device-category split** of the same YoY comparison — if the decline
+   is concentrated on one device type, that's a much more specific,
+   actionable lead than a store-wide number.
+4. Only after 1-3 rule in/out a traffic-quality or SEO explanation does it
+   make sense to invest in the original menu/collection-filter/search
+   instrumentation plan below — otherwise there's a real risk of
+   correctly diagnosing "conversion rate dropped 25% at every step" and
+   incorrectly prescribing a UX fix for what's actually a traffic-mix or
+   SEO problem.
+
+## Update 2026-07-25 — items 1–3 above are done; Phase 2 now has real corroborating data
+
+The three pre-checks listed above were completed (full detail in
+`docs/conversion-investigation-2026-07/FINDINGS.md`, sections 5–7 and 11).
+Summary of what changed the picture:
+- Traffic-source mix: paid, not organic, has been the dominant channel every
+  half since data began — the store's demand is acquisition-driven, not
+  SEO-driven (FINDINGS.md section 5).
+- GSC pre/post-migration: confirmed a sharp, dated ~70–75% organic-click
+  collapse exactly at the Apr–Jun 2025 migration window, never recovered —
+  and this round found a concrete technical mechanism (a broken sitemap the
+  site's own `robots.txt` was still pointing to as late as 2025-05-10;
+  FINDINGS.md section 11.6).
+- Device split: only a single-window (last 28 days) snapshot was pulled, not
+  the full YoY/half-year comparison originally planned — still an open item
+  (FINDINGS.md section 11.7).
+
+None of this rules out on-site UX as a contributor — if anything, a
+Shopify-Sidekick-generated bounce-rate report was independently cross-checked
+against GA4 this round and **one specific claim held up**: the
+`/collections/bicicletas-estaticas-y-spinning` collection page bounces at
+**84.07%** (GA4, last 28 days) vs Sidekick's claimed 82.5% — a close match.
+The sibling claim for `/collections/caminadoras-y-trotadoras` (claimed 83.6%)
+did **not** hold up at 28-day aggregate (45.71% actual) and should be treated
+as unconfirmed, not as a second proven bad page (FINDINGS.md section 11.2).
+**Net effect on this framework's priority**: the top-50-products
+mini-funnel and new instrumentation below are still correctly sequenced
+after the acquisition/tracking items in FINDINGS.md section 10, but the
+`bicicletas-estaticas-y-spinning` collection page specifically now has real,
+corroborated evidence behind it and is a reasonable first concrete target
+once this phase starts (e.g. clearer above-the-fold CTAs/trust signals,
+checking whether social-ad creative matches the page content) — no other
+single page in this framework currently has two independent measurements
+agreeing on it.
+
+## Original framework (still valid, now Phase 2 rather than Phase 1)
+Sections below are unchanged from the original design — genuinely useful,
+just resequenced behind the traffic-quality/SEO check above rather than
+ahead of it.
+
+### Instrumentation inventory (unchanged finding)
+| Touchpoint | Status |
+|---|---|
+| Predictive search (viewed + selected, with position) | ✅ tracked |
+| Full search page (query, results) | ✅ tracked |
+| PDP view, add_to_cart, remove_from_cart, view_cart, checkout started | ✅ tracked |
+| Collection page landing (view_item_list) | ✅ tracked |
+| Header/mega-menu clicks | ❌ zero tracking — bare `<Link>`s |
+| Collection filter/sort usage | ❌ zero tracking — only inferable by diffing URL params |
+| Search zero-results | ❌ computed in code, never sent to any tracker |
+| Homepage category/promo card clicks | ❌ zero tracking — bare `<Link>`s |
+| PLP quick-add vs. PDP add-to-cart source | ❌ indistinguishable |
+
+### Top-50-products + per-product mini-funnel (unchanged design)
+Once the traffic-quality question is resolved (or ruled out), pull top 50
+products by units sold (Shopify Bulk Operations API, orders + line
+items), cross-reference each against GA4's `view_item`/`add_to_cart`/
+purchase counts for a per-product mini-funnel — same diagnostic logic as
+originally designed: low-views-relative-to-sales points at
+discoverability (menu/collection placement), high-views-low-add-to-cart
+points at PDP content, high-add-to-cart-low-purchase points at
+cart/checkout friction.
+
+### New instrumentation (unchanged design, still Phase 2/3)
+Menu clicks, filter/sort usage, zero-results event, promo-card clicks,
+add-to-cart source tagging — still genuinely missing, still worth
+shipping eventually, just not the first move given the traffic-quality
+question above is cheaper to answer and more likely to explain the bulk
+of the effect.

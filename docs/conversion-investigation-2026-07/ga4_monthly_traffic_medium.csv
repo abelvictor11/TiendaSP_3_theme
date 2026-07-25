@@ -1,0 +1,195 @@
+year,month,medium,active_users
+2026,1,(none),20598
+2025,10,cpc,17265
+2025,9,cpc,14555
+2026,1,cpc,13686
+2025,7,cpc,13248
+2025,8,cpc,12984
+2026,2,cpc,11555
+2025,11,cpc,11018
+2026,4,paid,10821
+2025,6,cpc,10324
+2026,5,paid,9450
+2025,12,cpc,9358
+2026,2,(none),9261
+2026,3,cpc,6987
+2026,5,cpc,5524
+2025,6,paid,5158
+2026,6,paid,4847
+2026,2,paid,4312
+2026,6,cpc,4002
+2026,3,paid,3931
+2025,7,(none),3830
+2025,6,(none),3531
+2025,7,referral,3490
+2025,6,organic,3246
+2025,11,paid,3172
+2025,7,organic,3160
+2025,7,paid,3015
+2026,1,paid,2977
+2026,7,cpc,2922
+2025,12,paid,2902
+2025,8,(none),2852
+2025,6,cpa,2618
+2025,7,cpa,2539
+2026,4,cpc,2487
+2026,1,organic,2399
+2025,10,(none),2236
+2025,9,organic,2211
+2026,2,organic,2196
+2025,11,(none),2177
+2025,8,organic,2070
+2026,3,(none),2043
+2025,10,organic,2017
+2026,6,organic,2015
+2025,6,referral,1831
+2026,5,organic,1828
+2026,7,paid,1730
+2026,3,organic,1667
+2025,9,(none),1650
+2025,12,organic,1594
+2025,11,organic,1593
+2025,12,(none),1579
+2026,2,referral,1345
+2026,4,(none),1208
+2026,7,organic,1186
+2026,6,(none),1065
+2026,6,referral,1065
+2026,5,(none),1048
+2026,1,referral,838
+2026,7,(none),759
+2026,7,referral,751
+2026,4,organic,706
+2026,3,referral,683
+2026,7,social,536
+2026,5,referral,421
+2026,4,referral,393
+2025,6,Instagram,367
+2025,10,paid,360
+2026,1,(data not available),340
+2025,10,(data not available),335
+2026,2,(data not available),300
+2026,7,(not set),300
+2025,7,(data not available),267
+2026,5,social,267
+2026,7,(data not available),265
+2025,6,(data not available),262
+2025,9,(data not available),250
+2025,11,(data not available),243
+2025,8,(data not available),220
+2025,11,referral,217
+2025,12,(data not available),217
+2025,10,referral,199
+2025,8,referral,185
+2026,2,social,181
+2025,9,referral,164
+2025,12,referral,163
+2026,2,(not set),159
+2026,3,(data not available),159
+2026,5,(data not available),156
+2026,1,social,153
+2026,4,social,138
+2026,3,social,133
+2025,11,email,132
+2026,7,email,123
+2026,1,(not set),122
+2025,11,(not set),121
+2025,9,(not set),118
+2026,5,(not set),113
+2025,10,(not set),112
+2026,3,(not set),106
+2026,4,(data not available),106
+2026,6,social,98
+2025,12,social,97
+2025,7,(not set),94
+2025,12,(not set),92
+2025,6,(not set),90
+2025,8,(not set),84
+2026,3,email,83
+2025,6,campaign,71
+2026,5,email,70
+2025,9,email,68
+2026,6,(not set),57
+2026,4,email,55
+2025,7,campaign,54
+2026,1,email,54
+2025,6,email,51
+2026,6,(data not available),51
+2025,11,social,47
+2025,7,email,42
+2026,4,(not set),34
+2025,8,campaign,33
+2025,12,email,33
+2026,2,email,33
+2025,7,Instagram,32
+2026,7,ai-assistant,28
+2025,10,email,27
+2025,8,paid,24
+2026,1,cpa,21
+2026,2,cpa,21
+2025,7,product_sync,20
+2025,8,email,18
+2025,10,product_sync,18
+2025,11,cpa,18
+2025,12,product_sync,17
+2026,6,email,17
+2025,12,cpa,16
+2025,10,cpa,14
+2025,8,cpa,13
+2025,8,product_sync,13
+2025,9,product_sync,13
+2025,11,product_sync,12
+2026,5,cpa,12
+2026,6,ai-assistant,11
+2025,6,Email,10
+2025,6,product_sync,10
+2025,9,cpa,9
+2025,9,paid,9
+2026,3,cpa,9
+2025,7,Email,8
+2025,9,campaign,8
+2025,10,campaign,8
+2025,11,campaign,8
+2026,2,campaign,8
+2026,1,campaign,7
+2026,6,cpa,7
+2025,7,Social,6
+2025,8,Email,6
+2026,1,Email,6
+2026,2,Email,5
+2026,4,cpa,5
+2026,6,feed,5
+2025,10,Email,4
+2025,12,Email,4
+2026,3,Email,4
+2026,3,product_sync,4
+2026,7,cpa,4
+2026,1,Instagram,3
+2026,1,product_sync,3
+2026,2,Instagram,3
+2026,3,campaign,3
+2026,7,product_sync,3
+2025,6,Social,2
+2025,11,Email,2
+2025,12,Instagram,2
+2025,12,campaign,2
+2026,4,Instagram,2
+2025,6,sms,1
+2025,8,Instagram,1
+2025,8,sms,1
+2025,9,Email,1
+2025,9,instagram,1
+2025,9,sms,1
+2025,10,sms,1
+2025,11,Instagram,1
+2025,11,sms,1
+2026,2,product_sync,1
+2026,2,sms,1
+2026,4,ILzJA,1
+2026,4,campaign,1
+2026,5,campaign,1
+2026,5,product_sync,1
+2026,6,Email,1
+2026,6,Instagram,1
+2026,7,(unset),1
+2026,7,Instagram,1
