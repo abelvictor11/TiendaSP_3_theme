@@ -30,11 +30,13 @@ function HeroVideo({
   loop,
   onEnded,
   className,
+  poster,
 }: {
   sources: VideoSource[];
   loop: boolean;
   onEnded?: () => void;
   className: string;
+  poster?: string;
 }) {
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -63,6 +65,7 @@ function HeroVideo({
       muted
       loop={loop}
       playsInline
+      poster={poster}
       onEnded={onEnded}
       className={className}
     >
@@ -355,6 +358,13 @@ const SectionItem = ({
             loop={loopVideo}
             onEnded={onVideoEnded}
             className="hidden h-full w-full object-cover lg:block"
+            // Sin esto, si el video no llega a pintar un frame (ej. el proxy
+            // del dominio primario no maneja bien las Range requests que
+            // <video> necesita para bufferear — visto en producción con el
+            // dominio checkout.tienda-sportfitness.com), el hero se ve
+            // completamente en blanco en vez de mostrar esta imagen ya
+            // cargada en Admin para este mismo slide.
+            poster={item.horizontal_image?.image?.url}
           />
         ) : item.horizontal_image?.image && (
           <Image
@@ -372,6 +382,7 @@ const SectionItem = ({
             loop={loopVideo}
             onEnded={onVideoEnded}
             className="block h-full w-full object-cover lg:hidden"
+            poster={item.vertical_image?.image?.url}
           />
         ) : item.vertical_image?.image && (
           <Image
