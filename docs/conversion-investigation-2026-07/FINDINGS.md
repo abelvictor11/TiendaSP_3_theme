@@ -887,19 +887,61 @@ Lab diagnostics (Lighthouse, same run):
 A **15-16 MB total page weight** for a homepage load is large, and image
 delivery is far and away the top opportunity on both profiles — almost
 certainly product/hero images not being served at appropriately
-compressed/responsive sizes. The JS execution time (1.7s) and
-main-thread work (3.0s) are also substantial and worth a follow-up look
-at what's contributing — this storefront loads five separate client-side
-tracking scripts (GTM, GA4, Meta Pixel, TikTok Pixel, RudderStack; see
-`GtmLoader.tsx`/`RudderStackLoader.tsx`), a plausible contributor not
-confirmed this session (PageSpeed's "Third parties" audit exists but
-wasn't drilled into).
+compressed/responsive sizes.
+
+### 15.1 Third-party script breakdown — corrects an earlier guess, surfaces a real open question
+
+Drilled into PageSpeed's "Third parties" audit (grouped by entity, both
+form factors) to test the hypothesis floated above that the five
+client-side tracking scripts explain the JS execution time (1.7s) and
+main-thread work (3.0s):
+
+| Entity | Mobile transfer | Mobile main-thread | Desktop transfer | Desktop main-thread |
+|---|---:|---:|---:|---:|
+| Shopify hosting | 2,190 KiB | **842 ms** | 2,725 KiB | **1,043 ms** |
+| Google Tag Manager | 302 KiB | 296 ms | 302 KiB | 362 ms |
+| okendo.io (reviews) | 89 KiB | 17 ms | 88 KiB | 21 ms |
+| rudderstack.com | 2 KiB | 0 ms | 2 KiB | 0 ms |
+| Google Fonts | 37 KiB | 0 ms | 37 KiB | 0 ms |
+| Google Analytics | 1 KiB | 0 ms | 1 KiB | 0 ms |
+
+**That hypothesis was wrong — correcting it rather than letting it
+stand.** "Shopify hosting" (the storefront's own CDN — theme JS, product
+images) dominates main-thread cost by a wide margin (840ms-1s) vs. GTM's
+modest 296-362ms and every other tracker at effectively zero. The
+tracking stack is not the main-thread-work culprit; it's a secondary
+factor at most. This also reinforces 15's image-delivery finding from a
+different angle — "Shopify hosting" carries both the largest transfer
+size *and* the largest main-thread cost, consistent with unoptimized
+images being decoded/laid out, not just slow to download.
+
+**New open question, more consequential than the one it replaces: Meta
+Pixel does not appear anywhere in this breakdown, on either device.**
+No `facebook.net`/`facebook.com` entity shows up at all — not even as a
+small line item. TikTok Pixel's absence is expected and already
+documented (`checkoutContinuity.ts`'s own comment confirms
+`PUBLIC_TIKTOK_PIXEL_ID` isn't configured today), but Meta Pixel *is*
+supposed to be live and is load-bearing for the Meta campaigns analyzed
+in section 7 (custom audiences, conversion tracking). Two explanations,
+not distinguished here: (a) PageSpeed's synthetic Lighthouse crawl
+doesn't complete whatever real-user interaction grants marketing
+consent (`marketingAllowed()`, gating Meta/TikTok/Google Ads load in
+`GtmLoader.tsx`), so this is a testing-methodology artifact, not a
+production gap — plausible, since GTM *did* fire (gated by the separate
+`analyticsAllowed()` check) — or (b) there's a real, live gap in Meta
+Pixel firing for at least some visitor segment. Given section 7 already
+established Meta's own ad-platform data (spend, impressions) looks
+healthy independent of the storefront's pixel, this is lower-priority
+than it would otherwise be, but worth a direct live check (Meta Events
+Manager's Test Events tool, or the Pixel Helper browser extension,
+against a real page load) before concluding it's just a Lighthouse
+artifact.
 
 **Not investigated further this session** (flagging, not concluding):
 whether the LCP/image-weight problem is uniform across the site or
 concentrated on specific pages (only the homepage was tested here); the
-exact breakdown of the 15-16 MB payload by resource type; and the
-"Third parties" audit's script-by-script cost breakdown.
+exact breakdown of the 15-16 MB payload by resource type within "Shopify
+hosting" (images vs. theme JS vs. fonts).
 
 ## 9. What this does and doesn't establish yet
 
