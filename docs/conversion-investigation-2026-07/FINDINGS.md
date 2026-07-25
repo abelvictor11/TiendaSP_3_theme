@@ -729,7 +729,9 @@ change: normal case still navigates near-instantly (fetch wins the race
 locally), hung-fetch case now navigates after the bounded 400ms wait
 rather than instantly or never.
 
-**Still to do**: deploy, then watch mobile and desktop cart→checkout completion rate over the following 1–2 weeks for recovery toward the levels seen before the regression window (11.7's earlier-period baselines).
+**Deployed 2026-07-25** — PR #96 merged (`be9436c`), Oxygen deploy (`Storefront 1000061661`) completed successfully. Re-ran the hung-fetch repro directly against production (`tienda-sportfitness.com/cart`, real cart, `window.fetch` patched to hang forever on `/cart` POST): navigation to the real checkout screen (`checkout.tienda-sportfitness.com/checkouts/cn/...`) still happened correctly. Fix confirmed live.
+
+**Still to do**: watch mobile and desktop cart→checkout completion rate over the following 1–2 weeks for recovery toward the levels seen before the regression window (11.7's earlier-period baselines), and re-pull the RudderStack checkout-funnel baseline (section 14) for a first-party before/after comparison once enough post-deploy data accumulates.
 
 ## 13. The `(not set)` landing-page anomaly — narrowed to Google-sourced traffic specifically (2026-07-25)
 
