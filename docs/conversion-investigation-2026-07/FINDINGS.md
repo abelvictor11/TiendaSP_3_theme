@@ -943,7 +943,59 @@ concentrated on specific pages (only the homepage was tested here); the
 exact breakdown of the 15-16 MB payload by resource type within "Shopify
 hosting" (images vs. theme JS vs. fonts).
 
-## 9. What this does and doesn't establish yet
+## 16. The desktop bounce-rate "jump" (11.7) resolved — it's a 2-month spike, not a trend, and it's almost certainly the same event as the `(none)`-medium spike (section 5)
+
+Section 11.7 flagged desktop `session_start` bounce jumping from 38.0%
+(H2'25) to 69.9% (H1'26) as the largest unexplained anomaly from the
+device split, with an open question of whether it correlated with the
+section 12 checkout-navigation bug (introduced 2026-04-20). Pulled the
+monthly breakdown (`ga4_desktop_bounce_by_month.csv`) to find out:
+
+| Month | Desktop active users | Sessions | Bounce rate |
+|---|---:|---:|---:|
+| 2025-07 | 5,268 | 8,335 | 36.28% |
+| 2025-08 | 4,381 | 6,426 | 33.35% |
+| 2025-09 | 4,171 | 6,405 | 37.10% |
+| 2025-10 | 5,206 | 7,919 | 36.28% |
+| 2025-11 | 4,221 | 6,198 | 40.06% |
+| 2025-12 | 3,248 | 4,663 | 42.50% |
+| **2026-01** | **22,408** | **23,812** | **84.94%** |
+| **2026-02** | **10,913** | **12,800** | **72.80%** |
+| 2026-03 | 3,480 | 4,833 | 50.47% |
+| 2026-04 | 1,925 | 2,322 | 30.28% |
+| 2026-05 | 2,261 | 3,230 | 28.51% |
+| 2026-06 | 1,877 | 2,617 | 45.36% |
+
+**Both questions answered, and neither the way originally framed:**
+
+1. **It's not a trend — desktop bounce was flat and normal (33-42%)
+   every single month of H2'25**, then spiked sharply for exactly two
+   months (Jan 85%, Feb 73%), then fell back into a normal-ish range
+   (30-50%) from March onward. The "38%→70% half-over-half" framing in
+   11.7 was real arithmetic but a misleading way to describe what
+   actually happened — averaging a 2-month spike into a 6-month bucket
+   makes a sharp event look like a gradual shift.
+2. **It does not correlate with the section 12 checkout-navigation
+   bug** — that bug was introduced 2026-04-20, two months *after* this
+   spike had already peaked and was already reverting to normal (March).
+   Ruled out as flagged as a possibility in 11.7.
+
+**What it does correlate with, almost exactly: the `(none)`-medium
+traffic spike already documented in section 5.** That section found
+`(none)`-medium active users exploding to 20,598 (Jan 2026) and 9,261
+(Feb 2026) before returning to a normal ~1-2K/month baseline — the same
+two months, and the desktop active-user counts here (22,408 and 10,913)
+are close enough in both magnitude and shape to be substantially the
+same population, not a coincidence. **Working conclusion: these are very
+likely one anomaly, not two** — whatever drove the `(none)`-medium spike
+(untagged/no-referrer traffic — section 5's leading candidates were bot
+traffic, an app/webview context, or a tracking/consent-mode gap) was
+disproportionately desktop, which is why it shows up as both a
+traffic-medium anomaly and a device-level bounce anomaly in different
+parts of this document. Not fully proven — the exact device split of the
+`(none)`-medium bucket itself wasn't pulled this session to confirm the
+overlap precisely — but treating them as two independent open questions
+going forward would be double-counting the same signal.
 
 **Reasonably well-supported by multiple independent sources:**
 - The decline is real, large, and has been sustained for over a year — confirmed independently by Shopify's order ledger (no tracking dependency), GA4 events, and GSC.
