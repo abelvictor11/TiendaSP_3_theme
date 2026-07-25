@@ -771,6 +771,65 @@ hits, which would distinguish "prerender never completed" (page_location
 would be entirely absent) from "redirect chain corrupted the URL"
 (page_location would have a malformed value, not be missing).
 
+## 14. A first-party data source found — but it doesn't cover the historical window we hoped
+
+The self-hosted RudderStack CDP stack (`192.168.1.181`, `cdp-postgres`
+container, `archive` database) has a `shopify_events` schema with the raw
+event stream this storefront's own instrumentation sends —
+`checkout_started`, `payment_info_entered`, `order_completed`,
+`product_viewed`, `product_added`, `cart_viewed`, `pages`, etc. — plus
+already-ETL'd `ga4`, `google_ads`, `meta_ads`, and `gsc` schemas (via a
+`dlt` pipeline) that could replace a lot of the manual GA4-UI pulling
+this whole investigation has relied on.
+
+**Scope correction, checked before using it**: every `shopify_events`
+table's data starts **2026-07-14** — 11 days before this check, not
+November 2025 or even a full "last 2-3 months." The pipeline itself is
+new; there is no way to retroactively analyze the regression window
+(section 3, 11.7, 12) with this source. `identifies` is the one exception
+(historical Klaviyo-migration backfill going back to 2020), but that's
+identity data, not funnel events.
+
+**What it's good for instead: precise, low-latency, first-party
+before/after monitoring of the checkout fix** — exactly the "properly
+forward" half of the ask. Full daily checkout funnel from the 11 days of
+real data available (`rudderstack_checkout_funnel_daily.csv`), all of it
+**before** the section 12 fix is deployed:
+
+| Date | checkout_started | payment_info_entered | order_completed |
+|---|---:|---:|---:|
+| 2026-07-14 | 15 | 5 | 2 |
+| 2026-07-15 | 7 | 0 | 0 |
+| 2026-07-16 | 17 | 9 | 4 |
+| 2026-07-17 | 6 | 1 | 0 |
+| 2026-07-18 | 6 | 0 | 0 |
+| 2026-07-19 | 10 | 0 | 0 |
+| 2026-07-20 | 12 | 3 | 1 |
+| 2026-07-21 | 25 | 2 | 0 |
+| 2026-07-22 | 25 | 13 | 1 |
+| 2026-07-23 | 19 | 3 | 1 |
+| 2026-07-24 | 40 | 5 | 1 |
+| 2026-07-25 (partial) | 28 | 10 | 0 |
+| **Total** | **210** | **51** | **10** |
+
+Pre-deploy baseline: checkout_started→payment_info_entered 24.3%,
+payment_info_entered→order_completed 19.6%, checkout_started→order_completed
+overall **4.8%**. Sample is small (11 days, 210 checkouts) and this window
+sits squarely inside the still-live checkout-navigation bug (section 12) —
+**this is the exact baseline to compare against once PR #96 deploys.**
+Recommend re-pulling this same query 1-2 weeks post-deploy as the primary
+validation, ahead of waiting on GA4's slower/noisier processing.
+
+**Not yet investigated, worth a follow-up**: `cart_viewed` (153 events)
+is lower than `checkout_started` (210) over the same window, which is
+backwards from the usual funnel shape — plausibly explained by the
+cart-drawer checkout path (which per section 12 doesn't fire a
+`cart_viewed` event, only `checkout_started`) being more common than the
+full `/cart` page, but not confirmed. A `rudder_discards` table also
+exists in this schema (event name suggests RudderStack-side event drops)
+and wasn't queried this session — worth checking for a systemic
+drop-pattern before trusting any of this data as complete.
+
 ## 9. What this does and doesn't establish yet
 
 **Reasonably well-supported by multiple independent sources:**
