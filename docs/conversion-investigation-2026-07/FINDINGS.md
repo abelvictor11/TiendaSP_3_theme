@@ -47,33 +47,46 @@ around April–May 2025 — a real YoY comparison is valid. Full detail in
 
 ## 1. Monthly data, all three sources side by side
 
-Revenue in COP. GA4 columns are Active Users who fired that event in the
-month. GSC is domain-property organic clicks/impressions.
+**Correction (2026-07-25, Codex review on PR #96):** the "GA4 sessions"
+column below was actually Active Users mislabeled as Sessions — Active
+Users is not additive across months (a returning visitor gets counted
+again each month they return), so summing it into quarterly/half-year
+rollups (sections 2–3, as originally written) produced an invalid,
+overstated traffic trend. Both real metrics are now shown side by side;
+**only "GA4 sessions" (the additive metric) is used in the quarterly/
+half-year rollups below** — Active Users is monthly-only context, never
+summed. Revenue in COP. GSC is domain-property organic clicks/
+impressions.
 
-| Month | Orders | Revenue (COP) | GA4 sessions | view_item | add_to_cart | begin_checkout | purchase | GSC clicks | GSC impr. |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 2025-03 (23–31 only) | — | — | — | — | — | — | — | 3,777 | 188,463 |
-| 2025-04 | — | — | — | — | — | — | — | **12,458** | 606,079 |
-| 2025-05 | 28 | 46,225,361 | — | — | — | — | — | **11,159** | 574,009 |
-| 2025-06 | 338 | 191,622,726 | 27,271 | 15,041 | 1,772 | 1,387 | 277 | 3,761 | 205,920 |
-| 2025-07 | 305 | 155,093,955 | 29,533 | 17,269 | 1,883 | 1,445 | 236 | 3,516 | 199,061 |
-| 2025-08 | 245 | 98,454,249 | 18,403 | 10,709 | 1,229 | 926 | 197 | 2,147 | 144,207 |
-| 2025-09 | 204 | 62,179,331 | 19,008 | 11,515 | 1,058 | 796 | 168 | 2,500 | 148,463 |
-| 2025-10 | 215 | 90,912,448 | 22,514 | 13,886 | 1,460 | 1,010 | 168 | 2,294 | 134,535 |
-| 2025-11 | 212 | 73,791,177 | 18,828 | 12,181 | 1,062 | 777 | 164 | 3,075 | 215,539 |
-| 2025-12 | 88 | 50,943,627 | 15,972 | 9,388 | 752 | 549 | 69 | 1,742 | 112,097 |
-| 2026-01 | 145 | 65,494,613 | 40,898 | 12,681 | 1,087 | 679 | 115 | 2,745 | 176,202 |
-| 2026-02 | 135 | 65,300,701 | 29,386 | 12,626 | 997 | 672 | 113 | 2,470 | 169,504 |
-| 2026-03 | 106 | 53,376,813 | 15,866 | 9,503 | 663 | 541 | 78 | 2,388 | 175,203 |
-| 2026-04 | 73 | 40,095,404 | 15,995 | 6,560 | 296 | 438 | 54 | 2,187 | 154,798 |
-| 2026-05 | 50 | 23,599,895 | 18,711 | 7,312 | 635 | 290 | 30 | 2,029 | 149,686 |
-| 2026-06 | 37 | 13,398,032 | 13,205 | 5,832 | 542 | 223 | 14 | 2,097 | 160,004 |
-| 2026-07 (1–22/25) | 33 | 12,841,056 | 8,294 | 4,186 | 335 | 203 | 25 | 1,400 | 122,723 |
+| Month | Orders | Revenue (COP) | GA4 active users | GA4 sessions | view_item | add_to_cart | begin_checkout | purchase | GSC clicks | GSC impr. |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 2025-03 (23–31 only) | — | — | — | — | — | — | — | — | 3,777 | 188,463 |
+| 2025-04 | — | — | — | — | — | — | — | — | **12,458** | 606,079 |
+| 2025-05 | 28 | 46,225,361 | — | — | — | — | — | — | **11,159** | 574,009 |
+| 2025-06 | 338 | 191,622,726 | 27,271 | 39,774 | 15,041 | 1,772 | 1,387 | 277 | 3,761 | 205,920 |
+| 2025-07 | 305 | 155,093,955 | 29,533 | 43,519 | 17,269 | 1,883 | 1,445 | 236 | 3,516 | 199,061 |
+| 2025-08 | 245 | 98,454,249 | 18,403 | 25,862 | 10,709 | 1,229 | 926 | 197 | 2,147 | 144,207 |
+| 2025-09 | 204 | 62,179,331 | 19,008 | 27,224 | 11,515 | 1,058 | 796 | 168 | 2,500 | 148,463 |
+| 2025-10 | 215 | 90,912,448 | 22,514 | 32,380 | 13,886 | 1,460 | 1,010 | 168 | 2,294 | 134,535 |
+| 2025-11 | 212 | 73,791,177 | 18,828 | 26,340 | 12,181 | 1,062 | 777 | 164 | 3,075 | 215,539 |
+| 2025-12 | 88 | 50,943,627 | 15,972 | 21,881 | 9,388 | 752 | 549 | 69 | 1,742 | 112,097 |
+| 2026-01 | 145 | 65,494,613 | 40,898 | 48,954 | 12,681 | 1,087 | 679 | 115 | 2,745 | 176,202 |
+| 2026-02 | 135 | 65,300,701 | 29,386 | 38,997 | 12,626 | 997 | 672 | 113 | 2,470 | 169,504 |
+| 2026-03 | 106 | 53,376,813 | 15,866 | 21,043 | 9,503 | 663 | 541 | 78 | 2,388 | 175,203 |
+| 2026-04 | 73 | 40,095,404 | 15,995 | 18,536 | 6,560 | 296 | 438 | 54 | 2,187 | 154,798 |
+| 2026-05 | 50 | 23,599,895 | 18,711 | 25,163 | 7,312 | 635 | 290 | 30 | 2,029 | 149,686 |
+| 2026-06 | 37 | 13,398,032 | 13,205 | 16,977 | 5,832 | 542 | 223 | 14 | 2,097 | 160,004 |
+| 2026-07 (1–22/25) | 33 | 12,841,056 | 8,294 | 10,453 | 4,186 | 335 | 203 | 25 | 1,400 | 122,723 |
+
+(Active users values above come from an earlier pull in this investigation
+and differ by ~0.5% from the independently re-pulled `ga4_sessions_vs_activeusers.csv`
+figures used elsewhere in this document — normal GA4 data-freshness drift
+between pulls on different days, not a discrepancy worth chasing.)
 
 A few things jump out immediately from the monthly view that a single
 12-month YoY comparison cannot show:
 
-**The GA4 `session_start` numbers for Jan–Feb 2026 (40,898 and 29,386) are
+**The GA4 numbers for Jan–Feb 2026 (48,954 and 38,997 sessions) are
 the two highest months in the entire 14-month series** — higher than any
 month in 2025, including the pre-migration peak. That looks like it
 contradicts the "traffic is collapsing" story, until you cross-reference
@@ -93,14 +106,21 @@ it's a tracking artifact for at least the first 10 months of this series.
 
 ## 2. Quarterly rollup
 
+**Corrected 2026-07-25** — this table now sums real GA4 Sessions (an
+additive metric), not Active Users as the original version did (see the
+correction note in section 1). `quarterly_rollup.csv` regenerated
+accordingly; the July GSC partial-period row (which the original CSV-join
+silently dropped to zero — also flagged by Codex review) is now correctly
+carried through as 1,400 clicks / 122,723 impressions.
+
 | Quarter | Months in data | Orders | Revenue (COP) | GA4 sessions | view_item | add_to_cart | begin_checkout | purchase | GSC clicks | GSC impr. |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 2025 Q2 | 2 (May–Jun) | 366 | 237,848,087 | 27,271 | 15,041 | 1,772 | 1,387 | 277 | 14,920¹ | 779,929 |
-| 2025 Q3 | 3 | 754 | 315,727,535 | 66,944 | 39,493 | 4,170 | 3,167 | 601 | 8,163 | 491,731 |
-| 2025 Q4 | 3 | 515 | 215,647,252 | 57,314 | 35,455 | 3,274 | 2,336 | 401 | 7,111 | 462,171 |
-| 2026 Q1 | 3 | 386 | 184,172,127 | 86,150 | 34,810 | 2,747 | 1,892 | 306 | 7,603 | 520,909 |
-| 2026 Q2 | 3 | 160 | 77,093,331 | 47,911 | 19,704 | 1,473 | 951 | 98 | 6,313 | 464,488 |
-| 2026 Q3 | 1 (Jul, partial) | 33 | 12,841,056 | 8,294 | 4,186 | 335 | 203 | 25 | 1,400 | 122,723 |
+| 2025 Q2 | 2 (May–Jun) | 366 | 237,848,087 | 39,774 | 15,041 | 1,772 | 1,387 | 277 | 14,920¹ | 779,929 |
+| 2025 Q3 | 3 | 754 | 315,727,535 | 96,605 | 39,493 | 4,170 | 3,167 | 601 | 8,163 | 491,731 |
+| 2025 Q4 | 3 | 515 | 215,647,252 | 80,601 | 35,455 | 3,274 | 2,336 | 401 | 7,111 | 462,171 |
+| 2026 Q1 | 3 | 386 | 184,172,127 | 108,994 | 34,810 | 2,747 | 1,892 | 306 | 7,603 | 520,909 |
+| 2026 Q2 | 3 | 160 | 77,093,331 | 60,676 | 19,704 | 1,473 | 951 | 98 | 6,313 | 464,488 |
+| 2026 Q3 | 1 (Jul, partial) | 33 | 12,841,056 | 10,453 | 4,186 | 335 | 203 | 25 | 1,400 | 122,723 |
 
 ¹ Q2 2025 GSC clicks include the pre-migration Apr/May spike (12,458 +
 11,159), so this row isn't comparable to later quarters the same way the
@@ -122,32 +142,44 @@ complete Jul–Dec — note Shopify/GA4 both have partial or missing May–Jun
 2025 data feeding into what would be "H1 2025," so H1 2025 isn't included as
 a clean comparison point).
 
+**Corrected 2026-07-25** — Codex review on PR #96 caught that the original
+"GA4 sessions" column here was actually a sum of monthly Active Users, an
+invalid rollup (Active Users isn't additive across months — a returning
+visitor gets double-counted). The original table claimed **+7.9%** session
+growth; the real, additive Sessions figure is **-4.3%**. This is a real
+correction, not a rounding difference, and it changes the framing below.
+
 | Half | Orders | Revenue (COP) | GA4 sessions | view_item | add_to_cart | begin_checkout | purchase | GSC clicks | GSC impr. |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 2025 H2 (Jul–Dec) | 1,269 | 531,374,787 | 124,258 | 74,948 | 7,444 | 5,503 | 1,002 | 15,274 | 953,902 |
-| 2026 H1 (Jan–Jun) | 546 | 261,265,458 | 134,061 | 54,514 | 4,220 | 2,843 | 404 | 13,916 | 985,397 |
-| **Change** | **-57.0%** | **-50.8%** | **+7.9%** | **-27.3%** | **-43.3%** | **-48.3%** | **-59.7%** | **-8.9%** | **+3.3%** |
+| 2025 H2 (Jul–Dec) | 1,269 | 531,374,787 | 177,206 | 74,948 | 7,444 | 5,503 | 1,002 | 15,274 | 953,902 |
+| 2026 H1 (Jan–Jun) | 546 | 261,265,458 | 169,670 | 54,514 | 4,220 | 2,843 | 404 | 13,916 | 985,397 |
+| **Change** | **-57.0%** | **-50.8%** | **-4.3%** | **-27.3%** | **-43.3%** | **-48.3%** | **-59.7%** | **-8.9%** | **+3.3%** |
 
-**This is the single most important table in this document, and it
-complicates the original UI/UX hypothesis in an interesting way.**
+**This is the single most important table in this document, and the
+correction above softens — but does not overturn — the original
+diagnostic picture.**
 
 Sequential half-over-half (not YoY — this is H2'25 vs the immediately
 following H1'26), orders and purchases fell by roughly half to
-two-thirds. But **top-of-funnel volume did not fall in the same
-proportion** — GA4 sessions were flat-to-up (+7.9%) and GSC organic clicks
-were nearly flat (-8.9%, essentially noise-level compared to the order
-decline). Impressions in GSC actually rose slightly.
+two-thirds. **Top-of-funnel volume also fell, but far less than orders
+did** — GA4 sessions dropped a modest -4.3% and GSC organic clicks were
+close behind at -8.9% (both a fraction of the order/purchase decline).
+Impressions in GSC actually rose slightly.
 
-That combination — **flat-to-growing traffic, collapsing conversion at
-every funnel stage below the landing** — is a very different diagnostic
-picture than "traffic dried up." view_item fell 27%, but add_to_cart fell
-43%, begin_checkout fell 48%, and purchase fell 60% — the drop-off compounds
-at each step, same pattern as the earlier YoY finding, but this time it's
-happening on top of *roughly stable* traffic volume, not declining traffic.
-This shifts weight back toward genuine on-site conversion/UX friction (or
-traffic *quality* degrading even while traffic *quantity* holds) as at least
-part of the explanation for the most recent 6 months — see the traffic-mix
-caveat below before treating this as settled, though.
+That combination — **a modest traffic decline, but collapsing conversion
+at every funnel stage below the landing, at roughly ten times the rate of
+the traffic decline itself** — still points mostly the same direction as
+the original (now-corrected) framing, just less dramatically. view_item
+fell 27%, but add_to_cart fell 43%, begin_checkout fell 48%, and purchase
+fell 60% — the drop-off compounds at each step, same pattern as the
+earlier YoY finding, and it is happening on top of traffic that declined
+only modestly, not traffic that dried up. This still shifts real weight
+toward on-site conversion/UX friction (or traffic *quality* degrading
+faster than traffic *quantity*) as part of the explanation for the most
+recent 6 months, and section 12's checkout-navigation bug (live since
+2026-04-20, squarely inside this window) is the strongest concrete
+candidate found for a meaningful share of it — but the traffic-mix caveat
+below still matters before treating this as fully settled.
 
 ## 4. The exact-day-matched YoY snapshot (context from the prior pass)
 
@@ -199,9 +231,12 @@ onward.** This is a two-month anomaly, not a sustained trend. `(none)`
 medium in GA4 usually means a session with no referrer and no campaign
 parameters — could be direct type-in traffic, an app/webview context, bot
 traffic, or a tracking/consent-mode gap. It is large enough (20K+ users in
-one month) that it meaningfully inflates the "flat-to-growing" GA4 session
-total in section 3's half-year table. **This is flagged as an open question,
-not resolved** — if a meaningful share of that spike is non-human or
+one month) that it meaningfully inflated the H1 2026 Active Users total in
+this table (note: this table sums monthly Active Users per half, the same
+non-additive metric flagged as invalid for session totals in section 3's
+correction — treat the per-half totals here as directional, not exact).
+**This is flagged as an open question, not resolved** — if a meaningful
+share of that spike is non-human or
 misattributed traffic, the "traffic held flat while conversion collapsed"
 framing in section 3 gets weaker, and the picture shifts back toward "real
 traffic also declined, it's just partly hidden by a two-month attribution
@@ -674,6 +709,25 @@ needless future footgun that cyclewear's structure avoids).
 - Checked for a second, mobile-specific checkout entry point: none exists. The cart-drawer's own checkout handler (`app/components/Cart.tsx`) was independently confirmed to never have had this bug — it synchronously mutates `href` with no fetch-gating.
 - **Re-verified under genuine mobile device emulation** (Chrome DevTools device toolbar, 400×881 viewport, Android/Pixel 9 UA, touch enabled): cart page renders correctly at this width, and the hung-fetch repro was re-run against this exact viewport — navigation to the real checkout screen still happened immediately with `/cart`'s POST permanently unresolved. This closes the mobile-QA gap flagged in an earlier draft of this write-up.
 - Not chased further: several GA4/Google Ads conversion-beacon requests were observed returning 503 during this testing session — a separate, currently-live tracking issue worth a follow-up look.
+
+**Revised again 2026-07-25 (Codex review on PR #96)**: the pure
+fire-and-forget version above traded one race for a subtler one — if the
+attribute POST is slow, `window.location.href` can fire *before* the POST
+reaches Shopify, so checkout's `checkouts/create` can snapshot the cart
+without `_client_event_id`/`_fbp`/`_fbc`/GA identifiers, breaking
+client/server dedup in `webhooks/meta-capi.tsx` and `webhooks/ga4-mp.tsx`
+for that order. `keepalive` guarantees the request *survives* navigation,
+not that it *finishes before* checkout reads the cart. Fixed with a
+bounded persistence handoff instead of either extreme: `Promise.race([
+persistAttributes, timeout(400ms)])`, then navigate — the common
+fast-network case still lets the POST land before checkout starts (best
+effort, not guaranteed), while the worst case is now bounded at 400ms
+instead of unbounded. Cyclewear's PR #94 shipped the pure fire-and-forget
+version without this review catching it — worth porting this same
+timeout-race pattern there too. Re-verified both scenarios after this
+change: normal case still navigates near-instantly (fetch wins the race
+locally), hung-fetch case now navigates after the bounded 400ms wait
+rather than instantly or never.
 
 **Still to do**: deploy, then watch mobile and desktop cart→checkout completion rate over the following 1–2 weeks for recovery toward the levels seen before the regression window (11.7's earlier-period baselines).
 
