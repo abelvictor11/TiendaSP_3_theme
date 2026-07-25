@@ -175,16 +175,31 @@ shipping eventually, just not the first move given the traffic-quality
 question above is cheaper to answer and more likely to explain the bulk
 of the effect.
 
-## Next-session plan (2026-07-25, written after shipping the checkout fix)
+## Next-session plan (2026-07-25, written after shipping the checkout fix; updated 2026-07-26)
 
 The checkout-navigation race condition (FINDINGS.md section 12) is now
-fixed and QA'd (desktop DOM-click, hung-fetch repro, and real mobile
-device emulation — all pass), but **not yet deployed**. That fix is the
+fixed, deployed, and verified live (PR #96, `be9436c`). That fix is the
 single biggest pending unknown affecting everything below: it's the
 strongest candidate root cause found in this whole investigation for the
 add_to_cart→begin_checkout drop-off, but "strongest candidate" is not the
 same as "confirmed cause at scale" until real production data shows
-recovery. Sequencing below assumes that validation hasn't happened yet.
+recovery — it's only been live ~1 day as of this update, too early for a
+clean read (Phase 0 item 2, below).
+
+**2026-07-26 session recap**: audited every Phase 2 item below against
+current `origin/tienda` before implementing anything, rather than trusting
+this doc's own to-do list. Found 3 of 6 items (#7/#8/#9) were already
+shipped by other PRs before this plan was even written — corrected in
+place below, doc fix opened as **PR #100** (not yet merged). Then scoped
+item #13 (image/LCP) down to concrete file-and-line fixes, ready to
+implement next session — see the sub-bullets under #13.
+
+### Start-of-next-session checklist
+1. Merge PR #100 (Phase 2 doc corrections) if not already done.
+2. Implement the 3 ranked image/LCP fixes under item #13 — highest-value, fully-scoped, ready-to-go work.
+3. Re-check Phase 0 item 2 (checkout completion rate) — needs more days of post-deploy data before it's a clean read.
+4. If bandwidth allows: item 5 (`(not set)` landing pages) or item 10 (`bicicletas-estaticas-y-spinning` CRO) — both data-only/analysis, no new instrumentation needed.
+5. Still waiting on human answers for items 3-4 (Meta Aug-Sep 2025 spend pause, second Meta ad account) — ask directly rather than re-deriving from tooling.
 
 ### Phase 0 — Deploy, monitor, and close two human-only questions (blocking)
 1. ~~Deploy the checkout fix~~ — **done, 2026-07-25.** PR #96 merged (`be9436c`), Oxygen deploy succeeded, re-verified live on production against a real cart (hung-fetch repro, navigation still succeeds).
@@ -204,7 +219,13 @@ From `docs/THEFEED_COMPETITIVE_TEARDOWN_2026_07.md`, in priority order:
 10. **`/collections/bicicletas-estaticas-y-spinning` CRO** — this collection page is the one item in the whole investigation with two independent measurements agreeing it's a problem (Shopify Sidekick's 82.5% claim + our own GA4 pull at 84.07%, FINDINGS.md 11.2). Concrete first target: clearer above-the-fold CTAs/trust signals, and check whether the social-ad creative driving traffic here actually matches the page content.
 11. **Container side-gutter decision** (96px tienda vs. 24px thefeed at 1536px — THEFEED_COMPETITIVE_TEARDOWN.md CSS table) — a real, measurable, easily-adjustable difference in how much content is visible above the fold, but may be an intentional spacious/premium design choice. **Ask before changing**, don't auto-fix.
 12. **Deferred, needs assets not code**: hero image compositing (product cutout + radial-gradient spotlight layered over the background photo) — needs isolated product photography that doesn't exist yet for any tienda product. Flag for whenever there's a photography budget, not this phase.
-13. **NEW — image delivery/LCP fix** (PageSpeed Insights detour, FINDINGS.md 15/15.1): mobile fails Core Web Vitals on LCP (4.8s vs. a 2.5s target, Performance score 73); desktop is borderline (2.6s, score 86). Image delivery is the single biggest lever on both (1.4-1.7 MB potential savings, 15-16 MB total page weight) and "Shopify hosting" (theme JS + images) — not the five tracking scripts — dominates main-thread cost too (840ms-1s vs. GTM's 300ms and everything else near-zero). Directly corroborates the mobile-specific friction from Sidekick's report (11.2) given 88-96% mobile traffic. Concrete next step: audit actual image sizes/formats being served (responsive `srcset`, compression, lazy-loading) rather than treating this as diffuse "performance work" — high-value, high-confidence fix.
+13. **Image delivery/LCP fix — now fully scoped, ready to implement first thing next session** (PageSpeed Insights detour, FINDINGS.md 15/15.1): mobile fails Core Web Vitals on LCP (4.8s vs. a 2.5s target, Performance score 73); desktop is borderline (2.6s, score 86). Image delivery is the single biggest lever on both (1.4-1.7 MB potential savings, 15-16 MB total page weight) and "Shopify hosting" (theme JS + images) — not the five tracking scripts — dominates main-thread cost too (840ms-1s vs. GTM's 300ms and everything else near-zero). Directly corroborates the mobile-specific friction from Sidekick's report (11.2) given 88-96% mobile traffic. A code audit (2026-07-26, read-only, no edits yet) found the concrete, ranked causes:
+    - **#1, likely the actual LCP element**: `app/sections/SectionHero.tsx` and `SectionHeroSlider.tsx` don't pass a `loading` prop to Hydrogen's `<Image>`, so it defaults to `loading="lazy"` — even though the hero is the first, above-the-fold homepage section. Fix: add `loading="eager"` + `fetchPriority="high"`.
+    - **#2, likely the biggest chunk of the 1.4-1.7 MB opportunity**: `SectionProductShowcase.tsx`, `SectionCategoryCardsCarousel.tsx`, and `SectionProductFeature.tsx` all use raw `<img>` tags with untransformed, full-resolution Shopify CDN URLs and no `srcset`, bypassing Hydrogen's `<Image>` (and its automatic responsive-size/format negotiation) entirely. Fix: switch each to `<Image data={...}>` with an appropriate `sizes` prop.
+    - **#3, smaller**: `SectionImageWithText.tsx` and `SectionSteps.tsx` have malformed `sizes` syntax (missing parens around media conditions, e.g. `max-width: 640px 100vw` instead of `(max-width: 640px) 100vw`) — browsers ignore it and over-fetch on desktop. Fix: add the missing parens.
+    - Skipped as low-priority: `ProductCard.tsx`'s hardcoded `sizes` slightly over-fetches (~18%) when rendered in `SnapSliderProducts.tsx`'s narrower mobile slider — not worth a separate pass.
+    - PDP gallery and most `ProductCard*` variants already have correct `sizes`/`loading` — no action needed there.
+    - Estimated size: 5 files, all small/targeted edits, no new dependencies or architecture changes.
 14. **NEW — verify Meta Pixel is actually firing live** (FINDINGS.md 15.1): PageSpeed's third-party breakdown showed zero Meta Pixel network activity on either mobile or desktop — no `facebook.net`/`facebook.com` entity at all. Could be a Lighthouse-consent-timing artifact (marketing consent may not resolve the same way for a synthetic crawl) rather than a real gap, but Meta campaigns depend on this pixel for custom audiences/conversions (section 7). Quick, high-value check: Meta Events Manager's Test Events tool or the Pixel Helper extension against a real page load, before concluding either way.
     - **Context from the account owner (2026-07-26), downgrades urgency**: this is a known, pre-existing gap — the client-side Meta Pixel issue is why the RudderStack CDP's "Facebook Conversions - Tienda Fitness" destination exists at all (server-side CAPI, bypassing the client-side pixel while a real fix is pending). So Meta conversion data isn't actually blind right now, it's routed a different way. Still worth the live-firing check above to fully scope the client-side gap, but not urgent — a working interim path already exists. **Also worth checking later: whether cyclewear's implementation solved the underlying client-side pixel issue** and could be ported back, rather than only relying on the CAPI workaround long-term.
 
