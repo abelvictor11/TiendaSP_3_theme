@@ -563,27 +563,105 @@ pinned down from this source alone — but the broken-sitemap-discovery window
 is a concrete, independently-checkable contributor to the section 6 collapse,
 not just a coincidence of timing.
 
-### 11.7 Device-level funnel split (next-step #7) — single-window only, scope reduced
+### 11.7 Device-level funnel split (next-step #7) — full H2'25 vs H1'26 comparison, completed
 
-Originally scoped to mirror the section 3 half-year comparison (H2'25 vs
-H1'26 by device); only a single most-recent 28-day window was actually
-pulled, due to time spent on GA4 Explore UI recovery elsewhere in this
-session. **Flagging this honestly rather than presenting it as the full
-comparison that was planned:**
+Full data in `ga4_halfyear_device_funnel.csv`. Active users at each funnel
+stage, by device, both halves:
 
-| Device | view_item bounce | add_to_cart | begin_checkout | purchase |
-|---|---:|---:|---:|---:|
-| Mobile | 30.47% (3,801 users / 4,405 sessions) | 317 users | 186 users | 23 users |
-| Desktop | 19.07% (1,066 / 1,274) | 76 users | 45 users | 7 users |
-| Tablet | 27.27% (22 / 22) | 1 user | — | — |
+| Device | Stage | 2025 H2 | 2026 H1 | Change |
+|---|---|---:|---:|---:|
+| Mobile | view_item | 56,426 | 43,020 | **-23.8%** |
+| Mobile | add_to_cart | 5,494 | 3,376 | **-38.5%** |
+| Mobile | begin_checkout | 3,899 | 2,247 | **-42.4%** |
+| Mobile | purchase | 619 | 265 | **-57.2%** |
+| Desktop | view_item | 14,449 | 8,924 | **-38.2%** |
+| Desktop | add_to_cart | 1,735 | 715 | **-58.8%** |
+| Desktop | begin_checkout | 1,463 | 526 | **-64.0%** |
+| Desktop | purchase | 375 | 133 | **-64.5%** |
+| Tablet | view_item | 310 | 278 | -10.3% |
+| Tablet | add_to_cart | 39 | 22 | -43.6% |
+| Tablet | begin_checkout | 19 | 18 | -5.3% |
+| Tablet | purchase | 1 | 2 | (too small to read) |
 
-Mobile's bounce-at-`view_item` rate is meaningfully higher than desktop's in
-this one window (30.5% vs 19.1%), consistent with Sidekick's directional
-mobile claim (section 11.2), though the exact 69%/56% figures Sidekick cited
-weren't reproduced (different metric — this is view_item-stage bounce, not
-session-level bounce). **The full H2'25-vs-H1'26 device comparison from the
-original plan was not completed and remains open** if a trend line (not
-just a snapshot) is needed.
+**This overturns the single-window snapshot and the Sidekick-derived
+mobile-is-worse narrative from section 11.2.** At the proper half-year
+comparison — the same window section 3's headline table uses — **desktop
+degraded more than mobile at every single funnel stage**, not less:
+view_item -38.2% (desktop) vs -23.8% (mobile), and by purchase the gap
+widens further (-64.5% vs -57.2%). Step-to-step conversion also confirms
+this: desktop's view→cart rate fell from 12.0% to 8.0% and cart→checkout
+from 84.3% to 73.6%, both bigger relative drops than mobile's equivalent
+steps (9.7%→7.9% and 71.0%→66.6%). **The earlier single-28-day snapshot
+(11.2 above) was misleading precisely because it was a snapshot, not a
+trend** — exactly the kind of error this whole investigation's
+month/quarter/half methodology exists to catch.
+
+**New anomaly surfaced by this pull, not previously documented:**
+desktop's bounce rate at `session_start` jumped from **38.0% (H2'25) to
+69.9% (H1'26)** — mobile's moved far less over the same period (44.0% →
+50.1%). A jump this large, concentrated on one device, in the same period
+checkout conversion cratered, is a real lead worth chasing on its own —
+possibly connected to, or independent of, the checkout-navigation bug found
+in `app/routes/($locale).cart.tsx` (see the separate write-up on that). Not
+yet root-caused here.
+
+## 12. Checkout-navigation race condition — a candidate root cause, found and reproduced live (2026-07-25)
+
+Separately from the traffic/attribution analysis above, a code-level bug was
+found and confirmed reproducible on production that plausibly explains a
+real share of the add_to_cart → begin_checkout drop-off documented in
+sections 1, 3, and 11.7.
+
+**The code** (`app/routes/($locale).cart.tsx`, `handleInitiateCheckout`,
+lines ~401–416): the "Finalizar compra" / "Pagar" button is a real `<a
+href={checkoutUrl}>`, but its `onClick` handler calls `e.preventDefault()`
+whenever a cart-attributes payload needs writing (in practice this is
+**always** — `_client_event_id` is unconditionally pushed onto the
+attributes array), then does:
+
+```js
+fetch('/cart', {method: 'POST', body: form, keepalive: true})
+  .catch(() => {})
+  .finally(() => {
+    window.location.href = decorateCheckoutUrl(checkoutUrl);
+  });
+```
+
+Navigation to checkout is gated entirely behind this `fetch` settling, and
+there is **no timeout**. If the `fetch` hangs — a slow response, a network
+hiccup, the browser deprioritizing a background request — `.finally()`
+never fires, `preventDefault()` already blocked the native navigation, and
+the customer's click on "Pagar" does **nothing**, silently, with no console
+error.
+
+**Reproduced live on production**, desktop Chrome, no special conditions: a
+fresh cart, "Pagar" clicked, page sat on `/cart` for 4+ seconds with zero
+navigation and zero console errors; a second click on the same stuck page
+then worked normally. Matches the shape of the funnel data exactly —
+mobile and desktop cart→checkout both degraded (11.7) but not to zero,
+consistent with a race condition hitting a minority of clicks rather than a
+hard, universal break.
+
+**Timeline**: introduced 2026-04-20 (`6435843`, "feat(tracking): fbp/fbc
+enrichment (CAPI) + TikTok Pixel") — the same date and same commit message
+as an equivalent commit (`ef056db`) on the sibling `cyclewear` branch,
+independently ported rather than inherited (different hash, `ef056db` is
+not an ancestor of `origin/tienda`). **Still live and unfixed on both
+branches** as of this writing — `cyclewear`'s own `cart.tsx` has the
+identical unfixed pattern in its latest commit, so there is no existing fix
+to port from there; whichever branch fixes it first should have the patch
+ported to the other.
+
+**Recommended fix** (not yet applied — pending confirmation): stop gating
+navigation on the fetch completing. Either let the native `href` navigation
+fire immediately and send the `keepalive` fetch alongside it, uncoupled, or
+add a hard ~300ms timeout race (`Promise.race`) before falling back to
+navigating anyway. Both are small, low-risk, and directly testable by
+repeating the manual reproduction above.
+
+**Side note, not chased further**: several GA4/Google Ads conversion-beacon
+requests were observed returning 503 during this same testing session — a
+separate, currently-live tracking issue worth a follow-up look.
 
 ## 9. What this does and doesn't establish yet
 
@@ -602,6 +680,8 @@ just a snapshot) is needed.
 - The Google Ads missing-primary-conversion-action gap (section 7) is fixed — "Compra" is now a working account-default goal with 5 primary actions across 83/85 campaigns (11.5).
 - The Apr–Jun 2025 organic collapse (section 6) has a concrete, dated technical mechanism: a broken sitemap (`sitemap_index.xml` 404) that the site's own `robots.txt` was still pointing to as late as 2025-05-10 (11.6).
 - Several of Shopify Sidekick's specific bounce-rate claims don't hold up at 28-day GA4 aggregate (notably the caminadoras-y-trotadoras collection page and the YouTube 95% figure, the latter almost certainly a small-sample artifact) — but the general "more, lower-intent mobile/social traffic" story is directionally plausible (11.2).
+- **A concrete, reproduced code bug in the checkout button itself** (section 12) — navigation to checkout is silently blocked if a `fetch()` call hangs, no timeout, live since 2026-04-20. This is the strongest single candidate root cause found in this entire investigation for the add_to_cart→begin_checkout drop-off, because unlike every other finding above it doesn't require inferring cause from aggregate trends — it was directly reproduced.
+- The full device split (section 11.7) overturns the earlier single-window read: **desktop, not mobile, degraded more** across H2'25→H1'26 at every funnel stage, alongside a large, unexplained desktop-specific bounce-rate jump.
 
 **Explicitly NOT yet established — flagged as open questions requiring more
 data before acting on them:**
@@ -609,7 +689,8 @@ data before acting on them:**
 - Whether the H2'25→H1'26 conversion-rate decline (traffic flat, purchases -60%) is a UX/friction problem, a traffic-*quality* problem (same volume, lower purchase intent per visitor), a pricing/assortment/inventory problem, a tracking artifact, or some mix — the funnel-stage compounding pattern is consistent with several of these and doesn't uniquely point to one.
 - Whether the Meta Aug–Sep 2025 spend pause was deliberate (budget/creative decision) or involuntary (account/ad disapproval, payment failure) — still needs a conversation with whoever manages the Meta account; not resolvable from tooling alone (11.4).
 - **New this round**: a large `(not set)` landing-page bucket — >11% of all sessions in the last 28 days, 90.58% bounce rate — meaning GA4 captured the session but not the page path. Not mentioned in Sidekick's report; likely an instrumentation gap, cause not yet diagnosed (11.2).
-- Full device-level (mobile vs. desktop) split of the H2'25 vs H1'26 half-year comparison — only a single most-recent 28-day snapshot was pulled this round, not the full trend (11.7).
+- ~~Full device-level split of the H2'25 vs H1'26 half-year comparison~~ — done (11.7); surfaced that desktop, not mobile, degraded most, plus a new desktop-specific bounce-rate anomaly (open item #9 in section 10).
+- **A second Meta ad account for this store, "Tienda Sport Fitness" (1861970807157400), exists alongside the one this document's data is built on ("Tienda SportFitness", 218335765418186) — reported as a replacement due to a restriction on the original.** Checked directly: the second account has zero campaigns ever created (unused), and the original account shows no restriction banner and real live spend ($288,747 in the trailing 7 days as of this check) — so section 7's Nov 2025–Jul 2026 data does appear to be on the currently-active account. But the restriction itself, and its timing, could not be independently confirmed from the Ads Manager UI in this session — worth a direct confirmation from whoever manages the account before fully trusting this.
 - Whether the `view_item_list` instrumentation gap (section 1) is connected to the same tracking-instability timeline in section 8 — both sit in the same Jun 2025–Mar 2026 / Apr–Jul 2026 windows.
 
 ## 10. Recommended next steps, in priority order
@@ -624,8 +705,9 @@ see section 11 for detail on each.
 4. ~~Fix the Google Ads account's missing primary conversion action~~ — **already fixed** (verified, not changed by us — the account owner made this change separately; 11.5).
 5. ~~Re-run the SEO/technical audit for the Apr–Jun 2025 migration window~~ — **done.** Found a concrete mechanism: a broken sitemap the live `robots.txt` was still pointing to through at least 2025-05-10 (11.6).
 6. Revisit the original menu/collection/search UX instrumentation plan from `docs/UX_CONVERSION_SIGNAL_FRAMEWORK_2026_07.md` — **still the right sequencing call.** Now has stronger justification given the Sidekick-corroborated `bicicletas-estaticas-y-spinning` collection-page bounce finding (11.2), but should still come after the two items below.
-7. ~~Device-level split of the H2'25 vs H1'26 funnel~~ — **partially done.** Only a single 28-day snapshot was pulled, not the full half-year trend (11.7) — worth finishing before drawing conclusions about mobile-specific friction.
+7. ~~Device-level split of the H2'25 vs H1'26 funnel~~ — **done.** Full half-year comparison completed (11.7) — and it overturns the mobile-is-worse framing from the earlier single-window snapshot: **desktop degraded more than mobile at every funnel stage.**
 
 **New open items surfaced this round, not on the original list:**
 8. **Diagnose the `(not set)` landing-page anomaly** — >11% of last-28-day sessions, 90.58% bounce, GA4 capturing the session but not the page path (11.2). Likely instrumentation, not content — worth a quick look before it's mistaken for a real high-bounce page.
-9. Finish the full H2'25-vs-H1'26 device-level comparison (item 7 above, properly completed this time).
+9. **Diagnose the desktop `session_start` bounce-rate jump** (38.0% → 69.9%, H2'25 to H1'26) — the single largest device-specific anomaly found this round (11.7). Check whether it's connected to the checkout-navigation race condition below, a desktop-specific perf/rendering regression, or a tracking artifact.
+10. **Fix the checkout-navigation race condition in `app/routes/($locale).cart.tsx`** — `handleInitiateCheckout` calls `e.preventDefault()` then gates `window.location.href` behind a `fetch('/cart', {keepalive: true}).finally(...)` with no timeout. If that fetch hangs, the "Finalizar compra" click does nothing, silently. Introduced 2026-04-20 (`6435843`), still live, confirmed reproducible. Same unfixed pattern exists on the `cyclewear` branch too (commit `ef056db`, same day). Recommended fix: decouple navigation from the fetch (fire-and-forget) or add a hard ~300ms timeout race — small, low-risk, directly testable.
