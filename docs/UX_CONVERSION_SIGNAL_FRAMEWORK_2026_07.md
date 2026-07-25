@@ -174,3 +174,47 @@ add-to-cart source tagging — still genuinely missing, still worth
 shipping eventually, just not the first move given the traffic-quality
 question above is cheaper to answer and more likely to explain the bulk
 of the effect.
+
+## Next-session plan (2026-07-25, written after shipping the checkout fix)
+
+The checkout-navigation race condition (FINDINGS.md section 12) is now
+fixed and QA'd (desktop DOM-click, hung-fetch repro, and real mobile
+device emulation — all pass), but **not yet deployed**. That fix is the
+single biggest pending unknown affecting everything below: it's the
+strongest candidate root cause found in this whole investigation for the
+add_to_cart→begin_checkout drop-off, but "strongest candidate" is not the
+same as "confirmed cause at scale" until real production data shows
+recovery. Sequencing below assumes that validation hasn't happened yet.
+
+### Phase 0 — Deploy, monitor, and close two human-only questions (blocking)
+1. **Deploy the checkout fix** (`docs/conversion-investigation-cross-examination-tienda` → merge/deploy path per normal process) and re-run the manual repro on production once live (click "Pagar" on a fresh cart ~10x, confirm consistent immediate navigation).
+2. **Watch mobile and desktop cart→checkout completion rate for 1–2 weeks post-deploy.** This is the real test of the section 12 hypothesis. If it recovers toward pre-regression levels, that's strong confirmation the checkout bug explained a meaningful share of the funnel drop-off; if it doesn't move, the H2'25→H1'26 conversion decline (section 3/9) needs a different explanation and Phase 2 below becomes higher-value.
+3. **Get a human answer on the Meta Aug–Sep 2025 spend pause** (deliberate budget/creative decision vs. involuntary account/ad issue) — FINDINGS.md section 11.4, unresolved from tooling alone.
+4. **Get a human answer on the second Meta ad account** ("Tienda Sport Fitness", 1861970807157400) — confirm the restriction timeline/context on the original account (218335765418186) that prompted creating it, since it currently has zero campaigns and the original still looks healthy and active (FINDINGS.md section 9 addendum).
+
+### Phase 1 — Diagnose the two remaining unexplained data anomalies (fast, data-only)
+5. **The `(not set)` landing-page bucket** — >11% of last-28-day sessions, 90.58% bounce, GA4 capturing the session but not the page path (FINDINGS.md 11.2). Likely a tag-timing/consent-race instrumentation gap rather than a real bad page; check before it gets mistaken for content.
+6. **The desktop `session_start` bounce-rate jump** (38.0% H2'25 → 69.9% H1'26, mobile barely moved) — the single largest unexplained finding from the device split (11.7). First check: does it correlate with the 2026-04-20 checkout-bug introduction date, or is it a separate desktop-specific regression (perf, a rendering bug, an ad-creative/landing-page mismatch)? If Phase 0's monitoring shows checkout recovery but desktop bounce doesn't move, that's evidence they're unrelated.
+
+### Phase 2 — thefeed.com-informed UX fixes (concrete, code-level, ready to scope without new instrumentation)
+From `docs/THEFEED_COMPETITIVE_TEARDOWN_2026_07.md`, in priority order:
+7. **Out-of-stock → cross-sell banner** — thefeed's strongest pattern (a substitute-product card + "SHOP X" CTA shown twice on the PDP when unavailable, vs. tienda's current disabled "Agotado" button with no recovery path). Can reuse `ComplementaryProducts.tsx`'s existing metafield-driven mechanism, gated on `isOutOfStock`. Highest-value item in this phase — converts a dead-end visit into a different sale.
+8. **PLP quick-add-to-cart** — check `ProductCard.tsx`/`ProductsGrid.tsx` for whether grid cards can add to cart directly vs. requiring a PDP visit; thefeed offers this on eligible cards.
+9. **Okendo review placement** — verify live whether reviews render above-the-fold-adjacent or require a click/scroll-triggered load; thefeed shows rating + first 2-3 reviews inline with no interaction needed. Quick check, not a big lift either way.
+10. **`/collections/bicicletas-estaticas-y-spinning` CRO** — this collection page is the one item in the whole investigation with two independent measurements agreeing it's a problem (Shopify Sidekick's 82.5% claim + our own GA4 pull at 84.07%, FINDINGS.md 11.2). Concrete first target: clearer above-the-fold CTAs/trust signals, and check whether the social-ad creative driving traffic here actually matches the page content.
+11. **Container side-gutter decision** (96px tienda vs. 24px thefeed at 1536px — THEFEED_COMPETITIVE_TEARDOWN.md CSS table) — a real, measurable, easily-adjustable difference in how much content is visible above the fold, but may be an intentional spacious/premium design choice. **Ask before changing**, don't auto-fix.
+12. **Deferred, needs assets not code**: hero image compositing (product cutout + radial-gradient spotlight layered over the background photo) — needs isolated product photography that doesn't exist yet for any tienda product. Flag for whenever there's a photography budget, not this phase.
+
+### Phase 3 — Original Phase 2 UX instrumentation (unchanged from the framework above)
+Menu/filter/search event tracking, zero-results tracking, promo-card
+clicks, add-to-cart source tagging, and the top-50-products mini-funnel —
+sequenced last because it requires building new instrumentation before it
+produces any data, whereas everything in Phase 2 is already actionable
+without new tracking.
+
+### Parallel track — independent, no dependency on the above, run whenever bandwidth allows
+SEO Tier 2 backlog (tasks #69/#70/#71/#73): image alt text for 520
+products, `descriptionHtml` for 106 collections, `seo.title`/
+`seo.description` overrides for ~110 collections, images for 117
+collections currently missing one. Doesn't block or get blocked by
+anything above.
