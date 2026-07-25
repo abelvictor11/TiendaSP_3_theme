@@ -652,16 +652,29 @@ identical unfixed pattern in its latest commit, so there is no existing fix
 to port from there; whichever branch fixes it first should have the patch
 ported to the other.
 
-**Recommended fix** (not yet applied — pending confirmation): stop gating
-navigation on the fetch completing. Either let the native `href` navigation
-fire immediately and send the `keepalive` fetch alongside it, uncoupled, or
-add a hard ~300ms timeout race (`Promise.race`) before falling back to
-navigating anyway. Both are small, low-risk, and directly testable by
-repeating the manual reproduction above.
+**Fixed 2026-07-25.** `handleInitiateCheckout` was restructured so
+`checkoutUrl` alone gates `preventDefault()` + navigation; the
+attribute-persistence `fetch` is now fire-and-forget (still `keepalive:
+true`, still fired, just no longer awaited before navigating). This exactly
+matches the fix cyclewear shipped independently the same day (PR #94,
+`fix/checkout-async-navigation-hang`) — compared line-by-line and adopted
+their exact structure, which is slightly more defensive than an earlier
+draft of this fix (cyclewear's version routes `checkoutUrl` as the sole
+outer gate, so navigation and UTM/click-id decoration always happen even in
+the hypothetical case `attributes` were ever empty; an earlier version of
+this fix kept `attributes.length > 0` in the outer condition, which would
+have silently fallen through to an undecorated native `href` in that case —
+not a live bug today since `_client_event_id` is always pushed, but a
+needless future footgun that cyclewear's structure avoids).
 
-**Side note, not chased further**: several GA4/Google Ads conversion-beacon
-requests were observed returning 503 during this same testing session — a
-separate, currently-live tracking issue worth a follow-up look.
+**Verified before shipping:**
+- `npx tsc --noEmit` — no new errors (pre-existing errors in unrelated files unchanged).
+- Reproduced the original hang locally: patched `window.fetch` to return a Promise that never resolves for `/cart` POST requests, clicked "Finalizar compra" — confirmed navigation to the real checkout screen (`checkout.tienda-sportfitness.com/checkouts/cn/...`) happened immediately, both before and after adopting cyclewear's exact structure.
+- Confirmed the attribute-persistence fetch still fires correctly and still carries the `[CartForm]` payload (captured synchronously via an instrumented `fetch` override) — the fix removes the wait, not the request.
+- Checked for a second, mobile-specific checkout entry point: none exists. The cart-drawer's own checkout handler (`app/components/Cart.tsx`) was independently confirmed to never have had this bug — it synchronously mutates `href` with no fetch-gating. The `/cart` page fix has no device branching, so it applies identically regardless of viewport; a real mobile-viewport UI pass was not completed in this session (device-emulation tooling was unavailable in this browser environment), so a manual mobile check is still worth doing post-deploy.
+- Not chased further: several GA4/Google Ads conversion-beacon requests were observed returning 503 during this testing session — a separate, currently-live tracking issue worth a follow-up look.
+
+**Still to do**: deploy, then watch mobile and desktop cart→checkout completion rate over the following 1–2 weeks for recovery toward the levels seen before the regression window (11.7's earlier-period baselines).
 
 ## 9. What this does and doesn't establish yet
 
@@ -710,4 +723,4 @@ see section 11 for detail on each.
 **New open items surfaced this round, not on the original list:**
 8. **Diagnose the `(not set)` landing-page anomaly** — >11% of last-28-day sessions, 90.58% bounce, GA4 capturing the session but not the page path (11.2). Likely instrumentation, not content — worth a quick look before it's mistaken for a real high-bounce page.
 9. **Diagnose the desktop `session_start` bounce-rate jump** (38.0% → 69.9%, H2'25 to H1'26) — the single largest device-specific anomaly found this round (11.7). Check whether it's connected to the checkout-navigation race condition below, a desktop-specific perf/rendering regression, or a tracking artifact.
-10. **Fix the checkout-navigation race condition in `app/routes/($locale).cart.tsx`** — `handleInitiateCheckout` calls `e.preventDefault()` then gates `window.location.href` behind a `fetch('/cart', {keepalive: true}).finally(...)` with no timeout. If that fetch hangs, the "Finalizar compra" click does nothing, silently. Introduced 2026-04-20 (`6435843`), still live, confirmed reproducible. Same unfixed pattern exists on the `cyclewear` branch too (commit `ef056db`, same day). Recommended fix: decouple navigation from the fetch (fire-and-forget) or add a hard ~300ms timeout race — small, low-risk, directly testable.
+10. ~~Fix the checkout-navigation race condition in `app/routes/($locale).cart.tsx`~~ — **done, 2026-07-25** (section 12). Matches cyclewear's independently-shipped PR #94. Post-deploy: watch mobile cart→checkout completion for recovery.

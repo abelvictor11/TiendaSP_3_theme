@@ -398,21 +398,30 @@ function CartSummary({
       attributes.push({key: '_ga_session_id', value: ga.sessionId});
     }
 
-    if (attributes.length > 0 && checkoutUrl) {
-      // Preventimos el redirect inmediato, guardamos attributes, y luego vamos.
+    if (checkoutUrl) {
       e.preventDefault();
-      const form = new FormData();
-      form.set(
-        '[CartForm]',
-        JSON.stringify({action: 'AttributesUpdateInput', inputs: {attributes}}),
-      );
-      fetch('/cart', {method: 'POST', body: form, keepalive: true})
-        .catch(() => {
-          // Si falla, no bloqueamos la compra
-        })
-        .finally(() => {
-          window.location.href = decorateCheckoutUrl(checkoutUrl);
-        });
+      if (attributes.length > 0) {
+        const form = new FormData();
+        form.set(
+          '[CartForm]',
+          JSON.stringify({
+            action: 'AttributesUpdateInput',
+            inputs: {attributes},
+          }),
+        );
+        // Fire-and-forget: keepalive deja que esto sobreviva a la navegación
+        // de abajo. NO frenamos el redirect esperando a que resuelva — un
+        // fetch colgado/lento acá nunca debe bloquear el checkout (antes
+        // dejaba al cliente varado en /cart sin navegación y sin error; ver
+        // FINDINGS.md sección 12).
+        fetch('/cart', {method: 'POST', body: form, keepalive: true}).catch(
+          () => {
+            // Si falla, no bloqueamos la compra
+          },
+        );
+      }
+      // Propaga UTM/gclid/fbclid a la URL de checkout (otro dominio)
+      window.location.href = decorateCheckoutUrl(checkoutUrl);
     }
   };
   return (
