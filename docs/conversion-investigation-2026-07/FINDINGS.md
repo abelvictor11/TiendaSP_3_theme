@@ -820,6 +820,13 @@ sits squarely inside the still-live checkout-navigation bug (section 12) —
 Recommend re-pulling this same query 1-2 weeks post-deploy as the primary
 validation, ahead of waiting on GA4's slower/noisier processing.
 
+**TODO, not done this session: backfill `shopify_events` further back.**
+Confirmed with the account owner this gap is real and worth fixing later
+— once backfilled (from Shopify's own webhook/event history, or
+whatever source the pipeline itself supports), this same funnel query
+could replace a large share of the manual GA4 pulls used throughout
+sections 1–13.
+
 **Not yet investigated, worth a follow-up**: `cart_viewed` (153 events)
 is lower than `checkout_started` (210) over the same window, which is
 backwards from the usual funnel shape — plausibly explained by the
