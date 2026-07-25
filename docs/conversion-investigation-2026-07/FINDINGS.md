@@ -677,6 +677,46 @@ needless future footgun that cyclewear's structure avoids).
 
 **Still to do**: deploy, then watch mobile and desktop cart→checkout completion rate over the following 1–2 weeks for recovery toward the levels seen before the regression window (11.7's earlier-period baselines).
 
+## 13. The `(not set)` landing-page anomaly — narrowed to Google-sourced traffic specifically (2026-07-25)
+
+Section 11.2 flagged a large `(not set)` landing-page bucket (>11% of
+sessions, ~90% bounce, last 28 days) as a likely instrumentation gap.
+Pulled the full H1 2026 breakdown by Session source/medium
+(`ga4_h1_2026_notset_landingpage_by_source.csv`) to find what's actually
+driving it, rather than leaving it as an unscoped "instrumentation gap":
+
+| Session source/medium | Active users | Sessions | Bounce rate |
+|---|---:|---:|---:|
+| google / cpc | 1,894 | 2,443 | 96.52% |
+| google / organic | 1,002 | 1,357 | 94.33% |
+| facebook / paid | 261 | 341 | 85.34% |
+| (direct) / (none) | 260 | 357 | 95.80% |
+| (not set) / (not set) | 139 | 169 | 100.00% |
+| bing / organic | 67 | 82 | 96.34% |
+| fb / paid | 65 | 82 | 86.59% |
+
+**~76% of all `(not set)` landing pages (2,896 of ~3,819 users) come from
+Google specifically — both `cpc` and `organic`** — not evenly spread
+across channels, and not concentrated in Facebook despite Facebook being
+the larger overall traffic source (section 5). This rules out a blanket
+"tracking is broken" explanation (a codebase-wide bug would show up
+proportionally across all sources) and points at something specific to
+how Google-referred traffic arrives: the two candidates that fit both
+`cpc` *and* `organic` failing the same way (ruling out anything
+Ads-URL-parameter-specific, since organic search results carry no such
+parameters) are (a) Chrome's search-result prerendering/prefetching
+speculatively loading the page before a real navigation commits, so a
+`session_start`-equivalent hit fires without a completed page load ever
+happening, or (b) something in the `google.com/url?q=...` outbound-link
+redirect chain (still used for some Google surfaces) interacting badly
+with when `page_location` gets set relative to when GA4's session_start
+fires. **Not root-caused to code level in this session** — the next step
+is checking GA4 DebugView or a raw BigQuery export (if available) for the
+actual `page_location` parameter value on a handful of real `(not set)`
+hits, which would distinguish "prerender never completed" (page_location
+would be entirely absent) from "redirect chain corrupted the URL"
+(page_location would have a malformed value, not be missing).
+
 ## 9. What this does and doesn't establish yet
 
 **Reasonably well-supported by multiple independent sources:**
@@ -722,6 +762,6 @@ see section 11 for detail on each.
 7. ~~Device-level split of the H2'25 vs H1'26 funnel~~ — **done.** Full half-year comparison completed (11.7) — and it overturns the mobile-is-worse framing from the earlier single-window snapshot: **desktop degraded more than mobile at every funnel stage.**
 
 **New open items surfaced this round, not on the original list:**
-8. **Diagnose the `(not set)` landing-page anomaly** — >11% of last-28-day sessions, 90.58% bounce, GA4 capturing the session but not the page path (11.2). Likely instrumentation, not content — worth a quick look before it's mistaken for a real high-bounce page.
+8. **Diagnose the `(not set)` landing-page anomaly** — **narrowed, not fully closed** (section 13): ~76% of it is Google-sourced (both cpc and organic), not a blanket tracking bug. Next step needs GA4 DebugView or BigQuery export access to inspect raw `page_location` values on real `(not set)` hits — couldn't go further with only the Explore UI available in this session.
 9. **Diagnose the desktop `session_start` bounce-rate jump** (38.0% → 69.9%, H2'25 to H1'26) — the single largest device-specific anomaly found this round (11.7). Check whether it's connected to the checkout-navigation race condition below, a desktop-specific perf/rendering regression, or a tracking artifact.
 10. ~~Fix the checkout-navigation race condition in `app/routes/($locale).cart.tsx`~~ — **done, 2026-07-25** (section 12). Matches cyclewear's independently-shipped PR #94. Post-deploy: watch mobile cart→checkout completion for recovery.
