@@ -1,4 +1,9 @@
 import {redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {
+  appendMarketingParamsToCheckoutUrl,
+  MARKETING_PARAMS,
+  type MarketingParams,
+} from '~/lib/checkoutContinuity';
 
 /**
  * Automatically creates a new cart based on the URL and redirects straight to checkout.
@@ -39,6 +44,18 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
   const discount = searchParams.get('discount');
   const discountArray = discount ? [discount] : [];
 
+  // Este loader redirige directo a Shopify checkout sin pasar por ninguna
+  // página del storefront, así que decorateCheckoutUrl (client-side, lee de
+  // una cookie) nunca corre — un ad/email que use este link directo
+  // ("agregar y pagar") perdía utm_source/gclid/fbclid en el 100% de sus
+  // clics. Estos params sí vienen en ESTA url (primer touch), así que los
+  // leemos directo del request en vez de depender de la cookie.
+  const marketingParams: MarketingParams = {};
+  for (const key of MARKETING_PARAMS) {
+    const value = searchParams.get(key);
+    if (value) marketingParams[key] = value;
+  }
+
   //! create a cart
   const result = await cart.create({
     lines: linesMap,
@@ -58,7 +75,10 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
 
   //! redirect to checkout
   if (cartResult.checkoutUrl) {
-    return redirect(cartResult.checkoutUrl, {headers});
+    return redirect(
+      appendMarketingParamsToCheckoutUrl(cartResult.checkoutUrl, marketingParams),
+      {headers},
+    );
   } else {
     throw new Error('No checkout URL found');
   }

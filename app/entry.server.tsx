@@ -14,10 +14,14 @@ export default async function handleRequest(
   const storeDomain = context.env.PUBLIC_STORE_DOMAIN;
   const shopifyDomain = context.env.PUBLIC_SHOPIFY_STORE_DOMAIN || storeDomain;
   const requestOrigin = new URL(request.url).origin;
-  // Dominio de checkout (checkout.tienda-sportfitness.com): al ser el Primary
-  // de Online Store, Shopify genera las URLs de media del CDN (/cdn/shop/...)
-  // sobre él — debe estar permitido en el CSP o los videos no cargan.
-  const checkoutCspDomain = 'https://checkout.tienda-sportfitness.com';
+  // Dominio de checkout: al ser el Primary de Online Store, Shopify genera
+  // las URLs de media del CDN (/cdn/shop/...) sobre él — debe estar
+  // permitido en el CSP o los videos no cargan. Derivado de
+  // PUBLIC_CHECKOUT_DOMAIN (no hardcodeado) para que no quede desincronizado
+  // si el dominio de checkout cambia alguna vez.
+  const checkoutCspDomain = context.env.PUBLIC_CHECKOUT_DOMAIN
+    ? `https://${context.env.PUBLIC_CHECKOUT_DOMAIN}`
+    : undefined;
 
   const {nonce, header, NonceProvider} = createContentSecurityPolicy({
     shop: {
@@ -125,7 +129,7 @@ export default async function handleRequest(
       // Shopify Analytics
       `https://${shopifyDomain}`,
       'https://*.myshopify.com',
-      checkoutCspDomain,
+      ...(checkoutCspDomain ? [checkoutCspDomain] : []),
       requestOrigin,
     ],
     mediaSrc: [
@@ -138,7 +142,7 @@ export default async function handleRequest(
       `https://${shopifyDomain}`,
       `https://${storeDomain}`,
       'https://*.myshopify.com',
-      checkoutCspDomain,
+      ...(checkoutCspDomain ? [checkoutCspDomain] : []),
       requestOrigin,
     ],
     styleSrc: [

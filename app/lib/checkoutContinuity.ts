@@ -1,7 +1,7 @@
 import {COOKIE_TTL_DAYS, readCookie, writeCookie} from '~/lib/cookieUtils';
 
 const MARKETING_COOKIE = '_marketing_params';
-const MARKETING_PARAMS = [
+export const MARKETING_PARAMS = [
   'utm_source',
   'utm_medium',
   'utm_campaign',
@@ -9,9 +9,14 @@ const MARKETING_PARAMS = [
   'utm_content',
   'gclid',
   'fbclid',
+  // TikTok Pixel se inicializa activamente en GtmLoader.tsx (aunque
+  // PUBLIC_TIKTOK_PIXEL_ID no esté configurado hoy) — sin esto, un clic de
+  // ad TikTok que use el permalink directo perdería su ttclid igual que
+  // gclid/fbclid lo perdían antes de este fix (Codex, PR #91).
+  'ttclid',
 ] as const;
 
-type MarketingParams = Partial<
+export type MarketingParams = Partial<
   Record<(typeof MARKETING_PARAMS)[number], string>
 >;
 
@@ -56,11 +61,14 @@ export function captureMarketingParams(): void {
   writeCookie(MARKETING_COOKIE, JSON.stringify(current), COOKIE_TTL_DAYS);
 }
 
-export function decorateCheckoutUrl(checkoutUrl: string): string {
-  if (typeof window === 'undefined' || !checkoutUrl) return checkoutUrl;
-
-  const checkoutHostname = getCheckoutHostname(checkoutUrl);
-  if (!checkoutHostname) return checkoutUrl;
+// Puro / isomórfico (sin window ni cookies) para poder reusarlo desde loaders
+// de servidor (ej. cart.$lines.tsx, el permalink add-to-cart-y-redirige-a-
+// checkout) además del flujo normal en el navegador.
+export function appendMarketingParamsToCheckoutUrl(
+  checkoutUrl: string,
+  params: MarketingParams,
+): string {
+  if (!checkoutUrl) return checkoutUrl;
 
   let url: URL;
   try {
@@ -69,9 +77,7 @@ export function decorateCheckoutUrl(checkoutUrl: string): string {
     return checkoutUrl;
   }
 
-  const params = readMarketingParams();
   let changed = false;
-
   for (const key of MARKETING_PARAMS) {
     const value = params[key];
     if (!value || url.searchParams.has(key)) continue;
@@ -80,4 +86,13 @@ export function decorateCheckoutUrl(checkoutUrl: string): string {
   }
 
   return changed ? url.toString() : checkoutUrl;
+}
+
+export function decorateCheckoutUrl(checkoutUrl: string): string {
+  if (typeof window === 'undefined' || !checkoutUrl) return checkoutUrl;
+
+  const checkoutHostname = getCheckoutHostname(checkoutUrl);
+  if (!checkoutHostname) return checkoutUrl;
+
+  return appendMarketingParamsToCheckoutUrl(checkoutUrl, readMarketingParams());
 }
