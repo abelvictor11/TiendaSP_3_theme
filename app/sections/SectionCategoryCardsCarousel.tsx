@@ -73,11 +73,11 @@ export function SectionCategoryCardsCarousel(
             <Image
               data={cardImageData}
               alt={title || ''}
-              sizes={
-                isLarge
-                  ? '(max-width: 640px) 100vw, (max-width: 1024px) 66vw, 33vw'
-                  : '(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw'
-              }
+              // Grid is `grid-cols-1 sm:grid-cols-3` with no further
+              // breakpoint override; isLarge only spans rows
+              // (`sm:row-span-2`), never columns, so every card is the same
+              // 1-of-3-columns width from 640px up, including this one.
+              sizes="(max-width: 640px) 100vw, 33vw"
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
             />

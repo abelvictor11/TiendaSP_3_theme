@@ -6,6 +6,10 @@ import type {
   SectionHeroFragment,
 } from 'storefrontapi.generated';
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
+import {
+  shopifyImageSrcSet,
+  shopifyImageUrlAtWidth,
+} from '~/utils/shopifyResponsiveImage';
 
 function getPositionClasses(position: string): {
   flex: string;
@@ -68,13 +72,25 @@ export function SectionHero(props: SectionHeroFragment) {
   const horizontalVideo = (heroItem as any).horizontal_video?.reference?.sources?.[0];
   const verticalVideo = (heroItem as any).vertical_video?.reference?.sources?.[0];
 
+  // When neither side has a video, both desktop/mobile <Image> branches would
+  // otherwise render simultaneously (only hidden via responsive CSS, which
+  // doesn't stop the browser from fetching both) — eager+high-priority on
+  // both then makes them compete for bandwidth with each other instead of
+  // just loading the one actually visible. Combine into one <picture> so the
+  // browser's native media-query source selection only fetches one.
+  const needsCombinedPicture =
+    !horizontalVideo?.url &&
+    !verticalVideo?.url &&
+    !!horizontal_image?.image &&
+    !!vertical_image?.image;
+
   return (
     <div className="container px-4">
       <div className="nc-SectionHero aspect-h-16 aspect-w-10 relative overflow-hidden rounded-2xl bg-slate-100 sm:aspect-h-4 sm:aspect-w-3 lg:aspect-h-7 lg:aspect-w-16 2xl:aspect-w-16 2xl:aspect-h-7">
         {/* BG */}
         <div>
-          {/* Desktop: Video or Image */}
-          {horizontalVideo?.url ? (
+          {/* Desktop: Video */}
+          {horizontalVideo?.url && (
             <video
               autoPlay
               muted
@@ -85,18 +101,10 @@ export function SectionHero(props: SectionHeroFragment) {
             >
               <source src={horizontalVideo.url} type={horizontalVideo.mimeType || 'video/mp4'} />
             </video>
-          ) : horizontal_image?.image && (
-            <Image
-              sizes="110vw"
-              className="hidden h-full w-full object-cover lg:block"
-              data={horizontal_image?.image}
-              loading="eager"
-              fetchPriority="high"
-            />
           )}
 
-          {/* Mobile: Video or Image */}
-          {verticalVideo?.url ? (
+          {/* Mobile: Video */}
+          {verticalVideo?.url && (
             <video
               autoPlay
               muted
@@ -107,14 +115,47 @@ export function SectionHero(props: SectionHeroFragment) {
             >
               <source src={verticalVideo.url} type={verticalVideo.mimeType || 'video/mp4'} />
             </video>
-          ) : vertical_image?.image && (
-            <Image
-              sizes="100vw"
-              className="block h-full w-full object-cover object-bottom lg:hidden"
-              data={vertical_image?.image}
-              loading="eager"
-              fetchPriority="high"
-            />
+          )}
+
+          {/* Image fallback(s) — only for sides without a video */}
+          {needsCombinedPicture ? (
+            <picture>
+              <source
+                media="(min-width: 1024px)"
+                srcSet={shopifyImageSrcSet(horizontal_image!.image!.url)}
+                sizes="110vw"
+              />
+              <img
+                src={shopifyImageUrlAtWidth(vertical_image!.image!.url, 1080)}
+                srcSet={shopifyImageSrcSet(vertical_image!.image!.url)}
+                sizes="100vw"
+                loading="eager"
+                {...({fetchpriority: 'high'} as any)}
+                alt={vertical_image!.image!.altText || ''}
+                className="h-full w-full object-cover object-bottom"
+              />
+            </picture>
+          ) : (
+            <>
+              {!horizontalVideo?.url && horizontal_image?.image && (
+                <Image
+                  sizes="110vw"
+                  className="hidden h-full w-full object-cover lg:block"
+                  data={horizontal_image.image}
+                  loading="eager"
+                  fetchPriority="high"
+                />
+              )}
+              {!verticalVideo?.url && vertical_image?.image && (
+                <Image
+                  sizes="100vw"
+                  className="block h-full w-full object-cover object-bottom lg:hidden"
+                  data={vertical_image.image}
+                  loading="eager"
+                  fetchPriority="high"
+                />
+              )}
+            </>
           )}
         </div>
 
