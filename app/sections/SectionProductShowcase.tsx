@@ -43,7 +43,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
     return null;
   }
 
-  const bgImage = (background_image as any)?.image?.url;
+  const bgImage = (background_image as any)?.image;
   const contentBgRaw = content_background_color?.value || '';
   const contentBg = contentBgRaw ? `${contentBgRaw}cc` : 'transparent';
   const txtColor = text_color?.value || '#000000';
@@ -81,11 +81,12 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   return (
     <section className="nc-SectionProductShowcase relative min-h-[600px] lg:min-h-[700px] lg:h-screen flex items-end overflow-hidden">
       {/* Background Image */}
-      {bgImage && (
+      {bgImage?.url && (
         <div className="absolute inset-0 w-full h-full">
-          <img
-            src={bgImage}
+          <Image
+            data={bgImage}
             alt=""
+            sizes="100vw"
             className="w-full h-full object-cover"
             loading="lazy"
           />

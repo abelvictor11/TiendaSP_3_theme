@@ -9,6 +9,10 @@ import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import useInterval from 'beautiful-react-hooks/useInterval';
 import useHorizontalSwipe from 'beautiful-react-hooks/useHorizontalSwipe';
 import clsx from 'clsx';
+import {
+  shopifyImageSrcSet,
+  shopifyImageUrlAtWidth,
+} from '~/utils/shopifyResponsiveImage';
 
 let TIME_OUT: NodeJS.Timeout | null = null;
 
@@ -66,6 +70,7 @@ function HeroVideo({
       loop={loop}
       playsInline
       poster={poster}
+      {...({fetchpriority: 'high'} as any)}
       onEnded={onEnded}
       className={className}
     >
@@ -347,12 +352,25 @@ const SectionItem = ({
         ? 'flex justify-center'
         : 'flex justify-start';
 
+  const horizontalVideoUrl = (item as any).horizontal_video?.sources?.[0]?.url;
+  const verticalVideoUrl = (item as any).vertical_video?.sources?.[0]?.url;
+
+  // See SectionHero.tsx for why: when neither side has a video, both
+  // desktop/mobile <Image> branches would otherwise render simultaneously
+  // (only hidden via responsive CSS, which doesn't stop the browser from
+  // fetching both) — combine into one <picture> so only one is fetched.
+  const needsCombinedPicture =
+    !horizontalVideoUrl &&
+    !verticalVideoUrl &&
+    !!item.horizontal_image?.image &&
+    !!item.vertical_image?.image;
+
   return (
     <div className="h-[60vh] min-h-[400px] w-full lg:h-[55vh] lg:min-h-[500px] relative overflow-hidden bg-slate-100">
       {/* BG - Absolute positioned */}
       <div className="nc-SectionHeroSliderItem__image absolute inset-0 w-full h-full">
-        {/* Desktop: Video or Image */}
-        {(item as any).horizontal_video?.sources?.[0]?.url ? (
+        {/* Desktop: Video */}
+        {horizontalVideoUrl && (
           <HeroVideo
             sources={(item as any).horizontal_video.sources}
             loop={loopVideo}
@@ -366,17 +384,10 @@ const SectionItem = ({
             // cargada en Admin para este mismo slide.
             poster={item.horizontal_image?.image?.url}
           />
-        ) : item.horizontal_image?.image && (
-          <Image
-            data={item.horizontal_image?.image}
-            sizes="110vw"
-            className="hidden h-full w-full object-cover lg:block"
-            style={{objectPosition: 'center center'}}
-          />
         )}
 
-        {/* Mobile: Video or Image */}
-        {(item as any).vertical_video?.sources?.[0]?.url ? (
+        {/* Mobile: Video */}
+        {verticalVideoUrl && (
           <HeroVideo
             sources={(item as any).vertical_video.sources}
             loop={loopVideo}
@@ -384,13 +395,53 @@ const SectionItem = ({
             className="block h-full w-full object-cover lg:hidden"
             poster={item.vertical_image?.image?.url}
           />
-        ) : item.vertical_image?.image && (
-          <Image
-            data={item.vertical_image?.image}
-            sizes="100vw"
-            className="block h-full w-full object-cover lg:hidden"
-            style={{objectPosition: 'center center'}}
-          />
+        )}
+
+        {/* Image fallback(s) — only for sides without a video */}
+        {needsCombinedPicture ? (
+          <picture>
+            <source
+              media="(min-width: 1024px)"
+              srcSet={shopifyImageSrcSet(item.horizontal_image!.image!.url)}
+              sizes="110vw"
+            />
+            <img
+              src={shopifyImageUrlAtWidth(
+                item.vertical_image!.image!.url,
+                1080,
+              )}
+              srcSet={shopifyImageSrcSet(item.vertical_image!.image!.url)}
+              sizes="100vw"
+              loading="eager"
+              {...({fetchpriority: 'high'} as any)}
+              alt={item.vertical_image!.image!.altText || ''}
+              className="h-full w-full object-cover"
+              style={{objectPosition: 'center center'}}
+            />
+          </picture>
+        ) : (
+          <>
+            {!horizontalVideoUrl && item.horizontal_image?.image && (
+              <Image
+                data={item.horizontal_image.image}
+                sizes="110vw"
+                className="hidden h-full w-full object-cover lg:block"
+                style={{objectPosition: 'center center'}}
+                loading="eager"
+                fetchPriority="high"
+              />
+            )}
+            {!verticalVideoUrl && item.vertical_image?.image && (
+              <Image
+                data={item.vertical_image.image}
+                sizes="100vw"
+                className="block h-full w-full object-cover lg:hidden"
+                style={{objectPosition: 'center center'}}
+                loading="eager"
+                fetchPriority="high"
+              />
+            )}
+          </>
         )}
       </div>
 

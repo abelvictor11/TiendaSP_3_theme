@@ -71,7 +71,7 @@ export function SectionImageWithText(props: SectionImageWithTextFragment) {
                 style?.value === '3' ? backgroundLineSvg3 : backgroundLineSvg
               }
               alt="backgroundLineSvg"
-              sizes="max-width: 640px 100vw, max-width: 1024px 80vw, 50vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 50vw"
             />
           </div>
         )}
@@ -198,7 +198,7 @@ export function SectionImageWithText(props: SectionImageWithTextFragment) {
             <Image
               data={image?.image}
               className="w-full h-full object-cover"
-              sizes="max-width: 640px 100vw, max-width: 1024px 80vw, 50vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 50vw"
             />
           )}
         </div>

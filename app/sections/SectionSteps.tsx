@@ -32,7 +32,7 @@ export function SectionSteps(props: SectionStepsFragment) {
             className="hidden md:block absolute inset-x-0 top-5"
             src={VectorImg}
             alt="vector"
-            sizes="max-width: 640px 100vw, max-width: 1024px 80vw, 50vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 80vw, 50vw"
           />
           {headings?.parsedValue?.map((item, index) => (
             <div
