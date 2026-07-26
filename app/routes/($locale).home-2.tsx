@@ -30,6 +30,7 @@ export async function loader({params, context, request}: LoaderFunctionArgs) {
       context,
       request,
       handle: 'route-home-2',
+      cacheStrategy: context.storefront.CacheShort(),
     }),
   ]);
 

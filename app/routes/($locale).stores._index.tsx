@@ -18,6 +18,7 @@ export async function loader({context, params, request}: LoaderFunctionArgs) {
     context,
     request,
     handle: 'route-stores',
+    cacheStrategy: context.storefront.CacheShort(),
   });
 
   const seo = seoPayload.home({url: request.url});
