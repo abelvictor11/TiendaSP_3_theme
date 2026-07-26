@@ -1,4 +1,5 @@
 import {Link} from '@remix-run/react';
+import {Image} from '@shopify/hydrogen';
 import type {SectionProductFeatureFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
 
@@ -19,10 +20,10 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
   } = section;
 
   // Solo usar banner_image personalizada
-  const displayImage = (banner_image as any)?.image?.url;
+  const displayImage = (banner_image as any)?.image;
   
   // Early return si no hay imagen o contenido
-  if (!displayImage && !heading?.value) {
+  if (!displayImage?.url && !heading?.value) {
     return null;
   }
 
@@ -38,11 +39,12 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
         <div className="grid grid-cols-1 lg:grid-cols-10 gap-0 rounded-xl overflow-hidden">
           {/* Image Side - 60% */}
           <div className={`relative lg:col-span-6 ${imageOnLeft ? 'lg:order-1' : 'lg:order-2'}`}>
-            {displayImage && (
+            {displayImage?.url && (
               <div className="relative h-full min-h-[400px] lg:min-h-[500px] bg-neutral-100">
-                <img
-                  src={displayImage}
+                <Image
+                  data={displayImage}
                   alt={heading?.value || 'Banner'}
+                  sizes="(max-width: 1024px) 100vw, 60vw"
                   className="absolute inset-0 w-full h-full object-cover"
                   loading="lazy"
                 />

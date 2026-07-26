@@ -1,4 +1,4 @@
-import {type ParsedMetafields} from '@shopify/hydrogen';
+import {Image, type ParsedMetafields} from '@shopify/hydrogen';
 import {parseSection} from '~/utils/parseSection';
 import type {SectionCategoryCardsCarouselFragment} from 'storefrontapi.generated';
 import {Link} from '@remix-run/react';
@@ -31,8 +31,11 @@ export function SectionCategoryCardsCarousel(
   const renderCard = (item: any, index: number) => {
     if (!item.id) return null;
 
-    const imageUrl = item.image?.image?.url;
-    const backgroundImageUrl = item.background_image?.image?.url;
+    const imageData = item.image?.image;
+    const backgroundImageData = item.background_image?.image;
+    const cardImageData = backgroundImageData?.url
+      ? backgroundImageData
+      : imageData;
     const title = item.title?.value;
     const subtitle = item.subtitle?.value;
     const ctaText = item.cta_text?.value || 'Shop Now';
@@ -65,11 +68,16 @@ export function SectionCategoryCardsCarousel(
         }`}
       >
         {/* Background Image */}
-        {(backgroundImageUrl || imageUrl) && (
+        {cardImageData?.url && (
           <>
-            <img
-              src={backgroundImageUrl || imageUrl}
+            <Image
+              data={cardImageData}
               alt={title || ''}
+              sizes={
+                isLarge
+                  ? '(max-width: 640px) 100vw, (max-width: 1024px) 66vw, 33vw'
+                  : '(max-width: 640px) 100vw, (max-width: 1024px) 33vw, 25vw'
+              }
               className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
             />

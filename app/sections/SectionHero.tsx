@@ -89,6 +89,8 @@ export function SectionHero(props: SectionHeroFragment) {
               sizes="110vw"
               className="hidden h-full w-full object-cover lg:block"
               data={horizontal_image?.image}
+              loading="eager"
+              fetchPriority="high"
             />
           )}
 
@@ -108,6 +110,8 @@ export function SectionHero(props: SectionHeroFragment) {
               sizes="100vw"
               className="block h-full w-full object-cover object-bottom lg:hidden"
               data={vertical_image?.image}
+              loading="eager"
+              fetchPriority="high"
             />
           )}
         </div>

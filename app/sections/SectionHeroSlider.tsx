@@ -372,6 +372,8 @@ const SectionItem = ({
             sizes="110vw"
             className="hidden h-full w-full object-cover lg:block"
             style={{objectPosition: 'center center'}}
+            loading="eager"
+            fetchPriority="high"
           />
         )}
 
@@ -390,6 +392,8 @@ const SectionItem = ({
             sizes="100vw"
             className="block h-full w-full object-cover lg:hidden"
             style={{objectPosition: 'center center'}}
+            loading="eager"
+            fetchPriority="high"
           />
         )}
       </div>
