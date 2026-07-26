@@ -66,6 +66,7 @@ function HeroVideo({
       loop={loop}
       playsInline
       poster={poster}
+      {...({fetchpriority: 'high'} as any)}
       onEnded={onEnded}
       className={className}
     >

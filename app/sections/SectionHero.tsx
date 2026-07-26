@@ -80,6 +80,7 @@ export function SectionHero(props: SectionHeroFragment) {
               muted
               loop
               playsInline
+              {...({fetchpriority: 'high'} as any)}
               className="hidden h-full w-full object-cover lg:block"
             >
               <source src={horizontalVideo.url} type={horizontalVideo.mimeType || 'video/mp4'} />
@@ -101,6 +102,7 @@ export function SectionHero(props: SectionHeroFragment) {
               muted
               loop
               playsInline
+              {...({fetchpriority: 'high'} as any)}
               className="block h-full w-full object-cover object-bottom lg:hidden"
             >
               <source src={verticalVideo.url} type={verticalVideo.mimeType || 'video/mp4'} />
