@@ -64,6 +64,7 @@ async function loadCriticalData({
       context,
       request,
       handle: 'route-home',
+      cacheStrategy: context.storefront.CacheShort(),
     }),
     // Add other queries here, so that they are loaded in parallel
   ]);

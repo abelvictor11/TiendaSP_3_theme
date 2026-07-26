@@ -1,4 +1,5 @@
 import type {LoaderFunctionArgs} from '@remix-run/server-runtime';
+import type {CachingStrategy} from '@shopify/hydrogen';
 import {ROUTE_CONTENT_QUERY} from '~/sections/RouteContent';
 import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFiltersFromRequest';
 
@@ -8,9 +9,16 @@ export const getLoaderRouteFromMetaobject = async ({
   request,
   handle = '',
   pageBy = 8,
+  cacheStrategy,
 }: LoaderFunctionArgs & {
   handle: string;
   pageBy?: number;
+  // Defaults to no caching, since this same query also drives
+  // filter/pagination-heavy routes (collections, search) and the PDP,
+  // where every request should see current inventory/pricing. Pure
+  // marketing-content routes (homepage, /stores, /home-2, /news) opt into
+  // a short cache explicitly at the call site instead.
+  cacheStrategy?: CachingStrategy;
 }) => {
   const {storefront} = context;
 
@@ -32,7 +40,7 @@ export const getLoaderRouteFromMetaobject = async ({
       country: context.storefront.i18n.country,
       language: context.storefront.i18n.language,
     },
-    cache: storefront.CacheNone(),
+    cache: cacheStrategy || storefront.CacheNone(),
   });
 
   return {route};

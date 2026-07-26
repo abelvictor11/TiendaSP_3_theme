@@ -32,6 +32,7 @@ export async function loader({request, context, params}: LoaderFunctionArgs) {
     context,
     request,
     handle: 'route-news',
+    cacheStrategy: context.storefront.CacheShort(),
   });
 
   const variables = getPaginationVariables(request, {
