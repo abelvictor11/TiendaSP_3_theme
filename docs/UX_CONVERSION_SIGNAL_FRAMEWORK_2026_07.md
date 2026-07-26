@@ -175,16 +175,43 @@ shipping eventually, just not the first move given the traffic-quality
 question above is cheaper to answer and more likely to explain the bulk
 of the effect.
 
-## Next-session plan (2026-07-25, written after shipping the checkout fix)
+## Next-session plan (2026-07-25, written after shipping the checkout fix; updated 2026-07-26)
 
 The checkout-navigation race condition (FINDINGS.md section 12) is now
-fixed and QA'd (desktop DOM-click, hung-fetch repro, and real mobile
-device emulation — all pass), but **not yet deployed**. That fix is the
+fixed, deployed, and verified live (PR #96, `be9436c`). That fix is the
 single biggest pending unknown affecting everything below: it's the
 strongest candidate root cause found in this whole investigation for the
 add_to_cart→begin_checkout drop-off, but "strongest candidate" is not the
 same as "confirmed cause at scale" until real production data shows
-recovery. Sequencing below assumes that validation hasn't happened yet.
+recovery — it's only been live ~1 day as of this update, too early for a
+clean read (Phase 0 item 2, below).
+
+**2026-07-26 session recap**: audited every Phase 2 item below against
+current `origin/tienda` before implementing anything, rather than trusting
+this doc's own to-do list. Found 3 of 6 items (#7/#8/#9) were already
+shipped by other PRs before this plan was even written — corrected in
+place below, doc fix opened as **PR #100**. Then scoped item #13
+(image/LCP) down to concrete file-and-line fixes, ready to implement next
+session — see the sub-bullets under #13.
+
+**Correction, same day**: Codex's automated review on PR #100 caught that
+2 of those 3 "already shipped, no action needed" calls (#8, #9) were
+themselves incomplete audits — the code exists but doesn't actually clear
+the bar. Re-verified both against the live route/component code, confirmed
+Codex was right on both, and rewrote #8/#9 in place with the corrected
+findings and real, still-open action items. Lesson: a component rendering
+≠ a component working for 88-96%-mobile traffic — check *how* it renders
+(hover-gated, occluded, pushed down the page), not just *whether* it
+renders.
+
+### Start-of-next-session checklist
+1. Merge PR #100 (Phase 2 doc corrections, now including the Codex-caught fixes to #8/#9) if not already done.
+2. Implement the 3 ranked image/LCP fixes under item #13 — highest-value, fully-scoped, ready-to-go work.
+3. Scope and fix #8 (mobile quick-add hidden behind `group-hover`) — small, well-understood CSS fix, likely quick.
+4. Decide on #9 (review placement relative to enhanced/feature content) — needs a product-strategy call before any code change, not a pure fix.
+5. Re-check Phase 0 item 2 (checkout completion rate) — needs more days of post-deploy data before it's a clean read.
+6. If bandwidth allows: item 5 (`(not set)` landing pages) or item 10 (`bicicletas-estaticas-y-spinning` CRO) — both data-only/analysis, no new instrumentation needed.
+7. Still waiting on human answers for items 3-4 (Meta Aug-Sep 2025 spend pause, second Meta ad account) — ask directly rather than re-deriving from tooling.
 
 ### Phase 0 — Deploy, monitor, and close two human-only questions (blocking)
 1. ~~Deploy the checkout fix~~ — **done, 2026-07-25.** PR #96 merged (`be9436c`), Oxygen deploy succeeded, re-verified live on production against a real cart (hung-fetch repro, navigation still succeeds).
@@ -198,13 +225,19 @@ recovery. Sequencing below assumes that validation hasn't happened yet.
 
 ### Phase 2 — thefeed.com-informed UX fixes (concrete, code-level, ready to scope without new instrumentation)
 From `docs/THEFEED_COMPETITIVE_TEARDOWN_2026_07.md`, in priority order:
-7. **Out-of-stock → cross-sell banner** — thefeed's strongest pattern (a substitute-product card + "SHOP X" CTA shown twice on the PDP when unavailable, vs. tienda's current disabled "Agotado" button with no recovery path). Can reuse `ComplementaryProducts.tsx`'s existing metafield-driven mechanism, gated on `isOutOfStock`. Highest-value item in this phase — converts a dead-end visit into a different sale.
-8. **PLP quick-add-to-cart** — check `ProductCard.tsx`/`ProductsGrid.tsx` for whether grid cards can add to cart directly vs. requiring a PDP visit; thefeed offers this on eligible cards.
-9. **Okendo review placement** — verify live whether reviews render above-the-fold-adjacent or require a click/scroll-triggered load; thefeed shows rating + first 2-3 reviews inline with no interaction needed. Quick check, not a big lift either way.
+7. ~~Out-of-stock → cross-sell banner~~ — **already shipped, this doc was stale.** PR #83 ("feat(pdp): surface in-stock alternatives immediately when out of stock") merged to `tienda` **2026-07-24**, a day before this plan was written — confirmed live on current `origin/tienda` (`app/routes/($locale).products.$productHandle.tsx`, `isOutOfStock` at line 459, disabled "Agotado" button + `ComplementaryProducts` banner at lines 602-634). A follow-up fix (`98e532c`) also patched a Codex-flagged bug where the fallback recommendations weren't filtered to in-stock items. **One real gap remains**: thefeed shows this pattern *twice* (above the fold and near the buy box); tienda only has the near-buy-box instance — `ProductGallery.tsx` has no above-the-fold OOS banner. Small follow-up if wanted (~20-40 lines, reuses the existing `recommended` promise + `ComplementaryProducts`, no new data/metafield needed), not urgent since the core fix (a recovery path existing at all) is already live.
+8. **PLP quick-add-to-cart — corrected 2026-07-26 after Codex review caught an incomplete audit.** `quickAddToCart` does default `true` (`ProductCard.tsx` line 42) and `AddToCartButton` does render on the card, but the wrapping div (lines 227-230) is `opacity-0 invisible group-hover:opacity-100 group-hover:visible` — a hover-only reveal. Hover doesn't exist as a reliable interaction on touch devices, and mobile is 88-96% of traffic (Sidekick 11.2), so the dominant path has no visible quick-add affordance despite the code being "shipped." **Real gap, action needed**: gate the hover-only styling behind `@media (hover: hover)` (or equivalent) so desktop keeps the hover reveal and mobile shows the button by default. Not yet sized/scoped — do that next session alongside #13.
+9. **Okendo review placement — corrected 2026-07-26 after Codex review caught an incomplete audit.** Confirmed true: reviews aren't gated behind a click/accordion/tab. Not confirmed, and actually false in the common case: `ProductReviews` renders in route `($locale).products.$productHandle.tsx` *after* `PdpEnhancedSection` (line 363) and `ProductFeatureBlocks` (line 369) — both optional, per-product, metafield-driven full-width sections sitting below the two-column buy-box layout (which closes at line 360). For any product with enhanced/feature content populated, the first review can land several full-width sections below the buy box, not adjacent to it like thefeed's inline teaser. **Real gap, needs a product-strategy call, not a pure code fix**: move reviews above the enhanced/feature sections (closer to the buy box) vs. accept current order as an intentional trade-off for content-rich PDPs. Flag for next session — don't just re-order without checking why enhanced/feature content was placed there first (may be deliberate storytelling-before-social-proof sequencing).
 10. **`/collections/bicicletas-estaticas-y-spinning` CRO** — this collection page is the one item in the whole investigation with two independent measurements agreeing it's a problem (Shopify Sidekick's 82.5% claim + our own GA4 pull at 84.07%, FINDINGS.md 11.2). Concrete first target: clearer above-the-fold CTAs/trust signals, and check whether the social-ad creative driving traffic here actually matches the page content.
 11. **Container side-gutter decision** (96px tienda vs. 24px thefeed at 1536px — THEFEED_COMPETITIVE_TEARDOWN.md CSS table) — a real, measurable, easily-adjustable difference in how much content is visible above the fold, but may be an intentional spacious/premium design choice. **Ask before changing**, don't auto-fix.
 12. **Deferred, needs assets not code**: hero image compositing (product cutout + radial-gradient spotlight layered over the background photo) — needs isolated product photography that doesn't exist yet for any tienda product. Flag for whenever there's a photography budget, not this phase.
-13. **NEW — image delivery/LCP fix** (PageSpeed Insights detour, FINDINGS.md 15/15.1): mobile fails Core Web Vitals on LCP (4.8s vs. a 2.5s target, Performance score 73); desktop is borderline (2.6s, score 86). Image delivery is the single biggest lever on both (1.4-1.7 MB potential savings, 15-16 MB total page weight) and "Shopify hosting" (theme JS + images) — not the five tracking scripts — dominates main-thread cost too (840ms-1s vs. GTM's 300ms and everything else near-zero). Directly corroborates the mobile-specific friction from Sidekick's report (11.2) given 88-96% mobile traffic. Concrete next step: audit actual image sizes/formats being served (responsive `srcset`, compression, lazy-loading) rather than treating this as diffuse "performance work" — high-value, high-confidence fix.
+13. **Image delivery/LCP fix — now fully scoped, ready to implement first thing next session** (PageSpeed Insights detour, FINDINGS.md 15/15.1): mobile fails Core Web Vitals on LCP (4.8s vs. a 2.5s target, Performance score 73); desktop is borderline (2.6s, score 86). Image delivery is the single biggest lever on both (1.4-1.7 MB potential savings, 15-16 MB total page weight) and "Shopify hosting" (theme JS + images) — not the five tracking scripts — dominates main-thread cost too (840ms-1s vs. GTM's 300ms and everything else near-zero). Directly corroborates the mobile-specific friction from Sidekick's report (11.2) given 88-96% mobile traffic. A code audit (2026-07-26, read-only, no edits yet) found the concrete, ranked causes:
+    - **#1, likely the actual LCP element**: `app/sections/SectionHero.tsx` and `SectionHeroSlider.tsx` don't pass a `loading` prop to Hydrogen's `<Image>`, so it defaults to `loading="lazy"` — even though the hero is the first, above-the-fold homepage section. Fix: add `loading="eager"` + `fetchPriority="high"`.
+    - **#2, likely the biggest chunk of the 1.4-1.7 MB opportunity**: `SectionProductShowcase.tsx`, `SectionCategoryCardsCarousel.tsx`, and `SectionProductFeature.tsx` all use raw `<img>` tags with untransformed, full-resolution Shopify CDN URLs and no `srcset`, bypassing Hydrogen's `<Image>` (and its automatic responsive-size/format negotiation) entirely. Fix: switch each to `<Image data={...}>` with an appropriate `sizes` prop.
+    - **#3, smaller**: `SectionImageWithText.tsx` and `SectionSteps.tsx` have malformed `sizes` syntax (missing parens around media conditions, e.g. `max-width: 640px 100vw` instead of `(max-width: 640px) 100vw`) — browsers ignore it and over-fetch on desktop. Fix: add the missing parens.
+    - Skipped as low-priority: `ProductCard.tsx`'s hardcoded `sizes` slightly over-fetches (~18%) when rendered in `SnapSliderProducts.tsx`'s narrower mobile slider — not worth a separate pass.
+    - PDP gallery and most `ProductCard*` variants already have correct `sizes`/`loading` — no action needed there.
+    - Estimated size: 5 files, all small/targeted edits, no new dependencies or architecture changes.
 14. **NEW — verify Meta Pixel is actually firing live** (FINDINGS.md 15.1): PageSpeed's third-party breakdown showed zero Meta Pixel network activity on either mobile or desktop — no `facebook.net`/`facebook.com` entity at all. Could be a Lighthouse-consent-timing artifact (marketing consent may not resolve the same way for a synthetic crawl) rather than a real gap, but Meta campaigns depend on this pixel for custom audiences/conversions (section 7). Quick, high-value check: Meta Events Manager's Test Events tool or the Pixel Helper extension against a real page load, before concluding either way.
     - **Context from the account owner (2026-07-26), downgrades urgency**: this is a known, pre-existing gap — the client-side Meta Pixel issue is why the RudderStack CDP's "Facebook Conversions - Tienda Fitness" destination exists at all (server-side CAPI, bypassing the client-side pixel while a real fix is pending). So Meta conversion data isn't actually blind right now, it's routed a different way. Still worth the live-firing check above to fully scope the client-side gap, but not urgent — a working interim path already exists. **Also worth checking later: whether cyclewear's implementation solved the underlying client-side pixel issue** and could be ported back, rather than only relying on the CAPI workaround long-term.
 
