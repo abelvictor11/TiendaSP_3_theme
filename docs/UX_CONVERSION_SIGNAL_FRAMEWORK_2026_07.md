@@ -190,16 +190,28 @@ clean read (Phase 0 item 2, below).
 current `origin/tienda` before implementing anything, rather than trusting
 this doc's own to-do list. Found 3 of 6 items (#7/#8/#9) were already
 shipped by other PRs before this plan was even written — corrected in
-place below, doc fix opened as **PR #100** (not yet merged). Then scoped
-item #13 (image/LCP) down to concrete file-and-line fixes, ready to
-implement next session — see the sub-bullets under #13.
+place below, doc fix opened as **PR #100**. Then scoped item #13
+(image/LCP) down to concrete file-and-line fixes, ready to implement next
+session — see the sub-bullets under #13.
+
+**Correction, same day**: Codex's automated review on PR #100 caught that
+2 of those 3 "already shipped, no action needed" calls (#8, #9) were
+themselves incomplete audits — the code exists but doesn't actually clear
+the bar. Re-verified both against the live route/component code, confirmed
+Codex was right on both, and rewrote #8/#9 in place with the corrected
+findings and real, still-open action items. Lesson: a component rendering
+≠ a component working for 88-96%-mobile traffic — check *how* it renders
+(hover-gated, occluded, pushed down the page), not just *whether* it
+renders.
 
 ### Start-of-next-session checklist
-1. Merge PR #100 (Phase 2 doc corrections) if not already done.
+1. Merge PR #100 (Phase 2 doc corrections, now including the Codex-caught fixes to #8/#9) if not already done.
 2. Implement the 3 ranked image/LCP fixes under item #13 — highest-value, fully-scoped, ready-to-go work.
-3. Re-check Phase 0 item 2 (checkout completion rate) — needs more days of post-deploy data before it's a clean read.
-4. If bandwidth allows: item 5 (`(not set)` landing pages) or item 10 (`bicicletas-estaticas-y-spinning` CRO) — both data-only/analysis, no new instrumentation needed.
-5. Still waiting on human answers for items 3-4 (Meta Aug-Sep 2025 spend pause, second Meta ad account) — ask directly rather than re-deriving from tooling.
+3. Scope and fix #8 (mobile quick-add hidden behind `group-hover`) — small, well-understood CSS fix, likely quick.
+4. Decide on #9 (review placement relative to enhanced/feature content) — needs a product-strategy call before any code change, not a pure fix.
+5. Re-check Phase 0 item 2 (checkout completion rate) — needs more days of post-deploy data before it's a clean read.
+6. If bandwidth allows: item 5 (`(not set)` landing pages) or item 10 (`bicicletas-estaticas-y-spinning` CRO) — both data-only/analysis, no new instrumentation needed.
+7. Still waiting on human answers for items 3-4 (Meta Aug-Sep 2025 spend pause, second Meta ad account) — ask directly rather than re-deriving from tooling.
 
 ### Phase 0 — Deploy, monitor, and close two human-only questions (blocking)
 1. ~~Deploy the checkout fix~~ — **done, 2026-07-25.** PR #96 merged (`be9436c`), Oxygen deploy succeeded, re-verified live on production against a real cart (hung-fetch repro, navigation still succeeds).
@@ -214,8 +226,8 @@ implement next session — see the sub-bullets under #13.
 ### Phase 2 — thefeed.com-informed UX fixes (concrete, code-level, ready to scope without new instrumentation)
 From `docs/THEFEED_COMPETITIVE_TEARDOWN_2026_07.md`, in priority order:
 7. ~~Out-of-stock → cross-sell banner~~ — **already shipped, this doc was stale.** PR #83 ("feat(pdp): surface in-stock alternatives immediately when out of stock") merged to `tienda` **2026-07-24**, a day before this plan was written — confirmed live on current `origin/tienda` (`app/routes/($locale).products.$productHandle.tsx`, `isOutOfStock` at line 459, disabled "Agotado" button + `ComplementaryProducts` banner at lines 602-634). A follow-up fix (`98e532c`) also patched a Codex-flagged bug where the fallback recommendations weren't filtered to in-stock items. **One real gap remains**: thefeed shows this pattern *twice* (above the fold and near the buy box); tienda only has the near-buy-box instance — `ProductGallery.tsx` has no above-the-fold OOS banner. Small follow-up if wanted (~20-40 lines, reuses the existing `recommended` promise + `ComplementaryProducts`, no new data/metafield needed), not urgent since the core fix (a recovery path existing at all) is already live.
-8. ~~PLP quick-add-to-cart~~ — **already shipped, this doc was stale.** `ProductCard.tsx`'s `quickAddToCart` prop defaults `true` (line 42), and `AddToCartButton` renders directly on the card (lines 178/223) whenever a variant can be resolved without a size/option picker. No action needed.
-9. ~~Okendo review placement~~ — **already satisfies the bar.** `OkendoStarRating` renders inline near the top of the PDP (line 541-545, no click/scroll gate), and the full `OkendoReviews` widget renders directly in the DOM (lines 1035-1044, plain conditional render behind an `<hr>` divider, not behind an accordion/tab/lazy-click). It's further down the page than thefeed's inline 2-3-review teaser, but that's normal placement for a full review list, not a gated interaction. No action needed.
+8. **PLP quick-add-to-cart — corrected 2026-07-26 after Codex review caught an incomplete audit.** `quickAddToCart` does default `true` (`ProductCard.tsx` line 42) and `AddToCartButton` does render on the card, but the wrapping div (lines 227-230) is `opacity-0 invisible group-hover:opacity-100 group-hover:visible` — a hover-only reveal. Hover doesn't exist as a reliable interaction on touch devices, and mobile is 88-96% of traffic (Sidekick 11.2), so the dominant path has no visible quick-add affordance despite the code being "shipped." **Real gap, action needed**: gate the hover-only styling behind `@media (hover: hover)` (or equivalent) so desktop keeps the hover reveal and mobile shows the button by default. Not yet sized/scoped — do that next session alongside #13.
+9. **Okendo review placement — corrected 2026-07-26 after Codex review caught an incomplete audit.** Confirmed true: reviews aren't gated behind a click/accordion/tab. Not confirmed, and actually false in the common case: `ProductReviews` renders in route `($locale).products.$productHandle.tsx` *after* `PdpEnhancedSection` (line 363) and `ProductFeatureBlocks` (line 369) — both optional, per-product, metafield-driven full-width sections sitting below the two-column buy-box layout (which closes at line 360). For any product with enhanced/feature content populated, the first review can land several full-width sections below the buy box, not adjacent to it like thefeed's inline teaser. **Real gap, needs a product-strategy call, not a pure code fix**: move reviews above the enhanced/feature sections (closer to the buy box) vs. accept current order as an intentional trade-off for content-rich PDPs. Flag for next session — don't just re-order without checking why enhanced/feature content was placed there first (may be deliberate storytelling-before-social-proof sequencing).
 10. **`/collections/bicicletas-estaticas-y-spinning` CRO** — this collection page is the one item in the whole investigation with two independent measurements agreeing it's a problem (Shopify Sidekick's 82.5% claim + our own GA4 pull at 84.07%, FINDINGS.md 11.2). Concrete first target: clearer above-the-fold CTAs/trust signals, and check whether the social-ad creative driving traffic here actually matches the page content.
 11. **Container side-gutter decision** (96px tienda vs. 24px thefeed at 1536px — THEFEED_COMPETITIVE_TEARDOWN.md CSS table) — a real, measurable, easily-adjustable difference in how much content is visible above the fold, but may be an intentional spacious/premium design choice. **Ask before changing**, don't auto-fix.
 12. **Deferred, needs assets not code**: hero image compositing (product cutout + radial-gradient spotlight layered over the background photo) — needs isolated product photography that doesn't exist yet for any tienda product. Flag for whenever there's a photography budget, not this phase.
