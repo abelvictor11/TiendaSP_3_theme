@@ -219,6 +219,7 @@ export default function Product() {
     product.selectedOrFirstAvailableVariant,
     variants,
   );
+  const isOutOfStock = !selectedVariant?.availableForSale;
   // Sets the search param to the selected variant without navigation
   // only when no search params are set in the url
   useSelectedOptionInUrlParam(selectedVariant.selectedOptions);
@@ -261,6 +262,36 @@ export default function Product() {
                 className="absolute top-3 end-3 z-10 !w-10 !h-10"
               />
             </div>
+
+            {/* Above-the-fold OOS alternatives — thefeed shows this pattern
+                twice (here + near the buy box below); on mobile the buy box
+                is a long scroll away, so a customer landing on an
+                out-of-stock product via a shared/ad link otherwise sees
+                nothing actionable until they scroll past the gallery. Same
+                recommended promise + ComplementaryProducts as the near-buy-box
+                instance, just without the redundant disabled "Agotado" button. */}
+            {isOutOfStock && (
+              <Suspense fallback={null}>
+                <Await resolve={recommended}>
+                  {(products) => {
+                    const alternatives = products.nodes.slice(0, 2);
+                    if (!alternatives.length) return null;
+                    return (
+                      <div className="mt-4 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <p className="px-4 pt-3 text-sm font-medium text-slate-600 dark:text-slate-300">
+                          Este producto está agotado. ¿Buscas algo similar? Mira
+                          estas alternativas disponibles:
+                        </p>
+                        <ComplementaryProducts
+                          products={alternatives}
+                          hideHeader
+                        />
+                      </div>
+                    );
+                  }}
+                </Await>
+              </Suspense>
+            )}
 
             {/* Description below thumbnails - only on desktop */}
             {!!descriptionHtml && (
