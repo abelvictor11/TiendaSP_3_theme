@@ -1,4 +1,5 @@
 import {Image} from '@shopify/hydrogen';
+import clsx from 'clsx';
 import {Link} from '~/components/Link';
 import type {SectionIntroFeatureFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
@@ -33,15 +34,26 @@ export function SectionIntroFeature(props: SectionIntroFeatureFragment) {
   // Position: default 'left' means text on left, image on right
   const isTextRight = text_position?.value?.toLowerCase() === 'right';
 
+  // Own vertical padding only earns its keep when this section actually
+  // renders as a distinct colored box -- otherwise (the common case, white
+  // background matching the page) it was just extra whitespace stacking on
+  // top of the shared space-y gap between homepage sections
+  // (app/sections/Sections.tsx). Merchant-configurable via background_color,
+  // so this has to be a runtime check, not a hardcoded assumption.
+  const hasCustomBackground = bgColor.toLowerCase() !== '#ffffff';
+
   // Image data - after parseSection lifts 'reference', structure is image.image
   const imageField = image as any;
   const imageData = imageField?.image;
   const imageUrl = imageData?.url;
 
   return (
-    <section 
-      id="section-intro-feature" 
-      className="nc-SectionIntroFeature py-12 lg:py-20"
+    <section
+      id="section-intro-feature"
+      className={clsx(
+        'nc-SectionIntroFeature',
+        hasCustomBackground && 'py-12 lg:py-20',
+      )}
       style={{backgroundColor: bgColor}}
     >
       <div className="container">

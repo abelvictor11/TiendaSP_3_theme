@@ -1,4 +1,5 @@
 import {Link} from '@remix-run/react';
+import clsx from 'clsx';
 import {useMemo} from 'react';
 import {normalizeBrandKey} from '~/utils/brandKey';
 
@@ -21,6 +22,14 @@ export function SectionBrandsTicker(props: any) {
 
   const bgColor = background_color?.value || '#ffffff';
   const animationSpeed = speed?.value || '30'; // seconds
+  // Own vertical padding only earns its keep when this section renders as a
+  // distinct colored box -- currently true live (merchant has this set to
+  // #f7f7f7, a subtle off-white distinct from the page's pure white), so
+  // this preserves today's look exactly. If it's ever set back to white/
+  // left unset, this drops to relying on the shared space-y gap between
+  // homepage sections (app/sections/Sections.tsx) instead of stacking
+  // redundant extra whitespace on top of it.
+  const hasCustomBackground = bgColor.toLowerCase() !== '#ffffff';
 
   // Parse brands data - comes from references
   const brandsData = brands?.references?.nodes || [];
@@ -100,7 +109,10 @@ export function SectionBrandsTicker(props: any) {
 
   return (
     <section
-      className="nc-SectionBrandsTicker py-8 lg:py-12 overflow-hidden"
+      className={clsx(
+        'nc-SectionBrandsTicker overflow-hidden',
+        hasCustomBackground && 'py-8 lg:py-12',
+      )}
       style={{backgroundColor: bgColor}}
     >
       {/* Title */}
