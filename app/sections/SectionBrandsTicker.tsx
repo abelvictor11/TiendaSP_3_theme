@@ -26,10 +26,19 @@ export function SectionBrandsTicker(props: any) {
   // distinct colored box -- currently true live (merchant has this set to
   // #f7f7f7, a subtle off-white distinct from the page's pure white), so
   // this preserves today's look exactly. If it's ever set back to white/
-  // left unset, this drops to relying on the shared space-y gap between
-  // homepage sections (app/sections/Sections.tsx) instead of stacking
-  // redundant extra whitespace on top of it.
-  const hasCustomBackground = bgColor.toLowerCase() !== '#ffffff';
+  // transparent/left unset, this drops to relying on the shared space-y gap
+  // between homepage sections (app/sections/Sections.tsx) instead of
+  // stacking redundant extra whitespace on top of it. Same transparent/
+  // #ffffff/#fff check already used by sibling sections (e.g.
+  // SectionInstagramFeed, SectionCategoryCardsCarousel); kept
+  // case-insensitive here too since a merchant-entered value isn't
+  // guaranteed to come back in the exact casing those checks compare against.
+  const normalizedBg = bgColor.trim().toLowerCase();
+  const hasCustomBackground =
+    !!normalizedBg &&
+    normalizedBg !== 'transparent' &&
+    normalizedBg !== '#ffffff' &&
+    normalizedBg !== '#fff';
 
   // Parse brands data - comes from references
   const brandsData = brands?.references?.nodes || [];

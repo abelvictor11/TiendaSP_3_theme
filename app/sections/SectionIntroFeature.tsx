@@ -39,8 +39,18 @@ export function SectionIntroFeature(props: SectionIntroFeatureFragment) {
   // background matching the page) it was just extra whitespace stacking on
   // top of the shared space-y gap between homepage sections
   // (app/sections/Sections.tsx). Merchant-configurable via background_color,
-  // so this has to be a runtime check, not a hardcoded assumption.
-  const hasCustomBackground = bgColor.toLowerCase() !== '#ffffff';
+  // so this has to be a runtime check, not a hardcoded assumption. Same
+  // transparent/#ffffff/#fff check already used by sibling sections (e.g.
+  // SectionInstagramFeed, SectionCategoryCardsCarousel) for the same
+  // "does this actually need internal padding" question -- kept
+  // case-insensitive here too, since a merchant-entered value isn't
+  // guaranteed to come back in the exact casing those checks compare against.
+  const normalizedBg = bgColor.trim().toLowerCase();
+  const hasCustomBackground =
+    !!normalizedBg &&
+    normalizedBg !== 'transparent' &&
+    normalizedBg !== '#ffffff' &&
+    normalizedBg !== '#fff';
 
   // Image data - after parseSection lifts 'reference', structure is image.image
   const imageField = image as any;
