@@ -73,6 +73,15 @@ export async function loader({request, context}: LoaderFunctionArgs) {
 // like "S/M"), which worked before this change. Verified: query "S/M"
 // without VARIANTS_TITLE silently dropped 3 real helmets that only match via
 // their size variant; restored with VARIANTS_TITLE present.
+//
+// limit raised from 6 to 10: a short/generic reference fragment (e.g. a
+// component family code) can legitimately match many products across
+// different vendors/categories, and Shopify's predictiveSearch relevance
+// ranking doesn't reliably sort the match the customer actually meant ahead
+// of the others — the Storefront API doesn't expose a relevance-boosting/
+// re-ranking parameter to fix the ORDER. Raising the limit is a partial
+// mitigation (more room for the relevant result to still appear even when
+// several unrelated matches also rank in the top slots), not a full fix.
 const PREDICTIVE_SEARCH_QUERY = `#graphql
   query PredictiveSearch(
     $searchTerm: String!
@@ -82,7 +91,7 @@ const PREDICTIVE_SEARCH_QUERY = `#graphql
     predictiveSearch(
       query: $searchTerm,
       types: [PRODUCT, COLLECTION],
-      limit: 6,
+      limit: 10,
       limitScope: EACH,
       searchableFields: [TITLE, VARIANTS_TITLE, VARIANTS_SKU, VARIANTS_BARCODE, PRODUCT_TYPE, VENDOR, TAG]
     ) {
