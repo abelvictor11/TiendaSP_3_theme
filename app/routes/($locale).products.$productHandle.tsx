@@ -70,6 +70,20 @@ import {getLegacyRedirectTarget} from '~/lib/legacyRedirects.server';
 
 export const headers = routeHeaders;
 
+async function queryWithRetry<T>(
+  fn: () => Promise<T>,
+  retries = 1,
+  delayMs = 200,
+): Promise<T> {
+  try {
+    return await fn();
+  } catch (error) {
+    if (retries <= 0) throw error;
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    return queryWithRetry(fn, retries - 1, delayMs);
+  }
+}
+
 export async function loader(args: LoaderFunctionArgs) {
   const {params} = args;
   const {productHandle} = params;
@@ -105,7 +119,11 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
     throw new Error('Expected product handle to be defined');
   }
 
-  const [{shop, product}] = await Promise.all([
+  // Unlike recommended/routePromise/helpBannerPromise, this query can't fall
+  // back to null on failure — the whole page depends on it. A single retry
+  // absorbs a brief Storefront API blip instead of sending every product
+  // page to the generic error boundary for it.
+  const {shop, product} = await queryWithRetry(() =>
     context.storefront.query(PRODUCT_QUERY, {
       variables: {
         handle: productHandle,
@@ -114,7 +132,7 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
         language: context.storefront.i18n.language,
       },
     }),
-  ]);
+  );
 
   if (!product?.id) {
     // Fall back to legacyRedirects.json before 404ing: this route is more
@@ -219,6 +237,14 @@ export default function Product() {
     product.selectedOrFirstAvailableVariant,
     variants,
   );
+  const isOutOfStock = !selectedVariant?.availableForSale;
+  // Distinct from isOutOfStock above: that's about the currently-selected
+  // variant specifically (drives the disabled "Agotado" add-to-cart button);
+  // this is whether the product has ANY purchasable variant at all (drives
+  // the "sold out, here are alternatives" messaging below, which shouldn't
+  // fire just because the default/selected variant is OOS while a different
+  // option is still in stock).
+  const productSoldOut = !product.availableForSale;
   // Sets the search param to the selected variant without navigation
   // only when no search params are set in the url
   useSelectedOptionInUrlParam(selectedVariant.selectedOptions);
@@ -241,7 +267,10 @@ export default function Product() {
   return (
     <div
       className={clsx(
-        'product-page mt-5 lg:mt-10 pb-20 lg:pb-28 space-y-12 sm:space-y-16',
+        // pb-32 (vs. the lg:pb-28 desktop value) reserves clearance for the
+        // mobile-only FixedAddToCartBar below so it doesn't overlap the
+        // page's last content/footer on scroll.
+        'product-page mt-5 lg:mt-10 pb-32 lg:pb-28 space-y-12 sm:space-y-16',
       )}
     >
       <main className="container">
@@ -261,6 +290,41 @@ export default function Product() {
                 className="absolute top-3 end-3 z-10 !w-10 !h-10"
               />
             </div>
+
+            {/* Above-the-fold OOS alternatives — thefeed shows this pattern
+                twice (here + near the buy box below); on mobile the buy box
+                is a long scroll away, so a customer landing on an
+                out-of-stock product via a shared/ad link otherwise sees
+                nothing actionable until they scroll past the gallery. Same
+                recommended promise + ComplementaryProducts as the near-buy-box
+                instance, just without the redundant disabled "Agotado" button.
+                Gated on productSoldOut (product-wide), not isOutOfStock
+                (selected-variant-only) — a customer who landed on an
+                out-of-stock color/size of an otherwise-in-stock product
+                shouldn't be told to look at unrelated alternatives instead
+                of just picking a different option on this same page. */}
+            {productSoldOut && (
+              <Suspense fallback={null}>
+                <Await resolve={recommended}>
+                  {(products) => {
+                    const alternatives = products.nodes.slice(0, 2);
+                    if (!alternatives.length) return null;
+                    return (
+                      <div className="mt-4 rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                        <p className="px-4 pt-3 text-sm font-medium text-slate-600 dark:text-slate-300">
+                          Este producto está agotado. ¿Buscas algo similar? Mira
+                          estas alternativas disponibles:
+                        </p>
+                        <ComplementaryProducts
+                          products={alternatives}
+                          hideHeader
+                        />
+                      </div>
+                    );
+                  }}
+                </Await>
+              </Suspense>
+            )}
 
             {/* Description below thumbnails - only on desktop */}
             {!!descriptionHtml && (
@@ -457,6 +521,9 @@ export function ProductForm({
   const [quantity, setQuantity] = useState(1);
 
   const isOutOfStock = !selectedVariant?.availableForSale;
+  // See the identical comment in Product() above — product-wide vs.
+  // selected-variant-only availability.
+  const productSoldOut = !product.availableForSale;
 
   const status = getProductStatus({
     availableForSale: !!selectedVariant?.availableForSale,
@@ -606,31 +673,40 @@ export function ProductForm({
                 <span className="ms-2">Agotado</span>
               </ButtonSecondary>
 
-              {/* Alternativas — sin esto el cliente llega a un callejón sin
-                  salida; el mismo mecanismo de "Equípate al completo" (más
-                  abajo, dentro de un accordion siempre colapsado) ya trae
-                  estos datos, solo lo mostramos de inmediato junto al botón
-                  deshabilitado en vez de exigir un click adicional. */}
-              <Suspense fallback={null}>
-                <Await resolve={recommended}>
-                  {(products) => {
-                    const alternatives = products.nodes.slice(0, 2);
-                    if (!alternatives.length) return null;
-                    return (
-                      <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                        <p className="px-4 pt-3 text-sm font-medium text-slate-600 dark:text-slate-300">
-                          ¿Buscas algo similar? Mira estas alternativas
-                          disponibles:
-                        </p>
-                        <ComplementaryProducts
-                          products={alternatives}
-                          hideHeader
-                        />
-                      </div>
-                    );
-                  }}
-                </Await>
-              </Suspense>
+              {/* Alternativas — solo cuando TODO el producto está agotado
+                  (productSoldOut), no cuando la variante seleccionada lo
+                  está pero otras opciones del mismo producto siguen
+                  disponibles (en ese caso el swatch/selector de opciones
+                  arriba ya muestra cuáles siguen disponibles — mandar al
+                  cliente a "alternativas" no relacionadas sería peor que no
+                  decir nada). Sin esto el cliente llega a un callejón sin
+                  salida cuando sí aplica; el mismo mecanismo de "Equípate al
+                  completo" (más abajo, dentro de un accordion siempre
+                  colapsado) ya trae estos datos, solo lo mostramos de
+                  inmediato junto al botón deshabilitado en vez de exigir un
+                  click adicional. */}
+              {productSoldOut && (
+                <Suspense fallback={null}>
+                  <Await resolve={recommended}>
+                    {(products) => {
+                      const alternatives = products.nodes.slice(0, 2);
+                      if (!alternatives.length) return null;
+                      return (
+                        <div className="rounded-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
+                          <p className="px-4 pt-3 text-sm font-medium text-slate-600 dark:text-slate-300">
+                            ¿Buscas algo similar? Mira estas alternativas
+                            disponibles:
+                          </p>
+                          <ComplementaryProducts
+                            products={alternatives}
+                            hideHeader
+                          />
+                        </div>
+                      );
+                    }}
+                  </Await>
+                </Suspense>
+              )}
             </>
           ) : (
             <div className="flex gap-2 sm:gap-3.5 items-stretch">
@@ -665,6 +741,20 @@ export function ProductForm({
               </div>
             </div>
           )}
+
+          {/* Fixed Add to Cart Bar — mobile only. Inline button above
+              scrolls out of view quickly on mobile's long single-column
+              layout; this keeps Add to Cart reachable without scrolling
+              back up. Shares this component's own `quantity`/`selectedVariant`
+              state so a quantity picked above the fold is respected here too. */}
+          {!isOutOfStock && (
+            <FixedAddToCartBar
+              selectedVariant={selectedVariant}
+              quantity={quantity}
+              onOpenCart={() => open('cart')}
+            />
+          )}
+
           {/* {!isOutOfStock && (
             <ShopPayButton
               width="100%"
@@ -682,6 +772,79 @@ export function ProductForm({
         </div>
       )}
     </>
+  );
+}
+
+// ─── Fixed Add to Cart Bar (mobile only) ────────────────────────────────────
+
+function FixedAddToCartBar({
+  selectedVariant,
+  quantity,
+  onOpenCart,
+}: {
+  selectedVariant: ProductFragment['selectedOrFirstAvailableVariant'];
+  quantity: number;
+  onOpenCart: () => void;
+}) {
+  const {product} = useLoaderData<typeof loader>();
+
+  if (!selectedVariant?.availableForSale) return null;
+
+  return (
+    <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]">
+      <div className="container flex items-center justify-between py-3 gap-3">
+        {/* Product info */}
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          {selectedVariant?.image?.url && (
+            // Hidden below sm: on narrow phones the 48px thumbnail leaves
+            // too little room for the price next to a non-shrinking CTA
+            // button (Colombian prices like "$15.000.000,00" don't wrap
+            // within a single unbreakable span) — dropping it here frees
+            // that width for the price instead.
+            <img
+              src={selectedVariant.image.url}
+              alt={product.title}
+              className="hidden sm:block w-12 h-12 object-contain rounded-lg border border-slate-100 dark:border-slate-700 flex-shrink-0"
+            />
+          )}
+          <div className="min-w-0 overflow-hidden">
+            <p className="text-sm font-semibold text-slate-900 dark:text-white truncate">
+              {product.title}
+            </p>
+            <Prices
+              contentClass="text-sm font-bold"
+              price={selectedVariant?.price}
+              compareAtPrice={selectedVariant?.compareAtPrice}
+            />
+          </div>
+        </div>
+
+        {/* Add to Cart */}
+        <div className="flex-shrink-0">
+          <AddToCartButton
+            lines={[
+              {
+                merchandiseId: selectedVariant.id!,
+                quantity,
+                selectedVariant,
+              },
+            ]}
+            className="w-full"
+            data-test="fixed-add-to-cart"
+            onClick={onOpenCart}
+          >
+            <ButtonPrimary
+              as="span"
+              className="flex items-center justify-center gap-3"
+              sizeClass="py-3 px-4 sm:px-8"
+            >
+              <BagIcon className="hidden sm:inline-block w-5 h-5 mb-0.5" />
+              <span>Agregar al carrito</span>
+            </ButtonPrimary>
+          </AddToCartButton>
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -1094,6 +1257,13 @@ const PRODUCT_FRAGMENT = `#graphql
       descriptionHtml
       description
       publishedAt
+      # true if ANY variant is purchasable -- distinct from a given
+      # selectedVariant's own availableForSale. Used to gate "this product
+      # is sold out, here are alternatives" messaging so it doesn't fire
+      # just because the currently-selected/default variant happens to be
+      # out of stock while a different option (e.g. another size/color) is
+      # still purchasable.
+      availableForSale
       encodedVariantExistence
       encodedVariantAvailability
       collections(first: 1) {

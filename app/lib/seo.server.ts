@@ -24,6 +24,7 @@ import type {
 } from 'schema-dts';
 
 import type {ShopFragment} from 'storefrontapi.generated';
+import {stripLocalePrefix} from './utils';
 
 /**
  * Shared store identity used across JSON-LD blocks that need to describe
@@ -31,6 +32,20 @@ import type {ShopFragment} from 'storefrontapi.generated';
  * fallback) without re-deriving it or drifting out of sync.
  */
 const SHOP_NAME = 'Tienda Fitness';
+
+/**
+ * Every seoPayload function receives the visited request URL, which may
+ * carry a fake-locale prefix (/en-au/..., etc -- see app/data/countries.ts).
+ * Only the default (unprefixed) locale is a real market, so canonical URLs,
+ * breadcrumbs, and JSON-LD identity fields must never echo one of those
+ * prefixes back out to search engines. Strip it once, up front, in every
+ * entry point below.
+ */
+function canonicalizeUrl(url: Request['url']): Request['url'] {
+  const parsed = new URL(url);
+  parsed.pathname = stripLocalePrefix(parsed.pathname);
+  return parsed.toString();
+}
 const SHOP_SOCIAL_LINKS = [
   'https://www.instagram.com/tiendafitness.co/',
   'https://www.facebook.com/profile.php?id=61581462937015',
@@ -45,6 +60,7 @@ function root({
   shop: ShopFragment;
   url: Request['url'];
 }): SeoConfig {
+  url = canonicalizeUrl(url);
   const origin = new URL(url).origin;
   const siteUrl = `${origin}/`;
   return {
@@ -82,6 +98,7 @@ function root({
 }
 
 function home({url}: {url: Request['url']}): SeoConfig {
+  url = canonicalizeUrl(url);
   return {
     title: 'Equipos de Gimnasio y Máquinas de Ejercicio',
     titleTemplate: '%s | Tienda Fitness',
@@ -219,6 +236,16 @@ function productJsonLd({
   url: Request['url'];
 }): SeoConfig['jsonLd'] {
   const origin = new URL(url).origin;
+  // Top-level identity fields (breadcrumb item, Product.url) should be the
+  // canonical product URL without query strings -- selected-option/UTM/etc
+  // params on the visited URL would otherwise make every variant/campaign
+  // combination look like a distinct JSON-LD identity. Per-variant Offer.url
+  // below is different: it *intentionally* keeps the selectedOptions query
+  // string, since that's what actually distinguishes one variant's offer
+  // from another.
+  const identityUrl = new URL(url);
+  identityUrl.search = '';
+  const canonicalUrl = identityUrl.toString();
   const variants = product.variants;
   const description = productDescription(product);
   const aggregateRating = parseAggregateRating(product);
@@ -255,7 +282,7 @@ function productJsonLd({
           '@type': 'ListItem',
           position: 2,
           name: product.title,
-          item: url,
+          item: canonicalUrl,
         },
       ],
     },
@@ -271,7 +298,7 @@ function productJsonLd({
       name: product.title,
       offers,
       sku: selectedVariant?.sku ?? '',
-      url,
+      url: canonicalUrl,
       ...(aggregateRating
         ? {
             aggregateRating: {
@@ -300,6 +327,7 @@ function product({
   selectedVariant: SelectedVariantRequiredFields;
   url: Request['url'];
 }): SeoConfig {
+  url = canonicalizeUrl(url);
   const description = productDescription(product);
   const rawTitle = product?.seo?.title ?? product?.title;
   return {
@@ -400,6 +428,7 @@ function collection({
   collection: CollectionRequiredFields;
   url: Request['url'];
 }): SeoConfig {
+  url = canonicalizeUrl(url);
   const rawTitle = collection?.seo?.title ?? collection?.title;
   return {
     title: rawTitle ? stripBrandSuffix(rawTitle) : rawTitle,
@@ -459,6 +488,7 @@ function listCollections({
   collections: CollectionListRequiredFields;
   url: Request['url'];
 }): SeoConfig {
+  url = canonicalizeUrl(url);
   return {
     title: 'Colecciones',
     titleTemplate: '%s | Tienda Fitness',
@@ -487,6 +517,7 @@ function article({
   };
   url: Request['url'];
 }): SeoConfig {
+  url = canonicalizeUrl(url);
   const origin = new URL(url).origin;
   const siteUrl = `${origin}/`;
   const rawTitle = article?.seo?.title ?? article?.title;
@@ -539,6 +570,7 @@ function blog({
   blog: Pick<Blog, 'seo' | 'title'>;
   url: Request['url'];
 }): SeoConfig {
+  url = canonicalizeUrl(url);
   const rawTitle = blog?.seo?.title ?? blog?.title;
   return {
     title: rawTitle ? stripBrandSuffix(rawTitle) : rawTitle,
@@ -568,6 +600,7 @@ function city({
   city: CityRequiredFields;
   url: Request['url'];
 }): SeoConfig {
+  url = canonicalizeUrl(url);
   const title = `Equipos de Gimnasio en ${city.name}`;
   const description = truncate(
     `Compra equipos de gimnasio, máquinas de ejercicio y accesorios fitness con envío a ${city.name}, ${city.department}. ${city.paragraph}`,
@@ -598,6 +631,7 @@ function page({
   page: Pick<Page, 'title' | 'seo'>;
   url: Request['url'];
 }): SeoConfig {
+  url = canonicalizeUrl(url);
   const description = truncate(page?.seo?.description || '');
   const rawTitle = page?.seo?.title ?? page?.title;
   const title = rawTitle ? stripBrandSuffix(rawTitle) : rawTitle;
@@ -656,6 +690,7 @@ function brands({
   url: Request['url'];
   brands: BrandListRequiredFields;
 }): SeoConfig {
+  url = canonicalizeUrl(url);
   return {
     title: 'Marcas',
     titleTemplate: '%s | Tienda Fitness',
@@ -677,6 +712,7 @@ function policy({
   policy: Pick<ShopPolicy, 'title' | 'body'>;
   url: Request['url'];
 }): SeoConfig {
+  url = canonicalizeUrl(url);
   const description = truncate(policy?.body ?? '');
   const rawTitle = policy?.title;
   const title = rawTitle ? stripBrandSuffix(rawTitle) : rawTitle;
@@ -702,6 +738,7 @@ function policies({
   policies: Array<Pick<ShopPolicy, 'title' | 'handle'>>;
   url: Request['url'];
 }): SeoConfig {
+  url = canonicalizeUrl(url);
   const origin = new URL(url).origin;
   const itemListElement: BreadcrumbList['itemListElement'] = policies
     .filter(Boolean)

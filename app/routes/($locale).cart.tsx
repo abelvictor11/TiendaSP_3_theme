@@ -31,7 +31,11 @@ import type {
   CartDiscountCode,
   CartLineUpdateInput,
 } from '@shopify/hydrogen/storefront-api-types';
-import {CartLinePrice, ItemRemoveButton} from '~/components/Cart';
+import {
+  CartLinePrice,
+  ItemRemoveButton,
+  CheckoutTrustSignal,
+} from '~/components/Cart';
 import ButtonPrimary from '~/components/Button/ButtonPrimary';
 import clsx from 'clsx';
 import PageHeader from '~/components/PageHeader';
@@ -308,7 +312,13 @@ function CartSummary({
       item_id: line?.merchandise?.id,
       item_name: line?.merchandise?.product?.title,
       item_variant: line?.merchandise?.title,
-      price: parseFloat(line?.cost?.totalAmount?.amount ?? '0'),
+      // Unit price, not line total — matches CustomAnalytics.tsx's view_cart
+      // handler, which already divides for the same reason. This was line
+      // total (unit price x quantity) undivided, inflating the per-item
+      // price sent to GA4/Meta/TikTok for any line with quantity > 1.
+      price:
+        parseFloat(line?.cost?.totalAmount?.amount ?? '0') /
+        (line?.quantity || 1),
       quantity: line?.quantity,
     }));
     const contentIds = items.map((i) => i.item_id).filter(Boolean);
@@ -468,6 +478,7 @@ function CartSummary({
           Finalizar compra
         </ButtonPrimary>
       </a>
+      <CheckoutTrustSignal className="mt-3" />
       <div className="mt-5 text-sm text-slate-500 flex items-center justify-center">
         <p className="block relative pl-5">
           <svg

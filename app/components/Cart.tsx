@@ -20,12 +20,32 @@ import Prices from './Prices';
 import ButtonPrimary from './Button/ButtonPrimary';
 import ButtonSecondary from './Button/ButtonSecondary';
 import {ArrowLeftIcon} from '@heroicons/react/24/solid';
+import {ShieldCheckIcon} from '@heroicons/react/24/outline';
 import {useVariantUrl} from '~/lib/variants';
 import {useAside} from './Aside';
 import type {MouseEvent} from 'react';
 import {decorateCheckoutUrl} from '~/lib/checkoutContinuity';
 import {trackCheckoutStarted} from '~/components/CustomAnalytics';
 import {FREE_SHIPPING_THRESHOLD_COP} from '~/lib/const';
+
+/**
+ * Compact, asset-free trust signal shown next to the checkout CTA. No
+ * payment-provider logos exist as image assets in this repo, so this names
+ * the store's actual live gateways (per the Shopify order data: Addi,
+ * Mercado Pago, and Sistecredito together are the large majority of real
+ * checkout volume) as plain text next to a lock/shield icon, rather than
+ * fabricating or omitting logos.
+ */
+export function CheckoutTrustSignal({className = ''}: {className?: string}) {
+  return (
+    <p
+      className={`flex items-center justify-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 ${className}`}
+    >
+      <ShieldCheckIcon className="w-4 h-4 flex-shrink-0" />
+      Pago 100% seguro con Mercado Pago, Addi, Sistecredito y más
+    </p>
+  );
+}
 
 export function Cart({
   onClose,
@@ -182,6 +202,7 @@ function CartSummary({
             <ButtonPrimary className="flex-1">Finalizar compra</ButtonPrimary>
           </a>
         </div>
+        <CheckoutTrustSignal className="mt-3" />
         <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
           <p>
             o{' '}

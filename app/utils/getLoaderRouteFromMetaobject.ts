@@ -13,11 +13,14 @@ export const getLoaderRouteFromMetaobject = async ({
 }: LoaderFunctionArgs & {
   handle: string;
   pageBy?: number;
-  // Defaults to no caching, since this same query also drives
-  // filter/pagination-heavy routes (collections, search) and the PDP,
-  // where every request should see current inventory/pricing. Pure
-  // marketing-content routes (homepage, /stores, /home-2, /news) opt into
-  // a short cache explicitly at the call site instead.
+  // Defaults to CacheShort() (1s fresh / 9s stale-while-revalidate) on
+  // every caller, including filter/pagination-heavy routes (collections,
+  // search) and the PDP. Some section types this query can return
+  // (SectionProductsSlider, SectionProductShowcase, SectionProductCarousel)
+  // embed CommonProductCard -- live price/availableForSale data -- so this
+  // isn't risk-free, but a 9s worst-case staleness window on that data is
+  // bounded and small. Override per call site only if a specific route
+  // genuinely needs stricter freshness than that.
   cacheStrategy?: CachingStrategy;
 }) => {
   const {storefront} = context;
@@ -40,7 +43,7 @@ export const getLoaderRouteFromMetaobject = async ({
       country: context.storefront.i18n.country,
       language: context.storefront.i18n.language,
     },
-    cache: cacheStrategy || storefront.CacheNone(),
+    cache: cacheStrategy || storefront.CacheShort(),
   });
 
   return {route};

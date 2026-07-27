@@ -180,7 +180,7 @@ const ProductCard: FC<ProductCardProps> = ({
     }
 
     return (
-      <div className="absolute bottom-0 inset-x-3 gap-1.5 flex justify-center opacity-0 invisible group-hover:bottom-4 group-hover:opacity-100 group-hover:visible transition-all">
+      <div className="absolute bottom-0 inset-x-3 gap-1.5 flex justify-center [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:invisible group-hover:bottom-4 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:visible transition-all">
         <div className="flex justify-center flex-wrap gap-1.5">
           {sizes.map((size, index) => {
             if (index >= 4) {
@@ -224,7 +224,7 @@ const ProductCard: FC<ProductCardProps> = ({
       return null;
     }
     return (
-      <div className="absolute bottom-0 group-hover:bottom-4 inset-x-1 flex justify-center opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+      <div className="absolute bottom-0 group-hover:bottom-4 inset-x-1 flex justify-center [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:invisible [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-hover:visible transition-all">
         {firstVariant.availableForSale && (
           <ClientOnly>
             <AddToCartButton
@@ -300,8 +300,11 @@ const ProductCard: FC<ProductCardProps> = ({
               )}
             </div>
           </Link>
-          {/* Badges de estado - fila horizontal */}
-          <div className="absolute top-3 start-3 z-10 flex flex-row items-center gap-1.5">
+          {/* Badges de estado - fila horizontal. flex-wrap + end-12 (deja
+              espacio al botón de favoritos en la esquina) para que 3+ badges
+              simultáneos (Oferta + envío rápido + envío gratis) pasen a una
+              segunda línea en vez de desbordarse fuera de la tarjeta. */}
+          <div className="absolute top-3 start-3 end-12 z-10 flex flex-row flex-wrap items-center gap-1.5">
             <ProductBadge
               status={getProductStatus({
                 availableForSale: product.availableForSale,

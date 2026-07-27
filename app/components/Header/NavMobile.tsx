@@ -7,7 +7,6 @@ import {
 import SocialsList from '../SocialsList';
 import {Disclosure, DisclosureButton, DisclosurePanel} from '@headlessui/react';
 import {Link, useRouteLoaderData} from '@remix-run/react';
-import LangDropdown from './LangDropdown';
 import {HeaderMenuDataWrap} from '../Layout';
 import type {RootLoader} from '~/root';
 import {SearchAutocomplete} from '../SearchAutocomplete';
@@ -141,9 +140,6 @@ const NavMobile: React.FC<NavMobileProps> = ({onClose}) => {
           }}
         </HeaderMenuDataWrap>
       </ul>
-      <div className="flex items-center justify-between py-6 gap-x-2">
-        <LangDropdown className="border rounded-full" />
-      </div>
     </div>
   );
 };
