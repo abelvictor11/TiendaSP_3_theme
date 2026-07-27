@@ -70,6 +70,20 @@ import {getLegacyRedirectTarget} from '~/lib/legacyRedirects.server';
 
 export const headers = routeHeaders;
 
+async function queryWithRetry<T>(
+  fn: () => Promise<T>,
+  retries = 1,
+  delayMs = 200,
+): Promise<T> {
+  try {
+    return await fn();
+  } catch (error) {
+    if (retries <= 0) throw error;
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    return queryWithRetry(fn, retries - 1, delayMs);
+  }
+}
+
 export async function loader(args: LoaderFunctionArgs) {
   const {params} = args;
   const {productHandle} = params;
@@ -105,14 +119,20 @@ async function loadCriticalData(args: LoaderFunctionArgs) {
     throw new Error('Expected product handle to be defined');
   }
 
-  const {shop, product} = await context.storefront.query(PRODUCT_QUERY, {
-    variables: {
-      handle: productHandle,
-      selectedOptions,
-      country: context.storefront.i18n.country,
-      language: context.storefront.i18n.language,
-    },
-  });
+  // Unlike recommended/routePromise/helpBannerPromise, this query can't fall
+  // back to null on failure — the whole page depends on it. A single retry
+  // absorbs a brief Storefront API blip instead of sending every product
+  // page to the generic error boundary for it.
+  const {shop, product} = await queryWithRetry(() =>
+    context.storefront.query(PRODUCT_QUERY, {
+      variables: {
+        handle: productHandle,
+        selectedOptions,
+        country: context.storefront.i18n.country,
+        language: context.storefront.i18n.language,
+      },
+    }),
+  );
 
   if (!product?.id) {
     // Fall back to legacyRedirects.json before 404ing: this route is more
