@@ -1,10 +1,6 @@
 import type {LoaderFunctionArgs} from '@shopify/remix-oxygen';
 
 import {getSitemap} from 'app/lib/sitemap';
-import {countries} from '~/data/countries';
-
-const locales = Object.keys(countries).filter((k) => k !== 'default');
-locales.unshift('en-us');
 
 export async function loader({
   request,
@@ -15,7 +11,13 @@ export async function loader({
     storefront,
     request,
     params,
-    locales,
+    // Single-market, single-language store (Colombia/es-CO only, confirmed
+    // via Shopify Admin: exactly one enabled Market) -- no locales means no
+    // hreflang alternate tags. The countries.ts-derived locale list this
+    // used to pass in was 38 fake /en-XX markets Shopify Admin doesn't have
+    // configured, plus a hardcoded 'en-us' self-tag for the default locale
+    // that mislabeled this Spanish-language site as English-US.
+    locales: [],
     // El origin del request ES el dominio público correcto (Google siempre
     // pide estos sitemaps sobre tienda-sportfitness.com, el dominio
     // submitteado en Search Console, y Oxygen preserva el Host original del

@@ -1,6 +1,7 @@
 import {
   type AppLoadContext,
   defer,
+  redirect,
   type LinksFunction,
   type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
@@ -28,7 +29,7 @@ import {GenericError} from './components/GenericError';
 import {NotFound} from './components/NotFound';
 import styles from './styles/app.css?url';
 import stylesFont from './styles/custom-font.css?url';
-import {DEFAULT_LOCALE} from './lib/utils';
+import {DEFAULT_LOCALE, stripLocalePrefix} from './lib/utils';
 import rcSliderStyle from 'rc-slider/assets/index.css?url';
 import {COMMON_COLLECTION_ITEM_FRAGMENT} from './data/commonFragments';
 import {OkendoProvider, getOkendoProviderData} from '@okendo/shopify-hydrogen';
@@ -83,6 +84,18 @@ export const links: LinksFunction = () => {
 
 export async function loader(args: LoaderFunctionArgs) {
   const {env} = args.context;
+
+  // Only the default (unprefixed) locale is a real market -- Shopify Admin
+  // has exactly one enabled Market (Colombia, COP). The 38 /en-XX prefixes
+  // in app/data/countries.ts are unused Hydrogen boilerplate; redirect any
+  // request that hits one (stray link, bookmark, crawler) straight to the
+  // unprefixed URL rather than rendering a market that doesn't exist.
+  const requestUrl = new URL(args.request.url);
+  const strippedPathname = stripLocalePrefix(requestUrl.pathname);
+  if (strippedPathname !== requestUrl.pathname) {
+    requestUrl.pathname = strippedPathname;
+    throw redirect(requestUrl.toString(), 301);
+  }
 
   // Start fetching non-critical data without blocking time to first byte
   const deferredData = loadDeferredData(args);

@@ -266,6 +266,20 @@ export function getLocaleFromRequest(request: Request): I18nLocale {
       };
 }
 
+// Only the default (unprefixed) locale is a real, sellable market (Colombia,
+// COP) -- the 38 /en-XX entries in countries.ts are unused Hydrogen
+// boilerplate for markets Shopify Admin doesn't have configured. This strips
+// a recognized fake-locale prefix off a pathname, e.g. `/en-au/products/foo`
+// -> `/products/foo`, so canonical URLs and redirects never point at one.
+export function stripLocalePrefix(pathname: string): string {
+  const firstPathPart = '/' + pathname.substring(1).split('/')[0].toLowerCase();
+
+  if (!countries[firstPathPart]) return pathname;
+
+  const stripped = pathname.slice(firstPathPart.length);
+  return stripped === '' ? '/' : stripped;
+}
+
 export function usePrefixPathWithLocale(path: string) {
   const rootData = useRouteLoaderData<RootLoader>('root');
   const selectedLocale = rootData?.selectedLocale ?? DEFAULT_LOCALE;
