@@ -34,7 +34,13 @@ export function SectionProductFeature(props: SectionProductFeatureFragment) {
   const imageOnLeft = image_position?.value === 'left';
 
   return (
-    <section className="nc-SectionProductFeature py-10 lg:py-16">
+    // No own vertical padding: this section's outer <section> never has a
+    // background (the colored box is the inner "Content Side" div only), so
+    // its own py-* was pure extra whitespace stacking on top of the shared
+    // space-y gap between homepage sections (app/sections/Sections.tsx) --
+    // normalized to rely on that shared gap alone, matching every other
+    // no-background section on the page.
+    <section className="nc-SectionProductFeature">
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-10 gap-0 rounded-xl overflow-hidden">
           {/* Image Side - 60% */}
