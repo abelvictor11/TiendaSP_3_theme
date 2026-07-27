@@ -36,7 +36,7 @@ rule. This is also how they cleanly alternate background colors
 | Smaller-gap tier available? | No — one scale for all sections | Yes — `layout-padding-*-16-20` exists for tighter sections |
 | Per-section override | Some sections add their own `py-*` on top of the shared gap (stacks) | N/A — padding *is* the only mechanism, so no stacking is possible by construction |
 
-## What this means concretely
+## What this means concretely (before the fix below)
 
 On tienda, a section that has its own `py-*` (e.g. Intro Feature:
 `py-12 lg:py-20`, 80px desktop) stacks with the shared 64px `space-y` gap to
@@ -57,26 +57,47 @@ current 64-80px desktop seams are in the same ballpark as thefeed's 64px,
 so this isn't the 4x container-gutter gap the last teardown found. The
 finding here is about *consistency*, not *magnitude*: tienda's per-section
 `py-*` overrides create seam-to-seam variance thefeed's architecture
-doesn't have. Whether to normalize tienda's sections to rely on the shared
-gap alone (removing individual `py-*` overrides) or keep the current mixed
-approach is a design call, not an auto-fix — flagging for the next design
-pass rather than changing blind.
+doesn't have.
 
-## Live section-by-section reference (tienda homepage, 11 sections, this session)
+## Fixed in this PR
+
+Normalized the three sections carrying their own `py-*` to rely on the
+shared gap alone, *except* where a section is currently rendering an
+actual colored box — verified against each section's live
+`background-color` value (not assumed from source), since `background_color`
+is merchant-configurable on two of the three:
+
+- **Intro Feature**: `background_color` currently white-on-white (invisible
+  box) live. Its `py-12 lg:py-20` is now conditional on the background
+  actually differing from white — drops out today, reinstates itself
+  automatically if a merchant sets a real color later.
+- **Product Feature**: outer `<section>` never has a background at all (the
+  colored box is an inner div) — its `py-10 lg:py-16` was pure redundant
+  whitespace, removed outright.
+- **Brands Ticker**: `background_color` is currently `#f7f7f7` live — a
+  real, visible box. Kept its `py-8 lg:py-12` unchanged; this one seam
+  being wider than the rest is now *intentional and content-driven* (same
+  rationale thefeed itself uses padding for — clearing a background), not
+  an accident of which component happens to carry padding.
+
+## Live section-by-section reference (tienda homepage, 11 sections)
+
+Post-fix state:
 
 | # | Section | Own `py-*` | Combined seam to next section (at `lg`, 64px shared gap) |
 |---|---|---|---|
 | 0 | Hero (image) | 0 | 64px (shared gap only) |
 | 1 | Hero Slider | `py-12 lg:py-16` (64px desktop) on inner wrapper | 64px (inner padding doesn't add to outer seam) |
-| 2 | Intro Feature | `py-12 lg:py-20` (80px desktop) | **144px** (80 + 64) |
+| 2 | Intro Feature | 0 (conditional on a real background; currently white-on-white) | 64px |
 | 3 | Category Cards Carousel | 0 | 64px |
 | 4 | Product Showcase | 0 | 64px |
-| 5 | Product Feature | `py-16` (64px both edges) | **128px** (64 + 64) |
+| 5 | Product Feature | 0 (removed — never had a background on the outer section) | 64px |
 | 6 | Grid Products & Filter | 0 | 64px |
 | 7 | Product Testimonial | 0 | 64px |
 | 8 | Instagram Feed | 0 | 64px |
 | 9 | Blog Carousel | 0 | 64px |
-| 10 | Brands Ticker | `py-12` (48px both edges) | **112px** (48 + 64) |
+| 10 | Brands Ticker | `py-8 lg:py-12` (48px both edges) — kept, real background | **112px** (48 + 64) |
 
-Four of eleven seams are 1.75x–2.25x wider than the rest, purely from which
-component happens to carry its own padding.
+Ten of eleven seams are now a uniform 64px. The one exception (Brands
+Ticker) is deliberate and background-driven, matching thefeed's own
+rationale for per-section padding — not a stacking accident.
