@@ -127,17 +127,51 @@ export async function loader(args: LoaderFunctionArgs) {
  * needed to render the page. If it's unavailable, the whole page should 400 or 500 error.
  */
 async function loadCriticalData({request, context}: LoaderFunctionArgs) {
-  const [layout, okendoProviderData] = await Promise.all([
-    getLayoutData(context),
-    getOkendoProviderData({
-      context,
-      subscriberId: context.env.PUBLIC_OKENDO_SUBSCRIBER_ID,
-    }),
-    // Add other queries here, so that they are loaded in parallel
-  ]);
+  const {storefront} = context;
+  const {language, country} = storefront.i18n;
+
+  // header/footer used to be deferred (streamed in after the initial shell
+  // via <Suspense>/<Await>) alongside cart/login/Okendo -- 6 independent
+  // Suspense boundaries racing during the streaming response. When one of
+  // header/footer resolved late enough over real network latency, its
+  // streamed <script> patch could land after the browser's parser had
+  // already closed <body>, landing as a stray child of <html> -- React then
+  // throws "Did not expect server HTML to contain a <script> in <html>",
+  // cascading into hydration-mismatch errors. header/footer are
+  // CacheLong()'d (normally warm) and, unlike cart/login/Okendo, already
+  // block above-the-fold content (nav menu, footer links) -- awaiting them
+  // here removes 2 of those competing boundaries without touching the
+  // genuinely-deferrable ones below.
+  const [layout, okendoProviderData, headerData, footerData] =
+    await Promise.all([
+      getLayoutData(context),
+      getOkendoProviderData({
+        context,
+        subscriberId: context.env.PUBLIC_OKENDO_SUBSCRIBER_ID,
+      }),
+      storefront.query(HEADER_QUERY, {
+        cache: storefront.CacheLong(),
+        variables: {
+          featuredCollectionsFirst: 1,
+          socialsFirst: 10,
+          headerMenuHandle: 'main-menu',
+          language,
+          country,
+        },
+      }),
+      storefront.query(FOOTER_QUERY, {
+        cache: storefront.CacheLong(),
+        variables: {
+          footerMenuHandle: 'footer',
+          language,
+          country,
+        },
+      }),
+      // Add other queries here, so that they are loaded in parallel
+    ]);
 
   const seo = seoPayload.root({shop: layout.shop, url: request.url});
-  const {storefront, env} = context;
+  const {env} = context;
 
   return {
     layout,
@@ -158,6 +192,12 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
     },
     selectedLocale: storefront.i18n,
     okendoProviderData,
+    // Named *Promise for backwards compat with the <Await resolve={...}>
+    // consumers in Layout.tsx -- <Await> treats a non-promise `resolve` as
+    // already-resolved, so those components work unchanged whether this is
+    // deferred or not.
+    headerPromise: headerData,
+    footerPromise: footerData,
   };
 }
 
@@ -167,36 +207,13 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
  * Make sure to not throw any errors here, as it will cause the page to 500.
  */
 function loadDeferredData({context}: LoaderFunctionArgs) {
-  const {cart, customerAccount, storefront} = context;
+  const {cart, customerAccount} = context;
   const isLoggedInPromise = customerAccount.isLoggedIn();
-  const {language, country} = storefront.i18n;
-
-  // Load the header, footer and layout data in parallel
-  const headerPromise = storefront.query(HEADER_QUERY, {
-    cache: storefront.CacheLong(),
-    variables: {
-      featuredCollectionsFirst: 1,
-      socialsFirst: 10,
-      headerMenuHandle: 'main-menu',
-      language,
-      country,
-    },
-  });
-  const footerPromise = storefront.query(FOOTER_QUERY, {
-    cache: storefront.CacheLong(),
-    variables: {
-      footerMenuHandle: 'footer',
-      language,
-      country,
-    },
-  });
 
   return {
     isLoggedIn: isLoggedInPromise,
     isLoggedInPromise,
     cart: cart.get(),
-    headerPromise,
-    footerPromise,
     // Umbral real de envío gratis leído del Automatic Discount en Shopify
     // Admin (ver lib/shipping.server.ts) — diferido para no bloquear el TTFB;
     // el fallback ante cualquier fallo ya vive dentro de getFreeShippingThreshold.
