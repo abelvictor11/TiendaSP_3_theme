@@ -246,7 +246,9 @@ function NavItem({
           style={{position: 'absolute'}}
         >
           <div className="container">
-            <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl overflow-hidden">
+            {/* w-max + mx-auto: el panel ajusta su ancho al contenido y se
+                centra, en vez de estirarse a todo el ancho dejando huecos. */}
+            <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl overflow-hidden w-max max-w-full mx-auto">
               <div className="relative px-6 py-8 lg:px-8 lg:py-10">
                 {hasPanel ? (
                   <PanelMegamenu
@@ -306,21 +308,12 @@ function PanelMegamenu({
 
   return (
     <div className="flex items-stretch gap-6 xl:gap-8">
-      {/* Columnas 1-3: sub-items del menú. El bloque de texto se acota a la
-          izquierda (max-w) dentro de una columna que ocupa el resto del
-          ancho, para no dejar las 3 columnas estiradas y con espacio muerto. */}
-      <div className="flex-1 min-w-0">
-        {!menuItem.to.startsWith('http') && (
-          <Link
-            to={menuItem.to}
-            prefetch="intent"
-            className="inline-block text-base font-semibold text-[#131210] dark:text-neutral-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-5"
-            onClick={onNavigate}
-          >
-            Ver todo {menuItem.title}
-          </Link>
-        )}
-        <div className="grid grid-cols-3 gap-x-6 gap-y-3.5 max-w-[440px]">
+      {/* Columnas 1-3: sub-items del menú. Ancho de contenido (no flex-1)
+          para que COLECCIONES quede justo al lado sin un hueco enorme; el
+          espacio sobrante se manda a la derecha con un spacer al final. El
+          enlace "Ver todo" va debajo de los ítems. */}
+      <div className="flex-shrink-0 max-w-[440px]">
+        <div className="grid grid-cols-3 gap-x-6 gap-y-3.5">
           {menuItem.items?.map((subItem: ChildEnhancedMenuItem, idx) => (
             <div key={subItem.id + '-' + idx}>
               {!subItem.to.startsWith('http') ? (
@@ -346,6 +339,16 @@ function PanelMegamenu({
             </div>
           ))}
         </div>
+        {!menuItem.to.startsWith('http') && (
+          <Link
+            to={menuItem.to}
+            prefetch="intent"
+            className="inline-block text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors mt-6"
+            onClick={onNavigate}
+          >
+            Ver todo {menuItem.title} →
+          </Link>
+        )}
       </div>
 
       {/* Columna 4: colecciones destacadas + tarjeta */}
