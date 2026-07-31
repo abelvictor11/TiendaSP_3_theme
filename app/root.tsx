@@ -681,6 +681,34 @@ const HEADER_QUERY = `#graphql
         }
       }
     }
+    # Config del footer (contacto, sedes, descripción) editable por el
+    # merchant desde el metaobject footer_settings — sin tocar código.
+    footerSettings: metaobjects(type: "footer_settings", first: 1) {
+      nodes {
+        id
+        email: field(key: "email") {
+          value
+        }
+        whatsapp: field(key: "whatsapp") {
+          value
+        }
+        whatsapp_label: field(key: "whatsapp_label") {
+          value
+        }
+        phone: field(key: "phone") {
+          value
+        }
+        hours: field(key: "hours") {
+          value
+        }
+        description: field(key: "description") {
+          value
+        }
+        locations: field(key: "locations") {
+          value
+        }
+      }
+    }
     # Paneles de megamenú configurables por item de menú (metaobject
     # megamenu_panel). Cada panel se empareja por menu_title con el título del
     # item de navegación; controla columnas 4-6 (colecciones destacadas,

@@ -22,21 +22,37 @@ import {CITIES} from '~/data/cities';
 
 interface FooterProps {}
 
-// ── Datos de contacto y sedes ──────────────────────────────────────────────
-// TODO(merchant): confirmar/ajustar estos valores reales de la tienda.
-const CONTACT = {
+// ── Fallbacks de contacto y sedes ──────────────────────────────────────────
+// Se usan solo si el metaobject footer_settings no trae el valor. Lo editable
+// de verdad vive en Shopify → Contenido → Metaobjetos → Footer Settings.
+const CONTACT_FALLBACK = {
   email: 'servicioalcliente@tiendasportfitness.com',
   whatsapp: '573001234567', // solo dígitos, formato internacional
   whatsappLabel: '+57 300 123 4567',
   hours: 'Lun–Vie 8am–6pm · Sáb 9am–1pm',
 };
 
-const STORE_LOCATIONS: {city: string; address: string}[] = [
+const STORE_LOCATIONS_FALLBACK: {city: string; address: string}[] = [
   {city: 'Medellín', address: 'Carrera 43 #30-91'},
   {city: 'Barranquilla', address: 'Carrera 51B #93-25'},
   {city: 'Llanogrande', address: 'Km 4 Vía Rionegro'},
   {city: 'Palmas', address: 'Cr 38 # 18 - 101 Mall palmagrande local 121'},
 ];
+
+/** Parsea las sedes del metaobject: una por línea, "Ciudad: Dirección". */
+function parseLocations(raw?: string | null) {
+  if (!raw) return STORE_LOCATIONS_FALLBACK;
+  const parsed = raw
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line) => {
+      const idx = line.indexOf(':');
+      if (idx === -1) return {city: '', address: line};
+      return {city: line.slice(0, idx).trim(), address: line.slice(idx + 1).trim()};
+    });
+  return parsed.length ? parsed : STORE_LOCATIONS_FALLBACK;
+}
 
 const linkCls =
   'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors';
@@ -122,7 +138,18 @@ const Footer: React.FC<FooterProps> = () => {
       <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-20 lg:px-8 lg:pt-24">
         {/* ── Fila superior: 5 columnas ── */}
         <HeaderMenuDataWrap>
-          {({headerData: {socials}}) => (
+          {({headerData}) => {
+            const socials = headerData.socials;
+            const fs = (headerData as any).footerSettings?.nodes?.[0];
+            const contact = {
+              email: fs?.email?.value || CONTACT_FALLBACK.email,
+              whatsapp: fs?.whatsapp?.value || CONTACT_FALLBACK.whatsapp,
+              whatsappLabel:
+                fs?.whatsapp_label?.value || CONTACT_FALLBACK.whatsappLabel,
+              hours: fs?.hours?.value || CONTACT_FALLBACK.hours,
+            };
+            const locations = parseLocations(fs?.locations?.value);
+            return (
             <FooterMenuDataWrap>
               {({footerMenu}) => {
                 const {about, policies, extras} = bucketFooterMenus(
@@ -177,27 +204,27 @@ const Footer: React.FC<FooterProps> = () => {
                       <ul className="mt-5 space-y-4 text-sm">
                         <li>
                           <a
-                            href={`mailto:${CONTACT.email}`}
+                            href={`mailto:${contact.email}`}
                             className={`flex items-start gap-2 ${linkCls}`}
                           >
                             <EnvelopeIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                            <span className="break-all">{CONTACT.email}</span>
+                            <span className="break-all">{contact.email}</span>
                           </a>
                         </li>
                         <li>
                           <a
-                            href={`https://wa.me/${CONTACT.whatsapp}`}
+                            href={`https://wa.me/${contact.whatsapp}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className={`flex items-start gap-2 ${linkCls}`}
                           >
                             <PhoneIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                            <span>WhatsApp {CONTACT.whatsappLabel}</span>
+                            <span>WhatsApp {contact.whatsappLabel}</span>
                           </a>
                         </li>
                         <li className="flex items-start gap-2 text-neutral-600 dark:text-neutral-400">
                           <ClockIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
-                          <span>{CONTACT.hours}</span>
+                          <span>{contact.hours}</span>
                         </li>
                       </ul>
                     </div>
@@ -209,8 +236,8 @@ const Footer: React.FC<FooterProps> = () => {
                         Direcciones
                       </h3>
                       <ul className="mt-5 space-y-3 text-sm text-neutral-600 dark:text-neutral-400">
-                        {STORE_LOCATIONS.map((loc) => (
-                          <li key={loc.city}>
+                        {locations.map((loc) => (
+                          <li key={loc.city + loc.address}>
                             <span className="font-medium text-neutral-800 dark:text-neutral-200">
                               {loc.city}:
                             </span>{' '}
@@ -260,7 +287,8 @@ const Footer: React.FC<FooterProps> = () => {
                 );
               }}
             </FooterMenuDataWrap>
-          )}
+            );
+          }}
         </HeaderMenuDataWrap>
 
         {/* ── Envíos a tu ciudad (tira horizontal, landing pages SEO) ── */}
@@ -291,8 +319,14 @@ const Footer: React.FC<FooterProps> = () => {
               Sobre {shop?.name || 'Tienda Fitness'}
             </h3>
             <p className="mt-3 max-w-md text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-              {shop?.description ||
-                'En Tienda Fitness equipamos tu entrenamiento con máquinas y accesorios de gimnasio de las mejores marcas, con envíos a todo el país y respaldo posventa en nuestras sedes.'}
+              <HeaderMenuDataWrap>
+                {({headerData}) =>
+                  (headerData as any).footerSettings?.nodes?.[0]?.description
+                    ?.value ||
+                  shop?.description ||
+                  'En Tienda Fitness equipamos tu entrenamiento con máquinas y accesorios de gimnasio de las mejores marcas, con envíos a todo el país y respaldo posventa en nuestras sedes.'
+                }
+              </HeaderMenuDataWrap>
             </p>
           </div>
           <div className="lg:max-w-md lg:justify-self-end w-full">
