@@ -289,7 +289,7 @@ const ProductCard: FC<ProductCardProps> = ({
   return (
     <>
       <div
-        className={`ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] hover:border-[#1a1a1a] rounded-2xl overflow-hidden ${className}`}
+        className={`ProductCard relative flex flex-col h-full bg-white dark:bg-slate-800 border border-[#e5e7eb] hover:border-[#1a1a1a] rounded-2xl overflow-hidden ${className}`}
       >
         <Link to={variantUrl} className="absolute inset-0" prefetch="intent">
           <span className="sr-only">{title}</span>
@@ -595,7 +595,7 @@ export const ProductCardSkeleton = ({
   return (
     <div
       className={
-        `ProductCard relative flex flex-col h-full bg-transparent border border-[#e5e7eb] rounded-2xl overflow-hidden ` + className
+        `ProductCard relative flex flex-col h-full bg-white dark:bg-slate-800 border border-[#e5e7eb] rounded-2xl overflow-hidden ` + className
       }
     >
       <div className="relative flex-shrink-0 bg-slate-50 border border-slate-50 dark:bg-slate-300 rounded-3xl overflow-hidden z-1 group p-5">
