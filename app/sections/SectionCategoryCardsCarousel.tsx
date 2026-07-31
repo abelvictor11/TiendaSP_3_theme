@@ -91,9 +91,12 @@ export function SectionCategoryCardsCarousel(
 
         {/* Badge pill — esquina superior izquierda, mismo lugar que las
             badges de thefeed.com ("SAVE 38%", "FREE WITH $75+") */}
+        {/* Mismo estilo unificado que los badges de la ProductCard:
+            px-2 py-1, text-xs font-medium, rounded-md, sin uppercase/bold/
+            rounded-full/shadow. Sólo cambia el color de fondo. */}
         {badgeText && (
           <span
-            className="absolute top-3 left-3 z-10 inline-flex items-center rounded-full px-2.5 py-1 text-xs font-bold uppercase tracking-wide shadow-sm"
+            className="absolute top-3 left-3 z-10 inline-flex items-center px-2 py-1 text-xs font-medium rounded-md leading-none"
             style={{backgroundColor: badgeColor, color: '#171717'}}
           >
             {badgeText}

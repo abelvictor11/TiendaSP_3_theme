@@ -29,6 +29,7 @@ function normTitle(s?: string | null) {
  */
 interface MegamenuPanel {
   menu_title?: {value?: string | null} | null;
+  heading_links?: {value?: string | null} | null;
   heading_collections?: {value?: string | null} | null;
   heading_products?: {value?: string | null} | null;
   heading_brands?: {value?: string | null} | null;
@@ -313,6 +314,9 @@ function PanelMegamenu({
           espacio sobrante se manda a la derecha con un spacer al final. El
           enlace "Ver todo" va debajo de los ítems. */}
       <div className="flex-shrink-0 max-w-[440px]">
+        <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
+          {panel.heading_links?.value || menuItem.title}
+        </p>
         <div className="grid grid-cols-3 gap-x-6 gap-y-3.5">
           {menuItem.items?.map((subItem: ChildEnhancedMenuItem, idx) => (
             <div key={subItem.id + '-' + idx}>
