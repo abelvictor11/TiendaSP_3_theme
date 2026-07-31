@@ -2,7 +2,7 @@ import {Image} from '@shopify/hydrogen';
 import {Link} from '@remix-run/react';
 import type {SectionProductShowcaseFragment} from 'storefrontapi.generated';
 import {parseSection} from '~/utils/parseSection';
-import {ProductCardShowcase} from '~/components/ProductCardShowcase';
+import ProductCard from '~/components/ProductCard';
 import {useRef, useState} from 'react';
 import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/24/outline';
 
@@ -47,9 +47,6 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
   const contentBgRaw = content_background_color?.value || '';
   const contentBg = contentBgRaw ? `${contentBgRaw}cc` : 'transparent';
   const txtColor = text_color?.value || '#000000';
-  const cardBg = card_background_color?.value || '#ffffff';
-  const cardTxt = card_text_color?.value || '#000000';
-  const btnText = button_text?.value || 'VIEW PRODUCT';
 
   // Carousel state for mobile
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -147,12 +144,7 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           <div className="col-span-7">
             <div className="grid grid-cols-2 gap-4 h-full">
               {productsToShow.map((product: any) => (
-                <ProductCardShowcase
-                  key={product.id}
-                  product={product}
-                  cardBackgroundColor={cardBg}
-                  cardTextColor={cardTxt}
-                />
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>
@@ -208,12 +200,8 @@ export function SectionProductShowcase(props: SectionProductShowcaseFragment) {
           {/* Product Slides */}
           {productsToShow.map((product: any) => (
             <div key={product.id} className="flex-shrink-0 w-full snap-center px-4">
-              <div className="h-[480px] lg:h-[400px]">
-                <ProductCardShowcase
-                  product={product}
-                  cardBackgroundColor={cardBg}
-                  cardTextColor={cardTxt}
-                />
+              <div>
+                <ProductCard product={product} />
               </div>
             </div>
           ))}
