@@ -22,15 +22,17 @@ export function SectionCategoryCardsCarousel(
   // solo hay un grupo real (`endurance`) usándose en home de todas formas.
   const cards = category_groups?.nodes?.[0]?.category_cards?.nodes || [];
 
-  // #f7f7f7 (off-white) también se trata como "sin fondo" para no dejar un
-  // panel gris suelto; case-insensitive por venir de un metaobject.
+  // Los off-white / grises muy claros (#f7f7f7, #e5e7eb ≈ neutral-200) no
+  // aportan nada visual y dejaban un panel gris "suelto"; se tratan como
+  // "sin fondo". Case-insensitive por venir de un metaobject.
   const normalizedBg = background_color?.value?.trim().toLowerCase();
   const hasBgColor =
     !!normalizedBg &&
     normalizedBg !== 'transparent' &&
     normalizedBg !== '#ffffff' &&
     normalizedBg !== '#fff' &&
-    normalizedBg !== '#f7f7f7';
+    normalizedBg !== '#f7f7f7' &&
+    normalizedBg !== '#e5e7eb';
 
   const renderCard = (item: any, index: number) => {
     if (!item.id) return null;
@@ -48,8 +50,6 @@ export function SectionCategoryCardsCarousel(
     const badgeColor = item.badge_color?.value || '#ffe600';
 
     // Customizable colors
-    const contentBgColor =
-      item.content_background_color?.value || 'rgba(0, 0, 0, 0.6)';
     const titleColor = item.title_color?.value || '#ffffff';
     const subtitleColor =
       item.subtitle_color?.value || 'rgba(255, 255, 255, 0.9)';
@@ -65,10 +65,10 @@ export function SectionCategoryCardsCarousel(
       <Link
         key={item.id}
         to={ctaLink}
-        className={`group relative overflow-hidden rounded-2xl block ${
+        className={`group relative overflow-hidden rounded-2xl block snap-start min-w-[82%] shrink-0 sm:min-w-0 sm:shrink ${
           isLarge
             ? 'aspect-[4/5] sm:aspect-[auto] sm:row-span-2'
-            : 'aspect-[1/1]'
+            : 'aspect-[4/5] sm:aspect-[1/1]'
         }`}
       >
         {/* Background Image */}
@@ -103,12 +103,10 @@ export function SectionCategoryCardsCarousel(
           </span>
         )}
 
-        {/* Content */}
+        {/* Content — sin panel de fondo ni blur; el texto se apoya sobre el
+            gradiente inferior de la imagen. */}
         <div className="absolute bottom-4 left-4 right-4 z-10">
-          <div
-            className="rounded-xl p-4 sm:p-5 backdrop-blur-sm"
-            style={{backgroundColor: contentBgColor}}
-          >
+          <div className="p-1">
             {title && (
               <h4
                 className={`font-normal mb-1 ${
@@ -155,7 +153,9 @@ export function SectionCategoryCardsCarousel(
           )}
 
           {cards.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 sm:auto-rows-[minmax(0,1fr)]">
+            // Mobile: carrusel horizontal con scroll-snap (flex + overflow-x).
+            // Desktop (sm+): vuelve a la grilla de 3 columnas.
+            <div className="flex sm:grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-6 sm:auto-rows-[minmax(0,1fr)] overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none -mx-4 px-4 sm:mx-0 sm:px-0 hiddenScrollbar">
               {cards.map((item, index) => renderCard(item, index))}
             </div>
           ) : (
