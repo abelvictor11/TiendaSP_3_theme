@@ -301,22 +301,26 @@ function PanelMegamenu({
   const headingProducts = panel.heading_products?.value || 'Más vendidos';
   const headingBrands = panel.heading_brands?.value || 'Marcas';
 
+  const dividerCls =
+    'border-l border-neutral-200/80 dark:border-neutral-700/80 pl-6 xl:pl-8';
+
   return (
-    <div className="flex gap-6 xl:gap-8">
-      {/* Columnas 1-3: sub-items del menú (ancho acotado para no dejar
-          demasiado espacio muerto entre las 3 columnas de texto) */}
-      <div className="min-w-0 max-w-[480px] flex-shrink">
+    <div className="flex items-stretch gap-6 xl:gap-8">
+      {/* Columnas 1-3: sub-items del menú. El bloque de texto se acota a la
+          izquierda (max-w) dentro de una columna que ocupa el resto del
+          ancho, para no dejar las 3 columnas estiradas y con espacio muerto. */}
+      <div className="flex-1 min-w-0">
         {!menuItem.to.startsWith('http') && (
           <Link
             to={menuItem.to}
             prefetch="intent"
-            className="inline-block font-semibold text-[#131210] dark:text-neutral-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-4"
+            className="inline-block text-base font-semibold text-[#131210] dark:text-neutral-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-5"
             onClick={onNavigate}
           >
             Ver todo {menuItem.title}
           </Link>
         )}
-        <div className="grid grid-cols-3 gap-x-4 gap-y-3">
+        <div className="grid grid-cols-3 gap-x-6 gap-y-3.5 max-w-[440px]">
           {menuItem.items?.map((subItem: ChildEnhancedMenuItem, idx) => (
             <div key={subItem.id + '-' + idx}>
               {!subItem.to.startsWith('http') ? (
@@ -324,7 +328,7 @@ function PanelMegamenu({
                   to={subItem.to}
                   target={subItem.target}
                   prefetch="intent"
-                  className="text-sm font-medium text-[#131210] dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                  className="text-sm text-neutral-600 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   onClick={onNavigate}
                 >
                   {subItem.title}
@@ -333,7 +337,7 @@ function PanelMegamenu({
                 <a
                   href={subItem.to}
                   target={subItem.target}
-                  className="text-sm font-medium text-[#131210] dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                  className="text-sm text-neutral-600 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                   onClick={onNavigate}
                 >
                   {subItem.title}
@@ -344,25 +348,20 @@ function PanelMegamenu({
         </div>
       </div>
 
-      {/* Espaciador flexible: empuja las columnas de colecciones/productos/
-          marcas hacia la derecha, dejando el bloque de texto compacto a la
-          izquierda en vez de estirado a lo ancho. */}
-      <div className="flex-1" />
-
       {/* Columna 4: colecciones destacadas + tarjeta */}
       {(collections.length > 0 || card) && (
-        <div className="hidden lg:block w-[190px] flex-shrink-0">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
+        <div className={`hidden lg:block w-[190px] flex-shrink-0 ${dividerCls}`}>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
             {headingCollections}
           </p>
           {collections.length > 0 && (
-            <ul className="space-y-2 mb-4">
+            <ul className="space-y-2.5 mb-5">
               {collections.map((c: any) => (
                 <li key={c.id}>
                   <Link
                     to={`/collections/${c.handle}`}
                     prefetch="intent"
-                    className="text-sm text-[#131210] dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                    className="text-sm text-neutral-600 dark:text-neutral-300 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
                     onClick={onNavigate}
                   >
                     {c.title}
@@ -379,18 +378,18 @@ function PanelMegamenu({
 
       {/* Columna 5: slider de productos destacados */}
       {products.length > 0 && (
-        <div className="hidden xl:block w-[260px] flex-shrink-0">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
+        <div className={`hidden xl:block w-[270px] flex-shrink-0 ${dividerCls}`}>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
             {headingProducts}
           </p>
           <ProductSlider products={products} />
         </div>
       )}
 
-      {/* Columna 6: marcas destacadas */}
+      {/* Columna 6: marcas destacadas (pills) */}
       {brands.length > 0 && (
-        <div className="hidden xl:block w-[150px] flex-shrink-0">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
+        <div className={`hidden xl:block w-[168px] flex-shrink-0 ${dividerCls}`}>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-4">
             {headingBrands}
           </p>
           <div className="space-y-2.5">
@@ -403,20 +402,20 @@ function PanelMegamenu({
                   key={b.id}
                   to={link}
                   prefetch="intent"
-                  className="flex items-center h-7 group"
+                  className="flex items-center justify-center h-11 px-3 rounded-full border border-neutral-200 dark:border-neutral-700 hover:border-neutral-400 dark:hover:border-neutral-500 hover:shadow-sm transition group"
                   aria-label={name}
                   onClick={onNavigate}
                 >
                   {logo ? (
                     <Image
                       data={logo}
-                      width={90}
+                      width={110}
                       height={28}
                       className="max-h-7 w-auto object-contain grayscale group-hover:grayscale-0 transition-[filter]"
-                      sizes="90px"
+                      sizes="110px"
                     />
                   ) : (
-                    <span className="text-sm text-[#131210] dark:text-neutral-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                    <span className="text-sm font-medium text-neutral-700 dark:text-neutral-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
                       {name}
                     </span>
                   )}
