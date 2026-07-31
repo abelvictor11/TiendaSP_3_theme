@@ -1,5 +1,6 @@
 import {ChevronDownIcon} from '@heroicons/react/24/solid';
-import {useState, useRef} from 'react';
+import {ChevronLeftIcon, ChevronRightIcon} from '@heroicons/react/24/outline';
+import {useState, useRef, useMemo} from 'react';
 import {Link} from '@remix-run/react';
 import {Image} from '@shopify/hydrogen';
 import type {ParentEnhancedMenuItem, ChildEnhancedMenuItem} from '~/lib/utils';
@@ -10,6 +11,31 @@ import {getVendorCollectionUrl} from '~/utils/vendorCollectionUrl';
 import type {HeaderMenuQuery} from 'storefrontapi.generated';
 
 const MAX_MEGAMENU_BRANDS = 6;
+
+/**
+ * Normaliza un título de menú/panel para emparejarlos sin depender de
+ * mayúsculas, acentos ni espacios sobrantes (reutiliza normalizeBrandKey,
+ * que ya hace lower + strip de diacríticos).
+ */
+function normTitle(s?: string | null) {
+  return s ? normalizeBrandKey(s) : '';
+}
+
+/**
+ * Forma resuelta de un metaobject `megamenu_panel` tal como lo devuelve el
+ * HEADER_QUERY (campos como `{value}` y referencias resueltas). Se accede vía
+ * `any` porque el codegen de storefront no conoce estos campos custom.
+ */
+interface MegamenuPanel {
+  menu_title?: {value?: string | null} | null;
+  heading_collections?: {value?: string | null} | null;
+  heading_products?: {value?: string | null} | null;
+  heading_brands?: {value?: string | null} | null;
+  featured_collections?: {references?: {nodes?: any[]} | null} | null;
+  collection_card?: {reference?: any} | null;
+  featured_products?: {references?: {nodes?: any[]} | null} | null;
+  featured_brands?: {references?: {nodes?: any[]} | null} | null;
+}
 
 /**
  * Cruza los vendors reales presentes en la colección (vía el filtro nativo
@@ -59,6 +85,19 @@ export default function NavigationBar({
   headerMenu,
   headerData,
 }: NavigationBarProps) {
+  // Mapa panel-por-título (normalizado) para resolver O(1) el panel de cada
+  // item de menú. Se calcula una vez por render del header.
+  const panelsByTitle = useMemo(() => {
+    const nodes: MegamenuPanel[] =
+      (headerData as any)?.megamenuPanels?.nodes ?? [];
+    const map = new Map<string, MegamenuPanel>();
+    for (const p of nodes) {
+      const key = normTitle(p?.menu_title?.value);
+      if (key) map.set(key, p);
+    }
+    return map;
+  }, [headerData]);
+
   // Early return if no menu
   if (!headerMenu || !Array.isArray(headerMenu) || headerMenu.length === 0) {
     return null;
@@ -74,6 +113,7 @@ export default function NavigationBar({
                 key={item.id + '-' + index.toString()}
                 menuItem={item}
                 headerData={headerData}
+                panel={panelsByTitle.get(normTitle(item.title))}
               />
             ))}
           </ul>
@@ -86,9 +126,11 @@ export default function NavigationBar({
 function NavItem({
   menuItem,
   headerData,
+  panel,
 }: {
   menuItem: ParentEnhancedMenuItem;
   headerData?: HeaderMenuQuery;
+  panel?: MegamenuPanel;
 }) {
   const hasChildren = menuItem.items && menuItem.items.length > 0;
 
@@ -98,7 +140,13 @@ function NavItem({
   const [isHovered, setIsHovered] = useState(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  if (!hasChildren) {
+  // Un item abre megamenú si tiene sub-items en la navegación O un panel de
+  // metaobject configurado (permite paneles solo con colecciones/marcas
+  // destacadas sin depender del árbol de navegación).
+  const hasPanel = !!panel;
+  const opensMegamenu = hasChildren || hasPanel;
+
+  if (!opensMegamenu) {
     // Simple link without dropdown
     return (
       <li>
@@ -140,6 +188,8 @@ function NavItem({
       setIsHovered(false);
     }, 150); // Small delay to allow moving to the panel
   };
+
+  const close = () => setIsHovered(false);
 
   return (
     <li
@@ -197,159 +247,417 @@ function NavItem({
           <div className="container">
             <div className="bg-white dark:bg-neutral-900 shadow-2xl rounded-2xl overflow-hidden">
               <div className="relative px-6 py-8 lg:px-8 lg:py-10">
-                <div className="flex gap-6">
-                  {/* Menu Items Grid */}
-                  <div className="flex-1 min-w-0">
-                    {!menuItem.to.startsWith('http') && (
-                      <Link
-                        to={menuItem.to}
-                        prefetch="intent"
-                        className="inline-block font-semibold text-[#131210] dark:text-neutral-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-4"
-                        onClick={() => setIsHovered(false)}
-                      >
-                        Ver todo {menuItem.title}
-                      </Link>
-                    )}
-                    <div className="grid grid-cols-3 gap-6 xl:gap-8">
-                      {menuItem.items?.map(
-                        (subItem: ChildEnhancedMenuItem, idx) => (
-                          <div key={subItem.id + '-' + idx}>
-                            {!subItem.to.startsWith('http') ? (
-                              <Link
-                                to={subItem.to}
-                                target={subItem.target}
-                                prefetch="intent"
-                                className="font-medium text-[#131210] dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
-                                onClick={() => setIsHovered(false)}
-                              >
-                                {subItem.title}
-                              </Link>
-                            ) : (
-                              <a
-                                href={subItem.to}
-                                target={subItem.target}
-                                className="block group"
-                                onClick={() => setIsHovered(false)}
-                              >
-                                <p className="font-medium text-[#131210] dark:text-neutral-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                  {subItem.title}
-                                </p>
-                              </a>
-                            )}
-                          </div>
-                        ),
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Colección e imagen resueltas directamente del `resource` del
-                        menu item vía Storefront API — nada de adivinar por
-                        handle/título contra una lista separada de "featured
-                        collections"; si el item de menú apunta a una Collection,
-                        Shopify ya nos da su imagen y productos reales. */}
-                  {menuItem.resource?.__typename === 'Collection' && (
-                    <div className="hidden xl:flex gap-4 flex-shrink-0">
-                      <div className="w-[180px] flex-shrink-0">
-                        <CollectionItem
-                          onClick={() => setIsHovered(false)}
-                          item={menuItem.resource}
-                          compact
-                        />
-                      </div>
-                      {!!menuItem.resource.megamenu_products?.nodes?.length && (
-                        <div className="w-[180px] flex-shrink-0">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
-                            Más vendidos
-                          </p>
-                          <div className="space-y-3">
-                            {menuItem.resource.megamenu_products.nodes.map(
-                              (product) => (
-                                <Link
-                                  key={product.id}
-                                  to={`/products/${product.handle}`}
-                                  prefetch="intent"
-                                  className="flex items-center gap-3 group"
-                                  onClick={() => setIsHovered(false)}
-                                >
-                                  {product.featuredImage && (
-                                    <Image
-                                      data={product.featuredImage}
-                                      // Sin width/height explícitos, Hydrogen's
-                                      // <Image> no tiene de dónde derivar su
-                                      // aspect ratio y termina estirándose al
-                                      // 100% del contenedor flex (180px en vez
-                                      // de 40px), reventando toda la fila —
-                                      // confirmado en vivo: w-10/h-10 solas no
-                                      // alcanzan a restringirla.
-                                      width={40}
-                                      height={40}
-                                      className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
-                                      sizes="40px"
-                                    />
-                                  )}
-                                  <div className="min-w-0 flex-1">
-                                    <p className="text-xs text-[#131210] dark:text-neutral-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                      {product.title}
-                                    </p>
-                                    <Prices
-                                      price={product.priceRange.minVariantPrice}
-                                      className="text-xs"
-                                    />
-                                  </div>
-                                </Link>
-                              ),
-                            )}
-                          </div>
-                        </div>
-                      )}
-                      {!!megamenuBrands.length && (
-                        <div className="w-[140px] flex-shrink-0">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
-                            Marcas
-                          </p>
-                          <div className="space-y-2.5">
-                            {megamenuBrands.map((brand) => (
-                              <Link
-                                key={brand.label}
-                                to={brand.url}
-                                prefetch="intent"
-                                className="flex items-center h-6 group"
-                                aria-label={brand.label}
-                                onClick={() => setIsHovered(false)}
-                              >
-                                {brand.imageLogo ? (
-                                  <Image
-                                    data={brand.imageLogo}
-                                    width={80}
-                                    height={24}
-                                    className="max-h-6 w-auto object-contain grayscale group-hover:grayscale-0 transition-[filter]"
-                                    sizes="80px"
-                                  />
-                                ) : brand.svgLogo ? (
-                                  <span
-                                    className="max-h-6 w-auto [&_svg]:h-6 [&_svg]:w-auto grayscale group-hover:grayscale-0 transition-[filter]"
-                                    dangerouslySetInnerHTML={{
-                                      __html: brand.svgLogo,
-                                    }}
-                                  />
-                                ) : (
-                                  <span className="text-xs text-[#131210] dark:text-neutral-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                                    {brand.label}
-                                  </span>
-                                )}
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+                {hasPanel ? (
+                  <PanelMegamenu
+                    menuItem={menuItem}
+                    panel={panel!}
+                    onNavigate={close}
+                  />
+                ) : (
+                  <AutoMegamenu
+                    menuItem={menuItem}
+                    megamenuBrands={megamenuBrands}
+                    onNavigate={close}
+                  />
+                )}
               </div>
             </div>
           </div>
         </div>
       )}
     </li>
+  );
+}
+
+/**
+ * Megamenú de 6 columnas dirigido por el metaobject `megamenu_panel`:
+ *  · Columnas 1-3: sub-items del menú de navegación (grid de 3 columnas).
+ *  · Columna 4: colecciones destacadas + tarjeta de colección con imagen.
+ *  · Columna 5: slider de productos destacados (1 a la vez).
+ *  · Columna 6: logos de marcas destacadas.
+ * Cualquier columna cuyo campo esté vacío en el metaobject simplemente no se
+ * renderiza, así el mismo layout sirve para paneles parciales.
+ */
+function PanelMegamenu({
+  menuItem,
+  panel,
+  onNavigate,
+}: {
+  menuItem: ParentEnhancedMenuItem;
+  panel: MegamenuPanel;
+  onNavigate: () => void;
+}) {
+  const collections = panel.featured_collections?.references?.nodes ?? [];
+  const card = panel.collection_card?.reference ?? null;
+  const products = (panel.featured_products?.references?.nodes ?? []).slice(
+    0,
+    6,
+  );
+  const brands = panel.featured_brands?.references?.nodes ?? [];
+
+  const headingCollections =
+    panel.heading_collections?.value || 'Colecciones';
+  const headingProducts = panel.heading_products?.value || 'Más vendidos';
+  const headingBrands = panel.heading_brands?.value || 'Marcas';
+
+  return (
+    <div className="flex gap-6 xl:gap-8">
+      {/* Columnas 1-3: sub-items del menú */}
+      <div className="flex-1 min-w-0">
+        {!menuItem.to.startsWith('http') && (
+          <Link
+            to={menuItem.to}
+            prefetch="intent"
+            className="inline-block font-semibold text-[#131210] dark:text-neutral-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-4"
+            onClick={onNavigate}
+          >
+            Ver todo {menuItem.title}
+          </Link>
+        )}
+        <div className="grid grid-cols-3 gap-x-6 gap-y-3 xl:gap-x-8">
+          {menuItem.items?.map((subItem: ChildEnhancedMenuItem, idx) => (
+            <div key={subItem.id + '-' + idx}>
+              {!subItem.to.startsWith('http') ? (
+                <Link
+                  to={subItem.to}
+                  target={subItem.target}
+                  prefetch="intent"
+                  className="text-sm font-medium text-[#131210] dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                  onClick={onNavigate}
+                >
+                  {subItem.title}
+                </Link>
+              ) : (
+                <a
+                  href={subItem.to}
+                  target={subItem.target}
+                  className="text-sm font-medium text-[#131210] dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                  onClick={onNavigate}
+                >
+                  {subItem.title}
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Columna 4: colecciones destacadas + tarjeta */}
+      {(collections.length > 0 || card) && (
+        <div className="hidden lg:block w-[190px] flex-shrink-0">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
+            {headingCollections}
+          </p>
+          {collections.length > 0 && (
+            <ul className="space-y-2 mb-4">
+              {collections.map((c: any) => (
+                <li key={c.id}>
+                  <Link
+                    to={`/collections/${c.handle}`}
+                    prefetch="intent"
+                    className="text-sm text-[#131210] dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                    onClick={onNavigate}
+                  >
+                    {c.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+          {card && (
+            <CollectionItem onClick={onNavigate} item={card as any} compact />
+          )}
+        </div>
+      )}
+
+      {/* Columna 5: slider de productos destacados */}
+      {products.length > 0 && (
+        <div className="hidden xl:block w-[200px] flex-shrink-0">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
+            {headingProducts}
+          </p>
+          <ProductSlider products={products} onNavigate={onNavigate} />
+        </div>
+      )}
+
+      {/* Columna 6: marcas destacadas */}
+      {brands.length > 0 && (
+        <div className="hidden xl:block w-[150px] flex-shrink-0">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
+            {headingBrands}
+          </p>
+          <div className="space-y-2.5">
+            {brands.map((b: any) => {
+              const name = b?.name?.value || '';
+              const link = b?.link?.value || '#';
+              const logo = b?.logo?.reference?.image;
+              return (
+                <Link
+                  key={b.id}
+                  to={link}
+                  prefetch="intent"
+                  className="flex items-center h-7 group"
+                  aria-label={name}
+                  onClick={onNavigate}
+                >
+                  {logo ? (
+                    <Image
+                      data={logo}
+                      width={90}
+                      height={28}
+                      className="max-h-7 w-auto object-contain grayscale group-hover:grayscale-0 transition-[filter]"
+                      sizes="90px"
+                    />
+                  ) : (
+                    <span className="text-sm text-[#131210] dark:text-neutral-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                      {name}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Slider de productos que muestra un producto a la vez, con flechas y puntos.
+ */
+function ProductSlider({
+  products,
+  onNavigate,
+}: {
+  products: any[];
+  onNavigate: () => void;
+}) {
+  const [index, setIndex] = useState(0);
+  const total = products.length;
+  const current = products[index];
+  const go = (delta: number) =>
+    setIndex((i) => (i + delta + total) % total);
+
+  if (!current) return null;
+
+  return (
+    <div>
+      <Link
+        to={`/products/${current.handle}`}
+        prefetch="intent"
+        className="block group"
+        onClick={onNavigate}
+      >
+        {current.featuredImage && (
+          <div className="aspect-square w-full rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+            <Image
+              data={current.featuredImage}
+              width={200}
+              height={200}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+              sizes="200px"
+            />
+          </div>
+        )}
+        <p className="mt-2 text-sm text-[#131210] dark:text-neutral-200 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+          {current.title}
+        </p>
+        {current.priceRange?.minVariantPrice && (
+          <Prices
+            price={current.priceRange.minVariantPrice}
+            className="text-sm mt-1"
+          />
+        )}
+      </Link>
+
+      {total > 1 && (
+        <div className="flex items-center justify-between mt-3">
+          <button
+            type="button"
+            aria-label="Anterior"
+            onClick={() => go(-1)}
+            className="p-1 rounded-full border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <ChevronLeftIcon className="w-4 h-4" />
+          </button>
+          <div className="flex items-center gap-1.5">
+            {products.map((_, i) => (
+              <button
+                type="button"
+                key={i}
+                aria-label={`Ir al producto ${i + 1}`}
+                onClick={() => setIndex(i)}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === index
+                    ? 'w-4 bg-primary-600'
+                    : 'w-1.5 bg-neutral-300 dark:bg-neutral-600'
+                }`}
+              />
+            ))}
+          </div>
+          <button
+            type="button"
+            aria-label="Siguiente"
+            onClick={() => go(1)}
+            className="p-1 rounded-full border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <ChevronRightIcon className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Megamenú automático (fallback): cuando un item de menú no tiene panel de
+ * metaobject, se deriva todo del `resource` de la colección — mismo
+ * comportamiento previo a la capa configurable.
+ */
+function AutoMegamenu({
+  menuItem,
+  megamenuBrands,
+  onNavigate,
+}: {
+  menuItem: ParentEnhancedMenuItem;
+  megamenuBrands: ReturnType<typeof getMegamenuBrands>;
+  onNavigate: () => void;
+}) {
+  return (
+    <div className="flex gap-6">
+      {/* Menu Items Grid */}
+      <div className="flex-1 min-w-0">
+        {!menuItem.to.startsWith('http') && (
+          <Link
+            to={menuItem.to}
+            prefetch="intent"
+            className="inline-block font-semibold text-[#131210] dark:text-neutral-100 hover:text-primary-600 dark:hover:text-primary-400 transition-colors mb-4"
+            onClick={onNavigate}
+          >
+            Ver todo {menuItem.title}
+          </Link>
+        )}
+        <div className="grid grid-cols-3 gap-6 xl:gap-8">
+          {menuItem.items?.map((subItem: ChildEnhancedMenuItem, idx) => (
+            <div key={subItem.id + '-' + idx}>
+              {!subItem.to.startsWith('http') ? (
+                <Link
+                  to={subItem.to}
+                  target={subItem.target}
+                  prefetch="intent"
+                  className="font-medium text-[#131210] dark:text-neutral-200 hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
+                  onClick={onNavigate}
+                >
+                  {subItem.title}
+                </Link>
+              ) : (
+                <a
+                  href={subItem.to}
+                  target={subItem.target}
+                  className="block group"
+                  onClick={onNavigate}
+                >
+                  <p className="font-medium text-[#131210] dark:text-neutral-200 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                    {subItem.title}
+                  </p>
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Colección e imagen resueltas directamente del `resource` del
+            menu item vía Storefront API. */}
+      {menuItem.resource?.__typename === 'Collection' && (
+        <div className="hidden xl:flex gap-4 flex-shrink-0">
+          <div className="w-[180px] flex-shrink-0">
+            <CollectionItem
+              onClick={onNavigate}
+              item={menuItem.resource}
+              compact
+            />
+          </div>
+          {!!menuItem.resource.megamenu_products?.nodes?.length && (
+            <div className="w-[180px] flex-shrink-0">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
+                Más vendidos
+              </p>
+              <div className="space-y-3">
+                {menuItem.resource.megamenu_products.nodes.map((product) => (
+                  <Link
+                    key={product.id}
+                    to={`/products/${product.handle}`}
+                    prefetch="intent"
+                    className="flex items-center gap-3 group"
+                    onClick={onNavigate}
+                  >
+                    {product.featuredImage && (
+                      <Image
+                        data={product.featuredImage}
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 rounded-lg object-cover flex-shrink-0"
+                        sizes="40px"
+                      />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-xs text-[#131210] dark:text-neutral-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                        {product.title}
+                      </p>
+                      <Prices
+                        price={product.priceRange.minVariantPrice}
+                        className="text-xs"
+                      />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+          {!!megamenuBrands.length && (
+            <div className="w-[140px] flex-shrink-0">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
+                Marcas
+              </p>
+              <div className="space-y-2.5">
+                {megamenuBrands.map((brand) => (
+                  <Link
+                    key={brand.label}
+                    to={brand.url}
+                    prefetch="intent"
+                    className="flex items-center h-6 group"
+                    aria-label={brand.label}
+                    onClick={onNavigate}
+                  >
+                    {brand.imageLogo ? (
+                      <Image
+                        data={brand.imageLogo}
+                        width={80}
+                        height={24}
+                        className="max-h-6 w-auto object-contain grayscale group-hover:grayscale-0 transition-[filter]"
+                        sizes="80px"
+                      />
+                    ) : brand.svgLogo ? (
+                      <span
+                        className="max-h-6 w-auto [&_svg]:h-6 [&_svg]:w-auto grayscale group-hover:grayscale-0 transition-[filter]"
+                        dangerouslySetInnerHTML={{
+                          __html: brand.svgLogo,
+                        }}
+                      />
+                    ) : (
+                      <span className="text-xs text-[#131210] dark:text-neutral-200 truncate group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                        {brand.label}
+                      </span>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }

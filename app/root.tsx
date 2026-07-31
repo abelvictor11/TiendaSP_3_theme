@@ -678,6 +678,110 @@ const HEADER_QUERY = `#graphql
         }
       }
     }
+    # Paneles de megamenú configurables por item de menú (metaobject
+    # megamenu_panel). Cada panel se empareja por menu_title con el título del
+    # item de navegación; controla columnas 4-6 (colecciones destacadas,
+    # slider de productos, marcas). Si un item no tiene panel, el megamenú
+    # cae al comportamiento automático derivado de la colección.
+    megamenuPanels: metaobjects(type: "megamenu_panel", first: 25) {
+      nodes {
+        id
+        menu_title: field(key: "menu_title") {
+          value
+        }
+        heading_collections: field(key: "heading_collections") {
+          value
+        }
+        heading_products: field(key: "heading_products") {
+          value
+        }
+        heading_brands: field(key: "heading_brands") {
+          value
+        }
+        featured_collections: field(key: "featured_collections") {
+          references(first: 12) {
+            nodes {
+              ... on Collection {
+                id
+                handle
+                title
+                image {
+                  altText
+                  url
+                  width
+                  height
+                }
+              }
+            }
+          }
+        }
+        collection_card: field(key: "collection_card") {
+          reference {
+            ... on Collection {
+              id
+              handle
+              title
+              image {
+                altText
+                url
+                width
+                height
+              }
+            }
+          }
+        }
+        featured_products: field(key: "featured_products") {
+          references(first: 6) {
+            nodes {
+              ... on Product {
+                id
+                handle
+                title
+                featuredImage {
+                  altText
+                  url
+                  width
+                  height
+                }
+                priceRange {
+                  minVariantPrice {
+                    amount
+                    currencyCode
+                  }
+                }
+              }
+            }
+          }
+        }
+        featured_brands: field(key: "featured_brands") {
+          references(first: 12) {
+            nodes {
+              ... on Metaobject {
+                id
+                name: field(key: "name") {
+                  value
+                }
+                link: field(key: "link") {
+                  value
+                }
+                logo: field(key: "logo") {
+                  reference {
+                    ... on MediaImage {
+                      image {
+                        altText
+                        url
+                        width
+                        height
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
   ${MENU_FRAGMENT}
   ${COMMON_COLLECTION_ITEM_FRAGMENT}
