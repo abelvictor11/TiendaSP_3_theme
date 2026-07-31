@@ -27,6 +27,18 @@ import {getVariantUrl, useVariantUrl} from '~/lib/variants';
 import {ClientOnly} from './client-only';
 import {getVendorCollectionUrl} from '~/utils/vendorCollectionUrl';
 
+// Estilo base compartido por todos los badges de la card (mismo radius,
+// padding, tamaño y peso de texto). Cada badge sólo cambia su color de fondo.
+const BADGE_BASE =
+  'inline-flex items-center px-2 py-1 text-xs font-medium rounded-md leading-none';
+
+// Colores por estado de producto (se conserva el fondo propio de cada uno).
+const STATUS_STYLES: Record<string, string> = {
+  Oferta: 'bg-[#ff0000] text-white',
+  Agotado: 'bg-zinc-500 text-white',
+  Nuevo: 'bg-emerald-600 text-white',
+};
+
 export interface ProductCardProps {
   className?: string;
   product: CommonProductCardFragment;
@@ -93,6 +105,14 @@ const ProductCard: FC<ProductCardProps> = ({
       FREE_SHIPPING_THRESHOLD_COP;
 
   const vendorUrl = getVendorCollectionUrl(vendor);
+
+  const productStatus = getProductStatus({
+    availableForSale: product.availableForSale,
+    compareAtPriceRangeMinVariantPrice:
+      product.compareAtPriceRange.minVariantPrice,
+    priceRangeMinVariantPrice: product.priceRange.minVariantPrice,
+    publishedAt: product.publishedAt,
+  });
 
   const firstVariant = variants?.nodes?.[0];
 
@@ -305,25 +325,27 @@ const ProductCard: FC<ProductCardProps> = ({
               simultáneos (Oferta + envío rápido + envío gratis) pasen a una
               segunda línea en vez de desbordarse fuera de la tarjeta. */}
           <div className="absolute top-3 start-3 end-12 z-10 flex flex-row flex-wrap items-center gap-1.5">
-            <ProductBadge
-              status={getProductStatus({
-                availableForSale: product.availableForSale,
-                compareAtPriceRangeMinVariantPrice:
-                  product.compareAtPriceRange.minVariantPrice,
-                priceRangeMinVariantPrice: product.priceRange.minVariantPrice,
-                publishedAt: product.publishedAt,
-              })}
-              className="px-2 py-1 text-xs !relative !top-0 !start-0"
-            />
+            {/* Estado (Oferta / Agotado / Nuevo) */}
+            {productStatus && (
+              <span
+                className={`${BADGE_BASE} ${
+                  STATUS_STYLES[productStatus] ?? 'bg-zinc-500 text-white'
+                }`}
+              >
+                {productStatus}
+              </span>
+            )}
             {/* Badge Tipo de Uso */}
             {uso_tipo?.value && (
-              <span className={`px-2 py-1 text-xs font-medium rounded-md ${
-                uso_tipo.value.toLowerCase() === 'comercial' 
-                  ? 'bg-blue-100 text-blue-700' 
-                  : uso_tipo.value.toLowerCase() === 'profesional'
-                  ? 'bg-purple-100 text-purple-700'
-                  : 'bg-[#F9F9F9] text-[#2B2A2A]'
-              }`}>
+              <span
+                className={`${BADGE_BASE} ${
+                  uso_tipo.value.toLowerCase() === 'comercial'
+                    ? 'bg-blue-100 text-blue-700'
+                    : uso_tipo.value.toLowerCase() === 'profesional'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-[#F9F9F9] text-[#2B2A2A]'
+                }`}
+              >
                 {uso_tipo.value}
               </span>
             )}
@@ -331,13 +353,9 @@ const ProductCard: FC<ProductCardProps> = ({
             {shippingBadgeMetaobject && (
               <ShippingBadge metaobject={shippingBadgeMetaobject} size="sm" />
             )}
-            {/* Envío Gratis — antes vivía como texto suelto en la línea de
-                specs; unificado acá con el mismo estilo de pill que
-                ShippingBadge para que ambas señales de envío (velocidad vs.
-                costo) se vean consistentes, aunque sigan siendo dos campos
-                de datos distintos (shipping_badge vs. envio_gratis). */}
+            {/* Envío Gratis (campo envio_gratis, distinto de shipping_badge) */}
             {hasEnvioGratis && (
-              <span className="inline-flex items-center rounded-full font-bold uppercase tracking-wide shadow-sm ring-1 ring-inset ring-[#21387533] gap-1 px-2.5 py-1 text-xs bg-[#28faa5] text-[#213875]">
+              <span className={`${BADGE_BASE} bg-[#28faa5] text-[#213875]`}>
                 Envío Gratis
               </span>
             )}

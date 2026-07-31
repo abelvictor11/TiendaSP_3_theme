@@ -1,4 +1,4 @@
-import {type FC} from 'react';
+import {type FC, type CSSProperties} from 'react';
 
 /**
  * ShippingBadge — Etiqueta visual de envío impulsada por metaobject.
@@ -57,22 +57,30 @@ const ShippingBadge: FC<ShippingBadgeProps> = ({
   // Gradiente sutil: el color base → una versión 10% más clara (mezcla con blanco)
   const gradient = `linear-gradient(135deg, ${bg} 0%, ${mix(bg, '#ffffff', 0.25)} 100%)`;
 
-  const sizeClasses =
-    size === 'md'
-      ? 'gap-1.5 px-2.5 py-1 text-xs'
-      : 'gap-1 px-2.5 py-1 text-xs';
+  // En la card (sm) el badge usa el estilo plano compartido con el resto de
+  // badges (mismo radius/padding/tamaño, fondo liso). En la PDP (md) conserva
+  // el estilo destacado con gradiente, anillo y uppercase.
+  const isSm = size === 'sm';
   const emojiSize = size === 'md' ? 'text-sm' : 'text-xs';
 
-  return (
-    <span
-      className={`inline-flex items-center rounded-full font-bold uppercase tracking-wide shadow-sm ring-1 ring-inset ${sizeClasses} ${className}`}
-      style={{
+  const classNameBase = isSm
+    ? 'inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-md leading-none'
+    : 'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs rounded-full font-bold uppercase tracking-wide shadow-sm ring-1 ring-inset';
+
+  const spanStyle: CSSProperties = isSm
+    ? {backgroundColor: bg, color: fg}
+    : {
         background: gradient,
         color: fg,
         borderColor: fg + '33', // opaco al 20%
         // El ring-1 usa --tw-ring-color, lo sobrescribimos inline
         ['--tw-ring-color' as any]: fg + '33',
-      }}
+      };
+
+  return (
+    <span
+      className={`${classNameBase} ${className}`}
+      style={spanStyle}
       aria-label={label}
       title={label}
     >
