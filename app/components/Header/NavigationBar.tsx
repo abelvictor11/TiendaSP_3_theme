@@ -303,8 +303,9 @@ function PanelMegamenu({
 
   return (
     <div className="flex gap-6 xl:gap-8">
-      {/* Columnas 1-3: sub-items del menú */}
-      <div className="flex-1 min-w-0">
+      {/* Columnas 1-3: sub-items del menú (ancho acotado para no dejar
+          demasiado espacio muerto entre las 3 columnas de texto) */}
+      <div className="min-w-0 max-w-[480px] flex-shrink">
         {!menuItem.to.startsWith('http') && (
           <Link
             to={menuItem.to}
@@ -315,7 +316,7 @@ function PanelMegamenu({
             Ver todo {menuItem.title}
           </Link>
         )}
-        <div className="grid grid-cols-3 gap-x-6 gap-y-3 xl:gap-x-8">
+        <div className="grid grid-cols-3 gap-x-4 gap-y-3">
           {menuItem.items?.map((subItem: ChildEnhancedMenuItem, idx) => (
             <div key={subItem.id + '-' + idx}>
               {!subItem.to.startsWith('http') ? (
@@ -342,6 +343,11 @@ function PanelMegamenu({
           ))}
         </div>
       </div>
+
+      {/* Espaciador flexible: empuja las columnas de colecciones/productos/
+          marcas hacia la derecha, dejando el bloque de texto compacto a la
+          izquierda en vez de estirado a lo ancho. */}
+      <div className="flex-1" />
 
       {/* Columna 4: colecciones destacadas + tarjeta */}
       {(collections.length > 0 || card) && (
@@ -373,7 +379,7 @@ function PanelMegamenu({
 
       {/* Columna 5: slider de productos destacados */}
       {products.length > 0 && (
-        <div className="hidden xl:block w-[200px] flex-shrink-0">
+        <div className="hidden xl:block w-[260px] flex-shrink-0">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
             {headingProducts}
           </p>
