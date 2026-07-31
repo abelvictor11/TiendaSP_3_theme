@@ -22,11 +22,15 @@ export function SectionCategoryCardsCarousel(
   // solo hay un grupo real (`endurance`) usándose en home de todas formas.
   const cards = category_groups?.nodes?.[0]?.category_cards?.nodes || [];
 
+  // #f7f7f7 (off-white) también se trata como "sin fondo" para no dejar un
+  // panel gris suelto; case-insensitive por venir de un metaobject.
+  const normalizedBg = background_color?.value?.trim().toLowerCase();
   const hasBgColor =
-    background_color?.value &&
-    background_color?.value !== 'transparent' &&
-    background_color?.value !== '#ffffff' &&
-    background_color?.value !== '#fff';
+    !!normalizedBg &&
+    normalizedBg !== 'transparent' &&
+    normalizedBg !== '#ffffff' &&
+    normalizedBg !== '#fff' &&
+    normalizedBg !== '#f7f7f7';
 
   const renderCard = (item: any, index: number) => {
     if (!item.id) return null;

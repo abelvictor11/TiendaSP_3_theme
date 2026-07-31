@@ -40,10 +40,15 @@ export function SectionTabsCollectionsByGroup(
   const [tabActive, setTabActive] = useState(0);
 
   const currentGroup = collection_groups?.nodes?.[tabActive];
+  // #f7f7f7 (off-white) también cuenta como "sin fondo" para no dejar un
+  // panel gris suelto; case-insensitive por venir de un metaobject.
+  const normalizedBg = background_color?.value?.trim().toLowerCase();
   const noneBgColor =
-    !background_color?.value ||
-    background_color?.value === '#fff' ||
-    background_color?.value === '#ffffff';
+    !normalizedBg ||
+    normalizedBg === '#fff' ||
+    normalizedBg === '#ffffff' ||
+    normalizedBg === 'transparent' ||
+    normalizedBg === '#f7f7f7';
   const isSkeleton = !currentGroup?.collections;
 
   const renderCard = (item: CollectionOnGroupItemFragment, index: number) => {
@@ -117,7 +122,7 @@ export function SectionTabsCollectionsByGroup(
   return (
     <section className="section-TabsCollectionsByGroup container">
       <div className={!noneBgColor ? 'relative py-12 lg:py-16' : ''}>
-        {background_color?.value && (
+        {!noneBgColor && (
           <BackgroundSection
             style={{backgroundColor: background_color?.value}}
           />

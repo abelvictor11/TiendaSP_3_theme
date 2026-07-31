@@ -53,11 +53,15 @@ export function SectionLatestBlog(props: SectionLatestBlogFragment) {
   if (!data) return null;
 
   const {articles} = data;
+  // #f7f7f7 (off-white) también se trata como "sin fondo" para no dejar un
+  // panel gris suelto; case-insensitive por venir de un metaobject.
+  const normalizedBg = background_color?.value?.trim().toLowerCase();
   const hasBgColor =
-    background_color?.value &&
-    background_color?.value !== 'transparent' &&
-    background_color?.value !== '#ffffff' &&
-    background_color?.value !== '#fff';
+    !!normalizedBg &&
+    normalizedBg !== 'transparent' &&
+    normalizedBg !== '#ffffff' &&
+    normalizedBg !== '#fff' &&
+    normalizedBg !== '#f7f7f7';
 
   return (
     <section className="section-SectionLatestBlog container">
