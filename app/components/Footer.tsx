@@ -6,6 +6,8 @@ import {
   EnvelopeIcon,
   InformationCircleIcon,
   MapPinIcon,
+  PhoneIcon,
+  ClockIcon,
   TruckIcon,
 } from '@heroicons/react/24/outline';
 import {useFetcher, useRouteLoaderData} from '@remix-run/react';
@@ -20,41 +22,93 @@ import {CITIES} from '~/data/cities';
 
 interface FooterProps {}
 
+// ── Datos de contacto y sedes ──────────────────────────────────────────────
+// TODO(merchant): confirmar/ajustar estos valores reales de la tienda.
+const CONTACT = {
+  email: 'servicioalcliente@tiendasportfitness.com',
+  whatsapp: '573001234567', // solo dígitos, formato internacional
+  whatsappLabel: '+57 300 123 4567',
+  hours: 'Lun–Vie 8am–6pm · Sáb 9am–1pm',
+};
+
+const STORE_LOCATIONS: {city: string; address: string}[] = [
+  {city: 'Medellín', address: 'Carrera 43 #30-91'},
+  {city: 'Barranquilla', address: 'Carrera 51B #93-25'},
+  {city: 'Llanogrande', address: 'Km 4 Vía Rionegro'},
+  {city: 'Palmas', address: 'Cr 38 # 18 - 101 Mall palmagrande local 121'},
+];
+
+const linkCls =
+  'text-neutral-600 dark:text-neutral-400 hover:text-black dark:hover:text-white transition-colors';
+const headingCls =
+  'text-sm font-semibold text-neutral-900 dark:text-neutral-100';
+
+/** Normaliza un título de menú para clasificarlo (sin acentos, minúsculas). */
+function normTitle(s?: string | null) {
+  return (s ?? '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .trim();
+}
+
+/**
+ * Reparte los menús del footer (definidos por el merchant en Shopify) en los
+ * dos slots con etiqueta fija del nuevo layout — "Sobre {tienda}" y
+ * "Políticas" — emparejando por título, con fallback por posición. Todo menú
+ * que no entre en esos dos slots (Categorías u otros) se devuelve en `extras`
+ * y se muestra abajo como tira horizontal, para no perder ningún link.
+ */
+function bucketFooterMenus(menus?: ParentEnhancedMenuItem[]) {
+  const list = menus ?? [];
+  let policies = list.find((m) => /polit|info|legal/.test(normTitle(m.title)));
+  let about = list.find(
+    (m) =>
+      m !== policies &&
+      /ayuda|sobre|about|help|nosotros|tienda/.test(normTitle(m.title)),
+  );
+  // Fallback por posición si no hubo match por título.
+  if (!about) about = list.find((m) => m !== policies);
+  if (!policies) policies = list.find((m) => m !== about);
+
+  const used = new Set([about, policies].filter(Boolean));
+  const extras = list.filter((m) => !used.has(m));
+  return {about, policies, extras};
+}
+
+function MenuLinks({items}: {items?: ChildEnhancedMenuItem[]}) {
+  return (
+    <ul className="mt-5 space-y-3 text-sm">
+      {items?.map((item, i) => (
+        <li key={`${i + item.id}`}>
+          {item.to.startsWith('http') ? (
+            <a
+              href={item.to}
+              target={item.target}
+              rel="noopener noreferrer"
+              className={linkCls}
+            >
+              {item.title}
+            </a>
+          ) : (
+            <Link
+              to={item.to}
+              target={item.target}
+              prefetch="intent"
+              className={linkCls}
+            >
+              {item.title}
+            </Link>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 const Footer: React.FC<FooterProps> = () => {
   const rootData = useRouteLoaderData<RootLoader>('root');
   const shop = rootData?.layout?.shop;
-
-  const renderWidgetMenu = (menu: ParentEnhancedMenuItem, index: number) => {
-    return (
-      <div key={index + menu.id} className="text-sm">
-        <h2 className="font-semibold text-neutral-700 dark:text-neutral-200">
-          {menu.title}
-        </h2>
-        <ul className="mt-5 space-y-4">
-          {menu.items?.map((item: ChildEnhancedMenuItem, i) => (
-            <li
-              key={`${i + item.id}`}
-              className="text-neutral-600 hover:text-black "
-            >
-              {item.to.startsWith('http') ? (
-                <a
-                  href={item.to}
-                  target={item.target}
-                  rel="noopener noreferrer"
-                >
-                  {item.title}
-                </a>
-              ) : (
-                <Link to={item.to} target={item.target} prefetch="intent">
-                  {item.title}
-                </Link>
-              )}
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  };
 
   return (
     <footer
@@ -65,63 +119,189 @@ const Footer: React.FC<FooterProps> = () => {
         Footer
       </h2>
 
-      <div className="mx-auto max-w-7xl px-6 pb-8 pt-20 sm:pt-24 lg:px-8 lg:pt-28">
-        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 xl:col-span-2">
+      <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-20 lg:px-8 lg:pt-24">
+        {/* ── Fila superior: 5 columnas ── */}
+        <HeaderMenuDataWrap>
+          {({headerData: {socials}}) => (
             <FooterMenuDataWrap>
-              {({footerMenu}) => footerMenu?.items?.map(renderWidgetMenu)}
+              {({footerMenu}) => {
+                const {about, policies, extras} = bucketFooterMenus(
+                  footerMenu?.items,
+                );
+                const socialLinks = socials.edges
+                  .map((edge) => ({
+                    name: edge.node.title?.value || '',
+                    href: edge.node.link?.value || '',
+                  }))
+                  .filter((s) => s.name && s.href);
+
+                return (
+                  <>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-10">
+                    {/* 1 · Sobre Tienda Fitness */}
+                    <div>
+                      <h3 className={headingCls}>
+                        Sobre {shop?.name || 'Tienda Fitness'}
+                      </h3>
+                      <MenuLinks items={about?.items} />
+                    </div>
+
+                    {/* 2 · Sociales */}
+                    <div>
+                      <h3 className={headingCls}>Sociales</h3>
+                      <ul className="mt-5 space-y-3 text-sm">
+                        {socialLinks.map((s) => (
+                          <li key={s.name}>
+                            <a
+                              href={s.href}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={linkCls}
+                            >
+                              {s.name}
+                            </a>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* 3 · Políticas */}
+                    <div>
+                      <h3 className={headingCls}>Políticas</h3>
+                      <MenuLinks items={policies?.items} />
+                    </div>
+
+                    {/* 4 · Contacto */}
+                    <div>
+                      <h3 className={headingCls}>Contacto</h3>
+                      <ul className="mt-5 space-y-4 text-sm">
+                        <li>
+                          <a
+                            href={`mailto:${CONTACT.email}`}
+                            className={`flex items-start gap-2 ${linkCls}`}
+                          >
+                            <EnvelopeIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                            <span className="break-all">{CONTACT.email}</span>
+                          </a>
+                        </li>
+                        <li>
+                          <a
+                            href={`https://wa.me/${CONTACT.whatsapp}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`flex items-start gap-2 ${linkCls}`}
+                          >
+                            <PhoneIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                            <span>WhatsApp {CONTACT.whatsappLabel}</span>
+                          </a>
+                        </li>
+                        <li className="flex items-start gap-2 text-neutral-600 dark:text-neutral-400">
+                          <ClockIcon className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                          <span>{CONTACT.hours}</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* 5 · Direcciones */}
+                    <div>
+                      <h3 className={`${headingCls} flex items-center gap-2`}>
+                        <MapPinIcon className="w-4 h-4" />
+                        Direcciones
+                      </h3>
+                      <ul className="mt-5 space-y-3 text-sm text-neutral-600 dark:text-neutral-400">
+                        {STORE_LOCATIONS.map((loc) => (
+                          <li key={loc.city}>
+                            <span className="font-medium text-neutral-800 dark:text-neutral-200">
+                              {loc.city}:
+                            </span>{' '}
+                            {loc.address}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    </div>
+
+                    {/* Menús extra del footer (Categorías u otros) como tira
+                        horizontal, para no perder ningún link. */}
+                    {extras.map((menu) => (
+                      <div
+                        key={menu.id}
+                        className="mt-14 border-t border-neutral-900/10 dark:border-neutral-700 pt-8"
+                      >
+                        <h3 className={headingCls}>{menu.title}</h3>
+                        <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+                          {menu.items?.map((item, i) => (
+                            <li key={`${i + item.id}`}>
+                              {item.to.startsWith('http') ? (
+                                <a
+                                  href={item.to}
+                                  target={item.target}
+                                  rel="noopener noreferrer"
+                                  className={linkCls}
+                                >
+                                  {item.title}
+                                </a>
+                              ) : (
+                                <Link
+                                  to={item.to}
+                                  target={item.target}
+                                  prefetch="intent"
+                                  className={linkCls}
+                                >
+                                  {item.title}
+                                </Link>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </>
+                );
+              }}
             </FooterMenuDataWrap>
+          )}
+        </HeaderMenuDataWrap>
+
+        {/* ── Envíos a tu ciudad (tira horizontal, landing pages SEO) ── */}
+        <div className="mt-14 border-t border-neutral-900/10 dark:border-neutral-700 pt-8">
+          <h3 className={`${headingCls} flex items-center gap-2`}>
+            <TruckIcon className="w-4 h-4" />
+            Envíos a tu ciudad
+          </h3>
+          <ul className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            {CITIES.map((city) => (
+              <li key={city.slug}>
+                <Link
+                  to={`/ciudad/${city.slug}.html`}
+                  prefetch="intent"
+                  className={linkCls}
+                >
+                  Envíos a {city.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* ── Fila inferior: descripción + newsletter ── */}
+        <div className="mt-14 grid gap-10 lg:grid-cols-2 border-t border-neutral-900/10 dark:border-neutral-700 pt-10">
+          <div>
+            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+              Sobre {shop?.name || 'Tienda Fitness'}
+            </h3>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+              {shop?.description ||
+                'En Tienda Fitness equipamos tu entrenamiento con máquinas y accesorios de gimnasio de las mejores marcas, con envíos a todo el país y respaldo posventa en nuestras sedes.'}
+            </p>
           </div>
-          <div className="mt-10 xl:mt-0 space-y-8">
+          <div className="lg:max-w-md lg:justify-self-end w-full">
             <WidgetAddSubscriberForm />
-            {/* Store Locations */}
-            <div className="text-sm">
-              <h2 className="font-semibold text-neutral-700 dark:text-neutral-200 flex items-center gap-2">
-                <MapPinIcon className="w-4 h-4" />
-                Nuestras sedes
-              </h2>
-              <ul className="mt-4 space-y-3">
-                <li className="text-neutral-600">
-                  <span className="font-medium">Medellín:</span> Carrera 43
-                  #30-91
-                </li>
-                <li className="text-neutral-600">
-                  <span className="font-medium">Barranquilla:</span> Carrera 51B
-                  #93-25
-                </li>
-                <li className="text-neutral-600">
-                  <span className="font-medium">Llanogrande:</span> Km 4 Vía
-                  Rionegro
-                </li>
-                <li className="text-neutral-600">
-                  <span className="font-medium">Palmas:</span> Cr 38 # 18 - 101
-                  Mall palmagrande local 121
-                </li>
-              </ul>
-            </div>
-            {/* Shipping-to-city landing pages (app/data/cities.ts) */}
-            <div className="text-sm">
-              <h2 className="font-semibold text-neutral-700 dark:text-neutral-200 flex items-center gap-2">
-                <TruckIcon className="w-4 h-4" />
-                Envíos a tu ciudad
-              </h2>
-              <ul className="mt-4 space-y-3">
-                {CITIES.map((city) => (
-                  <li
-                    key={city.slug}
-                    className="text-neutral-600 hover:text-black"
-                  >
-                    <Link to={`/ciudad/${city.slug}.html`} prefetch="intent">
-                      Envíos a {city.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
         </div>
 
-        <div className="mt-16 border-t border-gray-900/10 dark:border-neutral-700 pt-8 sm:mt-20 md:flex md:items-center md:justify-between lg:mt-20">
+        {/* ── Copyright + iconos sociales ── */}
+        <div className="mt-14 border-t border-neutral-900/10 dark:border-neutral-700 pt-8 md:flex md:items-center md:justify-between">
           <div className="flex flex-wrap gap-x-6 gap-y-3 md:order-2">
             <HeaderMenuDataWrap>
               {({headerData: {socials}}) => (
@@ -141,8 +321,8 @@ const Footer: React.FC<FooterProps> = () => {
             </HeaderMenuDataWrap>
           </div>
           <p className="mt-8 text-[13px] leading-5 text-gray-500 md:order-1 md:mt-0">
-            © {new Date().getFullYear()}
-            {shop?.name}. Todos los derechos reservados.
+            © {new Date().getFullYear()} {shop?.name}. Todos los derechos
+            reservados.
           </p>
         </div>
       </div>
