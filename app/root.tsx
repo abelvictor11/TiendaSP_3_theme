@@ -31,7 +31,10 @@ import styles from './styles/app.css?url';
 import stylesFont from './styles/custom-font.css?url';
 import {DEFAULT_LOCALE, stripLocalePrefix} from './lib/utils';
 import rcSliderStyle from 'rc-slider/assets/index.css?url';
-import {COMMON_COLLECTION_ITEM_FRAGMENT} from './data/commonFragments';
+import {
+  COMMON_COLLECTION_ITEM_FRAGMENT,
+  COMMON_PRODUCT_CARD_FRAGMENT,
+} from './data/commonFragments';
 import {OkendoProvider, getOkendoProviderData} from '@okendo/shopify-hydrogen';
 import invariant from 'tiny-invariant';
 import {getFreeShippingThreshold} from '~/lib/shipping.server';
@@ -734,21 +737,7 @@ const HEADER_QUERY = `#graphql
           references(first: 6) {
             nodes {
               ... on Product {
-                id
-                handle
-                title
-                featuredImage {
-                  altText
-                  url
-                  width
-                  height
-                }
-                priceRange {
-                  minVariantPrice {
-                    amount
-                    currencyCode
-                  }
-                }
+                ...CommonProductCard
               }
             }
           }
@@ -785,6 +774,7 @@ const HEADER_QUERY = `#graphql
   }
   ${MENU_FRAGMENT}
   ${COMMON_COLLECTION_ITEM_FRAGMENT}
+  ${COMMON_PRODUCT_CARD_FRAGMENT}
 ` as const;
 
 async function getLayoutData({storefront, env}: AppLoadContext) {

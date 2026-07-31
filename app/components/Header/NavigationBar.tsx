@@ -5,6 +5,7 @@ import {Link} from '@remix-run/react';
 import {Image} from '@shopify/hydrogen';
 import type {ParentEnhancedMenuItem, ChildEnhancedMenuItem} from '~/lib/utils';
 import CollectionItem from '../CollectionItem';
+import ProductCard from '../ProductCard';
 import Prices from '../Prices';
 import {normalizeBrandKey} from '~/utils/brandKey';
 import {getVendorCollectionUrl} from '~/utils/vendorCollectionUrl';
@@ -376,7 +377,7 @@ function PanelMegamenu({
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">
             {headingProducts}
           </p>
-          <ProductSlider products={products} onNavigate={onNavigate} />
+          <ProductSlider products={products} />
         </div>
       )}
 
@@ -426,13 +427,7 @@ function PanelMegamenu({
 /**
  * Slider de productos que muestra un producto a la vez, con flechas y puntos.
  */
-function ProductSlider({
-  products,
-  onNavigate,
-}: {
-  products: any[];
-  onNavigate: () => void;
-}) {
+function ProductSlider({products}: {products: any[]}) {
   const [index, setIndex] = useState(0);
   const total = products.length;
   const current = products[index];
@@ -443,33 +438,9 @@ function ProductSlider({
 
   return (
     <div>
-      <Link
-        to={`/products/${current.handle}`}
-        prefetch="intent"
-        className="block group"
-        onClick={onNavigate}
-      >
-        {current.featuredImage && (
-          <div className="aspect-square w-full rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800">
-            <Image
-              data={current.featuredImage}
-              width={200}
-              height={200}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-              sizes="200px"
-            />
-          </div>
-        )}
-        <p className="mt-2 text-sm text-[#131210] dark:text-neutral-200 line-clamp-2 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-          {current.title}
-        </p>
-        {current.priceRange?.minVariantPrice && (
-          <Prices
-            price={current.priceRange.minVariantPrice}
-            className="text-sm mt-1"
-          />
-        )}
-      </Link>
+      {/* Misma card de producto que el resto del sitio (isCardSmall omite el
+          rating para caber en el megamenú). */}
+      <ProductCard product={current} isCardSmall />
 
       {total > 1 && (
         <div className="flex items-center justify-between mt-3">
