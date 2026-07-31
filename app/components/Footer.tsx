@@ -149,6 +149,8 @@ const Footer: React.FC<FooterProps> = () => {
               hours: fs?.hours?.value || CONTACT_FALLBACK.hours,
             };
             const locations = parseLocations(fs?.locations?.value);
+            const aboutTitle =
+              fs?.about_title?.value || `Sobre ${shop?.name || 'Tienda Fitness'}`;
             return (
             <FooterMenuDataWrap>
               {({footerMenu}) => {
@@ -167,9 +169,7 @@ const Footer: React.FC<FooterProps> = () => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-x-6 gap-y-10">
                     {/* 1 · Sobre Tienda Fitness */}
                     <div>
-                      <h3 className={headingCls}>
-                        Sobre {shop?.name || 'Tienda Fitness'}
-                      </h3>
+                      <h3 className={headingCls}>{aboutTitle}</h3>
                       <MenuLinks items={about?.items} />
                     </div>
 
@@ -314,21 +314,24 @@ const Footer: React.FC<FooterProps> = () => {
 
         {/* ── Fila inferior: descripción + newsletter ── */}
         <div className="mt-14 grid gap-10 lg:grid-cols-2 border-t border-neutral-900/10 dark:border-neutral-700 pt-10">
-          <div>
-            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
-              Sobre {shop?.name || 'Tienda Fitness'}
-            </h3>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
-              <HeaderMenuDataWrap>
-                {({headerData}) =>
-                  (headerData as any).footerSettings?.nodes?.[0]?.description
-                    ?.value ||
-                  shop?.description ||
-                  'En Tienda Fitness equipamos tu entrenamiento con máquinas y accesorios de gimnasio de las mejores marcas, con envíos a todo el país y respaldo posventa en nuestras sedes.'
-                }
-              </HeaderMenuDataWrap>
-            </p>
-          </div>
+          <HeaderMenuDataWrap>
+            {({headerData}) => {
+              const fs = (headerData as any).footerSettings?.nodes?.[0];
+              return (
+                <div>
+                  <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">
+                    {fs?.about_title?.value ||
+                      `Sobre ${shop?.name || 'Tienda Fitness'}`}
+                  </h3>
+                  <p className="mt-3 max-w-md text-sm leading-relaxed text-neutral-600 dark:text-neutral-400">
+                    {fs?.description?.value ||
+                      shop?.description ||
+                      'En Tienda Fitness equipamos tu entrenamiento con máquinas y accesorios de gimnasio de las mejores marcas, con envíos a todo el país y respaldo posventa en nuestras sedes.'}
+                  </p>
+                </div>
+              );
+            }}
+          </HeaderMenuDataWrap>
           <div className="lg:max-w-md lg:justify-self-end w-full">
             <WidgetAddSubscriberForm />
           </div>

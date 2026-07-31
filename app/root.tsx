@@ -686,6 +686,9 @@ const HEADER_QUERY = `#graphql
     footerSettings: metaobjects(type: "footer_settings", first: 1) {
       nodes {
         id
+        about_title: field(key: "about_title") {
+          value
+        }
         email: field(key: "email") {
           value
         }
