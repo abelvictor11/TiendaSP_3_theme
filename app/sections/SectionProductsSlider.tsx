@@ -23,11 +23,17 @@ export function SectionProductsSlider(props: SectionProductsSliderFragment) {
   // Mismo criterio que SectionBlogCarousel: blanco/transparente no cuenta
   // como "tiene color de fondo" (evita el wrapper/BackgroundSection extra
   // cuando no aporta nada visualmente).
+  // Un fondo prácticamente blanco (#fff, #ffffff o el off-white #f7f7f7 que
+  // dejaba un panel gris "suelto" detrás del slider) no aporta nada visual;
+  // en esos casos no se renderiza el BackgroundSection. Case-insensitive
+  // porque el valor lo teclea el merchant en el metaobject.
+  const normalizedBg = background_color?.value?.trim().toLowerCase();
   const hasBgColor =
-    background_color?.value &&
-    background_color?.value !== 'transparent' &&
-    background_color?.value !== '#ffffff' &&
-    background_color?.value !== '#fff';
+    !!normalizedBg &&
+    normalizedBg !== 'transparent' &&
+    normalizedBg !== '#ffffff' &&
+    normalizedBg !== '#fff' &&
+    normalizedBg !== '#f7f7f7';
 
   return (
     <section>
