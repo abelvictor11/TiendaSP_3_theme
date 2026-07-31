@@ -1,4 +1,5 @@
 import {type ParsedMetafields} from '@shopify/hydrogen';
+import {isVisibleBackground} from '~/utils/isVisibleBackground';
 import {parseSection} from '~/utils/parseSection';
 import type {
   CollectionOnGroupItemFragment,
@@ -40,15 +41,9 @@ export function SectionTabsCollectionsByGroup(
   const [tabActive, setTabActive] = useState(0);
 
   const currentGroup = collection_groups?.nodes?.[tabActive];
-  // #f7f7f7 (off-white) también cuenta como "sin fondo" para no dejar un
-  // panel gris suelto; case-insensitive por venir de un metaobject.
-  const normalizedBg = background_color?.value?.trim().toLowerCase();
-  const noneBgColor =
-    !normalizedBg ||
-    normalizedBg === '#fff' ||
-    normalizedBg === '#ffffff' ||
-    normalizedBg === 'transparent' ||
-    normalizedBg === '#f7f7f7';
+  // Blanco o gris muy claro no aporta nada visual y deja un panel gris
+  // "suelto": se trata como "sin fondo".
+  const noneBgColor = !isVisibleBackground(background_color?.value);
   const isSkeleton = !currentGroup?.collections;
 
   const renderCard = (item: CollectionOnGroupItemFragment, index: number) => {

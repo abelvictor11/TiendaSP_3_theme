@@ -1,4 +1,5 @@
 import {type ParsedMetafields} from '@shopify/hydrogen';
+import {isVisibleBackground} from '~/utils/isVisibleBackground';
 import {parseSection} from '~/utils/parseSection';
 import {useFetcher} from '@remix-run/react';
 import type {SectionInstagramFeedFragment} from 'storefrontapi.generated';
@@ -39,17 +40,9 @@ export function SectionInstagramFeed(props: SectionInstagramFeedFragment) {
 
   const {posts} = data;
 
-  // Un fondo prácticamente blanco (#fff, #ffffff o el off-white #f7f7f7 que
-  // dejaba un panel gris "suelto" y vacío) no aporta nada visual; en esos
-  // casos no se renderiza el BackgroundSection. Case-insensitive porque el
-  // valor lo teclea el merchant en el metaobject.
-  const normalizedBg = background_color?.value?.trim().toLowerCase();
-  const hasBgColor =
-    !!normalizedBg &&
-    normalizedBg !== 'transparent' &&
-    normalizedBg !== '#ffffff' &&
-    normalizedBg !== '#fff' &&
-    normalizedBg !== '#f7f7f7';
+  // Un fondo blanco o gris muy claro no aporta nada visual y deja un panel
+  // gris "suelto"; en esos casos no se renderiza el BackgroundSection.
+  const hasBgColor = isVisibleBackground(background_color?.value);
 
   return (
     <section className="section-SectionInstagramFeed container">

@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {isVisibleBackground} from '~/utils/isVisibleBackground';
 import {type ParsedMetafields} from '@shopify/hydrogen';
 import {parseSection} from '~/utils/parseSection';
 import type {SectionSeoTextFragment} from 'storefrontapi.generated';
@@ -43,15 +44,9 @@ export function SectionSeoText(props: SectionSeoTextFragment) {
     ? textContent.slice(0, maxChars) + '...'
     : null;
 
-  // #f7f7f7 (off-white) también se trata como "sin fondo" para no dejar un
-  // panel gris suelto; case-insensitive por venir de un metaobject.
-  const normalizedBg = background_color?.value?.trim().toLowerCase();
-  const hasBgColor =
-    !!normalizedBg &&
-    normalizedBg !== 'transparent' &&
-    normalizedBg !== '#ffffff' &&
-    normalizedBg !== '#fff' &&
-    normalizedBg !== '#f7f7f7';
+  // Un fondo blanco o gris muy claro no aporta nada visual y deja un panel
+  // gris "suelto"; en esos casos no se renderiza el BackgroundSection.
+  const hasBgColor = isVisibleBackground(background_color?.value);
 
   return (
     <section className="section-SectionSeoText container">

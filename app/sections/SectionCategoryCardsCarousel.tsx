@@ -1,4 +1,5 @@
 import {Image, type ParsedMetafields} from '@shopify/hydrogen';
+import {isVisibleBackground} from '~/utils/isVisibleBackground';
 import {parseSection} from '~/utils/parseSection';
 import type {SectionCategoryCardsCarouselFragment} from 'storefrontapi.generated';
 import {Link} from '@remix-run/react';
@@ -22,17 +23,9 @@ export function SectionCategoryCardsCarousel(
   // solo hay un grupo real (`endurance`) usándose en home de todas formas.
   const cards = category_groups?.nodes?.[0]?.category_cards?.nodes || [];
 
-  // Los off-white / grises muy claros (#f7f7f7, #e5e7eb ≈ neutral-200) no
-  // aportan nada visual y dejaban un panel gris "suelto"; se tratan como
-  // "sin fondo". Case-insensitive por venir de un metaobject.
-  const normalizedBg = background_color?.value?.trim().toLowerCase();
-  const hasBgColor =
-    !!normalizedBg &&
-    normalizedBg !== 'transparent' &&
-    normalizedBg !== '#ffffff' &&
-    normalizedBg !== '#fff' &&
-    normalizedBg !== '#f7f7f7' &&
-    normalizedBg !== '#e5e7eb';
+  // Un fondo blanco o gris muy claro no aporta nada visual y deja un panel
+  // gris "suelto"; en esos casos no se renderiza el BackgroundSection.
+  const hasBgColor = isVisibleBackground(background_color?.value);
 
   const renderCard = (item: any, index: number) => {
     if (!item.id) return null;
