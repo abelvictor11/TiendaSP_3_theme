@@ -39,11 +39,17 @@ export function SectionInstagramFeed(props: SectionInstagramFeedFragment) {
 
   const {posts} = data;
 
+  // Un fondo prácticamente blanco (#fff, #ffffff o el off-white #f7f7f7 que
+  // dejaba un panel gris "suelto" y vacío) no aporta nada visual; en esos
+  // casos no se renderiza el BackgroundSection. Case-insensitive porque el
+  // valor lo teclea el merchant en el metaobject.
+  const normalizedBg = background_color?.value?.trim().toLowerCase();
   const hasBgColor =
-    background_color?.value &&
-    background_color?.value !== 'transparent' &&
-    background_color?.value !== '#ffffff' &&
-    background_color?.value !== '#fff';
+    !!normalizedBg &&
+    normalizedBg !== 'transparent' &&
+    normalizedBg !== '#ffffff' &&
+    normalizedBg !== '#fff' &&
+    normalizedBg !== '#f7f7f7';
 
   return (
     <section className="section-SectionInstagramFeed container">
