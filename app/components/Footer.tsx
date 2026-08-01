@@ -151,6 +151,12 @@ const Footer: React.FC<FooterProps> = () => {
             const locations = parseLocations(fs?.locations?.value);
             const aboutTitle =
               fs?.about_title?.value || `Sobre ${shop?.name || 'Tienda Fitness'}`;
+            const titles = {
+              socials: fs?.heading_socials?.value || 'Sociales',
+              policies: fs?.heading_policies?.value || 'Políticas',
+              contact: fs?.heading_contact?.value || 'Contacto',
+              addresses: fs?.heading_addresses?.value || 'Direcciones',
+            };
             return (
             <FooterMenuDataWrap>
               {({footerMenu}) => {
@@ -175,7 +181,7 @@ const Footer: React.FC<FooterProps> = () => {
 
                     {/* 2 · Sociales */}
                     <div>
-                      <h3 className={headingCls}>Sociales</h3>
+                      <h3 className={headingCls}>{titles.socials}</h3>
                       <ul className="mt-5 space-y-3 text-sm">
                         {socialLinks.map((s) => (
                           <li key={s.name}>
@@ -194,13 +200,13 @@ const Footer: React.FC<FooterProps> = () => {
 
                     {/* 3 · Políticas */}
                     <div>
-                      <h3 className={headingCls}>Políticas</h3>
+                      <h3 className={headingCls}>{titles.policies}</h3>
                       <MenuLinks items={policies?.items} />
                     </div>
 
                     {/* 4 · Contacto */}
                     <div>
-                      <h3 className={headingCls}>Contacto</h3>
+                      <h3 className={headingCls}>{titles.contact}</h3>
                       <ul className="mt-5 space-y-4 text-sm">
                         <li>
                           <a
@@ -233,7 +239,7 @@ const Footer: React.FC<FooterProps> = () => {
                     <div>
                       <h3 className={`${headingCls} flex items-center gap-2`}>
                         <MapPinIcon className="w-4 h-4" />
-                        Direcciones
+                        {titles.addresses}
                       </h3>
                       <ul className="mt-5 space-y-3 text-sm text-neutral-600 dark:text-neutral-400">
                         {locations.map((loc) => (

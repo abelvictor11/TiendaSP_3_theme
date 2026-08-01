@@ -689,6 +689,18 @@ const HEADER_QUERY = `#graphql
         about_title: field(key: "about_title") {
           value
         }
+        heading_socials: field(key: "heading_socials") {
+          value
+        }
+        heading_policies: field(key: "heading_policies") {
+          value
+        }
+        heading_contact: field(key: "heading_contact") {
+          value
+        }
+        heading_addresses: field(key: "heading_addresses") {
+          value
+        }
         email: field(key: "email") {
           value
         }
