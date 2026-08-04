@@ -429,13 +429,19 @@ export default function Product() {
         {/* Feature Blocks - grilla de tarjetas (imagen + título + descripción) */}
         {(() => {
           const featureBlocks = parseFeatureBlocks(product);
-          return featureBlocks.length > 0 ? (
+          const keyFeatures = ((product as any)?.features_key_features?.value ||
+            '')
+            .split('\n')
+            .map((s: string) => s.trim())
+            .filter(Boolean);
+          return featureBlocks.length > 0 || keyFeatures.length > 0 ? (
             <ProductFeatureBlocks
               blocks={featureBlocks}
               heading={
                 (product as any)?.features_heading?.value || 'Características'
               }
               eyebrow={(product as any)?.features_eyebrow?.value || undefined}
+              keyFeatures={keyFeatures}
               className="mt-12 sm:mt-16"
             />
           ) : null;
@@ -1469,6 +1475,7 @@ const PRODUCT_FRAGMENT = `#graphql
       # Feature blocks for PDP (grilla de tarjetas)
       features_heading: metafield(namespace: "pdp_features", key: "heading") { value }
       features_eyebrow: metafield(namespace: "pdp_features", key: "eyebrow") { value }
+      features_key_features: metafield(namespace: "pdp_features", key: "key_features") { value }
       feature_1_title: metafield(namespace: "pdp_features", key: "block_1_title") { value }
       feature_1_description: metafield(namespace: "pdp_features", key: "block_1_description") { value }
       feature_1_media: metafield(namespace: "pdp_features", key: "block_1_media") {

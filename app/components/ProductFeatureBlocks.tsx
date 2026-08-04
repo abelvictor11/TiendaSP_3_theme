@@ -16,28 +16,37 @@ interface ProductFeatureBlocksProps {
   heading?: string;
   /** Texto pequeño encima del encabezado (ej. "Lo que la hace especial"). */
   eyebrow?: string;
+  /** Viñetas tipo "Key features" (una por elemento). */
+  keyFeatures?: string[];
 }
 
 /**
- * Bloques de características del producto en grilla de tarjetas (imagen arriba
- * + título + descripción), estilo Atoms/Allbirds. Los datos vienen de los
- * metafields de producto pdp_features.block_N_* (ver parseFeatureBlocks).
+ * Bloques de características del producto: un intro opcional (eyebrow +
+ * encabezado + viñetas "Key features") y las tarjetas (imagen + título +
+ * descripción) en grilla de 3. Con más de 3 tarjetas — y siempre en mobile —
+ * las tarjetas pasan a carrusel horizontal con scroll-snap.
+ * Datos: metafields de producto pdp_features.* (ver parseFeatureBlocks).
  */
 export function ProductFeatureBlocks({
   blocks,
   className,
   heading,
   eyebrow,
+  keyFeatures,
 }: ProductFeatureBlocksProps) {
   const items = (blocks || []).filter(
     (b) => b.mediaUrl || b.title || b.description,
   );
-  if (items.length === 0) return null;
+  const bullets = (keyFeatures || []).filter((b) => b.trim());
+  if (items.length === 0 && bullets.length === 0) return null;
+
+  // Carrusel en desktop solo si hay más de 3; en mobile/tablet siempre.
+  const carousel = items.length > 3;
 
   return (
     <section className={clsx('product-feature-blocks', className)}>
-      {(eyebrow || heading) && (
-        <div className="mb-8 md:mb-10">
+      {(eyebrow || heading || bullets.length > 0) && (
+        <div className="mb-8 md:mb-10 max-w-3xl">
           {eyebrow && (
             <p className="text-sm text-slate-400 dark:text-slate-500 mb-1">
               {eyebrow}
@@ -48,23 +57,40 @@ export function ProductFeatureBlocks({
               {heading}
             </h2>
           )}
+          {bullets.length > 0 && (
+            <ul className="mt-4 space-y-2 list-disc pl-5 text-slate-600 dark:text-slate-300">
+              {bullets.map((b, i) => (
+                <li key={i}>{b}</li>
+              ))}
+            </ul>
+          )}
         </div>
       )}
 
-      <div
-        className={clsx(
-          'grid gap-6 md:gap-8',
-          items.length === 1
-            ? 'grid-cols-1 max-w-md'
-            : items.length === 2
-            ? 'grid-cols-1 sm:grid-cols-2'
-            : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-        )}
-      >
-        {items.map((block, index) => (
-          <FeatureCard key={index} block={block} />
-        ))}
-      </div>
+      {items.length > 0 && (
+        <div
+          className={clsx(
+            // Base: carrusel horizontal con snap (mobile y tablet).
+            'flex gap-6 md:gap-8 overflow-x-auto snap-x snap-mandatory hiddenScrollbar -mx-4 px-4',
+            // Desktop: si no hay carrusel, vuelve a grilla estática de 3.
+            !carousel &&
+              'lg:grid lg:grid-cols-3 lg:overflow-visible lg:snap-none lg:mx-0 lg:px-0',
+            carousel && 'lg:mx-0 lg:px-0',
+          )}
+        >
+          {items.map((block, index) => (
+            <div
+              key={index}
+              className={clsx(
+                'snap-start shrink-0 w-[82%] sm:w-[46%]',
+                carousel ? 'lg:w-[31.5%]' : 'lg:w-auto',
+              )}
+            >
+              <FeatureCard block={block} />
+            </div>
+          ))}
+        </div>
+      )}
     </section>
   );
 }
