@@ -12,105 +12,101 @@ interface FeatureBlock {
 interface ProductFeatureBlocksProps {
   blocks: FeatureBlock[];
   className?: string;
+  /** Encabezado opcional de la sección (ej. "Características"). */
+  heading?: string;
+  /** Texto pequeño encima del encabezado (ej. "Lo que la hace especial"). */
+  eyebrow?: string;
 }
 
+/**
+ * Bloques de características del producto en grilla de tarjetas (imagen arriba
+ * + título + descripción), estilo Atoms/Allbirds. Los datos vienen de los
+ * metafields de producto pdp_features.block_N_* (ver parseFeatureBlocks).
+ */
 export function ProductFeatureBlocks({
   blocks,
   className,
+  heading,
+  eyebrow,
 }: ProductFeatureBlocksProps) {
-  if (!blocks || blocks.length === 0) return null;
+  const items = (blocks || []).filter(
+    (b) => b.mediaUrl || b.title || b.description,
+  );
+  if (items.length === 0) return null;
 
   return (
-    <div className={clsx('product-feature-blocks space-y-12 md:space-y-16', className)}>
-      {blocks.map((block, index) => (
-        <FeatureBlockItem
-          key={index}
-          block={block}
-          defaultImagePosition={index % 2 === 0 ? 'left' : 'right'}
-        />
-      ))}
-    </div>
+    <section className={clsx('product-feature-blocks', className)}>
+      {(eyebrow || heading) && (
+        <div className="mb-8 md:mb-10">
+          {eyebrow && (
+            <p className="text-sm text-slate-400 dark:text-slate-500 mb-1">
+              {eyebrow}
+            </p>
+          )}
+          {heading && (
+            <h2 className="text-2xl md:text-3xl font-semibold text-slate-900 dark:text-white">
+              {heading}
+            </h2>
+          )}
+        </div>
+      )}
+
+      <div
+        className={clsx(
+          'grid gap-6 md:gap-8',
+          items.length === 1
+            ? 'grid-cols-1 max-w-md'
+            : items.length === 2
+            ? 'grid-cols-1 sm:grid-cols-2'
+            : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+        )}
+      >
+        {items.map((block, index) => (
+          <FeatureCard key={index} block={block} />
+        ))}
+      </div>
+    </section>
   );
 }
 
-function FeatureBlockItem({
-  block,
-  defaultImagePosition,
-}: {
-  block: FeatureBlock;
-  defaultImagePosition: 'left' | 'right';
-}) {
-  const {
-    title,
-    description,
-    mediaUrl,
-    mediaType = 'image',
-    mediaAlt = '',
-    imagePosition = defaultImagePosition,
-  } = block;
+function FeatureCard({block}: {block: FeatureBlock}) {
+  const {title, description, mediaUrl, mediaType = 'image', mediaAlt = ''} =
+    block;
 
-  const hasMedia = !!mediaUrl;
-  const hasContent = !!title || !!description;
-
-  if (!hasMedia && !hasContent) return null;
-
-  const mediaElement = hasMedia && (
-    <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800">
-      {mediaType === 'video' ? (
-        <video
-          src={mediaUrl}
-          className="w-full h-full object-cover"
-          autoPlay
-          muted
-          loop
-          playsInline
-        />
-      ) : (
-        <img
-          src={mediaUrl}
-          alt={mediaAlt || title || ''}
-          className="w-full h-full object-cover"
-          loading="lazy"
-        />
+  return (
+    <div className="flex flex-col">
+      {mediaUrl && (
+        <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-slate-100 dark:bg-slate-800">
+          {mediaType === 'video' ? (
+            <video
+              src={mediaUrl}
+              className="w-full h-full object-cover"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : (
+            <img
+              src={mediaUrl}
+              alt={mediaAlt || title || ''}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          )}
+        </div>
       )}
-    </div>
-  );
-
-  const contentElement = hasContent && (
-    <div className="flex flex-col justify-center">
       {title && (
-        <h3 className="text-xl md:text-2xl font-semibold mb-4 text-slate-900 dark:text-white">
+        <h3 className="mt-4 text-lg md:text-xl font-semibold text-slate-900 dark:text-white">
           {title}
         </h3>
       )}
       {description && (
         <div
-          className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-slate-600 dark:text-slate-300"
+          className="mt-2 prose prose-sm dark:prose-invert max-w-none text-slate-600 dark:text-slate-300"
           dangerouslySetInnerHTML={{__html: description}}
         />
       )}
-    </div>
-  );
-
-  // If only media or only content, render full width
-  if (!hasMedia || !hasContent) {
-    return (
-      <div className="w-full">
-        {mediaElement || contentElement}
-      </div>
-    );
-  }
-
-  // Two columns layout
-  return (
-    <div
-      className={clsx(
-        'grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-10 items-center',
-        imagePosition === 'right' && 'md:[&>*:first-child]:order-2'
-      )}
-    >
-      {mediaElement}
-      {contentElement}
     </div>
   );
 }

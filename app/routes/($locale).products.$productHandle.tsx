@@ -426,12 +426,16 @@ export default function Product() {
         {/* Enhanced PDP sections (per-product, activated via metafields) */}
         {enhancedData && <PdpEnhancedSection data={enhancedData} />}
 
-        {/* Feature Blocks - Image/Video + Text sections */}
+        {/* Feature Blocks - grilla de tarjetas (imagen + título + descripción) */}
         {(() => {
           const featureBlocks = parseFeatureBlocks(product);
           return featureBlocks.length > 0 ? (
             <ProductFeatureBlocks
               blocks={featureBlocks}
+              heading={
+                (product as any)?.features_heading?.value || 'Características'
+              }
+              eyebrow={(product as any)?.features_eyebrow?.value || undefined}
               className="mt-12 sm:mt-16"
             />
           ) : null;
@@ -1462,7 +1466,9 @@ const PRODUCT_FRAGMENT = `#graphql
           }
         }
       }
-      # Feature blocks for PDP (image/video + text sections)
+      # Feature blocks for PDP (grilla de tarjetas)
+      features_heading: metafield(namespace: "pdp_features", key: "heading") { value }
+      features_eyebrow: metafield(namespace: "pdp_features", key: "eyebrow") { value }
       feature_1_title: metafield(namespace: "pdp_features", key: "block_1_title") { value }
       feature_1_description: metafield(namespace: "pdp_features", key: "block_1_description") { value }
       feature_1_media: metafield(namespace: "pdp_features", key: "block_1_media") {
