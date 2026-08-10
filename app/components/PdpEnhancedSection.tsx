@@ -7,6 +7,8 @@ import {CheckIcon} from '@heroicons/react/24/solid';
 interface FeatureIcon {
   icon_image?: { url: string; altText?: string; width?: number; height?: number };
   title: string;
+  subtitle?: string;
+  tooltip?: string;
 }
 
 interface DetailCard {
@@ -114,29 +116,49 @@ export function PdpEnhancedSection({data}: {data: PdpEnhancedData}) {
 
 // ─── Feature Icons Bar ───────────────────────────────────────
 function FeatureIconsBar({icons}: {icons: FeatureIcon[]}) {
+  // Layout tipo Atoms: ícono a la izquierda + (etiqueta pequeña + ⓘ) sobre el
+  // valor en negrita, con divisores verticales entre ítems.
   return (
-    <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 sm:p-8">
+    <div className="border-y border-slate-200 dark:border-slate-700">
       <div
-        className={`grid gap-6 ${
+        className={`grid divide-y sm:divide-y-0 sm:divide-x divide-slate-200 dark:divide-slate-700 ${
           icons.length <= 3
             ? 'grid-cols-1 sm:grid-cols-3'
             : icons.length === 4
-            ? 'grid-cols-2 lg:grid-cols-4'
-            : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'
+            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+            : 'grid-cols-1 sm:grid-cols-3 lg:grid-cols-5'
         }`}
       >
         {icons.map((icon, i) => (
-          <div key={i} className="flex flex-col items-center text-center gap-3">
+          <div key={i} className="flex items-center gap-4 px-4 sm:px-6 py-5">
             {icon.icon_image?.url && (
               <img
                 src={icon.icon_image.url}
-                alt={icon.title}
-                className="w-12 h-12 object-contain"
+                alt={icon.subtitle || icon.title}
+                className="w-12 h-12 object-contain flex-shrink-0"
               />
             )}
-            <span className="text-xs sm:text-sm font-semibold uppercase tracking-wide text-slate-800 dark:text-slate-200 leading-tight">
-              {icon.title}
-            </span>
+            <div className="min-w-0">
+              {icon.subtitle && (
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] sm:text-xs font-medium uppercase tracking-wide text-slate-500 dark:text-slate-400 leading-tight">
+                    {icon.subtitle}
+                  </span>
+                  {icon.tooltip && (
+                    <span
+                      title={icon.tooltip}
+                      aria-label={icon.tooltip}
+                      className="inline-flex items-center justify-center w-3.5 h-3.5 rounded-full border border-slate-400 text-slate-400 text-[9px] font-semibold cursor-help flex-shrink-0"
+                    >
+                      i
+                    </span>
+                  )}
+                </div>
+              )}
+              <div className="text-base sm:text-lg font-bold text-slate-900 dark:text-white leading-snug">
+                {icon.title}
+              </div>
+            </div>
           </div>
         ))}
       </div>
