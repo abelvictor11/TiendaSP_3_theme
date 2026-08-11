@@ -145,7 +145,7 @@ function CartDetails({
     <div className="flex flex-col justify-between h-full overflow-hidden">
       <div className="flex-1 overflow-auto hiddenScrollbar">
         <CartLines lines={cart?.lines} />
-        {cartHasItems && <CartCrossSell />}
+        {cartHasItems && <CartCrossSell onClose={onClose} />}
       </div>
       {cartHasItems && (
         <CartSummary
@@ -167,7 +167,7 @@ function CartDetails({
 // Reuses the same self-contained fetcher-based component already proven
 // working on the empty-cart state, just with copy suited to "add one more"
 // rather than "get started".
-function CartCrossSell() {
+function CartCrossSell({onClose}: {onClose?: () => void}) {
   return (
     <section className="px-1 pt-2 pb-6 border-t border-slate-100 dark:border-slate-700 mt-4">
       <FeaturedProducts
@@ -177,6 +177,7 @@ function CartCrossSell() {
         sortKey="BEST_SELLING"
         isCardSmall
         className="grid grid-cols-2 gap-x-4 gap-y-6"
+        onClose={onClose}
       />
     </section>
   );
@@ -237,15 +238,18 @@ function CartSummary({
     event.currentTarget.href = decorateCheckoutUrl(checkoutUrl);
   }
 
-  // El subtotal real (`cost.subtotalAmount`) queda en su valor pre-mutación
-  // (a menudo "0" en un carrito recién vacío) hasta que el LinesAdd
-  // resuelva -- ver `lineEstimatedTotal`. Si hay líneas reales pero el
-  // subtotal del servidor todavía no las refleja, sumar el estimado por
-  // línea en vez de mostrar "COP 0" con productos en el carrito.
-  const hasRealSubtotal =
-    Number(cost?.subtotalAmount?.amount ?? 0) > 0 || !lines?.length;
+  // `cost` (a diferencia de cada línea individual) nunca se actualiza de
+  // forma optimista -- useOptimisticCart() lo deja en su valor pre-mutación
+  // completo hasta que el LinesAdd resuelve. Antes esto se detectaba
+  // chequeando si el subtotal era exactamente "0", pero eso solo cubre el
+  // caso de carrito vacío + primer item: agregar un SEGUNDO item a un
+  // carrito que ya tenía subtotal > 0 también deja `cost` viejo, y ese
+  // heurístico lo daba por bueno -- subestimando el total silenciosamente.
+  // La señal correcta es si ALGUNA línea todavía no tiene `cost` real
+  // (recién agregada, optimista), sin importar el valor del subtotal.
+  const hasPendingLine = lines?.some((line) => !line.cost) ?? false;
   let displaySubtotal = cost?.subtotalAmount;
-  if (!hasRealSubtotal) {
+  if (hasPendingLine && lines?.length) {
     const summed = lines!.reduce<{amount: number; currencyCode: CurrencyCode} | null>(
       (acc, line) => {
         const est = lineEstimatedTotal(line);

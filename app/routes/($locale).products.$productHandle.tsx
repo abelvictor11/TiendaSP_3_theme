@@ -1007,8 +1007,20 @@ function AddiDynamicWidget({
   partnerId: string;
   allySlug: string;
 }) {
+  const amount = Math.round(parseFloat(price.amount));
+
   useEffect(() => {
-    if (document.querySelector(`script[data-addi-widget="true"]`)) return;
+    // El script de Addi lee el precio del target una sola vez al ejecutarse
+    // (no reactivamente) -- si el cliente navega de un producto a otro sin
+    // recargar la página (React Router client-side nav, sin remount de esta
+    // ruta), el efecto anterior con dedup fijo ('script[data-addi-widget]')
+    // nunca reinyectaba, dejando el widget congelado en el precio del
+    // primer producto visto en la sesión. Quitar el script previo y
+    // reinyectar en cada cambio de precio fuerza una lectura fresca del
+    // target -- sin credenciales reales de Addi para probar contra la API
+    // real, esto es lo más seguro que se puede garantizar desde el código.
+    const existing = document.querySelector('script[data-addi-widget="true"]');
+    existing?.remove();
 
     const script = document.createElement('script');
     script.src = ADDI_WIDGET_SCRIPT_SRC;
@@ -1019,9 +1031,11 @@ function AddiDynamicWidget({
     script.dataset.elementReference = ADDI_WIDGET_TARGET_ID;
     script.dataset.addiWidget = 'true';
     document.body.appendChild(script);
-  }, [partnerId, allySlug]);
 
-  const amount = Math.round(parseFloat(price.amount));
+    return () => {
+      script.remove();
+    };
+  }, [partnerId, allySlug, amount]);
 
   return (
     <div className="w-full mt-3 mb-2">

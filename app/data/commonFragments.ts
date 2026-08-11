@@ -84,6 +84,10 @@ export const COMMON_PRODUCT_CARD_FRAGMENT = `#graphql
       amount
       currencyCode
     }
+    compareAtPrice {
+      amount
+      currencyCode
+    }
     image {
       url
       altText
