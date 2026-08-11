@@ -56,6 +56,34 @@ function lineEstimatedTotal(
   };
 }
 
+// Mismo patrón que `lineEstimatedTotal`, para el precio "antes" (tachado).
+// `compareAtAmountPerQuantity` es POR UNIDAD (a diferencia de `totalAmount`,
+// que ya viene multiplicado por cantidad) -- hay que multiplicar por
+// `line.quantity` para que sea comparable con `lineEstimatedTotal`, si no
+// el tachado quedaría mal para cualquier línea con cantidad > 1.
+function lineEstimatedCompareAtTotal(
+  line: OptimisticCartLine,
+): {amount: string; currencyCode: CurrencyCode} | null {
+  if (line.cost?.compareAtAmountPerQuantity) {
+    return {
+      amount: String(
+        Number(line.cost.compareAtAmountPerQuantity.amount) * line.quantity,
+      ),
+      currencyCode: line.cost.compareAtAmountPerQuantity.currencyCode,
+    };
+  }
+  const compareAtUnitPrice = (
+    line.merchandise as {
+      compareAtPrice?: {amount: string; currencyCode: CurrencyCode} | null;
+    }
+  )?.compareAtPrice;
+  if (!compareAtUnitPrice) return null;
+  return {
+    amount: String(Number(compareAtUnitPrice.amount) * line.quantity),
+    currencyCode: compareAtUnitPrice.currencyCode,
+  };
+}
+
 /**
  * Compact, asset-free trust signal shown next to the checkout CTA. No
  * payment-provider logos exist as image assets in this repo, so this names
@@ -474,36 +502,37 @@ export function ItemRemoveButton({
 
 export function CartLinePrice({
   line,
-  priceType = 'regular',
   withoutTrailingZeros = true,
   ...passthroughProps
 }: {
   line: OptimisticCartLine;
-  priceType?: 'regular' | 'compareAt';
   [key: string]: any;
   withoutTrailingZeros?: boolean;
 }) {
   // Línea optimista recién agregada (ver `lineEstimatedTotal`): cost.totalAmount
   // real todavía no llegó del servidor -- usar el precio del variant como
   // estimado en vez de no mostrar nada (antes: blank hasta que resolviera).
-  const moneyV2 =
-    priceType === 'regular'
-      ? line?.cost?.totalAmount ?? lineEstimatedTotal(line)
-      : line?.cost?.compareAtAmountPerQuantity;
+  const moneyV2 = line?.cost?.totalAmount ?? lineEstimatedTotal(line);
 
   if (moneyV2 == null) {
     return null;
   }
+
+  // Antes solo se mostraba el precio final -- el "antes" tachado + "Ahorra
+  // X%" que sí se ve en el PDP nunca llegaba al carrito (drawer ni /cart),
+  // aunque el producto tuviera descuento real. `Prices` ya sabe mostrar
+  // ambos juntos (mismo componente que usa el PDP); solo hacía falta
+  // pasarle el compareAt real (o su estimado optimista) también aquí.
+  const compareAtMoneyV2 = lineEstimatedCompareAtTotal(line);
 
   return (
     <Prices
       {...passthroughProps}
       withoutTrailingZeros={withoutTrailingZeros}
       price={moneyV2}
+      compareAtPrice={compareAtMoneyV2 ?? undefined}
     />
   );
-
-  // return <Money withoutTrailingZeros {...passthroughProps} data={moneyV2} />;
 }
 
 function CartEmpty({
