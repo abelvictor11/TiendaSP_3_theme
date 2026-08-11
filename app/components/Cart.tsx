@@ -89,6 +89,7 @@ function CartDetails({
     <div className="flex flex-col justify-between h-full overflow-hidden">
       <div className="flex-1 overflow-auto hiddenScrollbar">
         <CartLines lines={cart?.lines} />
+        {cartHasItems && <CartCrossSell />}
       </div>
       {cartHasItems && (
         <CartSummary
@@ -101,6 +102,27 @@ function CartDetails({
         />
       )}
     </div>
+  );
+}
+
+// Cross-sell shown once the cart has at least one item -- previously
+// `FeaturedProducts` only rendered in `CartEmpty`, so a populated cart
+// (the actual point of purchase) had zero cross-sell surface at all.
+// Reuses the same self-contained fetcher-based component already proven
+// working on the empty-cart state, just with copy suited to "add one more"
+// rather than "get started".
+function CartCrossSell() {
+  return (
+    <section className="px-1 pt-2 pb-6 border-t border-slate-100 dark:border-slate-700 mt-4">
+      <FeaturedProducts
+        count={4}
+        heading="También te puede interesar"
+        headingClassName="text-base font-semibold mb-3"
+        sortKey="BEST_SELLING"
+        isCardSmall
+        className="grid grid-cols-2 gap-x-4 gap-y-6"
+      />
+    </section>
   );
 }
 

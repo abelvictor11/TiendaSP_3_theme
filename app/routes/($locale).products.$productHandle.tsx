@@ -941,32 +941,19 @@ const ProductOtherOption = ({option}: {option: MappedProductOptions}) => {
 };
 
 
-function AddiWidget({price}: {price?: {amount: string; currencyCode: string}}) {
-  // Solo renderizar en cliente, nunca en SSR
-  const [isClient, setIsClient] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
-  
-  useEffect(() => {
-    setIsClient(true);
-    
-    if (!price || parseFloat(price.amount) <= 0) return;
-    
-    const amount = parseFloat(price.amount);
-    // Addi Colombia: mínimo $50,000, máximo $3,000,000 COP
-    if (price.currencyCode !== 'COP' || amount < 50000 || amount > 3000000) return;
-    
-    setIsVisible(true);
-  }, [price]);
-  
-  // No renderizar nada durante SSR o si no cumple condiciones
-  if (!isClient || !isVisible || !price) return null;
-  
+// Enlace estático original -- fallback cuando el widget dinámico no está
+// configurado (PUBLIC_ADDI_PARTNER_ID / PUBLIC_ADDI_ALLY_SLUG vacíos).
+function AddiStaticLink({
+  price,
+}: {
+  price: {amount: string; currencyCode: string};
+}) {
   const amount = Math.round(parseFloat(price.amount));
   const addiUrl = `https://www.addi.com/compra-ahora-paga-despues/?storeUuid=sportfitnessshopcolombiasas&price=${amount}&currency=${price.currencyCode}`;
-  
+
   return (
     <div className="w-full mt-3 mb-2">
-      <a 
+      <a
         href={addiUrl}
         target="_blank"
         rel="noopener noreferrer"
@@ -974,11 +961,11 @@ function AddiWidget({price}: {price?: {amount: string; currencyCode: string}}) {
       >
         <span className="font-medium">Paga en cuotas con</span>
         {/* Logo de Addi como texto estilizado - evita problemas de carga de imagen */}
-        <span 
+        <span
           className="font-bold text-lg tracking-tight"
-          style={{ 
+          style={{
             color: '#00D0A0',
-            fontFamily: 'system-ui, -apple-system, sans-serif'
+            fontFamily: 'system-ui, -apple-system, sans-serif',
           }}
         >
           addi
@@ -986,10 +973,94 @@ function AddiWidget({price}: {price?: {amount: string; currencyCode: string}}) {
         <span className="text-slate-400 text-xs">→</span>
       </a>
       <p className="text-xs text-slate-500 mt-1">
-        Monto mínimo $50.000 COP • <a href={addiUrl} target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-700">Ver condiciones</a>
+        Monto mínimo $50.000 COP •{' '}
+        <a
+          href={addiUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-slate-700"
+        >
+          Ver condiciones
+        </a>
       </p>
     </div>
   );
+}
+
+const ADDI_WIDGET_TARGET_ID = 'addi-product-widget-target';
+const ADDI_WIDGET_SCRIPT_SRC =
+  'https://s3.amazonaws.com/statics.addi.com/shopify/js/shopify-co-widget-wrapper.bundle.min.js';
+
+// Widget dinámico oficial de Addi para Shopify -- muestra el cálculo real
+// "desde $X/mes" en vez del enlace estático genérico de antes. `partnerId`
+// y `allySlug` son específicos de la cuenta Addi de esta tienda (llegan por
+// correo de activacion.aliados@addi.com), nunca inventados aquí -- ver
+// env.d.ts. `data-element-reference` es el patrón documentado por Addi para
+// este script; no confirmado en vivo todavía por falta de credenciales
+// reales al momento de escribir esto -- verificar con datos reales.
+function AddiDynamicWidget({
+  price,
+  partnerId,
+  allySlug,
+}: {
+  price: {amount: string; currencyCode: string};
+  partnerId: string;
+  allySlug: string;
+}) {
+  useEffect(() => {
+    if (document.querySelector(`script[data-addi-widget="true"]`)) return;
+
+    const script = document.createElement('script');
+    script.src = ADDI_WIDGET_SCRIPT_SRC;
+    script.async = true;
+    script.dataset.name = 'shopifyAddiWidget';
+    script.dataset.id = partnerId;
+    script.dataset.allySlug = allySlug;
+    script.dataset.elementReference = ADDI_WIDGET_TARGET_ID;
+    script.dataset.addiWidget = 'true';
+    document.body.appendChild(script);
+  }, [partnerId, allySlug]);
+
+  const amount = Math.round(parseFloat(price.amount));
+
+  return (
+    <div className="w-full mt-3 mb-2">
+      <div id={ADDI_WIDGET_TARGET_ID} data-addi-price={amount} />
+    </div>
+  );
+}
+
+function AddiWidget({price}: {price?: {amount: string; currencyCode: string}}) {
+  const rootData = useRouteLoaderData<RootLoader>('root');
+  const partnerId = rootData?.publicAddiPartnerId;
+  const allySlug = rootData?.publicAddiAllySlug;
+
+  // Solo renderizar en cliente, nunca en SSR
+  const [isClient, setIsClient] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+
+    if (!price || parseFloat(price.amount) <= 0) return;
+
+    const amount = parseFloat(price.amount);
+    // Addi Colombia: mínimo $50,000, máximo $3,000,000 COP
+    if (price.currencyCode !== 'COP' || amount < 50000 || amount > 3000000) return;
+
+    setIsVisible(true);
+  }, [price]);
+
+  // No renderizar nada durante SSR o si no cumple condiciones
+  if (!isClient || !isVisible || !price) return null;
+
+  if (partnerId && allySlug) {
+    return (
+      <AddiDynamicWidget price={price} partnerId={partnerId} allySlug={allySlug} />
+    );
+  }
+
+  return <AddiStaticLink price={price} />;
 }
 
 const ProductColorOption = ({option}: {option: MappedProductOptions}) => {

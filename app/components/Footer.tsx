@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import type {ChildEnhancedMenuItem, ParentEnhancedMenuItem} from '~/lib/utils';
 import {Link} from './Link';
 import {
@@ -19,6 +19,8 @@ import {type AddSubscriberMutation} from 'storefrontapi.generated';
 import {FooterMenuDataWrap, HeaderMenuDataWrap} from './Layout';
 import type {RootLoader} from '~/root';
 import {CITIES} from '~/data/cities';
+import {rsIdentify} from '~/components/CustomAnalytics';
+import {useAnalytics} from '@shopify/hydrogen';
 
 interface FooterProps {}
 
@@ -396,6 +398,30 @@ const Footer: React.FC<FooterProps> = () => {
 export function WidgetAddSubscriberForm() {
   const fetcher = useFetcher();
   const {customerCreate} = (fetcher.data || {}) as AddSubscriberMutation;
+  const {customerPrivacy} = useAnalytics();
+
+  // identify() en RudderStack cuando el subscribe tiene éxito -- este es el
+  // punto de captura de email real con mayor volumen fuera del checkout de
+  // Shopify (que vive en un dominio aparte y no es tocable desde este repo).
+  // Antes este submit no emitía ningún evento de analítica.
+  const identifiedRef = useRef(false);
+  useEffect(() => {
+    if (identifiedRef.current) return;
+    if (!customerCreate?.customer?.id) return;
+    if (customerCreate?.customerUserErrors?.length) return;
+    if (customerPrivacy?.analyticsProcessingAllowed?.() !== true) return;
+
+    const submittedEmail = fetcher.formData?.get('new_subscribe_email');
+    if (typeof submittedEmail !== 'string' || !submittedEmail) return;
+
+    identifiedRef.current = true;
+    const normalizedEmail = submittedEmail.toLowerCase().trim();
+    rsIdentify(normalizedEmail, {
+      email: normalizedEmail,
+      acceptsMarketing: true,
+      source: 'footer_newsletter_signup',
+    });
+  }, [customerCreate, fetcher.formData, customerPrivacy]);
 
   return (
     <div

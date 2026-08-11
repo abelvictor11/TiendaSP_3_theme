@@ -134,6 +134,10 @@ export async function loader(args: LoaderFunctionArgs) {
     publicCheckoutDomain: env.PUBLIC_CHECKOUT_DOMAIN ?? '',
     publicRudderstackWriteKey: env.PUBLIC_RUDDERSTACK_WRITE_KEY ?? '',
     publicRudderstackDataPlaneUrl: env.PUBLIC_RUDDERSTACK_DATA_PLANE_URL ?? '',
+    // Sin fallback inventado: si faltan, AddiWidget usa el enlace estático
+    // existente en vez del widget dinámico -- nunca un data-id/ally-slug falso.
+    publicAddiPartnerId: env.PUBLIC_ADDI_PARTNER_ID ?? '',
+    publicAddiAllySlug: env.PUBLIC_ADDI_ALLY_SLUG ?? '',
     /**********   EXAMPLE UPDATE END   ************/
   });
 }

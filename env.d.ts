@@ -47,6 +47,12 @@ declare global {
     // RudderStack (CDP propio, self-hosted)
     PUBLIC_RUDDERSTACK_WRITE_KEY?: string;
     PUBLIC_RUDDERSTACK_DATA_PLANE_URL?: string;
+    // Addi (BNPL) -- widget dinámico "desde $X/mes" en Shopify. Ambos valores
+    // son específicos de la cuenta y llegan por correo del equipo de
+    // activación de Addi (activacion.aliados@addi.com), no se pueden inventar.
+    // Sin estos dos, AddiWidget cae al enlace estático existente (sin cambios).
+    PUBLIC_ADDI_PARTNER_ID?: string;
+    PUBLIC_ADDI_ALLY_SLUG?: string;
     // Server-side tracking (Meta CAPI / GA4 Measurement Protocol / TikTok Events API)
     META_CAPI_ACCESS_TOKEN?: string;
     META_TEST_EVENT_CODE?: string;
