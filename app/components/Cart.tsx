@@ -13,6 +13,7 @@ import type {
   CartLine,
   CartDiscountCode,
   CartCost,
+  CurrencyCode,
 } from '@shopify/hydrogen/storefront-api-types';
 import {Link} from '~/components/Link';
 import {FeaturedProducts} from '~/components/FeaturedProducts';
@@ -27,6 +28,33 @@ import type {MouseEvent} from 'react';
 import {decorateCheckoutUrl} from '~/lib/checkoutContinuity';
 import {trackCheckoutStarted} from '~/components/CustomAnalytics';
 import {FREE_SHIPPING_THRESHOLD_COP} from '~/lib/const';
+
+/**
+ * `useOptimisticCart()` appends a newly-added line with no `cost` object at
+ * all until the real `LinesAdd` mutation round-trips and the root loader
+ * revalidates (confirmed 2026-08-11: the full /cart page and its subtotal
+ * are correct once that resolves -- this is purely a drawer/optimistic-
+ * render gap, not a discount bug). Until then, both `CartLinePrice` and the
+ * drawer subtotal used to render blank / "COP 0", which reads as a broken
+ * cart to the customer even though nothing is actually wrong. This estimates
+ * from the variant's own listed price (real number, same one shown on the
+ * PDP) as a stand-in for that brief window -- not perfect (can't replicate
+ * server-side discount allocation client-side), but never worse than the
+ * real price, and never a misleading zero.
+ */
+function lineEstimatedTotal(
+  line: OptimisticCartLine,
+): {amount: string; currencyCode: CurrencyCode} | null {
+  if (line.cost?.totalAmount) return line.cost.totalAmount;
+  const unitPrice = (
+    line.merchandise as {price?: {amount: string; currencyCode: CurrencyCode}}
+  )?.price;
+  if (!unitPrice) return null;
+  return {
+    amount: String(Number(unitPrice.amount) * line.quantity),
+    currencyCode: unitPrice.currencyCode,
+  };
+}
 
 /**
  * Compact, asset-free trust signal shown next to the checkout CTA. No
@@ -181,6 +209,31 @@ function CartSummary({
     event.currentTarget.href = decorateCheckoutUrl(checkoutUrl);
   }
 
+  // El subtotal real (`cost.subtotalAmount`) queda en su valor pre-mutación
+  // (a menudo "0" en un carrito recién vacío) hasta que el LinesAdd
+  // resuelva -- ver `lineEstimatedTotal`. Si hay líneas reales pero el
+  // subtotal del servidor todavía no las refleja, sumar el estimado por
+  // línea en vez de mostrar "COP 0" con productos en el carrito.
+  const hasRealSubtotal =
+    Number(cost?.subtotalAmount?.amount ?? 0) > 0 || !lines?.length;
+  let displaySubtotal = cost?.subtotalAmount;
+  if (!hasRealSubtotal) {
+    const summed = lines!.reduce<{amount: number; currencyCode: CurrencyCode} | null>(
+      (acc, line) => {
+        const est = lineEstimatedTotal(line);
+        if (!est) return acc;
+        return {
+          amount: (acc?.amount ?? 0) + Number(est.amount),
+          currencyCode: est.currencyCode,
+        };
+      },
+      null,
+    );
+    displaySubtotal = summed
+      ? {amount: String(summed.amount), currencyCode: summed.currencyCode}
+      : cost?.subtotalAmount;
+  }
+
   return (
     <section
       aria-labelledby="summary-heading"
@@ -193,8 +246,8 @@ function CartSummary({
         <div className="flex justify-between text-base font-medium text-gray-900">
           <p>Subtotal</p>
           <>
-            {cost?.subtotalAmount?.amount ? (
-              <Money data={cost?.subtotalAmount} />
+            {displaySubtotal?.amount ? (
+              <Money data={displaySubtotal} />
             ) : (
               '-'
             )}
@@ -204,7 +257,7 @@ function CartSummary({
           Envío e impuestos calculados en el checkout.
         </p>
         <FreeShippingProgress
-          cost={cost}
+          cost={{...cost, subtotalAmount: displaySubtotal} as CartCost}
           threshold={freeShippingThreshold}
         />
         <div className="grid grid-cols-2 gap-2 mt-5">
@@ -430,12 +483,13 @@ export function CartLinePrice({
   [key: string]: any;
   withoutTrailingZeros?: boolean;
 }) {
-  if (!line?.cost?.amountPerQuantity || !line?.cost?.totalAmount) return null;
-
+  // Línea optimista recién agregada (ver `lineEstimatedTotal`): cost.totalAmount
+  // real todavía no llegó del servidor -- usar el precio del variant como
+  // estimado en vez de no mostrar nada (antes: blank hasta que resolviera).
   const moneyV2 =
     priceType === 'regular'
-      ? line.cost.totalAmount
-      : line.cost.compareAtAmountPerQuantity;
+      ? line?.cost?.totalAmount ?? lineEstimatedTotal(line)
+      : line?.cost?.compareAtAmountPerQuantity;
 
   if (moneyV2 == null) {
     return null;
