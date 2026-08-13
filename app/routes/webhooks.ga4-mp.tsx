@@ -103,8 +103,6 @@ export async function action({request, context}: ActionFunctionArgs) {
 
   let eventName: string | null = null;
   const params: Record<string, any> = {};
-  // session_id une el evento server-side con la sesión client-side de GA4.
-  if (gaSessionId) params.session_id = gaSessionId;
 
   const items = (data.line_items ?? []).map((item: any) => ({
     item_id: String(item.product_id),
@@ -133,6 +131,13 @@ export async function action({request, context}: ActionFunctionArgs) {
       break;
     case 'checkouts/create':
       eventName = 'begin_checkout';
+      // session_id une el evento server-side con la sesión client-side de
+      // GA4 -- SOLO en begin_checkout. GA4 Measurement Protocol descarta en
+      // silencio cualquier evento 'purchase' que incluya session_id (bug
+      // documentado desde abr-2024, nunca corregido por Google); ver
+      // memoria reference_ga4_mp_session_id_purchase_bug -- mismo bug ya
+      // corregido en cyclewear (PR #110), portado acá.
+      if (gaSessionId) params.session_id = gaSessionId;
       params.value = parseFloat(data.total_price ?? '0');
       params.currency = data.currency;
       params.items = items;
