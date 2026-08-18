@@ -162,7 +162,17 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
   // block above-the-fold content (nav menu, footer links) -- awaiting them
   // here removes 2 of those competing boundaries without touching the
   // genuinely-deferrable ones below.
-  const [layout, okendoProviderData, headerData, footerData] =
+  //
+  // 2026-08-19: cart moved here too, same fix. Confirmed live (React error
+  // #418/#423 on every single page load, every product's Add-to-cart button
+  // firing zero network requests, zero real orders 2026-08-14 through
+  // 2026-08-19) -- cart was the one deferred boundary still racing, and
+  // unlike header/footer it re-renders on every add-to-cart revalidation,
+  // so it was the boundary most likely to still be in flight when the
+  // initial shell finished streaming. Not CacheLong()'able (per-session,
+  // real data) so this does cost a bit of TTFB, same tradeoff already
+  // accepted for header/footer above.
+  const [layout, okendoProviderData, headerData, footerData, cartData] =
     await Promise.all([
       getLayoutData(context),
       getOkendoProviderData({
@@ -187,6 +197,7 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
           country,
         },
       }),
+      context.cart.get(),
       // Add other queries here, so that they are loaded in parallel
     ]);
 
@@ -218,6 +229,9 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
     // deferred or not.
     headerPromise: headerData,
     footerPromise: footerData,
+    // Same backwards-compat trick -- Layout.tsx's `Promise.all([rootData?.cart, ...])`
+    // works unchanged whether `cart` is a live promise or an already-resolved value.
+    cart: cartData,
   };
 }
 
@@ -227,13 +241,12 @@ async function loadCriticalData({request, context}: LoaderFunctionArgs) {
  * Make sure to not throw any errors here, as it will cause the page to 500.
  */
 function loadDeferredData({context}: LoaderFunctionArgs) {
-  const {cart, customerAccount} = context;
+  const {customerAccount} = context;
   const isLoggedInPromise = customerAccount.isLoggedIn();
 
   return {
     isLoggedIn: isLoggedInPromise,
     isLoggedInPromise,
-    cart: cart.get(),
     // Umbral real de envío gratis leído del Automatic Discount en Shopify
     // Admin (ver lib/shipping.server.ts) — diferido para no bloquear el TTFB;
     // el fallback ante cualquier fallo ya vive dentro de getFreeShippingThreshold.
