@@ -1,87 +1,177 @@
-import {useState} from 'react';
-import {isVisibleBackground} from '~/utils/isVisibleBackground';
-import {type ParsedMetafields} from '@shopify/hydrogen';
-import {parseSection} from '~/utils/parseSection';
-import type {SectionSeoTextFragment} from 'storefrontapi.generated';
-import BackgroundSection from '~/components/BackgroundSection';
+import {Link} from '~/components/Link';
 import clsx from 'clsx';
+import {useState} from 'react';
 
-export function SectionSeoText(props: SectionSeoTextFragment) {
-  const section = parseSection<
-    SectionSeoTextFragment,
-    {
-      heading?: ParsedMetafields['single_line_text_field'];
-    }
-  >(props);
+interface SectionSeoTextProps {
+  type: string;
+  id: string;
+  heading?: {value?: string};
+  body?: {value?: string};
+  cta_text?: {value?: string};
+  cta_link?: {value?: string};
+  cta_text_2?: {value?: string};
+  cta_link_2?: {value?: string};
+  background_color?: {value?: string};
+  text_color?: {value?: string};
+  heading_color?: {value?: string};
+  text_align?: {value?: 'left' | 'center' | 'right'};
+  max_width?: {value?: string};
+  collapsible?: {value?: string};
+  collapsed_height?: {value?: string};
+}
 
+export function SectionSeoText(props: SectionSeoTextProps) {
   const {
     heading,
-    content,
-    max_chars,
+    body,
+    cta_text,
+    cta_link,
+    cta_text_2,
+    cta_link_2,
     background_color,
-  } = section;
+    text_color,
+    heading_color,
+    text_align,
+    max_width,
+    collapsible,
+    collapsed_height,
+  } = props;
 
-  const [isExpanded, setIsExpanded] = useState(false);
+  const alignment = text_align?.value || 'left';
+  const maxWidth = max_width?.value || '900';
+  const isCollapsible = collapsible?.value === 'true';
+  const collapsedPx = collapsed_height?.value
+    ? parseInt(collapsed_height.value)
+    : 120;
 
-  if (!content?.value) return null;
+  const [expanded, setExpanded] = useState(false);
 
-  // Parse rich text JSON to HTML
-  let htmlContent = '';
-  try {
-    const richText = JSON.parse(content.value);
-    htmlContent = richTextToHtml(richText);
-  } catch {
-    htmlContent = content.value;
-  }
+  const alignmentClasses: Record<string, string> = {
+    left: 'text-left',
+    center: 'text-center mx-auto',
+    right: 'text-right ml-auto',
+  };
 
-  // Strip HTML to count characters
-  const textContent = htmlContent.replace(/<[^>]*>/g, '');
-  const maxChars = Number(max_chars?.value) || 300;
-  const needsTruncation = textContent.length > maxChars;
+  const ctaAlignmentClasses: Record<string, string> = {
+    left: 'justify-start',
+    center: 'justify-center',
+    right: 'justify-end',
+  };
 
-  // Truncate text for display
-  const truncatedText = needsTruncation && !isExpanded
-    ? textContent.slice(0, maxChars) + '...'
-    : null;
-
-  // Un fondo blanco o gris muy claro no aporta nada visual y deja un panel
-  // gris "suelto"; en esos casos no se renderiza el BackgroundSection.
-  const hasBgColor = isVisibleBackground(background_color?.value);
+  if (!heading?.value && !body?.value) return null;
 
   return (
-    <section className="section-SectionSeoText container">
-      <div className={clsx(hasBgColor ? 'relative py-12 lg:py-16 px-6 rounded-2xl' : '')}>
-        {hasBgColor && (
-          <BackgroundSection
-            style={{backgroundColor: background_color?.value}}
-          />
-        )}
-        <div className="max-w-4xl mx-auto">
+    <section
+      className="nc-SectionSeoText"
+      style={{
+        backgroundColor: background_color?.value || 'transparent',
+      }}
+    >
+      <div className="container py-8 lg:py-12">
+        <div
+          className={clsx(alignmentClasses[alignment])}
+          style={{maxWidth: `${maxWidth}px`}}
+        >
           {heading?.value && (
-            <h2 className="text-2xl md:text-3xl font-semibold mb-6 text-slate-900 dark:text-white">
-              {heading.value}
-            </h2>
-          )}
-
-          {truncatedText ? (
-            <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-slate-600 dark:text-slate-300">
-              <p>{truncatedText}</p>
-            </div>
-          ) : (
-            <div
-              className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-slate-600 dark:text-slate-300"
-              dangerouslySetInnerHTML={{__html: htmlContent}}
+            <h2
+              className="text-xl sm:text-2xl lg:text-3xl font-bold mb-4 lg:mb-6"
+              style={{color: heading_color?.value || text_color?.value || undefined}}
+              dangerouslySetInnerHTML={{__html: heading.value}}
             />
           )}
 
-          {needsTruncation && (
-            <button
-              type="button"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="mt-4 text-sm font-medium text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 underline underline-offset-2"
+          {body?.value && (
+            <div className="relative">
+              <div
+                className={clsx(
+                  'seo-text-body prose prose-sm sm:prose-base max-w-none',
+                  'prose-headings:font-semibold prose-headings:mt-6 prose-headings:mb-3',
+                  'prose-p:mb-4 prose-p:leading-relaxed',
+                  'prose-ul:mb-4 prose-ol:mb-4 prose-li:mb-1',
+                  'prose-a:text-primary-600 prose-a:underline hover:prose-a:text-primary-700',
+                  isCollapsible && !expanded && 'overflow-hidden',
+                )}
+                style={{
+                  color: text_color?.value || undefined,
+                  ...(isCollapsible && !expanded
+                    ? {maxHeight: `${collapsedPx}px`}
+                    : {}),
+                }}
+                dangerouslySetInnerHTML={{__html: body.value}}
+              />
+
+              {isCollapsible && !expanded && (
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
+                  style={{
+                    background: `linear-gradient(to bottom, transparent, ${background_color?.value || '#ffffff'})`,
+                  }}
+                />
+              )}
+
+              {isCollapsible && (
+                <button
+                  onClick={() => setExpanded(!expanded)}
+                  className="mt-3 text-sm font-medium text-primary-600 hover:text-primary-700 underline transition-colors"
+                >
+                  {expanded ? 'Leer menos' : 'Leer más'}
+                </button>
+              )}
+            </div>
+          )}
+
+          {(cta_text?.value || cta_text_2?.value) && (
+            <div
+              className={clsx(
+                'flex flex-wrap gap-3 mt-6',
+                ctaAlignmentClasses[alignment],
+              )}
             >
-              {isExpanded ? 'Ver menos' : 'Ver más'}
-            </button>
+              {cta_text?.value && cta_link?.value && (
+                <Link
+                  to={cta_link.value}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-lg bg-primary-600 text-white hover:bg-primary-700 transition-colors"
+                >
+                  {cta_text.value}
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 16 16"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M2.6665 8H13.3332M13.3332 8L9.33317 4M13.3332 8L9.33317 12"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Link>
+              )}
+
+              {cta_text_2?.value && cta_link_2?.value && (
+                <Link
+                  to={cta_link_2.value}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-lg border border-neutral-300 dark:border-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+                  style={{color: text_color?.value || undefined}}
+                >
+                  {cta_text_2.value}
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    viewBox="0 0 16 16"
+                    stroke="currentColor"
+                  >
+                    <path
+                      d="M2.6665 8H13.3332M13.3332 8L9.33317 4M13.3332 8L9.33317 12"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </Link>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -89,74 +179,59 @@ export function SectionSeoText(props: SectionSeoTextFragment) {
   );
 }
 
-// Helper to convert Shopify rich text JSON to HTML
-function richTextToHtml(richText: any): string {
-  if (!richText || !richText.children) return '';
-
-  return richText.children
-    .map((node: any) => {
-      if (node.type === 'paragraph') {
-        const content = node.children
-          ?.map((child: any) => {
-            if (child.type === 'text') {
-              let text = child.value || '';
-              if (child.bold) text = `<strong>${text}</strong>`;
-              if (child.italic) text = `<em>${text}</em>`;
-              return text;
-            }
-            if (child.type === 'link') {
-              const linkText = child.children?.map((c: any) => c.value).join('') || '';
-              return `<a href="${child.url}" target="${child.target || '_self'}">${linkText}</a>`;
-            }
-            return '';
-          })
-          .join('');
-        return `<p>${content}</p>`;
-      }
-      if (node.type === 'heading') {
-        const level = node.level || 2;
-        const content = node.children?.map((c: any) => c.value).join('') || '';
-        return `<h${level}>${content}</h${level}>`;
-      }
-      if (node.type === 'list') {
-        const tag = node.listType === 'ordered' ? 'ol' : 'ul';
-        const items = node.children
-          ?.map((item: any) => {
-            const itemContent = item.children
-              ?.map((c: any) => {
-                if (c.type === 'text') return c.value;
-                if (c.type === 'paragraph') {
-                  return c.children?.map((pc: any) => pc.value).join('') || '';
-                }
-                return '';
-              })
-              .join('');
-            return `<li>${itemContent}</li>`;
-          })
-          .join('');
-        return `<${tag}>${items}</${tag}>`;
-      }
-      return '';
-    })
-    .join('');
-}
-
 export const SECTION_SEO_TEXT_FRAGMENT = `#graphql
   fragment SectionSeoText on Metaobject {
     type
+    id
     heading: field(key: "heading") {
       key
       value
     }
-    content: field(key: "content") {
+    body: field(key: "body") {
       key
       value
     }
-    max_chars: field(key: "max_chars") {
+    cta_text: field(key: "cta_text") {
+      key
+      value
+    }
+    cta_link: field(key: "cta_link") {
+      key
+      value
+    }
+    cta_text_2: field(key: "cta_text_2") {
+      key
+      value
+    }
+    cta_link_2: field(key: "cta_link_2") {
       key
       value
     }
     background_color: field(key: "background_color") {
+      key
+      value
+    }
+    text_color: field(key: "text_color") {
+      key
+      value
+    }
+    heading_color: field(key: "heading_color") {
+      key
+      value
+    }
+    text_align: field(key: "text_align") {
+      key
+      value
+    }
+    max_width: field(key: "max_width") {
+      key
+      value
+    }
+    collapsible: field(key: "collapsible") {
+      key
+      value
+    }
+    collapsed_height: field(key: "collapsed_height") {
       key
       value
     }
