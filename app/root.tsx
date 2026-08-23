@@ -21,6 +21,7 @@ import {useNonce, Analytics, getShopAnalytics} from '@shopify/hydrogen';
 import {Layout} from '~/components/Layout';
 import {CustomAnalytics} from '~/components/CustomAnalytics';
 import {GtmLoader} from '~/components/GtmLoader';
+import {AttributionOSPixel} from '~/components/AttributionOSPixel';
 import {RudderStackLoader} from '~/components/RudderStackLoader';
 import {seoPayload} from '~/lib/seo.server';
 import {getSeoMetaTags} from '~/lib/seoMeta';
@@ -336,6 +337,10 @@ function MainLayout({children}: {children?: React.ReactNode}) {
                 writeKey={rudderstackWriteKey}
                 dataPlaneUrl={rudderstackDataPlaneUrl}
               />
+              {/* Pageview beacon de AttributionOS (atribución first-party,
+                  self-hosted) — gate de consentimiento + bots adentro del
+                  componente; purchases llegan por webhooks de Shopify */}
+              <AttributionOSPixel />
               {/* Puente SPA: dispara eventos a Meta Pixel, GA4, dataLayer y RudderStack en cada navegación */}
               <CustomAnalytics gtmOwnsTags={gtmOwnsTags} />
               <Layout

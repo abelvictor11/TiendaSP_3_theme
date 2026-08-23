@@ -20,7 +20,7 @@ export type MarketingParams = Partial<
   Record<(typeof MARKETING_PARAMS)[number], string>
 >;
 
-function readMarketingParams(): MarketingParams {
+export function readMarketingParams(): MarketingParams {
   const raw = readCookie(MARKETING_COOKIE);
   if (!raw) return {};
   try {

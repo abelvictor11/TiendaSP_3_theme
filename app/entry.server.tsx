@@ -179,6 +179,8 @@ export default async function handleRequest(
       'https://surveys.okendo.io',
       // Error tracking
       'https://api.raygun.com',
+      // AttributionOS (beacons de pageview a /api/pixel/collect)
+      'https://attributionos.io',
       // Google Analytics / GTM / Ads
       'https://www.google-analytics.com',
       'https://*.google-analytics.com',
