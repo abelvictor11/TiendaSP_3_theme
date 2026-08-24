@@ -130,6 +130,13 @@ export async function action({request, context}: ActionFunctionArgs) {
     messageId: `shopify_order_paid_${data.id}`,
     event: 'Order Completed',
     properties: {
+      // event_id explícito (no solo messageId) para que el destino Facebook
+      // Conversions use el mismo Facebook event_id sin depender del fallback
+      // automático messageId->eventId -- así el Pixel+CAPI de Meta puede
+      // deduplicar contra cualquier otro evento "Purchase" del mismo pedido
+      // que llegue por otra vía (p.ej. un pixel del lado del cliente), SI
+      // esa otra vía también usa order_id como base del event_id.
+      event_id: `shopify_order_paid_${data.id}`,
       order_id: String(data.id),
       order_number: data.order_number ?? data.name,
       checkout_id: data.checkout_id ? String(data.checkout_id) : undefined,
