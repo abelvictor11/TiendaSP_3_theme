@@ -21,10 +21,11 @@
  */
 import {useEffect} from 'react';
 import {useAnalytics, AnalyticsEvent} from '@shopify/hydrogen';
-import type {PageViewPayload} from '@shopify/hydrogen';
+import type {PageViewPayload, CartUpdatePayload} from '@shopify/hydrogen';
 import {marketingAllowed} from '~/lib/consent';
 import {isLikelyBot} from '~/lib/botDetection';
 import {getOrCreateAosVisitorId} from '~/lib/aosCookie';
+import {linkVisitorToCart} from '~/lib/aosCartLink';
 import {readMarketingParams} from '~/lib/checkoutContinuity';
 import {getFbCookies} from '~/lib/fbCookies';
 import {
@@ -41,6 +42,9 @@ export function AttributionOSPixel() {
 
       const visitorId = getOrCreateAosVisitorId();
       if (!visitorId) return;
+
+      // Closes the visit->order link (IDATTROS-51/53) -- see aosCartLink.ts.
+      linkVisitorToCart(visitorId);
 
       const marketing = readMarketingParams();
       const {fbp, fbc} = getFbCookies();
@@ -74,6 +78,23 @@ export function AttributionOSPixel() {
       } catch {
         // Best-effort: nunca debe romper la navegación del cliente.
       }
+    });
+
+    // Segundo punto de enlace, además del que ya corre dentro de
+    // PAGE_VIEWED (arriba): cuando el carrito recién se CREÓ o cambió por
+    // una acción real del shopper (add-to-cart, etc.), payload.cart.id ya es
+    // el id real y definitivo -- taguearlo aquí no puede competir con esa
+    // creación porque ya ocurrió. Esto es lo que cubre la primera visita de
+    // un shopper que agrega al carrito antes de que exista un `cart` cookie
+    // (PAGE_VIEWED por sí solo se niega a taguear en ese caso -- ver
+    // aosCartLink.ts). Sin este segundo punto, esos shoppers nunca quedan
+    // enlazados en su primera sesión.
+    subscribe(AnalyticsEvent.CART_UPDATED, (payload: CartUpdatePayload) => {
+      if (!marketingAllowed() || isLikelyBot()) return;
+      const visitorId = getOrCreateAosVisitorId();
+      const cartId = payload.cart?.id;
+      if (!visitorId || !cartId) return;
+      linkVisitorToCart(visitorId, cartId);
     });
   }, [subscribe]);
 

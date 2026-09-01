@@ -8,9 +8,13 @@
  * (www.tienda-sportfitness.com está registrado como storefront_domain, y
  * el matching acepta apex/www/subdominios — fix del 2026-08-23).
  *
- * La mitad "purchase" del journey no necesita ruta propia aquí: AttributionOS
- * recibe orders/paid + refunds/create directamente por webhooks de Shopify
- * (registrados 2026-08-23) — este componente solo cubre pageviews.
+ * La mitad "purchase" del journey SÍ dependía de una ruta propia aquí,
+ * contrario a lo que decía este comentario antes (IDATTROS-51): AttributionOS
+ * recibe la orden completa por orders/paid, pero sin el visitor id en el
+ * pedido no hay forma de saber qué visita la originó. Ese enlace lo agrega
+ * app/lib/aosCartLink.ts, escribiendo _aos_vid como cart attribute — ver ese
+ * archivo. Sin él, pageviews y purchase quedaban registrados por separado sin
+ * ninguna conexión entre ambos.
  */
 export const ATTRIBUTION_OS_SHOP_ID = '2';
 export const ATTRIBUTION_OS_COLLECT_URL =
