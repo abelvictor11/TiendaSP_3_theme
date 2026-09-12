@@ -416,8 +416,19 @@ function CartSummary({
       };
       if (attributes.length > 0) {
         const form = new FormData();
+        // CartForm.INPUT_NAME es el string literal 'cartFormInput' -- el
+        // nombre de campo que el action() de esta misma ruta destructura via
+        // CartForm.getFormInput(). Estaba hardcoded como '[CartForm]', que
+        // getFormInput nunca reconoce: action/inputs quedaban undefined,
+        // invariant(action, ...) lanzaba un 500, y el .catch() de abajo solo
+        // dispara en fallo de red (no en respuesta non-2xx), así que la
+        // falla era completamente silenciosa. Mismo bug que cyclewear
+        // (cefd88b, PR #126) pero aquí afecta _fbp/_fbc/_client_event_id/
+        // _ga_client_id/_ga_session_id (Meta CAPI / GA4 MP), no _aos_vid --
+        // el linking de AttributionOS en esta tienda usa un mecanismo
+        // separado (api.aos-link-cart.tsx / aosCartLink.ts).
         form.set(
-          '[CartForm]',
+          CartForm.INPUT_NAME,
           JSON.stringify({
             action: 'AttributesUpdateInput',
             inputs: {attributes},
@@ -439,9 +450,18 @@ function CartSummary({
           method: 'POST',
           body: form,
           keepalive: true,
-        }).catch(() => {
-          // Si falla, no bloqueamos la compra
-        });
+        })
+          .then((res) => {
+            if (!res.ok) {
+              // eslint-disable-next-line no-console
+              console.error(
+                `[cart-attributes] /cart returned ${res.status} — fbp/fbc/ga ids were not tagged`,
+              );
+            }
+          })
+          .catch(() => {
+            // Si falla, no bloqueamos la compra
+          });
         const timeout = new Promise((resolve) => setTimeout(resolve, 400));
         Promise.race([persistAttributes, timeout]).then(navigateToCheckout);
       } else {
