@@ -9,6 +9,7 @@ import {
   type OptimisticCartLine,
   type CartReturn,
 } from '@shopify/hydrogen';
+import {useFetchers} from '@remix-run/react';
 import type {
   CartLine,
   CartDiscountCode,
@@ -114,7 +115,26 @@ export function Cart({
 }) {
   // `useOptimisticCart` adds optimistic line items to the cart.
   // These line items are displayed in the cart until the server responds.
-  const cart = useOptimisticCart(originalCart);
+  const optimisticCart = useOptimisticCart(originalCart);
+
+  // Con el cart en critical data (fix de #418 en root.tsx), useOptimisticCart
+  // se queda devolviendo la PRIMERA línea como `isOptimistic` y el cart sin
+  // `checkoutUrl` aun cuando el carrito real ya está resuelto — dejando
+  // "Eliminar" del primer ítem deshabilitado (isOptimistic) y "Finalizar
+  // compra" sin URL con 1 solo producto (se "arreglaba" solo al agregar un
+  // segundo ítem, que forzaba otra revalidación). Solución: usar el carrito
+  // REAL (originalCart) cuando no hay ninguna mutación de carrito en vuelo;
+  // el optimista solo se usa mientras un LinesAdd/Remove/Update está enviando
+  // (para feedback inmediato). Al quedar idle, las líneas traen ids reales
+  // (isOptimistic falsy → Eliminar habilitado) y checkoutUrl real.
+  const fetchers = useFetchers();
+  const cartMutating = fetchers.some(
+    (f) =>
+      f.state !== 'idle' &&
+      (f.formAction?.includes('/cart') ||
+        String(f.formData?.get('cartFormInput') || '').length > 0),
+  );
+  const cart = cartMutating ? optimisticCart : originalCart ?? optimisticCart;
   const linesCount = Boolean(cart?.lines?.nodes?.length || 0);
 
   return (
@@ -300,30 +320,14 @@ function CartSummary({
           >
             Ver carrito
           </ButtonSecondary>
-          {checkoutUrl ? (
-            <a
-              className="flex"
-              href={checkoutUrl}
-              target="_self"
-              onClick={handleCheckoutClick}
-            >
-              <ButtonPrimary className="flex-1">
-                Finalizar compra
-              </ButtonPrimary>
-            </a>
-          ) : (
-            // El carrito recién creado (primer producto) aún no tiene
-            // checkoutUrl hasta que la mutación LinesAdd resuelve. Renderizar
-            // un <a> "clickeable" en ese estado deja un enlace muerto (href
-            // undefined / handler que retorna en !checkoutUrl) → el usuario
-            // clickea y no pasa nada. Mostramos el botón deshabilitado hasta
-            // tener checkoutUrl (señal fiable del fragment CartApiQuery). No
-            // gatear por líneas optimistas: `line.cost` puede tardar/no
-            // revalidar y dejaba el botón en "Preparando…" para siempre.
-            <ButtonPrimary className="w-full flex-1" disabled>
-              Finalizar compra
-            </ButtonPrimary>
-          )}
+          <a
+            className="flex"
+            href={checkoutUrl}
+            target="_self"
+            onClick={handleCheckoutClick}
+          >
+            <ButtonPrimary className="flex-1">Finalizar compra</ButtonPrimary>
+          </a>
         </div>
         <CheckoutTrustSignal className="mt-3" />
         <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
