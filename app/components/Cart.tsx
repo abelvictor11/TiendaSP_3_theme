@@ -300,7 +300,7 @@ function CartSummary({
           >
             Ver carrito
           </ButtonSecondary>
-          {checkoutUrl && !hasPendingLine ? (
+          {checkoutUrl ? (
             <a
               className="flex"
               href={checkoutUrl}
@@ -313,18 +313,15 @@ function CartSummary({
             </a>
           ) : (
             // El carrito recién creado (primer producto) aún no tiene
-            // checkoutUrl hasta que la mutación LinesAdd resuelve, y con
-            // línea optimista pendiente el subtotal/URL todavía no son
-            // reales. Renderizar un <a> "clickeable" en ese estado deja un
-            // enlace muerto (href undefined / handler que retorna en
-            // !checkoutUrl) → el usuario clickea y no pasa nada. Mostramos
-            // el botón deshabilitado con feedback hasta que esté listo.
-            <ButtonPrimary
-              className="w-full flex-1"
-              disabled
-              loading={hasPendingLine}
-            >
-              {hasPendingLine ? 'Preparando…' : 'Finalizar compra'}
+            // checkoutUrl hasta que la mutación LinesAdd resuelve. Renderizar
+            // un <a> "clickeable" en ese estado deja un enlace muerto (href
+            // undefined / handler que retorna en !checkoutUrl) → el usuario
+            // clickea y no pasa nada. Mostramos el botón deshabilitado hasta
+            // tener checkoutUrl (señal fiable del fragment CartApiQuery). No
+            // gatear por líneas optimistas: `line.cost` puede tardar/no
+            // revalidar y dejaba el botón en "Preparando…" para siempre.
+            <ButtonPrimary className="w-full flex-1" disabled>
+              Finalizar compra
             </ButtonPrimary>
           )}
         </div>
