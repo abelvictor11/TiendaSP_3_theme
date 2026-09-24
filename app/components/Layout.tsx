@@ -1,5 +1,5 @@
 import {Await, useRouteLoaderData} from '@remix-run/react';
-import {Suspense, useMemo} from 'react';
+import {Suspense} from 'react';
 import type {
   FooterMenuQuery,
   HeaderMenuQuery,
@@ -118,23 +118,30 @@ function TopBarMarqueeWrap() {
 function CartAside() {
   const rootData = useRouteLoaderData<RootLoader>('root');
   const {close} = useAside();
-  const cartAndThreshold = useMemo(
-    () => Promise.all([rootData?.cart, rootData?.freeShippingThresholdPromise]),
-    [rootData?.cart, rootData?.freeShippingThresholdPromise],
-  );
+  // `cart` es critical data (objeto ya resuelto), NO una promesa. Antes se
+  // envolvía junto al threshold en `Promise.all(...)` dentro de un <Await>,
+  // lo que CONGELABA el carrito en el valor resuelto la primera vez que se
+  // abrió el drawer (durante el add optimista) y no reflejaba la
+  // revalidación posterior de root → la última línea agregada quedaba
+  // "optimista" para siempre: no se podía eliminar (disabled={isOptimistic})
+  // y "Finalizar compra" sin checkoutUrl, hasta forzar otra mutación (por eso
+  // "se arreglaba" al agregar un segundo producto). Pasamos el cart directo
+  // (siempre el actual en cada render, así useOptimisticCart reconcilia al
+  // asentar) y usamos <Await> solo para el threshold, que sí es deferred.
+  const cart = rootData?.cart ?? null;
   return (
     <Aside heading="Carrito de compras" openFrom="right" type="cart">
       <Suspense fallback={<CartLoading />}>
-        <Await resolve={cartAndThreshold}>
-          {([cart, freeShippingThreshold]) => {
-            return (
-              <Cart
-                onClose={close}
-                cart={cart || null}
-                freeShippingThreshold={freeShippingThreshold}
-              />
-            );
-          }}
+        <Await resolve={rootData?.freeShippingThresholdPromise}>
+          {(freeShippingThreshold) => (
+            <Cart
+              onClose={close}
+              cart={cart}
+              freeShippingThreshold={
+                freeShippingThreshold as number | undefined
+              }
+            />
+          )}
         </Await>
       </Suspense>
     </Aside>
