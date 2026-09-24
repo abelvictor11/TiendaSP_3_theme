@@ -300,14 +300,33 @@ function CartSummary({
           >
             Ver carrito
           </ButtonSecondary>
-          <a
-            className="flex"
-            href={checkoutUrl}
-            target="_self"
-            onClick={handleCheckoutClick}
-          >
-            <ButtonPrimary className="flex-1">Finalizar compra</ButtonPrimary>
-          </a>
+          {checkoutUrl && !hasPendingLine ? (
+            <a
+              className="flex"
+              href={checkoutUrl}
+              target="_self"
+              onClick={handleCheckoutClick}
+            >
+              <ButtonPrimary className="flex-1">
+                Finalizar compra
+              </ButtonPrimary>
+            </a>
+          ) : (
+            // El carrito recién creado (primer producto) aún no tiene
+            // checkoutUrl hasta que la mutación LinesAdd resuelve, y con
+            // línea optimista pendiente el subtotal/URL todavía no son
+            // reales. Renderizar un <a> "clickeable" en ese estado deja un
+            // enlace muerto (href undefined / handler que retorna en
+            // !checkoutUrl) → el usuario clickea y no pasa nada. Mostramos
+            // el botón deshabilitado con feedback hasta que esté listo.
+            <ButtonPrimary
+              className="w-full flex-1"
+              disabled
+              loading={hasPendingLine}
+            >
+              {hasPendingLine ? 'Preparando…' : 'Finalizar compra'}
+            </ButtonPrimary>
+          )}
         </div>
         <CheckoutTrustSignal className="mt-3" />
         <div className="mt-6 flex justify-center text-center text-sm text-gray-500">
