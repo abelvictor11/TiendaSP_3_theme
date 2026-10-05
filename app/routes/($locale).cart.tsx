@@ -17,8 +17,7 @@ import {
   type OptimisticCart,
 } from '@shopify/hydrogen';
 import {isLocalPath} from '~/lib/utils';
-import {getFbCookies} from '~/lib/fbCookies';
-import {getGaCookies} from '~/lib/gaCookies';
+import {persistCheckoutAttributes} from '~/lib/checkoutAttributes';
 import {analyticsAllowed} from '~/lib/consent';
 import {trackCheckoutStarted} from '~/components/CustomAnalytics';
 import {CartActionTracker} from '~/components/CartActionTracker';
@@ -388,85 +387,29 @@ function CartSummary({
       });
     }
 
-    // ── Persistir fbp/fbc + user_agent como cart attributes para CAPI ─────
-    // El checkout está en dominio distinto, las cookies no cruzan. Los cart
-    // attributes quedan en la orden y son leídos por /webhooks/meta-capi.
-    const fb = getFbCookies();
-    const attributes: Array<{key: string; value: string}> = [];
-    if (fb.fbp) attributes.push({key: '_fbp', value: fb.fbp});
-    if (fb.fbc) attributes.push({key: '_fbc', value: fb.fbc});
-    if (navigator?.userAgent) {
-      attributes.push({key: '_client_user_agent', value: navigator.userAgent});
-    }
-    attributes.push({key: '_client_event_id', value: eventId});
-
-    // GA4: client_id + session_id para que el webhook /webhooks/ga4-mp
-    // atribuya la compra a la sesión original del navegador.
-    const ga = getGaCookies();
-    if (ga.clientId) attributes.push({key: '_ga_client_id', value: ga.clientId});
-    if (ga.sessionId) {
-      attributes.push({key: '_ga_session_id', value: ga.sessionId});
-    }
-
     if (checkoutUrl) {
       e.preventDefault();
       const navigateToCheckout = () => {
         // Propaga UTM/gclid/fbclid a la URL de checkout (otro dominio)
         window.location.href = decorateCheckoutUrl(checkoutUrl);
       };
-      if (attributes.length > 0) {
-        const form = new FormData();
-        // CartForm.INPUT_NAME es el string literal 'cartFormInput' -- el
-        // nombre de campo que el action() de esta misma ruta destructura via
-        // CartForm.getFormInput(). Estaba hardcoded como '[CartForm]', que
-        // getFormInput nunca reconoce: action/inputs quedaban undefined,
-        // invariant(action, ...) lanzaba un 500, y el .catch() de abajo solo
-        // dispara en fallo de red (no en respuesta non-2xx), así que la
-        // falla era completamente silenciosa. Mismo bug que cyclewear
-        // (cefd88b, PR #126) pero aquí afecta _fbp/_fbc/_client_event_id/
-        // _ga_client_id/_ga_session_id (Meta CAPI / GA4 MP), no _aos_vid --
-        // el linking de AttributionOS en esta tienda usa un mecanismo
-        // separado (api.aos-link-cart.tsx / aosCartLink.ts).
-        form.set(
-          CartForm.INPUT_NAME,
-          JSON.stringify({
-            action: 'AttributesUpdateInput',
-            inputs: {attributes},
-          }),
-        );
-        // keepalive deja que esto sobreviva a la navegación si pierde la
-        // carrera de abajo. Handoff acotado (no bloqueo indefinido, no
-        // fire-and-forget puro): navegamos en cuanto el POST resuelva O
-        // pasen 400ms, lo que ocurra primero. Un fire-and-forget puro (sin
-        // el timeout) le gana la carrera al POST con conexiones lentas —
-        // checkout.shopify.com puede tomar el snapshot del carrito antes de
-        // que _client_event_id/_fbp/_fbc/GA ids lleguen, rompiendo la
-        // deduplicación de /webhooks/meta-capi y /webhooks/ga4-mp (Codex
-        // review, PR #96). Antes de esto: esperaba sin límite y un fetch
-        // colgado dejaba al cliente varado en /cart sin navegación ni error
-        // (ver FINDINGS.md sección 12) — este timeout acotado evita ambos
-        // extremos.
-        const persistAttributes = fetch('/cart', {
-          method: 'POST',
-          body: form,
-          keepalive: true,
-        })
-          .then((res) => {
-            if (!res.ok) {
-              // eslint-disable-next-line no-console
-              console.error(
-                `[cart-attributes] /cart returned ${res.status} — fbp/fbc/ga ids were not tagged`,
-              );
-            }
-          })
-          .catch(() => {
-            // Si falla, no bloqueamos la compra
-          });
-        const timeout = new Promise((resolve) => setTimeout(resolve, 400));
-        Promise.race([persistAttributes, timeout]).then(navigateToCheckout);
-      } else {
-        navigateToCheckout();
-      }
+      // Persistir fbp/fbc/user_agent/ga ids como cart attributes para
+      // CAPI/GA4 MP -- ver lib/checkoutAttributes.ts.
+      const persistAttributes = persistCheckoutAttributes(eventId);
+      // keepalive (dentro del helper) deja que esto sobreviva a la
+      // navegación si pierde la carrera de abajo. Handoff acotado (no
+      // bloqueo indefinido, no fire-and-forget puro): navegamos en cuanto
+      // el POST resuelva O pasen 400ms, lo que ocurra primero. Un
+      // fire-and-forget puro (sin el timeout) le gana la carrera al POST
+      // con conexiones lentas — checkout.shopify.com puede tomar el
+      // snapshot del carrito antes de que _client_event_id/_fbp/_fbc/GA ids
+      // lleguen, rompiendo la deduplicación de /webhooks/meta-capi y
+      // /webhooks/ga4-mp (Codex review, PR #96). Antes de esto: esperaba
+      // sin límite y un fetch colgado dejaba al cliente varado en /cart sin
+      // navegación ni error (ver FINDINGS.md sección 12) — este timeout
+      // acotado evita ambos extremos.
+      const timeout = new Promise((resolve) => setTimeout(resolve, 400));
+      Promise.race([persistAttributes, timeout]).then(navigateToCheckout);
     }
   };
   return (

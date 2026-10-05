@@ -28,6 +28,7 @@ import {useAside} from './Aside';
 import type {MouseEvent} from 'react';
 import {decorateCheckoutUrl} from '~/lib/checkoutContinuity';
 import {trackCheckoutStarted} from '~/components/CustomAnalytics';
+import {persistCheckoutAttributes} from '~/lib/checkoutAttributes';
 import {FREE_SHIPPING_THRESHOLD_COP} from '~/lib/const';
 
 /**
@@ -254,6 +255,17 @@ function CartSummary({
     // solo el /cart completo lo hacía, dejando este flujo (el más común, ya
     // que el drawer se abre desde cualquier "Agregar al carrito") sin trackear.
     trackCheckoutStarted(cost, (lines ?? []) as any);
+
+    // IDATTROS-56: este handler nunca persistía fbp/fbc/user_agent/ga ids
+    // como cart attributes para CAPI/GA4 MP -- solo lo hacía el checkout-
+    // click handler de la página completa de carrito (PR #127), dejando el
+    // drawer (el punto de entrada más común) sin este tagging. No se
+    // llama e.preventDefault() aquí -- el <a> navega nativamente apenas
+    // retorna este handler -- así que no hay nada que "esperar": el fetch
+    // (keepalive: true, dentro del helper) ya salió antes de que el
+    // navegador navegue, igual que como ya funciona este mismo flujo sin
+    // preventDefault para trackCheckoutStarted arriba.
+    persistCheckoutAttributes(`client_checkout_${Date.now()}`);
 
     event.currentTarget.href = decorateCheckoutUrl(checkoutUrl);
   }
