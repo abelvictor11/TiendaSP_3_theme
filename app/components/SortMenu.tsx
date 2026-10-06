@@ -130,6 +130,7 @@ function getSortLink(
   params: URLSearchParams,
   location: Location,
 ) {
+  params.delete('page');
   params.set('sort', sort);
   return `${location.pathname}?${params.toString()}`;
 }

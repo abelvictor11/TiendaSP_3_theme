@@ -282,6 +282,7 @@ export function FiltersDrawer({
                         onSubmit={(e) => {
                           e.preventDefault();
                           let paramsClone = new URLSearchParams(params);
+                          paramsClone.delete('page');
 
                           Object.entries(temporarySelectedInputs).forEach(
                             ([_, value]) => {
@@ -806,6 +807,7 @@ function TabMoreFilterOnMobile({
                 onSubmit={(e) => {
                   e.preventDefault();
                   let paramsClone = new URLSearchParams(params);
+                  paramsClone.delete('page');
 
                   Object.entries(temporarySelectedInputs).forEach(
                     ([_, value]) => {
@@ -1020,6 +1022,7 @@ export function filterInputToParams(
   rawInput: string | ProductFilter,
   params: URLSearchParams,
 ) {
+  params.delete('page');
   const input =
     typeof rawInput === 'string'
       ? (JSON.parse(rawInput) as ProductFilter)
@@ -1090,6 +1093,7 @@ function getPriceNewParams({
   params: URLSearchParams;
 }) {
   if (minPrice === undefined && maxPrice === undefined) {
+    params.delete('page');
     params.delete(`${FILTER_URL_PREFIX}price`);
     return params;
   }

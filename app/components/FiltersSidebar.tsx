@@ -27,6 +27,7 @@ export default function FiltersSidebar({
   // Apply filter immediately when checkbox changes
   const handleFilterChange = (option: any, isChecked: boolean) => {
     let paramsClone = new URLSearchParams(params);
+    paramsClone.delete('page');
 
     if (isChecked) {
       // Add filter
