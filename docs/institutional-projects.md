@@ -20,7 +20,9 @@ Landing Hydrogen para la rama `tienda`, en `/pages/proyectos-institucionales`. C
 
 El script usa Admin API `2026-01`; crea únicamente definiciones y entradas faltantes. Amplía la validación `metaobject_definition_ids` del campo `sections` en `ciseco--route`, conservando todos los tipos y validaciones anteriores. Si no existe una restricción, no la añade. Conserva el contenido, el orden y las imágenes de las entradas existentes. Detiene el proceso ante errores de Shopify o un esquema incompatible; una repetición permite continuar tras un fallo parcial. No publica código ni cambia menús. No necesita un token Admin dentro del runtime de Hydrogen.
 
-**La configuración todavía no se ha ejecutado en el Shopify real:** requiere acceso Admin. Hasta crear el metaobject de la ruta, la landing muestra el contenido inicial de `app/data/institutional-projects.json`. Una ruta configurada vacía permanece vacía.
+**Configuración realizada y verificada el 7 de octubre de 2026 mediante el MCP de Shopify de Tienda Sportfitness.** Se crearon las dos definiciones, 44 elementos, 10 bloques y la ruta `route-proyectos-institucionales` en estado `ACTIVE`. Las cinco fotografías se subieron a Archivos de Shopify y se enlazaron mediante `file_reference`. Se conservaron los 19 tipos anteriores del builder. No es necesario ejecutar de nuevo el script para esta tienda. Queda pendiente integrar y desplegar el PR de Hydrogen, comprobar la vista real y añadir la navegación/página para el sitemap. Una ruta configurada vacía permanece vacía.
+
+Identificadores de configuración: definición de elementos `gid://shopify/MetaobjectDefinition/24073207885`, definición de secciones `gid://shopify/MetaobjectDefinition/24073240653`, ruta `gid://shopify/Metaobject/611773644877`.
 
 ## Edición desde el builder
 
