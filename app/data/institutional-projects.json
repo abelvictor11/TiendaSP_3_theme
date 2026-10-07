@@ -1,0 +1,264 @@
+{
+  "title": "Proyectos Institucionales",
+  "description": "Diseño, asesoría y equipamiento integral de gimnasios para hoteles, empresas, instituciones y proyectos residenciales. Conoce las soluciones de Tienda Fitness.",
+  "whatsapp": "573108183750",
+  "sections": [
+    {
+      "id": "hero",
+      "variant": "hero",
+      "kicker": "PROYECTOS INSTITUCIONALES",
+      "heading": "Tu proyecto fitness.\nNuestro compromiso.",
+      "description": "Diseñamos y equipamos espacios que inspiran a moverse. Una solución integral para tu gimnasio, hotel, empresa o proyecto residencial.",
+      "image_url": "/images/institutional/hero.webp",
+      "cta_text": "Solicitar asesoría",
+      "cta_url": "#asesoria",
+      "secondary_cta_text": "Conoce nuestras soluciones",
+      "secondary_cta_url": "#soluciones",
+      "items": [
+        {"id": "hero-1", "title": "Asesoría especializada"},
+        {"id": "hero-2", "title": "Diseño de espacios"},
+        {"id": "hero-3", "title": "Instalación y respaldo"}
+      ]
+    },
+    {
+      "id": "respaldo",
+      "variant": "stats",
+      "items": [
+        {
+          "id": "years",
+          "title": "+15 años",
+          "description": "Equipando proyectos fitness"
+        },
+        {
+          "id": "coverage",
+          "title": "Cobertura nacional",
+          "description": "Presencia y respaldo en Colombia"
+        },
+        {
+          "id": "integral",
+          "title": "Solución integral",
+          "description": "Del diseño a la instalación"
+        },
+        {
+          "id": "support",
+          "title": "Servicio posventa",
+          "description": "Acompañamiento para tu inversión"
+        }
+      ]
+    },
+    {
+      "id": "soluciones",
+      "variant": "intro",
+      "kicker": "DE LA IDEA AL ENTRENAMIENTO",
+      "heading": "Más que equipos.\nUn proyecto completo.",
+      "description": "Cada espacio tiene un propósito. Te acompañamos en la planificación, selección de equipos y montaje de un gimnasio que responda a tus usuarios, tus objetivos y tu inversión.",
+      "image_url": "/images/institutional/planning.webp",
+      "cta_text": "Hablemos de tu proyecto",
+      "cta_url": "#asesoria",
+      "items": [
+        {
+          "id": "solution-1",
+          "title": "Diseño que aprovecha cada metro",
+          "description": "Planificación de áreas de cardio, fuerza y entrenamiento funcional."
+        },
+        {
+          "id": "solution-2",
+          "title": "Equipos para tu operación",
+          "description": "Una selección estratégica según el uso y las necesidades del espacio."
+        },
+        {
+          "id": "solution-3",
+          "title": "Respaldo más allá del montaje",
+          "description": "Instalación y acompañamiento posventa para tu proyecto."
+        }
+      ]
+    },
+    {
+      "id": "confianza",
+      "variant": "clients",
+      "kicker": "EXPERIENCIA QUE NOS RESPALDA",
+      "heading": "Empresas que han confiado en nosotros",
+      "items": [
+        {"id": "client-1", "title": "Constructora Capital"},
+        {"id": "client-2", "title": "Marval"},
+        {"id": "client-3", "title": "Arquitectura & Concreto"},
+        {"id": "client-4", "title": "InterContinental"},
+        {"id": "client-5", "title": "ibis"},
+        {"id": "client-6", "title": "Animal X"}
+      ]
+    },
+    {
+      "id": "sectores",
+      "variant": "sectors",
+      "kicker": "UN ESPACIO PARA CADA OBJETIVO",
+      "heading": "Soluciones a la medida\nde tu institución",
+      "description": "Desde un área de bienestar hasta un gimnasio completo. Diseñamos contigo una solución para las necesidades de cada proyecto.",
+      "items": [
+        {
+          "id": "gym",
+          "title": "Gimnasios y estudios",
+          "description": "Equipamiento de cardio, fuerza y funcional para espacios de entrenamiento profesional.",
+          "icon": "fitness"
+        },
+        {
+          "id": "hotels",
+          "title": "Hoteles y clubes",
+          "description": "Espacios de bienestar que complementan la experiencia de huéspedes y socios.",
+          "icon": "hotel"
+        },
+        {
+          "id": "companies",
+          "title": "Empresas",
+          "description": "Áreas de entrenamiento que acompañan el bienestar de tus equipos de trabajo.",
+          "icon": "company"
+        },
+        {
+          "id": "residential",
+          "title": "Proyectos residenciales",
+          "description": "Gimnasios para zonas comunes, con una selección ajustada al espacio y a sus usuarios.",
+          "icon": "residential"
+        },
+        {
+          "id": "education",
+          "title": "Instituciones educativas",
+          "description": "Soluciones para espacios deportivos y de acondicionamiento físico.",
+          "icon": "education"
+        },
+        {
+          "id": "sports",
+          "title": "Centros deportivos",
+          "description": "Áreas de preparación física y entrenamiento para diferentes disciplinas.",
+          "icon": "sports"
+        }
+      ]
+    },
+    {
+      "id": "proceso",
+      "variant": "process",
+      "kicker": "TE ACOMPAÑAMOS DE PRINCIPIO A FIN",
+      "heading": "Así damos forma\na tu proyecto",
+      "items": [
+        {
+          "id": "step-1",
+          "title": "Escuchamos tu idea",
+          "description": "Conocemos tu espacio, tus usuarios, tus objetivos y el alcance de tu inversión."
+        },
+        {
+          "id": "step-2",
+          "title": "Diseñamos la solución",
+          "description": "Planificamos la distribución y seleccionamos los equipos adecuados para cada área."
+        },
+        {
+          "id": "step-3",
+          "title": "Equipamos tu espacio",
+          "description": "Coordinamos el montaje y la instalación del equipamiento de tu proyecto."
+        },
+        {
+          "id": "step-4",
+          "title": "Seguimos contigo",
+          "description": "Te acompañamos con servicio posventa y orientación para el cuidado de tus equipos."
+        }
+      ]
+    },
+    {
+      "id": "proyectos",
+      "variant": "projects",
+      "kicker": "ESPACIOS QUE INVITAN A ENTRENAR",
+      "heading": "Experiencia que\nse ve en cada detalle",
+      "description": "Una mirada a los espacios de entrenamiento de nuestro portafolio institucional.",
+      "cta_text": "Quiero un espacio así",
+      "cta_url": "#asesoria",
+      "items": [
+        {
+          "id": "photo-1",
+          "title": "Zonas de cardio",
+          "description": "Movimiento, comodidad y una distribución que aprovecha el espacio.",
+          "image_url": "/images/institutional/project-cardio.webp"
+        },
+        {
+          "id": "photo-2",
+          "title": "Áreas de fuerza",
+          "description": "Equipamiento versátil para diferentes objetivos de entrenamiento.",
+          "image_url": "/images/institutional/project-strength.webp"
+        },
+        {
+          "id": "photo-3",
+          "title": "Entrenamiento funcional",
+          "description": "Espacios pensados para una experiencia de entrenamiento integral.",
+          "image_url": "/images/institutional/project-functional.webp"
+        }
+      ]
+    },
+    {
+      "id": "marcas",
+      "variant": "brands",
+      "kicker": "CALIDAD QUE RESPALDA TU PROYECTO",
+      "heading": "Marcas de la industria fitness",
+      "description": "Te asesoramos para elegir el equipamiento que mejor se adapte a tu espacio y a su uso.",
+      "items": [
+        {"id": "brand-1", "title": "CS FITNESS"},
+        {"id": "brand-2", "title": "Life Fitness"},
+        {"id": "brand-3", "title": "SHUA"},
+        {"id": "brand-4", "title": "INSPIRE"},
+        {"id": "brand-5", "title": "MATRIX"},
+        {"id": "brand-6", "title": "Intenza"},
+        {"id": "brand-7", "title": "MoviFIT"},
+        {"id": "brand-8", "title": "Sportfitness"}
+      ]
+    },
+    {
+      "id": "asesoria",
+      "variant": "contact",
+      "kicker": "HAGAMOS REALIDAD TU PROYECTO",
+      "heading": "Tu próximo gran\nespacio empieza aquí.",
+      "description": "Cuéntanos qué tienes en mente. Nuestro equipo comercial te orientará en el diseño y equipamiento de tu espacio.",
+      "whatsapp": "573108183750",
+      "cta_text": "Continuar en WhatsApp",
+      "items": [
+        {
+          "id": "location-1",
+          "title": "Medellín",
+          "description": "Carrera 43 #30-91"
+        },
+        {
+          "id": "location-2",
+          "title": "Barranquilla",
+          "description": "Carrera 51B #93-25"
+        },
+        {
+          "id": "location-3",
+          "title": "Llanogrande",
+          "description": "Km 4 vía Rionegro – Llanogrande"
+        }
+      ]
+    },
+    {
+      "id": "preguntas",
+      "variant": "faq",
+      "kicker": "RESOLVEMOS TUS DUDAS",
+      "heading": "Preguntas frecuentes",
+      "items": [
+        {
+          "id": "faq-1",
+          "title": "¿Pueden ayudarme si todavía no tengo definido el espacio?",
+          "description": "Sí. La asesoría parte de conocer tus objetivos, el tipo de usuarios y las condiciones del proyecto para orientar la planificación y la selección de equipos."
+        },
+        {
+          "id": "faq-2",
+          "title": "¿Trabajan con proyectos fuera de Medellín?",
+          "description": "Contamos con presencia y respaldo a nivel nacional. Consulta con nuestro equipo comercial el alcance y la logística para tu ciudad."
+        },
+        {
+          "id": "faq-3",
+          "title": "¿Puedo renovar un gimnasio que ya está funcionando?",
+          "description": "Podemos acompañarte en la selección de equipos y la optimización de tu espacio actual. Cuéntanos qué quieres mejorar y evaluaremos las necesidades de tu proyecto."
+        },
+        {
+          "id": "faq-4",
+          "title": "¿Qué incluye la propuesta para mi proyecto?",
+          "description": "El alcance se define según tus necesidades: asesoría, planificación de espacios, selección de equipos, montaje, instalación y acompañamiento posventa. Las condiciones se detallan en la propuesta comercial."
+        }
+      ]
+    }
+  ]
+}

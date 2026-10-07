@@ -1,3 +1,7 @@
+import {
+  SectionInstitutional,
+  SECTION_INSTITUTIONAL_FRAGMENT,
+} from './SectionInstitutional';
 import type {SectionsFragment} from 'storefrontapi.generated';
 import {
   HERO_ITEM_FRAGMENT,
@@ -71,10 +75,7 @@ import {
   SECTION_BLOG_CAROUSEL_FRAGMENT,
   SectionBlogCarousel,
 } from './SectionBlogCarousel';
-import {
-  SECTION_SEO_TEXT_FRAGMENT,
-  SectionSeoText,
-} from './SectionSeoText';
+import {SECTION_SEO_TEXT_FRAGMENT, SectionSeoText} from './SectionSeoText';
 import {
   SECTION_INSTAGRAM_FEED_FRAGMENT,
   SectionInstagramFeed,
@@ -93,6 +94,7 @@ export interface SectionProps {
 }
 
 export type CisecoSectionType =
+  | 'ciseco--section_institutional'
   | 'ciseco--section_hero'
   | 'ciseco--section_hero_slider'
   | 'ciseco--section_collections_slider'
@@ -121,18 +123,39 @@ export function Sections({
   ...args
 }: SectionProps) {
   // Check if first section is a hero type (no top spacing needed)
-  const firstSectionType = sections?.references?.nodes?.[0]?.type as CisecoSectionType;
-  const isFirstHero = firstSectionType === 'ciseco--section_hero' || firstSectionType === 'ciseco--section_hero_slider';
-  
+  const firstSectionType = sections?.references?.nodes?.[0]
+    ?.type as CisecoSectionType;
+  const isFirstHero =
+    firstSectionType === 'ciseco--section_hero' ||
+    firstSectionType === 'ciseco--section_hero_slider' ||
+    (firstSectionType === 'ciseco--section_institutional' &&
+      sections?.references?.nodes?.[0]?.institutional_variant?.value ===
+        'hero');
+
   return (
     <div
-      className={clsx('sections', className, isFirstHero && '[&>*:first-child]:mt-0')}
+      className={clsx(
+        'sections',
+        className,
+        isFirstHero && '[&>*:first-child]:mt-0',
+      )}
       style={{
         paddingTop: paddingTopPx ? `${paddingTopPx}px` : undefined,
       }}
     >
       {sections?.references?.nodes.map((section, index, arr) => {
         switch (section.type as CisecoSectionType) {
+          case 'ciseco--section_institutional':
+            return (
+              <WrapSection
+                key={section.id}
+                index={index}
+                {...args}
+                isHero={section.institutional_variant?.value === 'hero'}
+              >
+                <SectionInstitutional {...section} />
+              </WrapSection>
+            );
           case 'ciseco--section_hero':
             return (
               <WrapSection key={section.id} index={index} {...args} isHero>
@@ -313,6 +336,7 @@ export const SECTIONS_FRAGMENT = `#graphql
           ... on Metaobject {
             id
             type
+            ...SectionInstitutional
             ...SectionHero
             ...SectionHeroSlider
             ...SectionCollectionsSlider
@@ -339,6 +363,7 @@ export const SECTIONS_FRAGMENT = `#graphql
     }
   }
   # All section fragments
+  ${SECTION_INSTITUTIONAL_FRAGMENT}
   ${SECTION_HERO_FRAGMENT} 
   ${SECTION_HERO_SLIDER_FRAGMENT} 
   ${SECTION_COLLECTIONS_SLIDER_FRAGMENT}
