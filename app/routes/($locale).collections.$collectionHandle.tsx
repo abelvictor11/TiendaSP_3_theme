@@ -39,6 +39,7 @@ import {getPaginationAndFiltersFromRequest} from '~/utils/getPaginationAndFilter
 import {getLoaderRouteFromMetaobject} from '~/utils/getLoaderRouteFromMetaobject';
 import {getLegacyRedirectTarget} from '~/lib/legacyRedirects.server';
 import {ProductsGrid} from '~/components/ProductsGrid';
+import {CollectionFeaturedCarousel} from '~/components/CollectionFeaturedCarousel';
 import clsx from 'clsx';
 import {Suspense, useState} from 'react';
 import {GenericError} from '~/components/GenericError';
@@ -180,6 +181,16 @@ export default function Collection() {
               breadcrumbText={collection.title}
             />
           </div>
+
+          {/* Productos destacados (carousel) — antes del grid. Editable por
+              metafields custom.featured_* de la colección. */}
+          <CollectionFeaturedCarousel
+            heading={collection.featuredHeading?.value}
+            description={collection.featuredDescription?.value}
+            linkText={collection.featuredLinkText?.value}
+            linkUrl={collection.featuredLinkUrl?.value}
+            products={collection.featuredProducts?.references?.nodes || []}
+          />
 
           <main>
             <CollectionContent
@@ -486,6 +497,48 @@ const COLLECTION_QUERY = `#graphql
       }
       textBelow: metafield(namespace: "custom", key: "text_below") {
         value
+      }
+      featuredHeading: metafield(namespace: "custom", key: "featured_heading") {
+        value
+      }
+      featuredDescription: metafield(namespace: "custom", key: "featured_description") {
+        value
+      }
+      featuredLinkText: metafield(namespace: "custom", key: "featured_link_text") {
+        value
+      }
+      featuredLinkUrl: metafield(namespace: "custom", key: "featured_link_url") {
+        value
+      }
+      featuredProducts: metafield(namespace: "custom", key: "featured_products") {
+        references(first: 12) {
+          nodes {
+            ... on Product {
+              id
+              handle
+              title
+              featuredImage {
+                id
+                url
+                altText
+                width
+                height
+              }
+              priceRange {
+                minVariantPrice {
+                  amount
+                  currencyCode
+                }
+              }
+              compareAtPriceRange {
+                minVariantPrice {
+                  amount
+                  currencyCode
+                }
+              }
+            }
+          }
+        }
       }
       productsWithDefaultFilter:products(
         first: 0,
