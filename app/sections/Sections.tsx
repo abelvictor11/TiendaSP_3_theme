@@ -82,6 +82,10 @@ import {
 } from './SectionInstagramFeed';
 import clsx from 'clsx';
 import {SECTION_HERO_FRAGMENT, SectionHero} from './SectionHero';
+import {
+  SECTION_HOT_SALE_COUNTDOWN_FRAGMENT,
+  SectionHotSaleCountdown,
+} from './SectionHotSaleCountdown';
 import {OKENDO_PRODUCT_STAR_RATING_FRAGMENT} from '@okendo/shopify-hydrogen';
 import {ClientOnly} from '~/components/client-only';
 
@@ -144,7 +148,7 @@ export function Sections({
       }}
     >
       {sections?.references?.nodes.map((section, index, arr) => {
-        switch (section.type as CisecoSectionType) {
+        switch (section.type as string) {
           case 'ciseco--section_institutional':
             return (
               <WrapSection
@@ -283,6 +287,12 @@ export function Sections({
                 </ClientOnly>
               </WrapSection>
             );
+          case 'ciseco--section_hot_sale_countdown':
+            return (
+              <WrapSection key={section.id} index={index} {...args}>
+                <SectionHotSaleCountdown {...section} key={section.id} />
+              </WrapSection>
+            );
 
           // case 'section_another':
           //   return <AnotherSection />;
@@ -357,6 +367,7 @@ export const SECTIONS_FRAGMENT = `#graphql
             ...SectionBlogCarousel
             ...SectionSeoText
             ...SectionInstagramFeed
+            ...SectionHotSaleCountdown
           }
         }
       }
@@ -384,6 +395,7 @@ export const SECTIONS_FRAGMENT = `#graphql
   ${SECTION_BLOG_CAROUSEL_FRAGMENT}
   ${SECTION_SEO_TEXT_FRAGMENT}
   ${SECTION_INSTAGRAM_FEED_FRAGMENT}
+  ${SECTION_HOT_SALE_COUNTDOWN_FRAGMENT}
 
   # All common fragments
   ${COMMON_PRODUCT_CARD_FRAGMENT}
